@@ -1,0 +1,51 @@
+#h1cim {
+	margin-bottom: 20px;
+	margin-left: 4px;
+}
+
+.lessons {
+	display: block;
+	list-style: none;
+	padding: 0px;
+	margin: 10px 0px 0px;
+	font-size: 0px;
+}
+.lessons li {
+	display: inline-block;
+	padding: 7px;
+	margin: 5px;
+	border-radius: 5px;
+	color: #fff;
+	overflow: hidden;
+	/* background-color: #AEC1EB; */
+}
+.lessons li > div {
+	font-size: 18px;
+}
+.lessons li > .top {
+	margin-bottom: 5px;
+}
+
+.lessons li > .top > span {
+	display: block;
+	margin-left: 3px;
+}
+
+.lessons li > .bottom a {
+	color: #fff !important;
+	font-size: 24px;
+	opacity: .8;
+	transition: opacity .1s linear !important;
+}
+.lessons li > .bottom a:hover {
+	opacity: 1;
+}
+.lessons li > .top > .tantargy {
+	font-size: 1.3em;
+}
+.lessons li > .top > .tanar {
+	font-style: italic;
+}
+.sp-container.sp-light.sp-input-disabled.sp-palette-buttons-disabled.sp-palette-disabled.sp-initial-disabled {
+	height: 200px;
+}

@@ -1,0 +1,1 @@
+<h1>Üdvözlöm <?=$user['realname']?>!</h1>

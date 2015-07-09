@@ -1,0 +1,147 @@
+#main {
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 4;
+
+	height: 100%;
+	width: 100%;
+	overflow-y: auto !important;
+	text-shadow: 0px 2px 2px rgba(0,0,0,.2);
+
+	cursor:default;
+
+	-webkit-user-select:none;
+	-moz-user-select:none;
+	user-select:none;
+}
+#wrap {
+	text-align: center;
+	display: table;
+	position: absolute;
+	height: 100%;
+	width: 100%;
+	padding: 0px;
+	top: 0;
+	left: 0;
+}
+#mid {
+    display: table-cell;
+    vertical-align: middle;
+}
+#inner {
+	display: inline-block;
+	width: auto;
+	border-radius: 5px;
+	padding: 17.5px;
+	margin: 10px;
+
+	position: relative;
+	overflow: hidden;
+
+	background-color: rgba(255,255,255,.3);
+	box-shadow: 0px 0px 5px #fff, 0px 0px 15px rgba(255,255,255,.3);
+	border-radius: 10px;
+	border: 5px solid rgba(255,255,255,.35);
+	box-sizing: border-box;
+}
+#inner.animate {
+	animation: shrinkNcolor .5s, preload .3s steps(10) infinite;
+	animation-delay: .25s, .75s;
+	animation-fill-mode: forwards;
+	background-image: url('../img/preloader.png');
+	background-size: 350px 35px;
+	background-position: 3200px;
+	background-repeat: no-repeat;
+}
+@keyframes shrinkNcolor {
+	to {
+		width: 40px;
+		height: 40px;
+		border-color: #fff;
+		background-color: #fff;
+		box-shadow: 0px 0px 0px transparent;
+		border-width: 10px;
+	}
+}
+@keyframes preload {
+	from {
+		background-position: 0 0;
+	}
+	to {
+		background-position: -350px 0;
+	}
+}
+#inner.animate > * {
+	animation: fade .25s;
+	animation-fill-mode: forwards;
+}
+@keyframes fade {
+	to {
+		opacity: 0;
+	}
+}
+#inner:before, #inner:after {
+	content:"";
+	display: block;
+	position: absolute;
+	width: 0;
+	height: 0;
+	border-style: solid;
+	z-index: -1;
+
+	transition: border-color 1s;
+	transition-delay: .25s;
+}
+#inner:before {
+	top: 0;
+	left: 0;
+	border-width: 35px 35px 0 0;
+	border-color: rgba(255,255,255,.4) transparent transparent transparent;
+}
+#inner:after {
+	bottom: 0;
+	right: 0;
+	border-width: 0 0 35px 35px;
+	border-color: transparent transparent rgba(255,255,255,.4) transparent;
+}
+#inner.animate:before,
+#inner.animate:after {
+	z-index: 2;
+	border-color: transparent;
+
+}
+#inner > h1 {
+	margin: 0 0 10px;
+	line-height: 1em;
+}
+#inner form > input[name] {
+	-webkit-appearance: none;
+	width: 150px;
+}
+#inner form p {
+	margin: 10px 0 0;
+}
+#inner form p label {
+	margin-left: 10px;
+}
+
+/* Animation after login */
+body.sidebar-slide > #sidebar {
+	animation: slidein 1s;
+	animation-fill-mode: forwards;
+}
+@keyframes slidein {
+	from {
+		left: -25%;
+	}
+}
+body.sidebar-slide > main {
+	animation: shrink 1s;
+	animation-fill-mode: forwards;
+}
+@keyframes shrink {
+	to {
+		width: 75%;
+	}
+}

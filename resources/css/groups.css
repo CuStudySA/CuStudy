@@ -1,0 +1,81 @@
+#h1cim {
+	margin-bottom: 20px;
+	margin-left: 4px;
+}
+
+.groups {
+	display: block;
+	list-style: none;
+	padding: 0px;
+	margin: 5px 0px 0px;
+	font-size: 0px;
+}
+.groups li {
+	display: inline-block;
+	padding: 7px;
+	margin: 5px;
+	border-radius: 5px;
+	color: #fff;
+	overflow: hidden;
+	background-color: rgba(0,0,0,.40);
+	/* background-color: #AEC1EB; */
+}
+.groups li > div {
+	font-size: 18px;
+}
+.groups li > .top {
+	margin-bottom: 5px;
+}
+
+.groups li > .top > span {
+	display: block;
+	margin-left: 3px;
+}
+
+.groups li > .bottom a {
+	color: #fff !important;
+	font-size: 24px;
+	opacity: .8;
+	transition: opacity .1s linear !important;
+}
+.groups li > .bottom a:hover {
+	opacity: 1;
+}
+.groups li > .top > .rovid {
+	font-size: 1.3em;
+}
+.groups li > .top > .nev {
+	font-style: italic;
+}
+.grouptitle {
+	  margin-bottom: 0;
+	  text-shadow: 1px 1px;
+	  margin-left: 4px;
+}
+.selectp {
+	margin-bottom: 5px;
+}
+.selectdiv {
+	display: inline-block;
+}
+.ptag {
+	margin-bottom: 0;
+}
+.memberlist {
+	margin-top: 7px;
+}
+.memberparagh {
+	font-weight: bolder;
+}
+
+/* Színezés */
+.colorli li:nth-child(6n+0) { background-color: #66CCFF }
+.colorli li:nth-child(6n+1) { background-color: #669CFF }
+.colorli li:nth-child(6n+2) { background-color: #7D66FF }
+.colorli li:nth-child(6n+3) { background-color: #C966FF }
+.colorli li:nth-child(6n+4) { background-color: #FF66BA }
+.colorli li:nth-child(6n+5) { background-color: #FF7066 }
+.colorli li:nth-child(6n+6) { background-color: #FFA466 }
+.colorli li:last-child { background-color: rgba(0,0,0,.40) }
+
+.grps li  { background-color: rgba(0,0,0,.30) }
