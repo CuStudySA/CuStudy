@@ -2,7 +2,7 @@ $(function(){
 	var $formTempl = $("<form id='js_form'>\
 							<p>Felhasználónév: <input type='text' name='username' placeholder='Felhasználónév' required></p>\
 							<p>Teljes név: <input type='text' name='realname' placeholder='Vezetéknév Utónév' required></p>\
-							<p>E-mail cím: <input type='text' name='email' placeholder='email@provider.mail'></p>\
+							<p>E-mail cím: <input type='text' name='email' placeholder='email@provider.mail' required></p>\
 							<p>Jogosultság: \
 								<select name='priv'>\
 									<option value='user' selected>Ált. felhasználó</option>\
@@ -33,6 +33,12 @@ $(function(){
 							</div>\
 						</li>");
 
+	var $accessFormTempl = $("<form id='js_form'>\
+								<p>Új jelszó: <input type='password' name='newpassword' placeholder='Jelszó' required></p>\
+								<p>Jelszó megerősítése: <input type='password' name='vernewpasswd' placeholder='Jelszó megerősítése' required></p>\
+								<input type='hidden' name='id' value=''>\
+							</form>");
+
 	/*$.ajax({
 		method: "POST",
 		url: "/users/getPatterns",
@@ -55,12 +61,54 @@ $(function(){
 		$.each(Patterns,function(key,value){
 			if (key != 'message' && key != 'status'){
 				var $patternInput = $formTempl.find('[name=' + key + ']');
+				var $accessPatternInput = $accessFormTempl.find('[name=' + key + ']');
 
 				if ($patternInput.length)
 					$patternInput.attr('pattern',value);
+
+				if ($accessPatternInput.length)
+					$accessPatternInput.attr('pattern',value);
 			}
 		});
 	}
+
+	var e_user_editAccessData = function(e){
+		e.preventDefault();
+
+		var title = 'Felhasználó szerkesztése',
+			id = $(e.currentTarget).attr('href').substring(1);
+
+		var $dialog = $accessFormTempl.clone();
+
+		$dialog.find('[name=id]').attr('value',id);
+
+		$.Dialog.request(title,$dialog.prop('outerHTML'),'js_form','Mentés',function(){
+			var $urlap = $('#js_form');
+
+			$urlap.on('submit',function(e){
+				e.preventDefault();
+
+				$.Dialog.wait(title);
+
+				$.ajax({
+					method: "POST",
+					url: "/users/editAccessData",
+					data: $urlap.serialize(),
+					success: function(data2){
+						if (typeof data2 === 'string'){
+							console.log(data2);
+							$(window).trigger('ajaxerror');
+							return false;
+						}
+						if (data2.status)
+							$.Dialog.close();
+
+						else $.Dialog.fail(title,data2.message);
+					}
+				});
+			});
+		});
+	};
 
 	var e_user_edit = function(e){
 		e.preventDefault();
@@ -93,12 +141,6 @@ $(function(){
 
 					$urlap.on('submit',function(e){
 						e.preventDefault();
-
-						//Űrlap ellenörzése
-						var chInp = $urlap.checkInputs();
-						console.log(chInp);
-
-						//if (chInp != ' ') return;
 
 						$.Dialog.wait(title);
 
@@ -228,4 +270,5 @@ $(function(){
 	$('.js_user_edit').on('click', e_user_edit);
 	$('.js_user_add').on('click', e_user_add);
 	$('.js_user_delete').on('click', e_user_delete);
+	$('.js_user_editAccessData').on('click', e_user_editAccessData);
 });

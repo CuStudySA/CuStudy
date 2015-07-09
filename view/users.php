@@ -34,7 +34,7 @@
 					<div class="bottom">
 <?php                   if ($subarray['id'] != $user['id']){ ?>
 							<a class="typcn typcn-pencil js_user_edit" href="#<?=$subarray['id']?>" title="Adatok módosítása"></a>
-							<a class="typcn typcn-key js_user_pwdedit" href="#<?=$subarray['id']?>" title="Hozzáférési adatok módosítása"></a>
+							<a class="typcn typcn-key js_user_editAccessData" href="#<?=$subarray['id']?>" title="Hozzáférési adatok módosítása"></a>
 							<a class="typcn typcn-user-delete js_user_delete" href="#<?=$subarray['id']?>" title="Törlés"></a>
 <?php                   }
 						else { ?>

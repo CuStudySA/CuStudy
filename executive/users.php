@@ -65,6 +65,18 @@
 				System::Respond('A felhasználó törlése sikertelen volt, mert '.Message::GetError('deleteuser',$action).'! (Hibakód: '.$action.')');
 		break;
 
+		case 'editAccessData':
+			if (!empty($ENV['POST']['id']) && !empty($ENV['POST'])){
+				if ($user['id'] == $ENV['POST']['id']) System::Respond();
+				$action = UserTools::EditAccessData($ENV['POST']['id'],$ENV['POST']);
+			}
+
+			if ($action === 0)
+				System::Respond('A felhasználó hozzáférési adatainak módosítása sikeres volt!',1);
+			else
+				System::Respond('A felhasználó hozzáférési adatainak módosítása sikertelen volt, mert '.Message::GetError('deleteuser',$action).'! (Hibakód: '.$action.')');
+		break;
+
 		default:
 			System::Respond();
 		break;

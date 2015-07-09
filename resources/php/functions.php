@@ -207,10 +207,12 @@
 		static $ResolveNames = array(
 			'realname' => 'name',
 			'verpasswd' => 'password',
+			'newpassword' => 'password',
+			'vernewpasswd' => 'password',
 		);
 
 		static $Inputs = array(
-			'users' => ['username','realname','email','password','verpasswd'],
+			'users' => ['username','realname','email','password','verpasswd','newpassword','vernewpasswd'],
 		);
 
 		// Bevitel helyességének ellenörzése
@@ -967,6 +969,26 @@
 
 			if ($action) return 0;
 			else return 2;
+		}
+
+		static function EditAccessData($id,$data){
+			/* @param $id
+			 * @param $data = array('newpassword','vernewpasswd')
+			 */
+
+            global $db;
+
+			# Jog. ellenörzése
+			if (System::ClassPermCheck($id,'users')) return 1;
+
+			if ($data['newpassword'] != $data['vernewpasswd']) return 2;
+
+			$action = $db->where('id',$id)->update('users',array(
+				'password' => Password::Kodolas($data['newpassword']),
+			));
+
+			if ($action) return 0;
+			else return 3;
 		}
 
 		static function EditMyProfile($data){
