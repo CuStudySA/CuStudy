@@ -63,18 +63,9 @@
 		break;
 
 		case 'delete':
-			if (isset($ENV['POST']['id'])){
+			if (isset($ENV['POST']['id']))
 				$action = LessonTools::Delete($ENV['POST']['id']);
 
-				$toLog = array(
-					'action' => 'lesson_delete',
-					'db' => 'lesson_del',
-					'errorcode' => $action,
-					'e_id' => intval($ENV['POST']['id']),
-				);
-
-				Logging::Insert($toLog);
-			}
 			else System::Respond();
 
 			if ($action === 0)
@@ -84,27 +75,9 @@
 		break;
 
 		case 'edit':
-			if (isset($ENV['POST']['name'])){
+			if (isset($ENV['POST']['name']))
 				$action = LessonTools::Edit($ENV['POST']);
 
-				$toLog = array(
-					'action' => 'lesson_edit',
-					'db' => 'lesson_edit',
-					'errorcode' => $action,
-				);
-
-				if ($action != 99)
-					$toLog = array_merge($toLog,array(
-						'e_id' => $ENV['POST']['id'],
-						'new_name' => $ENV['POST']['name'],
-						'new_teacherid' => $ENV['POST']['teacherid'],
-						'new_color' => !empty($ENV['POST']['color']) ? $ENV['POST']['color'] : 'default',
-					));
-				else
-					System::WriteAttackLog($ENV['POST']);
-
-				Logging::Insert($toLog);
-			}
 			else System::Respond();
 
 			if ($action === 0)

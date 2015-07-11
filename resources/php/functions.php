@@ -151,7 +151,7 @@
 			$data['central']['sublogid'] = $action;
 
 			# Bejegyzés készítése a főtáblába
-			$action = $logclass->_insertCentral($data['central']);
+			$action = $logclass->_insertCentral(array_merge($data['central'],array('db' => $data_p['db'])));
 
 			# Eredmény feldolgozása
 			if ($action) return 0;
@@ -293,11 +293,11 @@
 				
 			return false;
 		}
-		
+
 		//Cookie ellenőrzés & '$user' generálása
 		static function CheckLogin() {
 			global $db,$user;
-			
+
 			if (!Cookie::exists('PHPSESSID')) return 'guest';
 			$session = Cookie::get('PHPSESSID');
 			if (empty($session)) return 'guest';
@@ -317,36 +317,49 @@
 
 			return $user['priv'];
 		}
-		
+
 		// Bejelentkezés
-		static function Login($username,$password){
+		static private function _login($username,$password){
 			global $db;
-			
+
 			# Formátum ellenörzése
 			if (self::InputCheck($username,'username')) return 1;
-			if (!self::InputCheck($username,'attack')) return 99;
 
 			$isadmin = 'users';
-			
+
 			$data = $db->where('username',$username)->getOne('users');
 			if (empty($data)){
 				$data = $db->where('username',$username)->getOne('admins');
 				if (empty($data)) return 2;
 				$isadmin = 'admins';
 			}
-			
+
 			if (!Password::Ellenorzes($password,$data['password'])) return 3;
 			if (!$data['active']) return 4;
-			
+
 			if ($isadmin == 'users')
 				if (self::UserActParent($data)) return 5;
-			
+
 			$session = Password::GetSession($username);
 			$action = $db->where('username',$username)->update($isadmin,array('session' => $session));
-			
+
 			Cookie::set('PHPSESSID',$session,null);
 
 			return [$data['id']];
+		}
+		static function Login($username,$password){
+			$action = self::_login($username,$password);
+
+			Logging::Insert(array(
+				'action' => 'login',
+				'user' => (is_array($action) ? $action[0] : 0),
+				'errorcode' => (!is_array($action) ? $action : 0),
+				'db' => 'login',
+
+				'username' => $username,
+			));
+
+			return $action;
 		}
 		
 		// Kiléptetés
@@ -403,7 +416,7 @@
 		}
 
 		// Idegen értékek törlése a tömbből
-		static function TrashForeignValues($req,$array,$assoc = false){
+		static function TrashForeignValues($req,$array,$assoc = true){
 			$ret = array();
 			if ($assoc){
 				foreach ($array as $key => $value)
@@ -693,7 +706,8 @@
 	}
 	
 	class LessonTools {
-		static function Add($data_a){
+// Tantárgy hozzáadása
+		private static function _add($data_a){
 			global $db,$ENV;
 
 			# Jog. ellenörzése
@@ -725,8 +739,28 @@
 
 			return [$db->insert('lessons',$data_a,true)];
 		}
+		static function Add($data_a){
+			global $db,$user;
 
-		static function Edit($data_a){
+			$action = self::_add($data_a);
+
+			Logging::Insert(array_merge(array(
+				'action' => 'lesson_add',
+				'user' => $user['id'],
+				'errorcode' => (!is_array($action) ? $action : 0),
+				'db' => 'lesson_add',
+			),$data_a,array(
+				'classid' => $user['classid'],
+				'e_id' => (is_array($action) ? $action[0] : 0),
+			)));
+
+
+			return $action;
+		}
+// Tantárgy hozzáadása vége
+
+// Tantárgy szerkesztése
+		private static function _edit($data_a){
 			global $db;
 
 			# Formátum ellenörzése
@@ -760,19 +794,64 @@
 			if ($action) return 0;
 			else return 3;
 		}
+		static function Edit($data_a){
+			global $user,$db;
 
-		static function Delete($id){
+			$action = self::_edit($data_a);
+
+			if (isset($data_a['id'])){
+				$data_a['e_id'] = $data_a['id'];
+				unset($data_a['id']);
+			}
+			else $data_a['id'] = 0;
+
+			Logging::Insert(array_merge(array(
+				'action' => 'lesson_edit',
+				'user' => $user['id'],
+				'errorcode' => $action,
+				'db' => 'lesson_edit',
+			),$data_a,array(
+				'classid' => $user['classid'],
+			)));
+
+			return $action;
+		}
+// Tantárgy szerkesztése vége
+
+// Tantárgy törlése
+		private static function _delete($id){
 			global $db;
-
-			# Jogosultság ellenörzése
-			if (System::ClassPermCheck($id,'lessons')) return 1;
 
 			$action = $db->where('id',$id)->delete('lessons');
 
 			if ($action) return 0;
 			else return 2;
 		}
+		static function Delete($id){
+			global $user,$db;
+
+			# Jog. ellenörzése
+			if (System::ClassPermCheck($id,'lessons')) return 1;
+
+			$data = $db->where('id',$id)->getOne('lessons');
+			$data = System::TrashForeignValues(['classid','name','teacherid','color'],$data);
+
+			$action = self::_delete($id);
+
+			Logging::Insert(array_merge(array(
+				'action' => 'lesson_del',
+				'user' => $user['id'],
+				'errorcode' => $action,
+				'db' => 'lesson_del',
+			),$data,array(
+				'classid' => $user['classid'],
+				'e_id' => $id,
+			)));
+
+			return $action;
+		}
 	}
+// Tantárgy törlése vége
 	
 	class ClassTools {
 		static function AddClass($dataf){
@@ -837,32 +916,21 @@
 	}
 	
 	class UserTools {
-		// Felh. hozzáadása
-		static function AddUser($data_a){
+// Felh. hozzáadása
+		private static function _addUser($data_a){
 			global $db, $user;
-
-/*			array(
-				'username',
-				'password',
-				'realname',
-				'priv',
-				'classid',
-			);					*/
 
 			# Jog. ellelnörzése
 			if(System::PermCheck('admin')) return 8;
 
 			# Bevitel ellenörzése
-			if (!System::ValuesExists($data_a,['username','password','verpasswd','realname','priv','email','active'])) return 1;
+			if (!System::ValuesExists($data_a,['username','realname','priv','email','active'])) return 1;
 			foreach ($data_a as $key => $value){
 				if (in_array($key,['classid','priv'])) continue;
 
 				switch ($key){
 					case 'realname':
 						$type = 'name';
-					break;
-					case 'verpasswd':
-						$type = 'password';
 					break;
 					case 'active':
 						$type = 'numeric';
@@ -876,11 +944,6 @@
 			}
 			if (System::OptionCheck($data_a['active'],['0','1'])) return 2;
 			if (System::OptionCheck($data_a['priv'],['user','editor','admin'])) return 2;
-
-			if ($data_a['password'] != $data_a['verpasswd']) return 3;
-			unset($data_a['verpasswd']);
-
-			$data_a['password'] = Password::Kodolas($data_a['password']);
 
 			if (USRGRP != 'sysadmin')
 				$data_a['classid'] = $user['classid'];
@@ -897,8 +960,35 @@
 			return [$db->insert('users',$data_a,true)];
 		}
 
-		// Felh. adatainak módosítása
-		static function ModifyUser($id,$datas){
+		static function AddUser($data_a){
+			global $user;
+/*			array(
+				'username',
+				'realname',
+				'priv',
+				'email',
+				'active',
+			);					*/
+			$action = self::_addUser($data_a);
+
+			$data_a = System::TrashForeignValues(['username','realname','priv','email','active'],$data_a);
+
+			Logging::Insert(array_merge(array(
+				'action' => 'user_add',
+				'user' => $user['id'],
+				'errorcode' => (!is_array($action) ? $action : 0),
+				'db' => 'user_add',
+			),$data_a,array(
+				'classid' => $user['classid'],
+				'e_id' => (is_array($action) ? $action[0] : 0),
+			)));
+
+			return $action;
+		}
+// Felh. hozzáadás vége
+
+// Felh. adatainak módosítása
+		private static function _modifyUser($id,$datas){
 			/**
 		        * @param $username
 		        * @param $datas
@@ -958,18 +1048,61 @@
 			else return 7;
 		}
 
-		// Felh. törlése
-		static function DeleteUser($id){
+		static function ModifyUser($id,$datas){
+			global $user;
+
+			$action = self::_modifyUser($id,$datas);
+
+			$datas = System::TrashForeignValues(['username','realname','priv','email','active'],$datas);
+
+			Logging::Insert(array_merge(array(
+				'action' => 'user_edit',
+				'user' => $user['id'],
+				'errorcode' => $action,
+				'db' => 'user_edit',
+			),$datas,array(
+				'classid' => $user['classid'],
+				'e_id' => $id,
+			)));
+
+			return $action;
+		}
+// Felh. adatainak módosítása vége
+
+// Felh. törlése
+		private static function _deleteUser($id){
 			global $db;
-			
-			# Jog. ellenörzése
-			if (System::ClassPermCheck($id,'users')) return 1;
 			
 			$action = $db->where('id',$id)->delete('users');
 
 			if ($action) return 0;
 			else return 2;
 		}
+
+		static function DeleteUser($id){
+			global $user,$db;
+
+			# Jog. ellenörzése
+			if (System::ClassPermCheck($id,'users')) return 1;
+
+			$data = $db->where('id',$id)->getOne('users');
+			$data = System::TrashForeignValues(['username','realname','priv','email','active'],$data);
+
+			$action = self::_deleteUser($id);
+
+			Logging::Insert(array_merge(array(
+				'action' => 'user_del',
+				'user' => $user['id'],
+				'errorcode' => $action,
+				'db' => 'user_del',
+			),$data,array(
+				'classid' => $user['classid'],
+				'e_id' => $id,
+			)));
+
+			return $action;
+		}
+// Felh. törlése vége
 
 		static function EditAccessData($id,$data){
 			/* @param $id
