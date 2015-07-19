@@ -61,11 +61,10 @@
 
 /* Hozzáadás */
 .add_lesson {
-	background-color: #879CD4;
+	background-color: rgba(0,0,0,0.1);
 	padding: 11px;
 	border-radius: 8px;
-	width: 30%;
-	color: #DFE5F5;
+	/*color: #DFE5F5;*/
 	padding-right: 14px;
 }
 .add_lesson > p {
@@ -76,17 +75,17 @@
 
 .addlesson {
 	padding: 6px !important;
+	font-size: .9em !important;
 }
 
 
 .lesson_list {
-    background-color: #879CD4;
-    width: 30%;
+    background-color:  rgba(0,0,0,0.1);
     margin-bottom: 8px;
     padding: 5px;
     padding-right: 20px;
     border-radius: 7px;
-    color: #DFE5F5;
+   /* color: #DFE5F5;*/
 }
 
 .l_l_utag {
@@ -119,4 +118,24 @@
 
 .sp-container.sp-light.sp-input-disabled.sp-palette-buttons-disabled.sp-palette-disabled.sp-initial-disabled {
 	height: 190px;
+}
+
+/* Tanár hozzáadás form */
+
+.a_t_f_sendButton {
+	margin-top: 11px;
+}
+.a_t_f_firstParagraph {
+	margin-top: 11px;
+}
+.add_teacher_form {
+	background-color: rgba(0,0,0,0.1);
+	padding: 12px;
+	width: 33%;
+	margin-top: 9px;
+	margin-left: 4px;
+	border-radius: 6px;
+}
+h3 {
+	margin: 0;
 }

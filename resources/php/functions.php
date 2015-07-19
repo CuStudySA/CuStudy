@@ -202,6 +202,7 @@
 			'name' => '^[A-ZÁÉÍÓÖŐÚÜŰ][a-záéíóöőúüű]+[ ][A-ZÁÉÍÓÖŐÚÜŰ][a-záéíóöőúüű]+[ a-zA-ZáéíóöőúüűÁÉÍÓÖŐÚÜŰ]*$',
 			'password' => '^[\w\d]{6,20}$',
 			'email' => '^[a-zA-Z0-9.-_]+(\+[a-zA-Z0-9])?@[a-z0-9]+\.[a-z]{2,4}$',
+			'shortn_teacher' => '^[A-ZÖÜÓÚŐÉÁŰa-zéáűőúöüó.]{2,}$',
 		);
 
 		static $ResolveNames = array(
@@ -209,10 +210,12 @@
 			'verpasswd' => 'password',
 			'newpassword' => 'password',
 			'vernewpasswd' => 'password',
+			'short' => 'shortn_teacher',
 		);
 
 		static $Inputs = array(
 			'users' => ['username','realname','email','password','verpasswd','newpassword','vernewpasswd'],
+			'teachers' => ['name','short'],
 		);
 
 		// Bevitel helyességének ellenörzése
@@ -1370,7 +1373,7 @@
 			if (!is_numeric($action)) return 3;
 
 			# Tantárgyak hozzáadása
-			if (!isset($datas['lessons']) || empty($datas['lessons'])) return 0;
+			if (!isset($datas['lessons']) || empty($datas['lessons'])) return [$action];
 			foreach ($datas['lessons'] as $sublesson){
 				$action_l = $db->insert('lessons',array(
 					'classid' => $user['classid'],
@@ -1381,7 +1384,7 @@
 				if (!$action_l) return 4;
 			}
 
-			return 0;
+			return [$action];
 		}
 
 		static function Edit($data){

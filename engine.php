@@ -126,8 +126,8 @@
 		'users' => array(
 			'title' => 		'Felh.-k kezelése',
 			'css' => 		['users.css'],
-			'js' => 		['users.js','sort.jquery.js'],
-			'customjs' =>   ['add' => 'users/useradd.js','edit' => 'users/useredit.js'],
+			'js' => 		['users.js'],
+			'customjs' =>   [],
 			'minperm' => 	'admin',
 			'maxperm' => 	'admin',
 			'reqdoc' => 	[],
@@ -148,7 +148,7 @@
 		'lessons' => array(
 			'title' => 		'Tantárgyak kezelése',
 			'css' => 		['lessons.css','spectrum.css'],
-			'js' => 		['spectrum.js','colorpicker.js','lessons.js','sort.jquery.js'],
+			'js' => 		['spectrum.js','colorpicker.js','lessons.js'],
 			'customjs' =>   [],
 			'minperm' => 	'admin',
 			'maxperm' => 	'admin',
@@ -170,8 +170,8 @@
 		'teachers' => array(
 			'title' => 		'Tanárok kezelése',
 			'css' => 		['teachers.css','spectrum.css'],
-			'js' => 		['spectrum.js','colorpicker.js','teachers/delete.js'],
-			'customjs' =>   ['edit' => 'teachers/teacheredit.js','add' => 'teachers/manage_teacher.js'],
+			'js' => 		['spectrum.js','colorpicker.js','teachers.js'],
+			'customjs' =>   [],
 			'minperm' => 	'user',
 			'maxperm' => 	'admin',
 			'reqdoc' => 	[],

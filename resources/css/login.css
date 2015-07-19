@@ -145,3 +145,7 @@ body.sidebar-slide > main {
 		width: 75%;
 	}
 }
+main {
+	width: initial !important;
+	margin-left: 0 !important;
+}

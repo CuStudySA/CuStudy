@@ -106,6 +106,7 @@ body > [id^='add-'] {
 	background-color: #CBD7F1;
 	box-shadow: 0 0 10px #01264A;
 	border-radius: 3px;
+	position: absolute;
 }
 body > [id^='add-'] label {
 	text-align: center;
