@@ -129,7 +129,7 @@ $(function(){
 
 				var $dialog = $formTempl.clone();
 
-				$dialog.find('[name=username]').attr('value',data.username);
+				$dialog.find('[name=username]').attr('value',data.username).attr('disabled','true');
 				$dialog.find('[name=realname]').attr('value',data.realname);
 				$dialog.find('[name=email]').attr('value',data.email);
 				$dialog.find('[name=priv]').children('option[value=' + data.priv + ']').attr('selected', true);

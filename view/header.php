@@ -12,7 +12,7 @@ Favicon end -->
 	}
 	if (!isset($_REQUEST['no-header-js'])){ ?>
 <script src="<?=$rootdoc.'resources/js/'?>jquery.min.js"></script>
-<?php } ?>
 <script src="<?=$rootdoc.'resources/js/'?>prefixfree.min.js"></script>
+<?php } ?>
 </head>
 <body>

@@ -21,6 +21,7 @@
 }
 .lessons li > div {
 	font-size: 18px;
+	text-shadow: 0 0 5px rgba(0,0,0,.5);
 }
 .lessons li > .top {
 	margin-bottom: 5px;
@@ -29,6 +30,9 @@
 .lessons li > .top > span {
 	display: block;
 	margin-left: 3px;
+	text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
 .lessons li > .bottom a {

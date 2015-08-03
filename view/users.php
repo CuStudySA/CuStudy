@@ -16,7 +16,7 @@
 			</script>
 
 			<h1 id=h1cim>A(z) <?=$ENV['class']['classid']?> felhasználóinak kezelése</h1>
-			<ul class="customers">
+			<ul class="customers flex">
 <?php		foreach ($data as $subarray){
 				$nev = explode(' ',$subarray['realname']);
 				$vnev = array_splice($nev,0,1)[0];

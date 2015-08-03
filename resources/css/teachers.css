@@ -40,6 +40,9 @@
 .teachers li > .top > span {
 	display: block;
 	margin-left: 3px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
 .teachers li > .bottom a {

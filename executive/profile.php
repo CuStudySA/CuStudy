@@ -39,7 +39,7 @@
 			else System::Respond();
 
 			if ($action === 0)
-				System::Respond('A felhasználói adatok frissültek, de a módosítások érvénybe lépéséhez újra kell töltenie az oldalt!',1);
+				System::Respond('A felhasználói adatok frissítése sikeresen megtörtént!',1);
 			else
 				System::Respond('A felhasználói adatok frissítése sikertelen volt, mert '.Message::GetError('editmyprofile',$action).'! (Hibakód: '.$action.')');
 		break;

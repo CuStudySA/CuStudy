@@ -66,6 +66,9 @@ td .lesson > .del:before {
 td .lesson > .del:hover {
 	text-decoration: underline;
 }
+td.editing {
+	background-color: #CBD7F1;
+}
 td.editing > .lesson {
 	border-radius: 2px;
 	padding: 1.8px 1.2px;

@@ -16,7 +16,7 @@
 			</script>
 
 			<h1 id="h1cim">A(z) <?=$ENV['class']['classid']?> osztály tanárai</h1>
-			<ul class='teachers'>
+			<ul class='teachers flex'>
 <?php foreach ($data as $subarray){  ?>
 			<li data-id='<?=$subarray['id']?>'>
 				<div class="top">

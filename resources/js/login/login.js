@@ -15,7 +15,7 @@ $(function(){
 	    return result;
 	}
 	function capitalizeFirstLetter(string) {
-        return string.charAt(0).toUpperCase() + string.slice(1);
+        return string.charAt(0).toUpperCase() + string.substring(1);
 	}
 
 	var errortype = parse('errtype');
@@ -75,32 +75,61 @@ $(function(){
 						var $data = $(data),
 							$scripts = $data.filter('script'),
 							$styles = $data.filter('link[rel=stylesheet]'),
-							$body = $(document.body), $head = $(document.head);
+							$body = $(document.body), $head = $(document.head),
+							load = {css: [], js: []};
 
-						$styles.filter(function(){
+						$styles.each(function(){
 							var a = document.createElement('a');
 							a.href = this.href;
-							return $head.children('style[data-href="'+a.pathname+'"]').length === 0
-						}).appendTo($head);
-
-						$data.filter('#sidebar').prependTo($body);
-						$body.addClass('sidebar-slide');
-
-						$head.children('script[src*=prefixfree]').remove();
-						$scripts.filter('[src*=prefixfree]').detach().appendTo($head);
-
-						$scripts.filter(function(){
-							var a = document.createElement('a');
-							a.href = this.src;
-							return $body.children('script[src="'+a.pathname+'"]').length === 0
-						}).appendTo($body);
-
-						$('title').text($data.filter('title').text());
-						$('main').prepend($data.filter('main').html());
-						$('#main').fadeOut(500,function(){
-							$(this).remove();
+							if ($head.children('style[data-href="'+a.pathname+'"]').length === 0)
+								load.css.push(a.pathname);
 						});
 
+						$scripts.each(function(){
+							var a = document.createElement('a');
+							a.href = this.src;
+							if ($body.children('script[src="'+a.pathname+'"]').length === 0)
+								load.js.push(a.pathname);
+						});
+
+						function done(){
+							$data.filter('#sidebar').prependTo($body);
+							$body.addClass('sidebar-slide');
+							$('title').text($data.filter('title').text());
+							$('main').prepend($data.filter('main').html());
+							$('#main').fadeOut(500,function(){
+								$(this).remove();
+							});
+							loadJS(0);
+						}
+
+						function loadJS(i){
+							if (typeof load.js[i] === 'undefined')
+								return;
+							$.ajax({
+								url: load.js[i],
+								dataType: "script",
+								success: function(){
+									//JS auto. lefut
+									loadJS(i+1);
+								},
+								error: function(){ window.location.reload() }
+							});
+						}
+
+						(function loadCSS(i){
+							if (typeof load.css[i] === 'undefined')
+								return done();
+							$.ajax({
+								url: load.css[i],
+								success: function(data){
+									if (typeof data !== 'string') return window.location.reload();
+									$head.append($(document.createElement('style')).text(data));
+									loadCSS(i+1);
+								},
+								error: function(){ window.location.reload() }
+							});
+						})(0);
 					},500) });
 				}
 				else {

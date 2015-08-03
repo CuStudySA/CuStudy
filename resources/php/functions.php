@@ -992,11 +992,6 @@
 
 // Felh. adatainak módosítása
 		private static function _modifyUser($id,$datas){
-			/**
-		        * @param $username
-		        * @param $datas
-			    * @return int
-		    */
 			global $db, $user;
 
 			# Jog. ellenörzése
@@ -1032,19 +1027,12 @@
 			# Létezik-e már ilyen felhasználó?
 			$userdata = $db->where('id',$id)->getOne('users');
 
-			if($datas['username'] != $userdata['username']){
-				$data = $db->where('username',$datas['username'])->getOne('users');
-				if (!empty($data)) return 4;
-
-				$data = $db->where('username',$datas['username'])->getOne('admins');
-				if (!empty($data)) return 5;
-			}
-
 			if($datas['email'] != $userdata['email']){
 				$data = $db->where('email',$datas['email'])->getOne('users');
 				if (!empty($data)) return 6;
 			}
 
+			if (!empty($datas['username'])) unset($datas['username']);
 			$action = $db->where('id',$id)->update('users',$datas);
 
 			if ($action) return 0;
@@ -1139,12 +1127,14 @@
 			global $db,$user;
 
 			# Jelszóváltoztatás esetén...
-			if (!empty($data['password'])){
+			if (!empty($data['oldpassword']) && !empty($data['password']) && !empty($data['verpasswd'])){
 				if (!Password::Ellenorzes($data['oldpassword'],$user['password'])) return 1;
 				if ($data['password'] != $data['verpasswd']) return 2;
 
 				$data['password'] = Password::Kodolas($data['password']);
 			}
+			else unset($data['password']);
+
 			unset($data['oldpassword']);
 			unset($data['verpasswd']);
 

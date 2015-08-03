@@ -8,19 +8,19 @@
 			switch($ENV['URL'][1]){
 				case 'google':
 					if (isset($ENV['GET']['error']))
-						System::Redirect('/profile?error=remoteauth');
+						System::Redirect('/profile?error=A fiók összekapcsolása nem sikerült, mert távoli szolgáltatónál ismeretlen hiba történt!');
 
 					if (isset($ENV['GET']['code'])){
 						$remUser = ExtConnTools::Request('https://www.googleapis.com/plus/v1/people/me',ExtConnTools::GetAccessToken($ENV['GET']['code'],'http://custudy.tk/profile/connect/google'));
 						$data = $db->where('account_id',$remUser['id'])->getOne('ext_connections');
 
 						if (!empty($data)){
-							if ($data['userid'] == $user['userid']) System::Redirect('/profile?error=megtortenthoozarendeles');
-							else System::Redirect('/profile?error=masfelhezletthozzarendelve');
+							if ($data['userid'] == $user['userid']) System::Redirect('/profile?error=A fiók összekapcsolása nem sikerült, mert ez a fiók már össze van kapcsolva az ön CuStudy fiókjával!');
+							else System::Redirect('/profile?error=A fiók összekapcsolása nem sikerült, mert ez a fiók egy másik CuStudy-felhasználóhoz korábban már össze lett kapcsolva!');
 						}
 
 						$data = $db->where('provider','google')->where('userid',$user['id'])->getOne('ext_connections');
-						if (!empty($data)) System::Redirect('/profile?error=megtortenthoozarendeles');
+						if (!empty($data)) System::Redirect('/profile?error=A fiók összekapcsolása nem sikerült, mert ez a fiók már össze van kapcsolva a kiválasztott szolgáltató valamely fiókjával!');
 
 						$db->insert('ext_connections',array(
 							'userid' => $user['id'],
@@ -55,7 +55,7 @@
 				<p>Új jelszó: <input type='password' name='password' placeholder='Új jelszó' pattern='^[\w\d]{6,20}$'> <i>(csak jelszóváltoztatáskor - 6-20 karakter)</i></p>
 				<p>Új jelszó megerősítése: <input type='password' name='verpasswd' placeholder='Új jelszó megerősítése' pattern='^[\w\d]{6,20}$'> <i>(a fenti jelszó újraírása)</i></p>
 				<p>E-mail cím: <input type='text' name='email' placeholder='teszt@teszt.hu' pattern='^[a-zA-Z0-9.-_]+(\+[a-zA-Z0-9])?@[a-z0-9]+\.[a-z]{2,4}$' required value='<?=$user['email']?>'> <i>(valós e-mail cím)</i></p>
-				<p><b>Jelenlegi jelszó: <input type='password' name='oldpassword' placeholder='Jelenlegi jelszó' pattern='^[\w\d]{6,20}$'> <i>(szükséges: jelszóváltozatás, fiók összekapcsolása)</i></b></p>
+				<p><b>Jelenlegi jelszó: <input type='password' name='oldpassword' placeholder='Jelenlegi jelszó' pattern='^[\w\d]{6,20}$'></b></p>
 				<p><button class="btn">Adatok mentése</button></p>
 			</form>
 			<h1 style='margin-top: 25px !important;'>Összekapcsolt fiókok</h1>

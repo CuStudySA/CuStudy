@@ -16,6 +16,8 @@ $('#dataform').on('submit',function(e){
 
 			if (data.status){
 				$.Dialog.success(title,data.message,true);
+				$('.name').text($('[name=realname]').val());
+				$('.email').text($('[name=email]').val());
 			}
 			else $.Dialog.fail(title,data.message);
 		}

@@ -6,7 +6,7 @@
 							ORDER BY le.name",array($user['classid'])); ?>
 
 	<h1 id="h1cim">A(z) <?=$ENV['class']['classid']?> osztály tantárgyai</h1>
-	<ul class='lessons'>
+	<ul class='lessons flex'>
 <?php foreach ($data as $subarray){
 		if ($subarray['color'] == 'default')
 			$color = 'rgba(0,0,0,.40)';
