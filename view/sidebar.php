@@ -26,7 +26,7 @@ if (!System::PermCheck('schooladmin','schooladmin')){
 	$Actions[] = array('group','users','Adminisztrátorok');
 }
 if (!System::PermCheck('admin','schooladmin'))
-	$Actions[] = array('document-text','logs','Tevékenységnapló');
+	//$Actions[] = array('document-text','logs','Tevékenységnapló');
 
 if (!System::PermCheck('sysadmin'))
 	$Actions[] = array('document-text','logs','Tevékenységnapló');

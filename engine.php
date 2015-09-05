@@ -1,12 +1,12 @@
 <?php
-	# DogM Engine 1.0.4.1 - Developed by mbalint987 (member of BetonSoft)
+	# DogM Engine - Developed by mbalint987 (member of BetonSoft)
 	
 	# Karakterkódolás beállítása
 	header('Content-Type: text/html; charset=utf-8;');
 	
 	# Dok. gyökér meghatározása
 	$root = $_SERVER['DOCUMENT_ROOT'];
-	if (!preg_match('/\/$/',$root)) $root .= '/';
+	if (substr($root,-1) !== '/') $root .= '/';
 	
 	$rootdoc = '/';
 	define('ABSPATH','http://'.$_SERVER['SERVER_NAME']);
@@ -70,20 +70,33 @@
 	$ENV['SOFTWARE'] = array(
 		'NAME' => 'CuStudy',
 		'CODENAME' => 'BlueSky',
-		'VER' => '0.2.1',
+		'VER' => '1.0b',
 		'DEVELOPER' => 'BetonSoft',
 		'DEV_STARTED' => '2014',
+		'COMMIT' => '35c8913',
 	);
 
 	$ENV['ENGINE'] = array(
 		'NAME' => 'DogM Engine',
 		'CODENAME' => 'Cornsilk',
-		'VER' => '2.2.1',
+		'VER' => '1.0',
 		'DEVELOPER' => 'Bálint Mészáros (BetonSoft)',
 		'DEV_STARTED' => '2014',
+		'COMMIT' => 'unknown',
 	);
 
 	$ENV['EE_MESSAGE'] = '';
+
+	# Beépülő modulok leírásai
+	$addons = array(
+		'sceditor' => array(
+			'css' => ['sceditor/themes/default.min.css'],
+			'js' => ['sceditor/jquery.sceditor.bbcode.min.js','sceditor/hu.js'],
+		),
+		'jbbcode' => array(
+			'php' => ['jbbcode/Parser.php','jbbcode/_BlueSkyCodeDefSet.php'],
+		),
+	);
 
 	# Menüpontok beállítása
 	$css = ['grid.css','header.css','theme.css','typicons.css','metro.css'];
@@ -94,7 +107,7 @@
 	$pages = array(
 		'fooldal' => array(
 			'title' => 		'Kezdőoldal',
-			'css' => 		[],
+			'css' => 		['fooldal.css'],
 			'js' => 		[],
 			'minperm' => 	'user',
 			'maxperm' => 	'admin',
@@ -134,7 +147,7 @@
 			'file' => 		'users',
 		),
 
-		'logs' => array(
+		/*'logs' => array(
 			'title' => 		'Naplók megtekintése',
 			'css' => 		['logs.css'],
 			'js' => 		['logs/logs.js','dyntime.js'],
@@ -143,12 +156,12 @@
 			'maxperm' => 	'sysadmin',
 			'reqdoc' => 	[],
 			'file' => 		'logs',
-		),
+		),*/
 
 		'lessons' => array(
 			'title' => 		'Tantárgyak kezelése',
 			'css' => 		['lessons.css','spectrum.css'],
-			'js' => 		['spectrum.js','colorpicker.js','lessons.js'],
+			'js' => 		['lessons.js','spectrum.js','colorpicker.js'],
 			'customjs' =>   [],
 			'minperm' => 	'admin',
 			'maxperm' => 	'admin',
@@ -170,7 +183,7 @@
 		'teachers' => array(
 			'title' => 		'Tanárok kezelése',
 			'css' => 		['teachers.css','spectrum.css'],
-			'js' => 		['spectrum.js','colorpicker.js','teachers.js'],
+			'js' => 		['teachers.js','spectrum.js'],
 			'customjs' =>   [],
 			'minperm' => 	'user',
 			'maxperm' => 	'admin',
@@ -210,6 +223,18 @@
 			'reqdoc' => 	[],
 			'file' => 		'profile',
 		),
+
+		'homeworks' => array(
+			'title' => 		'Házi feladatok',
+			'css' => 		['homeworks.css','timet.css'],
+			'js' => 		['homeworks.js'],
+			'customjs' =>   [],
+			'minperm' => 	'user',
+			'maxperm' => 	'admin',
+			'reqdoc' => 	[],
+			'file' => 		'homeworks',
+			'addons' =>     ['sceditor','jbbcode'],
+		),
 	);
 
 	# Tevékenység meghatározása
@@ -228,7 +253,7 @@
 		if ($_SERVER['REQUEST_METHOD'] === 'GET') header("Location: /");
 		else {
 			header('Content-Type: application/json;');
-			echo json_encode(array('status' => $status));
+			echo json_encode(array('status' => $status)); #respond
 		}
 		die();
 	}
@@ -236,13 +261,22 @@
 	// 'Executive' rész \\
 	if ($ENV['SERVER']['REQUEST_METHOD'] == 'POST'){
 		# Jogosultság ellenörzése
-		if (System::PermCheck($pages[$do]['minperm'],$pages[$do]['maxperm'])) Message::AccessDenied(true);
+		if (System::PermCheck($pages[$do]['minperm'],$pages[$do]['maxperm'])) System::Respond();
 
 		# Létező oldal?
-		if (!isset($pages[$do])) Message::Missing($do);
+		if (!isset($pages[$do])) System::Respond();
 
 		# Létező fájl?
 		if (!file_exists("executive/{$pages[$do]['file']}.php")) System::Respond();
+
+		# Szükséges oldalak betöltése
+		if (!empty($pages[$do]['addons'])){
+			foreach ($pages[$do]['addons'] as $addonName){
+				if (empty($addons[$addonName]['php'])) continue;
+				foreach ($addons[$addonName]['php'] as $php)
+					require "resources/addons/$php";
+			}
+		}
 
 		die(include "executive/{$pages[$do]['file']}.php");
 	}
@@ -272,16 +306,16 @@
 		}
 	}
 
-	foreach ($css_list as $value){
+	foreach ($css_list as $i => $value){
 		$resc = "resources/css/$value";
-		if (!file_exists($root.$resc))
-			Message::Missing($rootdoc.$resc);
+		if (!file_exists($root.$resc)) Message::Missing($rootdoc.$resc);
+		$css_list[$i] = $value.'?'.filemtime($root.$resc);
 	}
 
-	foreach ($js_list as $value){
+	foreach ($js_list as $i => $value){
 		$resc = "resources/js/$value";
-		if (!file_exists($root.$resc))
-			Message::Missing($rootdoc.$resc);
+		if (!file_exists($root.$resc)) Message::Missing($rootdoc.$resc);
+		$js_list[$i] = $value.'?'.filemtime($root.$resc);
 	}
 
 	# HTTP státuszkód visszadaása
@@ -291,13 +325,19 @@
 	if (System::PermCheck($pages[$do]['minperm'],$pages[$do]['maxperm'])) Message::AccessDenied();
 	
 	# Szükséges dokumentumok listájának előkészítése
-	$def_doc = ['header','footer'];
-	$doc_list = array_merge($pages[$do]['reqdoc'],$def_doc);
+	$doc_list = ['header','footer'];
 
 	if (USRGRP !== 'guest') array_splice($doc_list,1,0,['sidebar']);
 	array_splice($doc_list,-1,0,[$pages[$do]['file']]);
 
 	# Szükséges oldalak betöltése
+	if (!empty($pages[$do]['addons'])){
+		foreach ($pages[$do]['addons'] as $addonName){
+			if (empty($addons[$addonName]['php'])) continue;
+			foreach ($addons[$addonName]['php'] as $php)
+				require "resources/addons/$php";
+		}
+	}
 	foreach ($doc_list as $doc)
-		include "view/$doc.php";
+		require "view/$doc.php";
 ?>

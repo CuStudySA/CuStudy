@@ -1,6 +1,6 @@
 ﻿<?php
 	if (isset($ENV['POST']['username']) && isset($ENV['POST']['password']))
-		$action = System::Login($ENV['POST']['username'],$ENV['POST']['password']);
+		$action = System::Login($ENV['POST']['username'],$ENV['POST']['password'],isset($ENV['POST']['remember']) ? true : false);
 
 	else System::Respond();
 

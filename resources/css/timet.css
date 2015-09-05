@@ -7,14 +7,18 @@
 h2 {
 	margin-bottom: 10px;
 }
-table {
-	border-collapse: collapse; width: 100%
+.timet {
+	border-collapse: collapse;
+	width: 100%;
+		-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
 }
-td, th {
+.timet td, .timet th {
 	border: 1px solid;
 	box-sizing: border-box;
 }
-td {
+.timet td {
 	padding: 10px;
 	text-align: center;
 	cursor: pointer;
@@ -35,7 +39,7 @@ td .teacher {
 	font-size: 32px;
 	font-weight: bold
 }
-table, tbody, tr, td {
+.timet, tbody, tr, td {
 	background-color: inherit;
 }
 /*eredeti: #036 */
@@ -143,15 +147,15 @@ body > [id^='add-'] button {
 	margin: 5px auto 0;
 	border-radius: 3px;
 }
-thead tr > .week, tbody tr > th {
+.timet thead tr > .week, tbody tr > th {
 	width: 2.5%
 }
-thead tr > .weekday, tbody tr > td {
+.timet thead tr > .weekday, tbody tr > td {
 	width: 19.5%
 }
 
-table tbody td:empty:before,
-table tbody td.empty:before {
+.timet tbody td:empty:before,
+.timet tbody td.empty:before {
 	content: "(lyukas óra)";
 	font-style: italic;
 	font-size: .8em;

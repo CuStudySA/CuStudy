@@ -1,6 +1,8 @@
 <?php
 	if (USRGRP != 'guest')
-		die(header('Location: /')); ?>
+		die(header('Location: /'));
+
+	$username = Cookie::get('username'); ?>
 <main>
 <?php
 	if (!isset($ENV['POST']['username']) && !isset($ENV['POST']['password'])) { ?>
@@ -10,11 +12,14 @@
 				<div id="inner">
 					<h1>CuStudy</h1>
 					<form id="loginform">
-						<input type='text' name='username' placeholder='Felhasználónév' tabindex=1 autofocus autocomplete="off">
-						<input type='password' name='password' placeholder='Jelszó' tabindex=2>
+
+						<input type='text' name='username' placeholder='Felhasználónév' tabindex=1 autocomplete="off"
+						<?=$username === false ? 'autofocus' : ''?> <?=$username !== false ? "value='{$username}'" : ''?> >
+
+						<input type='password' name='password' placeholder='Jelszó' tabindex=2 <?=$username !== false ? 'autofocus' : ''?>>
 						<p><button class='btn' tabindex=4>Belépés</button> <label><input type="checkbox" name="remember" tabindex=3 checked> Megjegyzés</label></p>
 					</form>
-					<div><a class='btn' href='https://accounts.google.com/o/oauth2/auth?response_type=code&client_id=<?=ExtConnTools::CLIENTID?>&redirect_uri=<?=ABSPATH?>/googleauth&scope=email'>Google-bejelentkezés</a></div>
+					<div><a class='btn js_login_google' href='https://accounts.google.com/o/oauth2/auth?response_type=code&client_id=<?=ExtConnTools::CLIENTID?>&redirect_uri=<?=ABSPATH?>/googleauth&scope=email'>Google-bejelentkezés</a></div>
 				</div>
 			</div>
 		</div>

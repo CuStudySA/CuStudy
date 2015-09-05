@@ -143,7 +143,7 @@ $(function(){
 		if (dataid.substring(0,1) != '#')
 			container.delete.push({'id': dataid});
 		else {
-			var weekday = $cella.index()+1,
+			var weekday = $cella.index(),
 				lesson = $cella.parent().index()+1,
 				$ni = false,
 				$lesson_e = dataid.substring(1);
@@ -151,6 +151,7 @@ $(function(){
 				if (weekday == entry.day && lesson == entry.lesson && $lesson_e == entry.tantargy)
 					$ni = i;
 			});
+
 			if ($ni !== false){
 				var seged = [];
 				$.each(container.add,function(i,entry){
@@ -168,27 +169,35 @@ $(function(){
 	$('.sendbtn').on('click',function(){
 		var title = 'Órarend mentése';
 
-		container.week = $('.week').text();
-		$.Dialog.wait(title);
-		$.ajax({
-			method: 'POST',
-			url: '/timetables/save',
-			data: container,
-			success: function(data){
-				if (typeof data === 'string') return console.log(data) === $(window).trigger('ajaxerror');
+		$.Dialog.confirm(title,
+			'Arra készülsz, hogy mented az órarend változtatásait. Ha töröltél valamilyen tantárgyat az órarendből, a hozzá tartozó házi feladatok is törlődnek. Folytatod az órarend mentésével?',
+			['Változtatások mentése','Visszalépés'],
 
-				if (data.status){
-					$.Dialog.success(title,data.message);
-					setTimeout(function(){
-						window.location.href = '/timetables';
-					},2500);
-				}
+			function(sure){
+				if (!sure) return;
 
-				else {
-					$.Dialog.fail(title,data.message);
-				}
+				container.week = $('.week').text();
+				$.Dialog.wait(title);
+				$.ajax({
+					method: 'POST',
+					url: '/timetables/save',
+					data: container,
+					success: function(data){
+						if (typeof data === 'string') return console.log(data) === $(window).trigger('ajaxerror');
+
+						if (data.status){
+							$.Dialog.success(title,data.message);
+							setTimeout(function(){
+								window.location.href = '/timetables';
+							},2500);
+						}
+
+						else {
+							$.Dialog.fail(title,data.message);
+						}
+					}
+				});
 			}
-		});
+		);
 	});
-
 });

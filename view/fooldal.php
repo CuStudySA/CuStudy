@@ -1,1 +1,128 @@
-<h1>Üdvözlöm <?=$user['realname']?>!</h1>
+<?php
+	$minute = (int)date('i');
+	$hour = (int)date('H');
+
+	if ($hour < 6) $welcome = 'Jó éjszakát';
+	else if ($hour < 10) $welcome = 'Jó reggelt';
+	else if ($hour < 18) $welcome = 'Jó napot';
+	else if ($hour < 22) $welcome = 'Jó estét';
+	else $welcome = 'Jó éjszakát';
+?>
+
+<h1><?=$welcome?> <span class='welcomeName'><?=$user['realname']?></span>!</h1>
+
+<h3>Elkészítésre váró házi feladatok</h3>
+
+<table class='homeworks'>
+	<tr>
+<?php
+		$homeWorks = HomeworkTools::GetHomeworks(1);
+
+		if (!empty($homeWorks)){
+			$day = array_keys($homeWorks)[0];
+
+			print "<td>";
+
+			foreach($homeWorks[$day] as $key => $array){
+				if ($key % 2 == 1) continue; ?>
+		        <div class='hw'>
+		            <span class='lesson-name'><?=$array['lesson']?></span><span class='lesson-number'><?=$array['lesson_th']?>. óra</span>
+		            <div class='hw-text'><?=$array['homework']?></div>
+		        </div>
+<?php   	}
+
+			print "</td><td>";
+
+			foreach($homeWorks[$day] as $key => $array){
+				if ($key % 2 == 0) continue; ?>
+		        <div class='hw'>
+		            <span class='lesson-name'><?=$array['lesson']?></span><span class='lesson-number'><?=$array['lesson_th']?>. óra</span>
+		            <div class='hw-text'><?=$array['homework']?></div>
+		        </div>
+<?php   	}
+
+			print "</td>"; ?>
+	<tr>
+</table>
+<?php   }
+	else print "<p>Nincs megjeleníthető házi feladata...</p>";   ?>
+
+<h3>Következő napi órarend</h3>
+
+<?php
+	$sort = Timetable::GetActualWeek(true);
+	$day = Timetable::GetDayInNumber();
+
+	$sorting = $day > 5 ? ($sort == 'ASC' ? 'DESC' : 'ASC') : $sort;
+
+
+	$grpmember = $db->rawQuery('SELECT `groupid`
+					FROM `group_members`
+					WHERE `classid` = ? && `userid` = ?',array($user['classid'],$user['id']));
+
+	$ids = array(0);
+	foreach ($grpmember as $array)
+		$ids[] = $array['groupid'];
+
+	$dualWeek = Timetable::GetNumberOfWeeks() == 1 ? false : true;
+
+	if ($dualWeek){
+		$timeTable = $db->rawQuery("SELECT tt.week, tt.day, tt.lesson, l.name, t.name as teacher, l.color, tt.groupid
+									FROM timetable tt
+									LEFT JOIN (lessons l, teachers t)
+									ON tt.lessonid = l.id && l.teacherid = t.id
+									WHERE tt.classid = ? && (tt.week = ? && tt.day > ?) || tt.week = ?
+									ORDER BY tt.week {$sorting}, tt.day, tt.lesson",
+
+									array($user['classid'],Timetable::GetActualWeek(),$day,Timetable::GetActualWeek() == 'A' ? 'b' : 'a'));
+	}
+	else {
+		$timeTable_partWeek = $db->rawQuery("SELECT tt.week, tt.day, tt.lesson, l.name, t.name as teacher, l.color, tt.groupid
+									FROM timetable tt
+									LEFT JOIN (lessons l, teachers t)
+									ON tt.lessonid = l.id && l.teacherid = t.id
+									WHERE tt.classid = ? && tt.day > ?
+									ORDER BY tt.day, tt.lesson",
+
+									array($user['classid'],$day));
+		if (empty($timeTable_partWeek))
+			$timeTable_entireWeek = $db->rawQuery("SELECT tt.week, tt.day, tt.lesson, l.name, t.name as teacher, l.color, tt.groupid
+								FROM timetable tt
+								LEFT JOIN (lessons l, teachers t)
+								ON tt.lessonid = l.id && l.teacherid = t.id
+								WHERE tt.classid = ?
+								ORDER BY tt.day, tt.lesson",
+
+								array($user['classid']));
+		else $timeTable_entireWeek = [];
+
+		$timeTable = array_merge($timeTable_partWeek,$timeTable_entireWeek);
+	}
+
+	if (!empty($timeTable)){
+		$timeTable = array_splice($timeTable,0,8);
+
+		$lessons = array();
+
+		$firstLesson = $timeTable[0];
+
+		foreach ($timeTable as $entry){
+			if ($entry['week'] == $firstLesson['week'] && $entry['day'] == $firstLesson['day'])
+				$lessons[] = $entry;
+		}
+	}
+	else print "<p>Nincs megjeleníthető óra...</p>";
+?>
+	<div class='lessonList'>
+<?php
+	if (!empty($lessons)){
+		foreach ($lessons as $lesson){
+			if (!in_array($lesson['groupid'],$ids)) continue; ?>
+			<div>
+				<span class='lessonNumber'><?=$lesson['lesson']?>.</span> óra:
+				<span class='lessonName' style='background-color: <?=$lesson['color']?>'><?=$lesson['name']?></span>
+				(tanítja: <span class='lessonTeacher'><?=$lesson['teacher']?></span>)
+			</div>
+<?php	}
+	} ?>
+	</div>

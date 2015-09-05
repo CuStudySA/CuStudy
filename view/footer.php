@@ -3,6 +3,7 @@
 	foreach ($js_list as $value){
 		print '<script src="'.$rootdoc.'resources/js/'.$value.'"></script>'."\n";
 	}
+
 	# Script futtatás összidejének meghatározása
 	$ENV['EXECTIME']['end'] = microtime(true);
 
@@ -12,8 +13,8 @@
 
 <?php
 	# Szoftver információ kiíratása ?>
-	<!-- <?=$ENV['SOFTWARE']['NAME']?> <?=$ENV['SOFTWARE']['VER']?> (codename: <?=$ENV['SOFTWARE']['CODENAME']?>) -->
-	<!-- Software engine: <?=$ENV['ENGINE']['NAME']?> <?=$ENV['ENGINE']['VER']?> (codename: <?=$ENV['ENGINE']['CODENAME']?>) -->
+	<!-- <?=$ENV['SOFTWARE']['NAME']?> <?=$ENV['SOFTWARE']['VER']?> (commit ID: <?=$ENV['SOFTWARE']['COMMIT']?>, codename: <?=$ENV['SOFTWARE']['CODENAME']?>) -->
+	<!-- Software engine: <?=$ENV['ENGINE']['NAME']?> <?=$ENV['ENGINE']['VER']?> (commit ID: <?=$ENV['ENGINE']['COMMIT']?>, codename: <?=$ENV['ENGINE']['CODENAME']?>) -->
 
 <?php
 	# Easter Egg üzenet kiíratása

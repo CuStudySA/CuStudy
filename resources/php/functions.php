@@ -218,6 +218,18 @@
 			'teachers' => ['name','short'],
 		);
 
+		static $Days = array(
+			1 => 'Hétfő',
+			2 => 'Kedd',
+			3 => 'Szerda',
+			4 => 'Csütörtök',
+			5 => 'Péntek',
+			6 => 'Szombat',
+			7 => 'Vasárnap',
+		);
+
+		static $AllowedHTMLTags = '<b><i><u><span><br><br/>';
+
 		// Bevitel helyességének ellenörzése
 		static function InputCheck($text,$type){	
 			switch ($type){
@@ -232,7 +244,7 @@
 					$preg = '/^[a-zA-Z0-9.-_]+(\+[a-zA-Z0-9])?@[a-z0-9]+\.[a-z]{2,4}$/';
 				break;
 				case 'name':
-					$preg = '/^[A-ZÁÉÍÓÖŐÚÜŰ][a-záéíóöőúüű.]+[ ][A-ZÁÉÍÓÖŐÚÜŰ][a-záéíóöőúüű]+[ a-zA-ZáéíóöőúüűÁÉÍÓÖŐÚÜŰ]*$/';
+					$preg = '/^[A-ZÁÉÍÓÖŐÚÜŰ][a-záéíóöőúüű.]+[ ][A-ZÁÉÍÓÖŐÚÜŰ][a-záéíóöőúüű]+[ a-zA-ZáéíóöőúüűÁÉÍÓÖŐÚÜŰ]*$/u';
 				break;
 				case 'class':
 					$preg = '/^\d{1,2}\.?[A-Za-z]*$/';
@@ -322,7 +334,7 @@
 		}
 
 		// Bejelentkezés
-		static private function _login($username,$password){
+		static private function _login($username,$password,$remember = false){
 			global $db;
 
 			# Formátum ellenörzése
@@ -346,12 +358,14 @@
 			$session = Password::GetSession($username);
 			$action = $db->where('username',$username)->update($isadmin,array('session' => $session));
 
-			Cookie::set('PHPSESSID',$session,null);
+			if ($remember) Cookie::set('username',$username);
+
+			Cookie::set('PHPSESSID',$session,false);
 
 			return [$data['id']];
 		}
-		static function Login($username,$password){
-			$action = self::_login($username,$password);
+		static function Login($username,$password,$remember = false){
+			$action = self::_login($username,$password,$remember);
 
 			Logging::Insert(array(
 				'action' => 'login',
@@ -827,6 +841,15 @@
 
 			$action = $db->where('id',$id)->delete('lessons');
 
+			$data = $db->rawQuery('SELECT tt.id
+									FROM `timetable` tt
+									WHERE tt.lessonid = ?',array($id));
+
+
+			if (!empty($data)){
+				Timetable::DeleteEntrys($data);
+			}
+
 			if ($action) return 0;
 			else return 2;
 		}
@@ -1183,6 +1206,8 @@
 				$users_l[] = $entry['id'];
 
 			$grpmem = explode(',',$data['group_members']);
+
+			if (empty($data['group_members'])) return 0;
 			foreach($grpmem as $mem){
 				if (!in_array($mem,$users_l)) return 5;
 				$db->insert('group_members',array(
@@ -1342,7 +1367,7 @@
 			if(System::PermCheck('admin')) return 1;
 
 			# Alapadatok feldolgozása
-			if (!isset($datas['name']) || !isset($datas['short'])) return 2;
+			if (!isset($datas['name']) || !isset($datas['short'])) return 21;
 			$basedata = array(
 				'name' => $datas['name'],
 				'short' => $datas['short'],
@@ -1356,7 +1381,7 @@
 						$type = $key;
 					break;
 				}
-				if (System::InputCheck($value,$type)) return 2;
+				if (System::InputCheck($value,$type)) return 22;
 			}
 			$basedata['classid'] = $user['classid'];
 			$action = $db->insert('teachers',$basedata,true);
@@ -1418,13 +1443,295 @@
 
 			$action = $db->where('id',$id)->delete('teachers');
 
+			$data = $db->rawQuery('SELECT id
+									FROM `lessons`
+									WHERE teacherid = ?',array($id));
+
+			foreach ($data as $array)
+				LessonTools::Delete($array['id']);
+
 			if ($action) return 0;
 			else return 2;
 		}
 	}
 
+	class HomeworkTools {
+		static function GetWeekDates($week, $year = null) {
+			$year = empty($year) ? date('Y') : $year;
+			$dto = new DateTime();
+			$ret['start'] = $dto->setISODate($year, $week)->format('Y-m-d');
+			$ret['end'] = $dto->modify('+6 days')->format('Y-m-d');
+			return $ret;
+		}
+
+		static function Add($data){
+			global $db, $user;
+
+			# Jog. ellenörzése
+			if(System::PermCheck('admin')) return 1;
+
+			# Formátum ellenörzése
+			if (!System::ValuesExists($data,['lesson','text','week'])) return 2;
+			foreach ($data as $key => $value){
+				switch ($key){
+					case 'lesson':
+						$type = 'numeric';
+					break;
+					case 'week':
+						$type = 'numeric';
+					break;
+					case 'text':
+						continue 2;
+					default:
+						return 2;
+					break;
+				}
+				if (System::InputCheck($value,$type)) return 2;
+			}
+
+			$parser = new JBBCode\Parser();
+			$parser->addCodeDefinitionSet(new JBBCode\BlueSkyCodeDefSet());
+
+			$parser->parse(nl2br($data['text']));
+
+			$data['text'] = strip_tags($parser->getAsHtml(),System::$AllowedHTMLTags);
+
+			$dateFromUI = strtotime(self::GetWeekDates($data['week'])['start']);
+
+			$dbdata = $db->rawQuery('SELECT tt.week as week
+										FROM timetable tt
+										LEFT JOIN (teachers t, lessons l)
+										ON (tt.lessonid = l.id && l.teacherid = t.id)
+										WHERE tt.classid = l.classid = t.classid = ? && tt.id = ? && t.name IS NOT NULL && l.name IS NOT NULL',
+							array($user['classid'],$data['lesson']));
+
+			if (empty($dbdata)) return 3;
+			else $dbdata = $dbdata[0];
+
+			//(Timetable::GetActualWeek(false,$dateFromUI),strtoupper($dbdata['week']));
+			if (Timetable::GetActualWeek(false,$dateFromUI) != strtoupper($dbdata['week'])) return 4;
+
+			$action = $db->insert('homeworks',array_merge($data,array('author' => $user['id'], 'classid' => $user['classid'])));
+
+			if ($action) return 0;
+			else return 5;
+		}
+
+		static function Delete($id){
+			global $db;
+
+			# Form. ellenörzése
+			if (System::InputCheck($id,'numeric')) return 2;
+
+			# Jog. ellenörzése
+			if (System::ClassPermCheck($id,'homeworks')) return 1;
+
+			$action = $db->where('id',$id)->delete('homeworks');
+
+			if ($action) return 0;
+			else return 3;
+		}
+
+		static function GetHomeworks($numberOfHomework = 3){
+			global $db, $user, $ENV;
+
+			$grpmember = $db->rawQuery('SELECT `groupid`
+							FROM `group_members`
+							WHERE `classid` = ? && `userid` = ?',array($user['classid'],$user['id']));
+
+			$addon = [$user['classid']];
+			$ids = array(0);
+			foreach ($grpmember as $array)
+				$ids[] = $array['groupid'];
+
+			$weekNum = Timetable::GetWeekNum();
+			$dayInWeek = Timetable::GetDayInNumber();
+
+			$query = "SELECT hw.id, hw.text as `homework`, hw.week, tt.day, tt.lesson as `lesson_th`, l.name as `lesson`
+						FROM `timetable` tt
+						LEFT JOIN (`homeworks` hw, `lessons` l)
+						ON (hw.lesson = tt.id && l.id = tt.lessonid)
+						WHERE tt.classid = ? && tt.groupid IN (".implode(',', $ids).') && ((hw.week = ? && tt.day > ?) || hw.week > ?) && hw.text IS NOT NULL
+						ORDER BY hw.week, tt.day, tt.lesson';
+
+			/*
+			 *  $a = isset($_GET['a']) ? $_GET['a'] : '';
+			 * $a = $_GET['a'] ?? '';
+			 * */
+
+			$minute = (int)date('i');
+			$hour = (int)date('H');
+			if (!($hour >= 8 && $minute >= 0)){
+				if ($dayInWeek == 1){
+					$_dayInWeek = 7;
+					$_weekNum = $weekNum-1;
+				}
+				else {
+					$_dayInWeek = $dayInWeek-1;
+					$_weekNum = $weekNum;
+				}
+			}
+			else {
+				$_dayInWeek = $dayInWeek;
+				$_weekNum = $weekNum;
+			}
+
+			$timetable = $db->rawQuery($query,array_merge($addon,array($_weekNum, $_dayInWeek, $_weekNum)));
+
+			$homeWorks = [];
+
+			$i = 0;
+			while (true){
+				if (empty($timetable[$i])) break;
+				else $array = $timetable[$i];
+
+				if ($weekNum == $array['week'])
+					$hwTime = strtotime('+ '.($array['day'] - $dayInWeek).' days');
+
+				else {
+					$hwTime = strtotime('- '.($dayInWeek - 1).' days');
+					$hwTime = strtotime('+ '.($array['week'] - $weekNum).' weeks', $hwTime);
+					$hwTime = strtotime('+ '.($array['day'] - 1).' days', $hwTime);
+				}
+
+				$array['date'] = date('m.d',$hwTime);
+				$array['dayString'] = System::$Days[Timetable::GetDayInNumber($hwTime)];
+
+				$homeWorks[$array['date']][] = $array;
+
+				$i++;
+			}
+
+			array_splice($homeWorks,$numberOfHomework);
+			return $homeWorks;
+		}
+	}
+
 	class Timetable {
+		static function GetWeekNum(){
+			$dateObj = new DateTime();
+			return $dateObj->format("W");
+		}
+
+		static function GetNumberOfWeeks(){
+			global $db,$user;
+
+			$data = $db->rawQuery('SELECT *
+									FROM `timetable`
+									WHERE (`classid` = ? && `week` = ?)
+									LIMIT 1',array($user['classid'],'b'));
+
+			if (empty($data)) return 1;
+			else return 2;
+		}
+
+		static function GetEdgesOfWeek($date){
+			$ts = strtotime($date);
+		    $start = (date('w', $ts) == 0) ? $ts : strtotime('last sunday', $ts);
+
+		    return array(date('Y-m-d', $start),date('Y-m-d', strtotime('next saturday', $start)));
+		}
+
+		static function GetActualWeek($sorting = false, $timestamp = null){
+			global $ENV,$db,$user;
+
+			if (empty($timestamp))
+				$timestamp = time();
+
+			$data = $db->rawQuery('SELECT *
+									FROM `timetable`
+									WHERE `classid` = ? && `week` = ?',array($user['classid'],'b'));
+			if (empty($data))
+				return $sorting ? 'ASC' : 'A';
+
+			$weekNum = date('W',$timestamp);
+
+			$tsyear = date('Y',$timestamp);
+
+			$jan1 = strtotime("1 jan $tsyear");
+			$aug31 = strtotime("1 sept $tsyear");
+
+			$start = strtotime('+7 days',strtotime('this week', $jan1));
+			$end = strtotime('+7 days',strtotime('this week', $aug31));
+
+			$yearPassed = $timestamp >= $start && $timestamp < $end;
+
+			if (!$sorting)
+				return $ENV['class']['pairweek'] === 'A'
+					? (
+						$weekNum % 2 == 0
+						? (!$yearPassed ? 'A' : 'B')
+						: (!$yearPassed ? 'B' : 'A')
+					)
+					: (
+						$weekNum % 2 == 0
+						? (!$yearPassed ? 'B' : 'A')
+						: (!$yearPassed ? 'A' : 'B')
+					);
+
+			else
+				return $ENV['class']['pairweek'] === 'A'
+					? (
+						$weekNum % 2 == 0
+						? (!$yearPassed ? 'ASC' : 'DESC')
+						: (!$yearPassed ? 'DESC' : 'ASC')
+					)
+					: (
+						$weekNum % 2 == 0
+						? (!$yearPassed ? 'DESC' : 'ASC')
+						: (!$yearPassed ? 'ASC' : 'DESC')
+					);
+		}
+
+		static function GetDayInNumber($timestamp = null) {
+			$ts = date('w' ,empty($timestamp) ? time() : $timestamp);
+			return $ts == 0 ? 7 : $ts;
+		}
+
 		// Órarend módosítások feldolgozása
+		static function AddEntrys($toAdd,$week){
+			global $db,$user;
+
+			$reqItems = ['day','lesson','tantargy','group'];
+			foreach ($toAdd as $sub){
+				if (empty($sub)) continue;
+				foreach ($reqItems as $item)
+					if (!isset($sub[$item])) return 2;
+
+				foreach ($sub as $key => $value)
+					if (System::InputCheck($value,'numeric')) return 3;
+
+				$Entry = array(
+					'classid' => $user['classid'],
+					'week' => $week,
+					'day' => $sub['day'],
+					'lesson' => $sub['lesson'],
+					'lessonid' => $sub['tantargy'],
+					'groupid' => $sub['group'],
+				);
+
+				$action = $db->insert('timetable',$Entry);
+				if (!$action) return 4;
+			}
+		}
+
+		static function DeleteEntrys($toDelete){
+			global $db, $user;
+
+			foreach ($toDelete as $sub){
+				if (!isset($sub['id'])) return 5;
+				$id = $sub['id'];
+				if (System::InputCheck($id,'numeric')) return 6;
+
+				$action = $db->where('id',$id)->delete('timetable',$id);
+
+				# Órarend-entryhez tartozó HW-k törlése
+				$db->where('lesson',$id)->delete('homeworks');
+
+				if (!$action) return 7;
+			}
+		}
+
 		static function ProgressTable($data){
 			global $db, $user;
 
@@ -1433,43 +1740,12 @@
 			if (!in_array($week,['a','b'])) return 1;
 
 			# Bejegyzések hozzáadása
-			if(isset($data['add'])){
-				$toAdd = $data['add'];
-				$reqItems = ['day','lesson','tantargy','group'];
-				foreach ($toAdd as $sub){
-					if (empty($sub)) continue;
-					foreach ($reqItems as $item)
-						if (!isset($sub[$item])) return 2;
-
-					foreach ($sub as $key => $value)
-						if (System::InputCheck($value,'numeric')) return 3;
-
-					$Entry = array(
-						'classid' => $user['classid'],
-						'week' => $week,
-						'day' => $sub['day'],
-						'lesson' => $sub['lesson'],
-						'lessonid' => $sub['tantargy'],
-						'groupid' => $sub['group'],
-					);
-
-					$action = $db->insert('timetable',$Entry);
-					if (!$action) return 4;
-				}
-			}
+			if(isset($data['add']))
+				self::AddEntrys($data['add'],$week);
 
 			# Bejegyzések törlése
-			if(isset($data['delete'])){
-				$toDelete = $data['delete'];
-				foreach ($toDelete as $sub){
-					if (!isset($sub['id'])) return 5;
-					$id = $sub['id'];
-					if (System::InputCheck($id,'numeric')) return 6;
-
-					$action = $db->where('id',$id)->delete('timetable',$id);
-					if (!$action) return 7;
-				}
-			}
+			if(isset($data['delete']))
+				self::DeleteEntrys($data['delete']);
 
 			return 0;
 		}
@@ -1498,6 +1774,103 @@ STRING;
 			'b' => "'B'",
 		);
 
+		static function GetHWTimeTable($week = null, $lastDay = null){
+			global $user, $db;
+
+			$addon = array($user['classid']);
+
+			if (!empty($week) && !empty($lastDay)){
+				$weekday = strtotime('+ '.($week - date('W')).' weeks', strtotime('12 am'));
+				if (Timetable::GetDayInNumber() < $lastDay) $weekday = strtotime('+ '.($lastDay - Timetable::GetDayInNumber()).' days',$weekday);
+				else $weekday = strtotime('- '.(Timetable::GetDayInNumber() - $lastDay).' days',$weekday);
+				$actWeek = strtolower(Timetable::GetActualWeek(false,$weekday));
+				$addon = array_merge($addon,[$actWeek, $lastDay, $actWeek == 'a' ? 'b' : 'a']);
+				$dayInWeek = $lastDay;
+				$hour = $minute = 9;
+			}
+			else {
+				$minute = (int)date('i');
+				$hour = (int)date('H');
+
+				$weekday = time();
+
+				$addon = array_merge($addon,[self::GetActualWeek(),
+							$hour >= 8 && $minute >= 0 ? self::GetDayInNumber() : self::GetDayInNumber()-1,
+							strtolower(self::GetActualWeek()) == 'a' ? 'b' : 'a']);
+
+				$actWeek = strtolower(Timetable::GetActualWeek());
+				$dayInWeek = Timetable::GetDayInNumber();
+			}
+			$currentWeek = date('W', $weekday);
+
+			$dualWeek = Timetable::GetNumberOfWeeks() == 1 ? false : true;
+
+			if ($dualWeek){
+				$whereString = "&& ((tt.week = ? && tt.day > ?) || tt.week = ?)";
+				$data = $db->rawQuery("SELECT l.name, l.color, tt.id, tt.lesson, tt.day, tt.week, (SELECT `name` FROM `groups` WHERE `id` = tt.groupid) as group_name
+							FROM timetable tt
+							LEFT JOIN lessons l
+							ON (l.id = tt.lessonid && l.classid = tt.classid)
+							WHERE tt.classid = ? ".$whereString."
+							ORDER BY tt.week, tt.day, tt.lesson ASC",$addon);
+			}
+			else {
+				$data_onWeek = $db->rawQuery('SELECT l.name, l.color, tt.id, tt.lesson, tt.day, tt.week, (SELECT `name` FROM `groups` WHERE `id` = tt.groupid) as group_name
+											FROM timetable tt
+											LEFT JOIN lessons l
+											ON (l.id = tt.lessonid && l.classid = tt.classid)
+											WHERE tt.classid = ? && tt.day > ?
+											ORDER BY tt.day, tt.lesson'
+									,array($user['classid'],$hour >= 8 && $minute >= 0 ? $dayInWeek : $dayInWeek-1));
+
+				$data_nextWeek = $db->rawQuery('SELECT l.name, l.color, tt.id, tt.lesson, tt.day, tt.week, (SELECT `name` FROM `groups` WHERE `id` = tt.groupid) as group_name
+											FROM timetable tt
+											LEFT JOIN lessons l
+											ON (l.id = tt.lessonid && l.classid = tt.classid)
+											WHERE tt.classid = ?
+											ORDER BY tt.day, tt.lesson'
+									,array($user['classid']));
+
+				foreach ($data_nextWeek as $array){
+					if ($array['day'] < ($hour >= 8 && $minute >= 0 ? $dayInWeek : $dayInWeek-1))
+						$data_nW[] = $array;
+				}
+
+				$data = array_merge($data_onWeek,$data_nW);
+			}
+
+			$Timetable = array_fill(0,8,array_fill(0,1,array()));
+
+			$days = [];
+
+			//var_dump(date('Y-m-d',$weekday));
+			foreach ($data as $class){
+				$lesson = $class['lesson']-1;
+
+				if ($actWeek == $class['week']){
+					if ($class['day'] < $dayInWeek)
+						if ($dualWeek)
+							$date = strtotime('+ '.(14 + $class['day']).' days',$weekday);
+						else
+							$date = strtotime('+ '.((7 - $dayInWeek) + $class['day']).' days',$weekday);
+					else
+						$date = strtotime('+ '.($class['day'] - $dayInWeek).' days',$weekday);
+				}
+				else {
+					$date = strtotime('+ '.(7 - $dayInWeek).' days',$weekday);
+
+					$date = strtotime("+ {$class['day']} days", $date);
+				};
+
+				if (array_search($date,$days) === false) $days[] = $date;
+
+				if (isset($class['name']))
+					$Timetable[$lesson][$date][] = array($class['name'],'',$class['color'],$class['id'],$class['group_name'],date('W',$date));
+			}
+			$Timetable['opt'] = $days;
+			return $Timetable;
+		}
+
 		// Órarend lekérése
 		static function GetTimeTable($week, $allgroups = false){
 			global $user, $db;
@@ -1512,8 +1885,7 @@ STRING;
 				@teacher := l.teacherid,
 				(SELECT short FROM teachers t WHERE t.id = @teacher) as teacher
 			FROM timetable tt
-			LEFT JOIN lessons l ON l.id = tt.lessonid
-				AND l.classid = ?
+			LEFT JOIN lessons l ON (l.id = tt.lessonid && l.classid = ?)
 			WHERE tt.classid = ? && tt.week = ?";
 
 			# Órarend lekérés segédtömb elékészítése
@@ -1526,7 +1898,7 @@ STRING;
 				WHERE gm.userid = ? && gm.classid = ?", array($user['id'], $user['classid']));
 
 			# Ha minden csoport adatait szeretnénk lekérni...
-			if ($allgroups !== true){
+			if ($allgroups == false){
 	            $query .= ' && groupid = ?';
 	            $data[] = '0';
 				foreach ($groupdata as $subgd){
@@ -1562,35 +1934,75 @@ STRING;
 
 		const MANAGE = true;
 		//Órarend kirenderelése
-		static function Render($week,$Timetable){ ?>
+		static function Render($week,$Timetable,$weekdays = null){
+			if (empty($weekdays) && empty($week)) return;
+			if (!empty($weekdays)){
+				// Hetek kirenderelésének előkészítése
+				$weeks = [];
+				foreach ($weekdays as $day){
+					$wNum = (int)date('W',$day);
+					if (array_search($wNum,array_keys($weeks)) === false) $weeks[$wNum] = array(1, Timetable::GetActualWeek(false,$day));
+					else $weeks[$wNum][0]++;
+				}
+				ksort($weeks);
+			} ?>
+
 			<table class='timet'>
 				<thead>
+<?php				if (!empty($weekdays)) {
+						print "<tr><th>H</th>";
+						foreach ($weeks as $key => $array){
+							print "<th colspan='$array[0]'>{$array[1]}. hét ({$key}. hét)</th>";
+						}
+						print "</tr>";
+					} ?>
 					<tr>
-						<th class="week"><?=strtoupper($week)?></th>
-						<th class="weekday">Hétfő</th>
-						<th class="weekday">Kedd</th>
-						<th class="weekday">Szerda</th>
-						<th class="weekday">Csütörtök</th>
-						<th class="weekday">Péntek</th>
+						<th class="week"><?= empty($week) ? 'D' : strtoupper($week) ?></th>
+<?php                   if (empty($weekdays)) { ?>
+							<th class="weekday">Hétfő</th>
+							<th class="weekday">Kedd</th>
+							<th class="weekday">Szerda</th>
+							<th class="weekday">Csütörtök</th>
+							<th class="weekday">Péntek</th>
+<?php                   }
+						else {
+							foreach ($weekdays as $day)
+								print "<th class='weekday'>".date('m.d.',$day).' '.System::$Days[Timetable::GetDayInNumber($day)]."</th>";
+						} ?>
 					</tr>
 				</thead>
 
 				<tbody>
+<?php       if (empty($weekdays)){
+				for ($lesson = 0; $lesson <= 8; $lesson++){
+					if (empty($Timetable[$lesson])) continue; ?>
+					<tr class="lesson-field">
+						<th><?=$lesson+1?></th>
+<?php                   for ($weekday = 0; $weekday < (empty($weekdays) ? 5 : count($weekdays)); $weekday++){
+							$class = isset($Timetable[$lesson][$weekday]) ? $Timetable[$lesson][$weekday] : null;
+							self::_RenderClass($class);
+						} ?>
+					</tr>
+<?php           }
+			}
+			else {
+				$days = array_keys($weekdays);
+				for ($lesson = 0; $lesson <= 8; $lesson++){
+					if (empty($Timetable[$lesson])) continue; ?>
+					<tr class="lesson-field">
+						<th><?=$lesson+1?></th>
+<?php                   for ($day = 0; $day < count($days); $day++){
+							//var_dump($days[$day]);
+							$class = isset($Timetable[$lesson][$weekdays[$day]]) ? $Timetable[$lesson][$weekdays[$day]] : null;
+							self::_RenderClass($class);
+						} ?>
+					</tr>
+<?php           }
+			} ?>
 <?php
-			for ($lesson = 0; $lesson <= 8; $lesson++){
-				if (empty($Timetable[$lesson])) continue; ?>
-				<tr class="lesson-field">
-					<th><?=$lesson+1?></th>
-<?php               for ($weekday = 0; $weekday < 5; $weekday++){
-						$class = isset($Timetable[$lesson][$weekday]) ? $Timetable[$lesson][$weekday] : null;
-						self::_RenderClass($class);
-					} ?>
-				</tr>
-<?php       } ?>
-				</tbody>
-			</table>
-			<p class='btn sendbtn'>Változtatások mentése</p>
-<?php  }
+		print "</tbody></table>";
+		if (!empty($week)) print "<button class='btn sendbtn'>Módosítások mentése</button>";
+		}
 
 		// Órarend cella kirenderelő
 		static private function _RenderClass($class){
@@ -1601,7 +2013,9 @@ STRING;
 					if (empty($c[4])) $grpstr = '';
 					else $grpstr = ' ('.$c[4].')';
 
-					$echo .= "<span class='lesson' style='background: {$c[2]}'>{$c[0]}{$grpstr}<span class='del typcn typcn-times' data-id='$c[3]'></span></span>";
+					$week = isset($c[5]) ? "data-week='".$c[5]."'" : '';
+
+					$echo .= "<span class='lesson' $week style='background: {$c[2]}'>{$c[0]}{$grpstr}<span class='del typcn typcn-times' data-id='$c[3]'></span></span>";
 				}
 			}
 			else $echo = '<td class="empty">';

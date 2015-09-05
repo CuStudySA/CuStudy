@@ -18,7 +18,7 @@
 			<h2>'A' órarend</h2>
 
 <?php		echo '<div class="template" id="form-template">'.Timetable::ADD_FORM_HTML.'</div>';
-			Timetable::Render('a', Timetable::GetTimeTable('a',true), Timetable::MANAGE);
+			Timetable::Render('a', Timetable::GetTimeTable('a',true), null, true);
 		break;
 
 		case 'week':
@@ -36,6 +36,6 @@
 
 <?php		print "<h2>'".strtoupper($week)."' órarend</h2>";
 			echo '<div class="template" id="form-template">'.Timetable::ADD_FORM_HTML.'</div>';
-			Timetable::Render($week, Timetable::GetTimeTable($week,true), Timetable::MANAGE);
+			Timetable::Render($week, Timetable::GetTimeTable($week,true), null, true);
 		break;
 	}

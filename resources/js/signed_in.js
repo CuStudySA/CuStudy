@@ -16,7 +16,7 @@ $(function(){
 						return false;
 					}
 					if (data.status){
-						$.Dialog.success(title,'Sikeresen kijelentkezett, átirányítjuk...');
+						$.Dialog.success(title,'Sikeresen kijelentkezett, átirányítjuk...');//php
 						window.location.href = '/';
 					}
 					else $.Dialog.fail(title,'Kijelentkezés nem sikerült, próbálja meg később, vagy törölje a böngésző sütijeit!');

@@ -35,6 +35,13 @@ $(function(){
 
 		$('main').append($clonedAddForm);
 
+		$("#colorpicker").spectrum({
+		    /*color: "#000000",*/
+		    change: function(color) {
+		        $("#colorpicker").attr("value",color.toHexString());
+		    }
+		});
+
 		$(document.body).animate({scrollTop: $clonedAddForm.offset().top - 10 }, 500);
 
 		/* Hozzáadás gomb eseménye */

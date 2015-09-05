@@ -1,0 +1,74 @@
+.welcomeName {
+	font-weight: initial;
+}
+.homeworks {
+	width: 100%;
+}
+.homeworks td {
+	width: 50%;
+	vertical-align: baseline;
+}
+h3 {
+	margin-bottom: 5px;
+}
+.hw {
+    background-color: rgba(135,177,255,0.4);
+    padding: 6px 6px 6px 6px;
+    border-radius: 2px;
+}
+.hw > .lesson-name {
+    padding: 2px;
+    background-color: rgba(219,232,223,0.4);
+    border-radius: 2px;
+    text-shadow: 0 0 5px rgba(0,0,0,.2);
+}
+.hw > .hw-text {
+	margin: 5px 0 1px 0;
+    padding: 2px;
+    background-color: rgba(219,232,223,0.2);
+    border-radius: 2px;
+    text-shadow: 0 0 5px rgba(0,0,0,.1);
+}
+.hw > a {
+	color: #fff !important;
+    font-size: 24px;
+    opacity: .8;
+    border: 0;
+    transition: opacity .1s !important;
+    text-shadow: 0 0 5px rgba(0,0,0,.5);
+    margin-left: -2px;
+}
+.hw > a:hover {
+    opacity: 1;
+}
+.hw:not(:last-child) {
+	margin-bottom: 3px;
+}
+.hw > .lesson-number {
+	margin-left: 5px;
+    padding: initial;
+    background-color: initial;
+    border-radius: initial;
+    float: right;
+}
+.lessonList {
+	padding: 2px 0 0 9px;
+}
+.lessonList > div {
+	margin: 2px 0 17px 0;
+}
+.lessonList .lessonNumber {
+	font-weight: bold;
+	text-shadow: 0 0 5px rgba(0,0,0,.1);
+}
+.lessonList .lessonTeacher {
+	font-weight: bold;
+	text-shadow: 0 0 5px rgba(0,0,0,.1);
+}
+.lessonList .lessonName {
+	padding: 3px;
+	border-radius: 3px;
+	text-shadow: 0 0 5px rgba(0,0,0,.1);
+	font-weight: bold;
+	user-select: none;
+}
