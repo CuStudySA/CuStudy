@@ -36,3 +36,6 @@ Favicon end -->
 
 </head>
 <body>
+	<script>
+		var _USRGRP = "<?=USRGRP?>";
+	</script>

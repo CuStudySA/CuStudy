@@ -53,6 +53,15 @@
 	$sort = Timetable::GetActualWeek(true);
 	$day = Timetable::GetDayInNumber();
 
+	$minute = (int)date('i');
+	$hour = (int)date('H');
+	if (!($hour >= 8 && $minute >= 0)){
+		if ($day == 1)
+			$day = 7;
+		else
+			$day = $day - 1;
+	}
+
 	$sorting = $day > 5 ? ($sort == 'ASC' ? 'DESC' : 'ASC') : $sort;
 
 
@@ -100,8 +109,6 @@
 	}
 
 	if (!empty($timeTable)){
-		$timeTable = array_splice($timeTable,0,8);
-
 		$lessons = array();
 
 		$firstLesson = $timeTable[0];

@@ -18,13 +18,16 @@
 				<span class='tantargy'><?=$subarray['name']?></span>
 				<span class='tanar'><?=$subarray['teacher']?></span>
 			</div>
+<?php if (!System::PermCheck('admin')) { ?>
 			<div class="bottom">
 				<a class="typcn typcn-pencil js_lesson_edit" href="#<?=$subarray['id']?>" title="Módosítás"></a>
 				<a class="typcn typcn-trash js_lesson_delete" href="#<?=$subarray['id']?>" title="Törlés"></a>
 			</div>
-		</li>
 <?php } ?>
-		<li style='background-color: rgba(0,0,0,.40)' class='new'>
+		</li>
+<?php }
+	if (!System::PermCheck('admin')) { ?>?>
+		<li class='new'>
 			<div class="top clearfix">
 				<span class='tantargy'>Új tantárgy</span>
 				<span class='tanar'>Új tantárgy hozzáadása</span>
@@ -33,4 +36,5 @@
 				<a class="typcn typcn-plus js_lesson_add" href="#" title="Hozzáadás"></a>
 			</div>
 		</li>
+<?php } ?>
 	</ul>

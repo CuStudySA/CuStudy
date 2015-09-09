@@ -70,10 +70,10 @@
 	$ENV['SOFTWARE'] = array(
 		'NAME' => 'CuStudy',
 		'CODENAME' => 'BlueSky',
-		'VER' => '1.0b',
+		'VER' => '1.0 RC1',
 		'DEVELOPER' => 'BetonSoft',
 		'DEV_STARTED' => '2014',
-		'COMMIT' => '35c8913',
+		'COMMIT' => 'e1da8cb',
 	);
 
 	$ENV['ENGINE'] = array(
@@ -95,6 +95,9 @@
 		),
 		'jbbcode' => array(
 			'php' => ['jbbcode/Parser.php','jbbcode/_BlueSkyCodeDefSet.php'],
+		),
+		'swiftMailer' => array(
+			'php' => ['swiftMailer/swift_required.php'],
 		),
 	);
 
@@ -145,6 +148,7 @@
 			'maxperm' => 	'admin',
 			'reqdoc' => 	[],
 			'file' => 		'users',
+			'addons' =>     ['swiftMailer'],
 		),
 
 		/*'logs' => array(
@@ -163,7 +167,7 @@
 			'css' => 		['lessons.css','spectrum.css'],
 			'js' => 		['lessons.js','spectrum.js','colorpicker.js'],
 			'customjs' =>   [],
-			'minperm' => 	'admin',
+			'minperm' => 	'user',
 			'maxperm' => 	'admin',
 			'reqdoc' => 	[],
 			'file' => 		'lessons',
@@ -234,6 +238,18 @@
 			'reqdoc' => 	[],
 			'file' => 		'homeworks',
 			'addons' =>     ['sceditor','jbbcode'],
+		),
+
+		'invitation' => array(
+			'title' => 		'Meghívás',
+			'css' => 		['login.css','invitation.css'],
+			'js' => 		['invitation.js'],
+			'customjs' =>   [],
+			'minperm' => 	'guest',
+			'maxperm' => 	'user',
+			'reqdoc' => 	[],
+			'file' => 		'invitation',
+			'addons' =>     [],
 		),
 	);
 

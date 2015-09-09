@@ -92,3 +92,80 @@
 .customers li:nth-child(6n+5) { background-color: #FF7066 }
 .customers li:nth-child(6n+6) { background-color: #FFA466 }
 .customers li:last-child { background-color: rgba(0,0,0,.40) }
+
+/* Hozzáadás */
+.add_lesson {
+	background-color: rgba(0,0,0,0.1);
+	padding: 11px;
+	border-radius: 8px;
+	/*color: #DFE5F5;*/
+	padding-right: 14px;
+}
+.add_lesson > p {
+	margin: 0;
+	margin-bottom: 5px !important;
+	padding: 0;
+}
+
+.addlesson {
+	padding: 6px !important;
+	font-size: .9em !important;
+}
+
+.lesson_list {
+    background-color:  rgba(0,0,0,0.1);
+    margin-bottom: 8px;
+    padding: 5px;
+    padding-right: 20px;
+    border-radius: 7px;
+   /* color: #DFE5F5;*/
+}
+
+.l_l_utag {
+    list-style-type: circle;
+    margin: 0;
+    padding-left: 32px;
+}
+
+.l_l_addedtext {
+    margin: 3px 0px 4px 4px;
+}
+
+.l_l_deleteopt {
+    vertical-align: middle;
+    margin-left: 2px;
+    margin-bottom: 1px;
+}
+
+.l_l_deleteopt:hover:before {
+    text-decoration: underline !important;
+}
+
+.l_l_textspan {
+	background-color: #DBE1FF;
+}
+
+.l_l_utag > li {
+	margin-bottom: 3px;
+}
+
+/* Tanár hozzáadás form */
+
+.a_t_f_sendButton {
+	margin-top: 11px;
+}
+.a_t_f_firstParagraph {
+	margin-top: 11px;
+}
+.invite_form {
+	background-color: rgba(0,0,0,0.1);
+	padding: 12px;
+	width: 40%;
+	margin-top: 9px;
+	margin-left: 4px;
+	border-radius: 6px;
+}
+h3 {
+    margin-top: 0;
+    margin-bottom: 8px;
+}

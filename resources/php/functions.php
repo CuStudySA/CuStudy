@@ -12,13 +12,14 @@
 			return (hash('sha256', hash('sha256', $input) . $tmp[2]) == $tmp[3]);
 		}
 		static function Generalas($length = 10) {
-			/*$characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+			$characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 			$randomString = '';
 			for ($i = 0; $i < $length; $i++) {
 				$randomString .= $characters[rand(0, strlen($characters) - 1)];
-			}*/
+			}
+			return $randomString;
 
-			return substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, $length);
+			//return substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, $length);
 		}
 		static function GetSession($username){
 			global $_SERVER;
@@ -216,6 +217,7 @@
 		static $Inputs = array(
 			'users' => ['username','realname','email','password','verpasswd','newpassword','vernewpasswd'],
 			'teachers' => ['name','short'],
+			'invitation' => ['username','realname','email','password','verpasswd'],
 		);
 
 		static $Days = array(
@@ -253,7 +255,7 @@
 					$preg = '/^\d+$/';
 				break;
 				case 'text':
-					$preg = '/^[A-ZÁÉÍÓÖŐÚÜŰa-záéíóöőúüű ]{2,}$/';
+					$preg = '/^[0-9A-ZÁÉÍÓÖŐÚÜŰa-záéíóöőúüű. ]{2,}$/';
 				break;
 				case 'suburl':
 					$preg = '/^[a-zA-Z0-9\/]{1,}$/';
@@ -515,6 +517,40 @@
 
 			System::Redirect('/');
 		}
+
+		static $mailSended = false;
+		static function SendMail($mail){
+/*          array(
+				'title' (string)
+				'to' => array(
+					'name' (string)
+					'address' (string)
+				)
+				'body' (string)
+			) */
+
+			$message = Swift_Message::newInstance($mail['title']); //Üzenet objektum beállítása és tárgy létrehozása
+
+			$message->setBody($mail['body'], 'text/html'); //Szövegtörzs beállítása és szövegtípus beállítása
+			$message->setFrom(array('ugyfelszolgalat@betonsoft.tk' => 'BetonSoft Ügyfélszolgálat')); //Feladó e-mail és feladó név
+			$message->setTo(array($mail['to']['address'] => $mail['to']['name'])); //Címzett e-mail és címzett
+
+			$transport = Swift_SmtpTransport::newInstance('smtp.gmail.com', 465, 'ssl') //Kapcsolódási objektum létrehozása és csatlakozási adatok a Google Mailhez
+		     ->setUsername('ugyfelszolgalat@betonsoft.tk') //SMTP felhasználónév
+		     ->setPassword('3VhBQ%uQ') //SMTP jelszó
+		     ->setSourceIp('0.0.0.0'); //IPv4 kényszerítése
+
+		    $mailer = Swift_Mailer::newInstance($transport); //Küldő objektum létrehozása
+
+		    $action = $mailer->send($message,$fail); //Levél küldése
+
+			// Várakoztatás
+		    if (!self::$mailSended) usleep(100);
+		    self::$mailSended = true;
+
+			if ($action) return 0;
+			else return 1;
+		}
 	}
 
 	class ExtConnTools {
@@ -682,7 +718,7 @@
 				if (USRGRP == 'guest')
 					die(header('Location: /login'));
 				else
-					die(header('Location: /403'));
+					die(header('Location: /404'));
 			}
 		}
 		
@@ -694,7 +730,235 @@
 				die(header('Location: /404?path='.$path));
 		}
 	}
-	
+
+	class InviteTools {
+		static $inviteBody = <<<STRING
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8"/>
+		<style>
+			a {
+				text-decoration: none;
+			}
+		</style>
+	</head>
+	<body>
+		<h2>CuStudy - Meghívó a CuStudy rendszerbe</h2>
+
+		<h3>Tisztelt ++NAME++!</h3>
+
+		<p>Örömmel értesítünk, hogy meghívót kaptál a CuStudy rendszerbe a(z) <b>++SCHOOL++</b> iskola <b>++CLASS++</b> osztálya által. A meghívót <b>++SENDER++</b> csoportadminisztrátor küldte neked.</p>
+
+		<p><b>Mi is az a CuStudy?</b> A CuStudy a BetonHomeWork utódjaként továbbra is egy kellemetlen, de kötelező feladatra koncentrál: a házi feladatokra. A CuStudy - a BHW méltó utódjaként - teszi lehetővé számodra, hogy értesülhess a házi feladataidról és egyéb kötelességeidről, sőt a program használatával akutális és frissülő órarended is láthatod. Az elődünkhöz képest azonban jócskán fejlődtünk: mostantól <b>webes felületen</b> érheted el az információkat, illetve új felületet és számos izgalmas, funkcionalitást érintő fejlesztést is eszközöltünk, így az alapötlet egy remek felülettel és sok funkcióval párosul.</p>
+
+		  <p>A meghívás elfogadásához <a href="https://custudy.tk/invitation/++ID++">kattints ide</a>! A linkre kattintva meg kell adnod néhány adatot magadról, be kell állítanod a jelszavad, és az űrlap elküldése után automatikusan átirányítunk a program főoldalára.</p><p>Ha a fenti gomb valamilyen okból kifolyólag nem működne, másold be az alábbi URL-t a böngésződ címsoráva:<br><a href="https://custudy.tk/invitation/++ID++">https://custudy.tk/invitation/++ID++</a></p><p>Bízunk benne, hogy a CuStudy a Te tetszésedet is elnyeri majd!</p>
+
+		<p>Üdvözlettel,<br><br>
+		<b>Mészáros Bálint</b> és <b>Kiss Antal</b><br>
+		 a BetonSoft igazgatóságának tagjai</p>
+	</body>
+</html>
+STRING;
+
+	static $groupChooser = array(<<<STRING
+		<p>Most kérünk, hogy válaszd ki az osztálybeli csoportjaidat! Ez nem kötelező lépés...</p>
+		<form id='groupDataForm'>
+STRING
+,
+<<<STRING
+		<p><button class='btn'>Csoportadatok mentése és tovább a CuStudy-ra</button></p>
+		</form>
+STRING
+);
+
+		static function Invite($email,$name){
+			global $db, $user, $ENV;
+
+			# Jog. ellenörzése
+			if (System::PermCheck('admin')) return 1;
+
+			if (System::InputCheck($email,'email')) return 2;
+
+			$data = $db->where('email',$email)->getOne('users');
+			if (!empty($data)) return 5;
+
+			$invId = Password::Generalas(12);
+			$action = $db->insert('invitations',array(
+				'invitation' => $invId,
+				'name' => $name,
+				'email' => $email,
+				'classid' => $user['classid'],
+				'inviter' => $user['id'],
+			));
+
+			if (!$action) return 3;
+
+			$body = self::$inviteBody;
+
+			$body = str_replace('++NAME++',$name,$body);
+			$body = str_replace('++SCHOOL++',$ENV['school']['name'],$body);
+			$body = str_replace('++CLASS++',$ENV['class']['classid'],$body);
+			$body = str_replace('++ID++',$invId,$body);
+			$body = str_replace('++SENDER++',$user['realname'],$body);
+
+			$action = System::SendMail(array(
+				'title' => 'CuStudy - Meghívásod érkezett',
+				'to' => array(
+					'name' => $name,
+					'address' => $email,
+				),
+				'body' => $body,
+			));
+
+			if ($action) return 4;
+
+			return 0;
+		}
+
+		static function BatchInvite($emails){
+			global $db, $user, $ENV;
+
+			# Jog. ellenörzése
+			if (System::PermCheck('admin')) return 1;
+
+			$invalidEntrys = [];
+			foreach ($emails as $array){
+				$action = self::Invite($array['email'],$array['name']);
+
+				if ($action != 0) $invalidEntrys[] = array_merge(array('error' => $action),$array);
+			}
+
+			if (empty($invalidEntrys)) return 0;
+			else return $invalidEntrys;
+		}
+
+		static function Registration($data){
+/*          array(
+				'token' (string)
+				'username' (string)
+				'password' (string)
+				'realname' (string)
+			) */
+
+			global $db,$ENV;
+
+			$token = $data['token'];
+			# Formátum ellenörzése
+			foreach ($data as $key => $value){
+				switch ($key){
+					case 'username':
+					case 'password':
+						$type = $key;
+					break;
+
+					case 'realname':
+						$type = 'name';
+					break;
+
+					default:
+						unset($data[$key]);
+						continue 2;
+					break;
+				}
+				if (System::InputCheck($value,$type)) return 3;
+			}
+
+			$token_d = $db->where('invitation',$token)->getOne('invitations');
+			if (empty($token_d)) return 1;
+			if (!$token_d['active']) return 2;
+
+			$action = $db->where('email',$token)->getOne('users');
+			if (!empty($action)) return 4;
+
+			$db->where('invitation',$token)->update('invitations',array(
+				'active' => 0,
+			));
+
+			$session = Password::GetSession($data['username']);
+			$action = $db->insert('users',array(
+				'username' => $data['username'],
+				'password' => Password::Kodolas($data['password']),
+				'session' => $session,
+				'realname' => $data['realname'],
+				'classid' => $token_d['classid'],
+				'email' => $token_d['email'],
+				'priv' => 'user',
+				'active' => 1,
+			),true);
+
+			Cookie::set('PHPSESSID',$session,false);
+
+			$print = self::$groupChooser[0];
+
+			$group_data = $db->rawQuery('SELECT g.id, g.name, gt.id as `theme_id`, gt.name as `theme_name`
+											FROM `group_themes` gt
+											LEFT JOIN `groups`g
+											ON (g.theme = gt.id)
+											WHERE g.classid = gt.classid = ?',array($token_d['classid']));
+
+			$groups = array();
+			$gt_names = array();
+			if (!empty($group_data)){
+				$lastGTId = $group_data[0]['theme_id'];
+				$lastGTName = $group_data[0]['theme_name'];
+				foreach ($group_data as $entry){
+					if ($entry['theme_id'] != $lastGTId) $lastGTId = $entry['theme_id'];
+					if ($entry['theme_name'] != $lastGTName) $lastGTName = $entry['theme_name'];
+
+					if (!in_array($lastGTId,array_keys($gt_names))) $gt_names[$lastGTId] = $lastGTName;
+
+					$groups[$lastGTId][] = $entry;
+				}
+			}
+
+			foreach ($gt_names as $key => $value){
+				$print .= "<p>{$value} csoport: <select name='{$key}'><option value='0' selected>(nincs)</option>";
+				foreach ($groups[$key] as $entry)
+					$print .= "<option value='{$entry['id']}'>{$entry['name']}</option>";
+
+				$print .= "</select></p>";
+			}
+
+			return [$print.self::$groupChooser[1]];
+		}
+		static function SetGroupMembers($data){
+			global $db,$user,$ENV;
+
+			$gt = $g = array();
+			$group_themes = $db->rawQuery('SELECT `id`
+											FROM `group_themes`
+											WHERE `classid` = ?',array($user['classid']));
+			$groups = $db->rawQuery('SELECT `id`,`theme`
+								FROM `groups`
+								WHERE `classid` = ?',array($user['classid']));
+			if (empty($group_themes)) return 1;
+
+
+			foreach ($group_themes as $themea)
+				$gt[] = $themea['id'];
+
+			foreach ($groups as $entry)
+				$g[$entry['id']] = $entry['theme'];
+
+			foreach ($data as $key => $value){
+				if ($value == 0) continue;
+
+				if (array_search($key,$gt) === false) return 2;
+				if (!isset($g[$value])) return 3;
+				if ($g[$value] != $key) return 4;
+
+				$db->insert('group_members',array(
+					'classid' => $user['classid'],
+					'groupid' => $value,
+					'userid' => $user['id'],
+				));
+			}
+
+			return 0;
+		}
+	}
+
 	class AdminManTools {
 		# Admin. hozzáadása
 		static function Add($dataf){
@@ -1735,6 +1999,9 @@
 		static function ProgressTable($data){
 			global $db, $user;
 
+			# Jog. ellenörzése
+			if (System::PermCheck('admin')) return 2;
+
 			# Hét ellenörzése
 			$week = strtolower($data['week']);
 			if (!in_array($week,['a','b'])) return 1;
@@ -1831,6 +2098,7 @@ STRING;
 											ORDER BY tt.day, tt.lesson'
 									,array($user['classid']));
 
+				$data_nW = array();
 				foreach ($data_nextWeek as $array){
 					if ($array['day'] < ($hour >= 8 && $minute >= 0 ? $dayInWeek : $dayInWeek-1))
 						$data_nW[] = $array;
@@ -2001,7 +2269,7 @@ STRING;
 			} ?>
 <?php
 		print "</tbody></table>";
-		if (!empty($week)) print "<button class='btn sendbtn'>Módosítások mentése</button>";
+		if (!empty($week) && !System::PermCheck('admin')) print "<button class='btn sendbtn'>Módosítások mentése</button>";
 		}
 
 		// Órarend cella kirenderelő

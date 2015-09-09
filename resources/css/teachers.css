@@ -27,7 +27,9 @@
 .teachers li:nth-child(6n+4) { background-color: #FF66BA }
 .teachers li:nth-child(6n+5) { background-color: #FF7066 }
 .teachers li:nth-child(6n+6) { background-color: #FFA466 }
-.teachers li:last-child { background-color: rgba(0,0,0,.40) }
+
+.teachers > .new { background-color: rgba(0,0,0,.40) !important }
+
 .teachers li > div {
 	font-size: 18px;
 

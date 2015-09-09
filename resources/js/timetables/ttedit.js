@@ -3,7 +3,15 @@
 
 $(function(){
 	var title = "Tanárok és tantárgyak lekérése", $tds = $('table tbody td'),
-		postDatas = {};
+		postDatas = {},
+		USRGRP = _USRGRP;
+
+	//Órarend-választás <select> tag működése
+	$('#select_tt').change(function(){
+		window.location.href = '/timetables/week/' + $('#select_tt').children().filter(':selected').attr('value');
+	});
+
+	if (USRGRP == 'user' || USRGRP == 'editor') return;
 
 	// Órarend hozz.-t segítő listaelemek hozzáadása
 	$.ajax({
@@ -83,11 +91,6 @@ $(function(){
 			}
 			else $.Dialog.fail(title);
 		}
-	});
-
-	//Órarend-választás <select> tag működése
-	$('#select_tt').change(function(){
-		window.location.href = '/timetables/week/' + $('#select_tt').children().filter(':selected').attr('value');
 	});
 
 	//Módosítást tároló tömbök létr.

@@ -72,6 +72,124 @@ $(function(){
 		});
 	}
 
+	var $addForm = $('.invite_form').detach().css('display','block'),
+					$clonedAddForm;
+
+	var e_invite = function(e){
+		e.preventDefault();
+
+		if ($clonedAddForm instanceof jQuery) $clonedAddForm.remove();
+		$clonedAddForm = $addForm.clone();
+
+		$('main').append($clonedAddForm);
+
+		$(document.body).animate({scrollTop: $clonedAddForm.offset().top - 10 }, 500);
+
+		/* Hozzáadás gomb eseménye */
+		$('.addlesson').click(function(){
+			var $name = $('[name=name]').val(),
+				$email = $('[name=email]').val(),
+				$ul_list = $('.l_l_utag'),
+				nesreturn = false,
+				title = "Felhasználók meghívása";
+
+			var $nameRegExp = new RegExp($('[name=name]').attr('pattern')),
+				$emailRegExp = new RegExp($('[name=email]').attr('pattern'));
+
+			//Formátum ellenörzése
+			if (!$nameRegExp.test($name)){
+				$.Dialog.fail(title,"A felhasználó nevének formátuma nem megfelelő! Kérjük írjon be egy helyes nevet!");
+				return;
+			}
+			if (!$emailRegExp.test($email)){
+				$.Dialog.fail(title,"Az e-mail cím formátuma nem megfelelő! Kérjük írjon be egy helyes e-mail címet!");
+				return;
+			}
+
+			//Létezik-e már ilyen elem?
+			$.each($ul_list.children(),function(i,entry){
+				var lesname = $(entry).attr('data-email');
+
+				if (lesname == $email){
+					$.Dialog.fail(title,"Már hozzáadtad ezt a felhasználót!");
+					nesreturn = true;
+					$('[name=name]').val('');
+					$('[name=email]').val('');
+					return;
+				}
+			});
+			if (nesreturn) return;
+
+			//Hozzáadás a listához
+			$('.l_l_utag').append('<li data-email="'+ $email +'" data-name="'+ $name +'"><b>' + $name + '</b> (' + $email + ')<span class="typcn typcn-times l_l_deleteopt"></span></li>');
+
+			//Beviteli mezők alaphelyzetbe állítása és üres jelzés eltávolítása
+			$('.l_l_empty').remove();
+			$('[name=name]').val('');
+			$('[name=email]').val('');
+
+			/* Törlés eseménye */
+			$('.l_l_deleteopt').on('click',function(){
+				var $li = $(this).parent(),
+					$ul = $('.l_l_utag');
+
+				$li.remove();
+
+				if ($ul.children().size() == 0)
+					$ul.append('<li class="l_l_empty">(nincs)</li>');
+			});
+		});
+
+		var invitations = [], adding = false;
+		/* Elküldés gomb eseménye */
+		$('.a_t_f_sendButton').click(function(){
+			if (adding === true) return;
+			adding = true;
+
+			var $ul = $('.l_l_utag'),
+				title = 'Felhasználók meghívása';
+
+			//Meghívottak listájának előkészítése
+			$.each($ul.children(),function(i,entry){
+				if ($(entry).hasClass('l_l_empty')) return;
+				var name = $(entry).attr('data-name'),
+					email = $(entry).attr('data-email');
+
+				invitations.push({'name': name, 'email': email});
+			});
+
+			$.Dialog.wait(title);
+
+			//Kommunikáció a szerverrel
+			$.ajax({
+				method: 'POST',
+				url: '/users/invite',
+				data: {'invitations': invitations},
+				success: function(data){
+					if (typeof data === 'string'){
+						console.log(data);
+						$(window).trigger('ajaxerror');
+						return false;
+					}
+
+					if (data.status){
+						$.Dialog.success(title,data.message,true);
+
+						$clonedAddForm.remove();
+						$clonedAddForm = undefined;
+
+						$.Dialog.close();
+					}
+					else $.Dialog.fail(title,data.message);
+				},
+				complete: function(){
+					adding = false;
+				}
+			});
+		});
+	};
+	$('.js_invite').on('click',e_invite);
+
 	var e_user_editAccessData = function(e){
 		e.preventDefault();
 

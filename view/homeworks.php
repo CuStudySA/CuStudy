@@ -65,9 +65,11 @@
 						        <div class='hw'>
 						            <span class='lesson-name'><?=$array['lesson']?></span><span class='lesson-number'><?=$array['lesson_th']?>. óra</span>
 						            <div class='hw-text'><?=$array['homework']?></div>
+<?php if (!System::PermCheck('admin')){ ?>
 						            <a class="typcn typcn-tick js_finished" title='Késznek jelölés' href='#<?=$array['id']?>'></a>
 						            <a class="typcn typcn-info-large js_more_info" title='További információk' href='#<?=$array['id']?>'></a>
 						            <a class="typcn typcn-trash js_delete" title='Bejegyzés törlése' href='#<?=$array['id']?>'></a>
+<?php } ?>
 						        </div>
 <?php				        }
 							print '</td>';
@@ -76,6 +78,7 @@
 		            </tr>
 		        </tbody>
 		    </table>
+<?php if (!System::PermCheck('admin')){ ?>
 		    <a class='typcn typcn-plus btn js_add_hw' href='/homeworks/new'>Új házi feladat hozzáadása</a>
-
-<?php } ?>
+<?php }
+	} ?>

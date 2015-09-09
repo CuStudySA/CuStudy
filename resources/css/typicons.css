@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'typicons';
-  src: url("../font/typicons/typicons.eot");
-  src: url("../font/typicons/typicons.eot?#iefix") format('embedded-opentype'),
-       url("../font/typicons/typicons.woff") format('woff'),
-       url("../font/typicons/typicons.ttf") format('truetype'),
-       url("../font/typicons/typicons.svg#typicons") format('svg');
+  src: url("/resources/font/typicons/typicons.eot");
+  src: url("/resources/font/typicons/typicons.eot?#iefix") format('embedded-opentype'),
+       url("/resources/font/typicons/typicons.woff") format('woff'),
+       url("/resources/font/typicons/typicons.ttf") format('truetype'),
+       url("/resources/font/typicons/typicons.svg#typicons") format('svg');
   font-weight: normal;
   font-style: normal;
 }

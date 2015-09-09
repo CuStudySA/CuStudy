@@ -54,13 +54,31 @@
 						</div>
 					</div>
 					<div class="bottom">
+						<a class="typcn typcn-group js_invite" href="#" title="Felhasználók meghívása"></a>
 						<a class="typcn typcn-user-add js_user_add" href="/users/add" title="Új felh. hozzáadása"></a>
 					</div>
 				</li>
 			</ul>
+			<div class='invite_form' style='display: none;'>
+				<h3>Felhasználók meghívása</h3>
+
+				<div class="lesson_list">
+					<p class="l_l_addedtext">Meghívásra jelölt felhasználók:</p>
+					<ul class="l_l_utag">
+						<li class="l_l_empty">(nincs)</li>
+					</ul>
+				</div>
+
+				<div class='add_lesson'>
+					<p>Felhasználó neve: <input type='text' name='name' pattern='^[A-ZÁÉÍÓÖŐÚÜŰ][a-záéíóöőúüű]+[ ][A-ZÁÉÍÓÖŐÚÜŰ][a-záéíóöőúüű]+[ a-zA-ZáéíóöőúüűÁÉÍÓÖŐÚÜŰ]*$' autocomplete="off" required></p>
+					<p>Felhasználó e-mail címe: <input type='text' name='email' pattern='^[a-zA-Z0-9.-_]+(\+[a-zA-Z0-9])?@[a-z0-9]+\.[a-z]{2,4}$' autocomplete="off" required></p>
+					<a href='#' class='btn addlesson'>Hozzáadás</a>
+				</div>
+				<button class='btn a_t_f_sendButton'>Felhasználók meghívása</button>
+			</div>
 <?php	break;
 
-		case 'add': ?>
+/*		case 'add': ?>
 				 <h1>Adja meg az új felhasználó adatait:</h1>
 				 <form method='POST' action='/users/add' id=useradd>
 					<p>Felhasználónév: <input type='text' name='username' placeholder='felhasznalonev' pattern='^[a-zA-Z\d]{3,15}$' required> <i>(3-15 karakter - számok és angol betűk)</i></p>
@@ -113,5 +131,5 @@
 						<input type='hidden' name='id' value='<?=$userid?>'>
 					<p><button class="btn">Felhasználó adatainak szerkesztése</button> vagy <a href='/users'>visszalépés</a></p>
 				</form>
-<?php       break;
+<?php       break; */
 	}

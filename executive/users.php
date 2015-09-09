@@ -2,6 +2,15 @@
 	$act = end($ENV['URL']);
 
 	switch ($act) {
+		case 'invite':
+			if (empty($ENV['POST']['invitations'])) System::Respond();
+
+			$action = InviteTools::BatchInvite($ENV['POST']['invitations']);
+
+			if (is_array($action)) System::Respond('A felhasználók meghívása befejeződött, de néhány felhasználó meghívása nem sikerült.',0);
+			else System::Respond('A felhasználók meghívása sikeresen befejeződött. A meghívók megérkezése azonban akár 12 órát is igénybe vehet!',1);
+		break;
+
 		case 'getPatterns':
 			System::Respond('', 1, System::GetHtmlPatterns());
 		break;

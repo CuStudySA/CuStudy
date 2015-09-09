@@ -23,12 +23,15 @@
 					<span class='rovid'><?=$subarray['short']?></span>
 					<span class='nev'><?=$subarray['name']?></span>
 				</div>
+<?php if (!System::PermCheck('admin')) { ?>
 				<div class="bottom">
 					<a class="typcn typcn-pencil js_teacher_edit" href="#<?=$subarray['id']?>" title="Módosítás"></a>
 					<a class="typcn typcn-minus js_teacher_del" href="#<?=$subarray['id']?>" title="Törlés"></a>
 				</div>
-			</li>
 <?php } ?>
+			</li>
+<?php }
+	  if (!System::PermCheck('admin')) { ?>
 		<li class='new'>
 			<div class="top clearfix">
 				<span class='rovid'>Új tanár</span>
@@ -38,6 +41,7 @@
 				<a class="typcn typcn-plus js_teacher_add" href="#" title="Hozzáadás"></a>
 			</div>
 		</li>
+<?php } ?>
 	</ul>
 	<div class='add_teacher_form' style='display: none;'>
 		<h3>Tanár hozzáadása</h3>

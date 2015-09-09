@@ -7,29 +7,19 @@
 	<div class="options"><?php
 $Actions = array(
 	array('home','fooldal','Főoldal'),
+	array('calendar','timetables','Órarend'),
+	array('globe','homeworks','Házi feladatok'),
 	array('user','profile','Profilom'),
+	array('contacts','teachers','Tanárok'),
+	array('th-menu','lessons','Tantárgyak'),
 );
 
-if (!System::PermCheck('user','admin')){
-	$Actions[] = array('calendar','timetables','Órarend');
-	$Actions[] = array('contacts','teachers','Tanárok');
-	$Actions[] = array('th-large','groups','Csoportok');
-	$Actions[] = array('globe','homeworks','Házi feladatok');
-}
-
-if (!System::PermCheck('admin','admin')){
-	$Actions[] = array('group','users','Felhasználók');
-	$Actions[] = array('th-menu','lessons','Tantárgyak');
-}
-if (!System::PermCheck('schooladmin','schooladmin')){
-	$Actions[] = array('mortar-board','classes','Osztályok');
-	$Actions[] = array('group','users','Adminisztrátorok');
-}
-if (!System::PermCheck('admin','schooladmin'))
-	//$Actions[] = array('document-text','logs','Tevékenységnapló');
-
-if (!System::PermCheck('sysadmin'))
-	$Actions[] = array('document-text','logs','Tevékenységnapló');
+if (USRGRP == 'admin')
+	$Actions = array_merge($Actions,array(
+		array('th-large','groups','Csoportok'),
+		array('group','users','Felhasználók'),
+		//array('document-text','logs','Tevékenységnapló'),
+	));
 
 $Actions[] = array('power','#logout','Kijelentkezés');
 
