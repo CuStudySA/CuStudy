@@ -19,10 +19,10 @@
 	
 	# Külső erőforrás fájlok betöltése
 	include $root.'resources/php/Cookie.php';
-	include $root.'resources/php/Database.php';
+	include $root.'resources/php/MysqliDb.php';
 
 	# Adatbázis kapcsolat felépítése
-	$db = new Database($db_NAME);
+	$db = new MysqliDb($db_HOST,$db_USER,$db_PASS,$db_NAME);
 	
 	# Funkciótár betöltése
 	include $root.'resources/php/functions.php';
@@ -356,4 +356,3 @@
 	}
 	foreach ($doc_list as $doc)
 		require "view/$doc.php";
-?>

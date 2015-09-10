@@ -18,6 +18,7 @@
 			<h2>'A' órarend</h2>
 
 <?php		echo '<div class="template" id="form-template">'.Timetable::ADD_FORM_HTML.'</div>';
+			// TODO A Timetable::Render max. 3 paramétert fogad el,viszont 4-et adsz meg
 			Timetable::Render('a', Timetable::GetTimeTable('a',true), null, true);
 		break;
 

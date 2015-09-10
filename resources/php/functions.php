@@ -82,7 +82,7 @@
 			$datab = $data['db'];
 			unset($data['db']);
 
-			return $db->insert('log_'.$datab,$data,true);
+			return $db->insert('log_'.$datab,$data);
 		}
 
 		private function _spliceData($data){
@@ -112,7 +112,6 @@
 
 				default:
 					return false;
-				break;
 			}
 
 			$data = $db->rawQuery($query);
@@ -137,7 +136,6 @@
 				(opt)'errorcode' => 0,
 			);                              */
 
-			global $db;
 			$logclass = new Logging();
 
 			# Adatok szétválasztása a funkcióknak
@@ -155,8 +153,7 @@
 			$action = $logclass->_insertCentral(array_merge($data['central'],array('db' => $data_p['db'])));
 
 			# Eredmény feldolgozása
-			if ($action) return 0;
-			else return 3;
+			return $action ? 0 : 3;
 		}
 
 		static function GetDetails($id){
@@ -185,15 +182,13 @@
 
 				default:
 					return 4;
-				break;
 			}
 
 			if (!isset(self::$subTables[$dataid['action']])) return 5;
 
 			$action['details'] = $logclass->_translateDbTitles($dataid);
 
-			if ($action['details'] !== false) return $action;
-			else return 6;
+			return $action['details'] !== false ? $action : 6;
 		}
 	}
 
@@ -230,7 +225,8 @@
 			7 => 'Vasárnap',
 		);
 
-		static $AllowedHTMLTags = '<b><i><u><span><br><br/>';
+		static /** @noinspection HtmlDeprecatedTag */
+			$AllowedHTMLTags = '<b><i><u><span><br><br/>';
 
 		// Bevitel helyességének ellenörzése
 		static function InputCheck($text,$type){	
@@ -280,6 +276,8 @@
 
 			if (!isset(self::$Inputs[$do])) return false;
 
+			$final = array();
+
 			foreach (self::$Inputs[$do] as $item){
 				if (isset(self::$ResolveNames[$item]))
 					$final[$item] = self::$Patterns[self::$ResolveNames[$item]];
@@ -292,8 +290,7 @@
 
 		// HTML választómenü értékek ell.
 		static function OptionCheck($text = '',$values = []){
-			if (!in_array($text,$values)) return true;
-			else return false;
+			return !in_array($text, $values) ? true : false;
 		}
 		
 		// Aktív-e a felh. az öröklődő csop. alapján?
@@ -313,7 +310,7 @@
 
 		//Cookie ellenőrzés & '$user' generálása
 		static function CheckLogin() {
-			global $db,$user;
+			global $db, $user;
 
 			if (!Cookie::exists('PHPSESSID')) return 'guest';
 			$session = Cookie::get('PHPSESSID');
@@ -329,8 +326,6 @@
 			
 			if (!$isadmin)
 				if (self::UserActParent($user)) return 'guest';
-			
-			unset ($session);
 
 			return $user['priv'];
 		}
@@ -358,7 +353,7 @@
 				if (self::UserActParent($data)) return 5;
 
 			$session = Password::GetSession($username);
-			$action = $db->where('username',$username)->update($isadmin,array('session' => $session));
+			$db->where('username',$username)->update($isadmin,array('session' => $session));
 
 			if ($remember) Cookie::set('username',$username);
 
@@ -431,7 +426,7 @@
 
 		// Asszociatív tömb-e?
 		static function IsAssoc($array) {
-            return ($array !== array_values($array));
+            return $array !== array_values($array);
 		}
 
 		// Idegen értékek törlése a tömbből
@@ -447,7 +442,7 @@
 		// Névelő
 		static function Nevelo($str,$upperc = false,$btw = ''){
 			$match = '/^(a|á|o|ó|u|ú|e|é|i|í|ö|ő|ü|ű|1|5)/i';
-			$arr = array();
+
 			if ($upperc === true || $upperc == 'true' ) $a = "A";
 			else $a = "a";
 
@@ -486,14 +481,13 @@
 			);
 			$context  = stream_context_create($options);
 
-			if ($json)
-				return json_decode(file_get_contents($url, false, $context),true);
-			else
-				return file_get_contents($url, false, $context);
+			$contents = file_get_contents($url, false, $context);
+			return $json ? json_decode($contents, true) : $contents;
 		}
 
 		static function Redirect($url){
-			return die(header('Location: '.$url));
+			header('Location: '.$url);
+			die();
 		}
 
 		static function ExternalLogin($userID, $provider = 'google'){
@@ -548,8 +542,7 @@
 		    if (!self::$mailSended) usleep(100);
 		    self::$mailSended = true;
 
-			if ($action) return 0;
-			else return 1;
+			return $action ? 0 : 1;
 		}
 	}
 
@@ -613,8 +606,7 @@
 				'active' => $type == 'deactivate' ? 0 : 1,
 			));
 
-			if (!$action) return 5;
-			else return 0;
+			return !$action ? 5 : 0;
 		}
 
 		static function Unlink($connid){
@@ -627,13 +619,10 @@
 
 			if ($data['userid'] != $user['id'] && !System::PermCheck('admin','admin'))
 				if (System::ClassPermCheck($data['userid'],'users')) return 3;
-			else
-				$usr = $user['id'];
 
 			$action = $db->where('id',$connid)->delete('ext_connections');
 
-			if (!$action) return 4;
-			else return 0;
+			return !$action ? 4 : 0;
 		}
 	}
 
@@ -732,18 +721,15 @@
 	}
 
 	class InviteTools {
+		/*
+			TODO Meghívó e-mail HTML javítása
+
+			A felesleges HTML-t kiszedtem, ha el akarod távolitani
+			a linkekről az aláhúzást, mindegyik linkre tegyél egy
+			              style="text-decoration:none"
+			attribútumot.
+		*/
 		static $inviteBody = <<<STRING
-<!DOCTYPE html>
-<html>
-	<head>
-		<meta charset="utf-8"/>
-		<style>
-			a {
-				text-decoration: none;
-			}
-		</style>
-	</head>
-	<body>
 		<h2>CuStudy - Meghívó a CuStudy rendszerbe</h2>
 
 		<h3>Tisztelt ++NAME++!</h3>
@@ -757,8 +743,6 @@
 		<p>Üdvözlettel,<br><br>
 		<b>Mészáros Bálint</b> és <b>Kiss Antal</b><br>
 		 a BetonSoft igazgatóságának tagjai</p>
-	</body>
-</html>
 STRING;
 
 	static $groupChooser = array(<<<STRING
@@ -817,8 +801,6 @@ STRING
 		}
 
 		static function BatchInvite($emails){
-			global $db, $user, $ENV;
-
 			# Jog. ellenörzése
 			if (System::PermCheck('admin')) return 1;
 
@@ -841,7 +823,7 @@ STRING
 				'realname' (string)
 			) */
 
-			global $db,$ENV;
+			global $db;
 
 			$token = $data['token'];
 			# Formátum ellenörzése
@@ -876,7 +858,7 @@ STRING
 			));
 
 			$session = Password::GetSession($data['username']);
-			$action = $db->insert('users',array(
+			$db->insert('users',array(
 				'username' => $data['username'],
 				'password' => Password::Kodolas($data['password']),
 				'session' => $session,
@@ -885,7 +867,7 @@ STRING
 				'email' => $token_d['email'],
 				'priv' => 'user',
 				'active' => 1,
-			),true);
+			));
 
 			Cookie::set('PHPSESSID',$session,false);
 
@@ -923,7 +905,7 @@ STRING
 			return [$print.self::$groupChooser[1]];
 		}
 		static function SetGroupMembers($data){
-			global $db,$user,$ENV;
+			global $db,$user;
 
 			$gt = $g = array();
 			$group_themes = $db->rawQuery('SELECT `id`
@@ -1018,10 +1000,10 @@ STRING
 			if (!isset($data_a['color']) || $data_a['color'] == '#000000') $data_a['color'] = 'default';
 			$data_a['classid'] = $ENV['class']['id'];
 
-			return [$db->insert('lessons',$data_a,true)];
+			return [$db->insert('lessons',$data_a)];
 		}
 		static function Add($data_a){
-			global $db,$user;
+			global $user;
 
 			$action = self::_add($data_a);
 
@@ -1076,7 +1058,7 @@ STRING
 			else return 3;
 		}
 		static function Edit($data_a){
-			global $user,$db;
+			global $user;
 
 			$action = self::_edit($data_a);
 
@@ -1247,7 +1229,7 @@ STRING
 			if (!empty($data)) return 6;
 
 			# Regisztráció
-			return [$db->insert('users',$data_a,true)];
+			return [$db->insert('users',$data_a)];
 		}
 
 		static function AddUser($data_a){
@@ -1460,7 +1442,7 @@ STRING
 				'classid' => $user['classid'],
 				'name' => $data['name'],
 				'theme' => $data['theme'],
-			),true);
+			));
 
 			$users = $db->rawQuery('SELECT *
 									FROM `users`
@@ -1517,18 +1499,15 @@ STRING
 			if (!empty($data['class_members'])){
 				$grpm = explode(',',$data['class_members']);
 
-				$query = 'DELETE FROM `group_members`
-							WHERE `groupid` = ? && (';
-				$qdata = array($id);
-
+				$uids = [];
 				foreach ($grpm as $entry){
 					if (System::InputCheck($entry,'numeric')) return 4;
-					$query .= ' `userid` = ? ||';
-					$qdata[] = $entry;
+					$uids[] = $entry;
 				}
-				$query = rtrim($query,' |').')';
+				$query = 'DELETE FROM `group_members`
+							WHERE `groupid` = ? && userid IN ('.implode(',',$uids).')';
 
-				$db->rawQuery($query,$qdata);
+				$db->rawQuery($query,array($id));
 			}
 
 			if (!empty($data['group_members'])){
@@ -1577,23 +1556,19 @@ STRING
 									WHERE `classid` = ? && `groupid` = ?',array($user['classid'],$id));
 
 			if (!empty($members)){
+				$uids = [];
+				foreach ($members as $entry)
+					$uids[] = $entry['userid'];
+
 				$query = 'DELETE FROM `group_members`
-							WHERE `groupid` = ? && (';
-				$qdata = array($id);
+							WHERE `groupid` = ? && userid IN ('.implode(',',$uids).')';
 
-				foreach ($members as $entry){
-					$query .= ' `userid` = ? ||';
-					$qdata[] = $entry['userid'];
-				}
-				$query = rtrim($query,' |').')';
-
-				$db->rawQuery($query,$qdata);
+				$db->rawQuery($query,array($id));
 			}
 
 			$action = $db->where('id',$id)->delete('groups');
 
-			if ($action) return 0;
-			else return 4;
+			return $action ? 0 : 4;
 		}
 	}
 
@@ -1648,7 +1623,7 @@ STRING
 				if (System::InputCheck($value,$type)) return 22;
 			}
 			$basedata['classid'] = $user['classid'];
-			$action = $db->insert('teachers',$basedata,true);
+			$action = $db->insert('teachers',$basedata);
 			if (!is_numeric($action)) return 3;
 
 			# Tantárgyak hozzáadása
@@ -1797,7 +1772,7 @@ STRING
 		}
 
 		static function GetHomeworks($numberOfHomework = 3){
-			global $db, $user, $ENV;
+			global $db, $user;
 
 			$grpmember = $db->rawQuery('SELECT `groupid`
 							FROM `group_members`
@@ -1920,8 +1895,8 @@ STRING
 
 			$yearPassed = $timestamp >= $start && $timestamp < $end;
 
-			if (!$sorting)
-				return $ENV['class']['pairweek'] === 'A'
+			return !$sorting
+				? $ENV['class']['pairweek'] === 'A'
 					? (
 						$weekNum % 2 == 0
 						? (!$yearPassed ? 'A' : 'B')
@@ -1931,10 +1906,8 @@ STRING
 						$weekNum % 2 == 0
 						? (!$yearPassed ? 'B' : 'A')
 						: (!$yearPassed ? 'A' : 'B')
-					);
-
-			else
-				return $ENV['class']['pairweek'] === 'A'
+					)
+				: $ENV['class']['pairweek'] === 'A'
 					? (
 						$weekNum % 2 == 0
 						? (!$yearPassed ? 'ASC' : 'DESC')
@@ -1980,7 +1953,7 @@ STRING
 		}
 
 		static function DeleteEntrys($toDelete){
-			global $db, $user;
+			global $db;
 
 			foreach ($toDelete as $sub){
 				if (!isset($sub['id'])) return 5;
@@ -1997,8 +1970,6 @@ STRING
 		}
 
 		static function ProgressTable($data){
-			global $db, $user;
-
 			# Jog. ellenörzése
 			if (System::PermCheck('admin')) return 2;
 
@@ -2068,6 +2039,7 @@ STRING;
 				$actWeek = strtolower(Timetable::GetActualWeek());
 				$dayInWeek = Timetable::GetDayInNumber();
 			}
+			// TODO A $currentWeek nincs használva, ha nem kell, töröld
 			$currentWeek = date('W', $weekday);
 
 			$dualWeek = Timetable::GetNumberOfWeeks() == 1 ? false : true;
@@ -2078,7 +2050,7 @@ STRING;
 							FROM timetable tt
 							LEFT JOIN lessons l
 							ON (l.id = tt.lessonid && l.classid = tt.classid)
-							WHERE tt.classid = ? ".$whereString."
+							WHERE tt.classid = ? $whereString
 							ORDER BY tt.week, tt.day, tt.lesson ASC",$addon);
 			}
 			else {
