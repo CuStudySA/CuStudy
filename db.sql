@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 4.2.12deb2
+-- version 4.4.8
 -- http://www.phpmyadmin.net
 --
--- Hoszt: localhost
--- Létrehozás ideje: 2015. Sze 09. 14:55
--- Szerver verzió: 5.5.43-0+deb7u1-log
--- PHP verzió: 5.4.39-0+deb7u2
+-- Gép: 127.0.0.1
+-- Létrehozás ideje: 2015. Sze 10. 20:36
+-- Kiszolgáló verziója: 5.6.21
+-- PHP verzió: 5.6.3
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -19,6 +19,8 @@ SET time_zone = "+00:00";
 --
 -- Adatbázis: `betonhomework`
 --
+CREATE DATABASE IF NOT EXISTS `betonhomework` DEFAULT CHARACTER SET utf8 COLLATE utf8_hungarian_ci;
+USE `betonhomework`;
 
 -- --------------------------------------------------------
 
@@ -27,14 +29,14 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE IF NOT EXISTS `admins` (
-`id` int(11) NOT NULL,
+  `id` int(11) NOT NULL,
   `username` tinytext CHARACTER SET utf8 COLLATE utf8_hungarian_ci NOT NULL,
   `password` tinytext CHARACTER SET utf8 COLLATE utf8_hungarian_ci NOT NULL,
   `session` tinytext CHARACTER SET utf8 COLLATE utf8_hungarian_ci NOT NULL,
   `realname` tinytext CHARACTER SET utf8 COLLATE utf8_hungarian_ci NOT NULL,
   `active` int(11) NOT NULL DEFAULT '1',
   `priv` tinytext CHARACTER SET utf8 COLLATE utf8_hungarian_ci NOT NULL COMMENT 'schooladmin,sysadmin'
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -43,12 +45,12 @@ CREATE TABLE IF NOT EXISTS `admins` (
 --
 
 CREATE TABLE IF NOT EXISTS `class` (
-`id` int(11) NOT NULL,
+  `id` int(11) NOT NULL,
   `classid` tinytext COLLATE utf8_hungarian_ci NOT NULL,
   `active` int(11) NOT NULL DEFAULT '1',
   `school` int(11) NOT NULL,
   `pairweek` tinytext COLLATE utf8_hungarian_ci NOT NULL
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
 -- --------------------------------------------------------
 
@@ -57,7 +59,7 @@ CREATE TABLE IF NOT EXISTS `class` (
 --
 
 CREATE TABLE IF NOT EXISTS `ext_connections` (
-`id` int(11) NOT NULL,
+  `id` int(11) NOT NULL,
   `userid` int(11) NOT NULL,
   `provider` enum('google','facebook','twitter','') COLLATE utf8_hungarian_ci NOT NULL,
   `account_id` tinytext COLLATE utf8_hungarian_ci NOT NULL,
@@ -65,7 +67,7 @@ CREATE TABLE IF NOT EXISTS `ext_connections` (
   `picture` text COLLATE utf8_hungarian_ci NOT NULL,
   `email` tinytext COLLATE utf8_hungarian_ci NOT NULL,
   `active` int(11) NOT NULL DEFAULT '1'
-) ENGINE=MyISAM AUTO_INCREMENT=11 DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
 -- --------------------------------------------------------
 
@@ -74,11 +76,11 @@ CREATE TABLE IF NOT EXISTS `ext_connections` (
 --
 
 CREATE TABLE IF NOT EXISTS `groups` (
-`id` int(11) NOT NULL,
+  `id` int(11) NOT NULL,
   `classid` int(11) NOT NULL,
   `name` varchar(15) COLLATE utf8_hungarian_ci NOT NULL,
   `theme` int(11) NOT NULL
-) ENGINE=MyISAM AUTO_INCREMENT=15 DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
 -- --------------------------------------------------------
 
@@ -87,11 +89,11 @@ CREATE TABLE IF NOT EXISTS `groups` (
 --
 
 CREATE TABLE IF NOT EXISTS `group_members` (
-`id` int(11) NOT NULL,
+  `id` int(11) NOT NULL,
   `classid` int(11) NOT NULL,
   `groupid` int(11) NOT NULL,
   `userid` int(11) NOT NULL
-) ENGINE=MyISAM AUTO_INCREMENT=63 DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
 -- --------------------------------------------------------
 
@@ -100,10 +102,10 @@ CREATE TABLE IF NOT EXISTS `group_members` (
 --
 
 CREATE TABLE IF NOT EXISTS `group_themes` (
-`id` int(11) NOT NULL,
+  `id` int(11) NOT NULL,
   `name` tinytext COLLATE utf8_hungarian_ci NOT NULL,
   `classid` int(11) NOT NULL
-) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
 -- --------------------------------------------------------
 
@@ -112,13 +114,13 @@ CREATE TABLE IF NOT EXISTS `group_themes` (
 --
 
 CREATE TABLE IF NOT EXISTS `homeworks` (
-`id` int(11) NOT NULL,
+  `id` int(11) NOT NULL,
   `lesson` int(11) NOT NULL,
   `text` tinytext COLLATE utf8_hungarian_ci NOT NULL,
   `author` int(11) NOT NULL,
   `week` int(11) NOT NULL,
   `classid` int(11) NOT NULL
-) ENGINE=MyISAM AUTO_INCREMENT=24 DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
 -- --------------------------------------------------------
 
@@ -127,7 +129,7 @@ CREATE TABLE IF NOT EXISTS `homeworks` (
 --
 
 CREATE TABLE IF NOT EXISTS `invitations` (
-`id` int(11) NOT NULL,
+  `id` int(11) NOT NULL,
   `invitation` tinytext COLLATE utf8_hungarian_ci NOT NULL,
   `email` tinytext COLLATE utf8_hungarian_ci NOT NULL,
   `name` tinytext COLLATE utf8_hungarian_ci NOT NULL,
@@ -135,7 +137,7 @@ CREATE TABLE IF NOT EXISTS `invitations` (
   `time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `inviter` int(11) NOT NULL,
   `active` int(11) NOT NULL DEFAULT '1'
-) ENGINE=MyISAM AUTO_INCREMENT=15 DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
 -- --------------------------------------------------------
 
@@ -144,12 +146,12 @@ CREATE TABLE IF NOT EXISTS `invitations` (
 --
 
 CREATE TABLE IF NOT EXISTS `lessons` (
-`id` int(11) NOT NULL,
+  `id` int(11) NOT NULL,
   `classid` int(11) NOT NULL,
   `name` tinytext COLLATE utf8_hungarian_ci NOT NULL,
   `teacherid` int(11) NOT NULL,
   `color` tinytext COLLATE utf8_hungarian_ci NOT NULL
-) ENGINE=MyISAM AUTO_INCREMENT=30 DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
 -- --------------------------------------------------------
 
@@ -158,7 +160,7 @@ CREATE TABLE IF NOT EXISTS `lessons` (
 --
 
 CREATE TABLE IF NOT EXISTS `log_central` (
-`id` int(11) NOT NULL,
+  `id` int(11) NOT NULL,
   `action` tinytext COLLATE utf8_hungarian_ci NOT NULL,
   `db` tinytext COLLATE utf8_hungarian_ci NOT NULL,
   `user` int(11) NOT NULL,
@@ -167,7 +169,7 @@ CREATE TABLE IF NOT EXISTS `log_central` (
   `useragent` tinytext COLLATE utf8_hungarian_ci NOT NULL,
   `ipaddr` tinytext COLLATE utf8_hungarian_ci NOT NULL,
   `time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=MyISAM AUTO_INCREMENT=300 DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
 -- --------------------------------------------------------
 
@@ -176,13 +178,13 @@ CREATE TABLE IF NOT EXISTS `log_central` (
 --
 
 CREATE TABLE IF NOT EXISTS `log_lesson_add` (
-`id` int(11) NOT NULL,
+  `id` int(11) NOT NULL,
   `e_id` int(11) NOT NULL,
   `classid` int(11) NOT NULL,
   `name` tinytext COLLATE utf8_hungarian_ci NOT NULL,
   `teacherid` int(11) NOT NULL,
   `color` tinytext COLLATE utf8_hungarian_ci NOT NULL
-) ENGINE=MyISAM AUTO_INCREMENT=11 DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
 -- --------------------------------------------------------
 
@@ -191,13 +193,13 @@ CREATE TABLE IF NOT EXISTS `log_lesson_add` (
 --
 
 CREATE TABLE IF NOT EXISTS `log_lesson_del` (
-`id` int(11) NOT NULL,
+  `id` int(11) NOT NULL,
   `e_id` int(11) NOT NULL,
   `classid` int(11) NOT NULL,
   `name` tinytext COLLATE utf8_hungarian_ci NOT NULL,
   `teacherid` int(11) NOT NULL,
   `color` tinytext COLLATE utf8_hungarian_ci NOT NULL
-) ENGINE=MyISAM AUTO_INCREMENT=17 DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
 -- --------------------------------------------------------
 
@@ -206,13 +208,13 @@ CREATE TABLE IF NOT EXISTS `log_lesson_del` (
 --
 
 CREATE TABLE IF NOT EXISTS `log_lesson_edit` (
-`id` int(11) NOT NULL,
+  `id` int(11) NOT NULL,
   `e_id` int(11) NOT NULL,
   `classid` int(11) NOT NULL,
   `name` tinytext COLLATE utf8_hungarian_ci NOT NULL,
   `teacherid` int(11) NOT NULL,
   `color` tinytext COLLATE utf8_hungarian_ci NOT NULL
-) ENGINE=MyISAM AUTO_INCREMENT=28 DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
 -- --------------------------------------------------------
 
@@ -221,9 +223,9 @@ CREATE TABLE IF NOT EXISTS `log_lesson_edit` (
 --
 
 CREATE TABLE IF NOT EXISTS `log_login` (
-`id` int(11) NOT NULL,
+  `id` int(11) NOT NULL,
   `username` tinytext COLLATE utf8_hungarian_ci NOT NULL
-) ENGINE=MyISAM AUTO_INCREMENT=151 DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
 -- --------------------------------------------------------
 
@@ -232,7 +234,7 @@ CREATE TABLE IF NOT EXISTS `log_login` (
 --
 
 CREATE TABLE IF NOT EXISTS `log_user_add` (
-`id` int(11) NOT NULL,
+  `id` int(11) NOT NULL,
   `e_id` int(11) NOT NULL,
   `username` tinytext COLLATE utf8_hungarian_ci NOT NULL,
   `realname` tinytext COLLATE utf8_hungarian_ci NOT NULL,
@@ -242,7 +244,7 @@ CREATE TABLE IF NOT EXISTS `log_user_add` (
   `email` tinytext COLLATE utf8_hungarian_ci NOT NULL,
   `birthday` date NOT NULL,
   `phone` tinytext COLLATE utf8_hungarian_ci NOT NULL
-) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
 -- --------------------------------------------------------
 
@@ -251,7 +253,7 @@ CREATE TABLE IF NOT EXISTS `log_user_add` (
 --
 
 CREATE TABLE IF NOT EXISTS `log_user_del` (
-`id` int(11) NOT NULL,
+  `id` int(11) NOT NULL,
   `e_id` int(11) NOT NULL,
   `username` tinytext COLLATE utf8_hungarian_ci NOT NULL,
   `realname` tinytext COLLATE utf8_hungarian_ci NOT NULL,
@@ -261,7 +263,7 @@ CREATE TABLE IF NOT EXISTS `log_user_del` (
   `email` tinytext COLLATE utf8_hungarian_ci NOT NULL,
   `birthday` date NOT NULL,
   `phone` tinytext COLLATE utf8_hungarian_ci NOT NULL
-) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
 -- --------------------------------------------------------
 
@@ -270,7 +272,7 @@ CREATE TABLE IF NOT EXISTS `log_user_del` (
 --
 
 CREATE TABLE IF NOT EXISTS `log_user_edit` (
-`id` int(11) NOT NULL,
+  `id` int(11) NOT NULL,
   `e_id` int(11) NOT NULL,
   `username` tinytext COLLATE utf8_hungarian_ci NOT NULL,
   `realname` tinytext COLLATE utf8_hungarian_ci NOT NULL,
@@ -280,7 +282,7 @@ CREATE TABLE IF NOT EXISTS `log_user_edit` (
   `email` tinytext COLLATE utf8_hungarian_ci NOT NULL,
   `birthday` date NOT NULL,
   `phone` tinytext COLLATE utf8_hungarian_ci NOT NULL
-) ENGINE=MyISAM AUTO_INCREMENT=18 DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
 -- --------------------------------------------------------
 
@@ -289,10 +291,10 @@ CREATE TABLE IF NOT EXISTS `log_user_edit` (
 --
 
 CREATE TABLE IF NOT EXISTS `school` (
-`id` int(11) NOT NULL,
+  `id` int(11) NOT NULL,
   `name` tinytext COLLATE utf8_hungarian_ci NOT NULL,
   `active` int(11) NOT NULL DEFAULT '1'
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
 -- --------------------------------------------------------
 
@@ -301,11 +303,11 @@ CREATE TABLE IF NOT EXISTS `school` (
 --
 
 CREATE TABLE IF NOT EXISTS `teachers` (
-`id` int(11) NOT NULL,
+  `id` int(11) NOT NULL,
   `classid` int(11) NOT NULL,
   `short` varchar(10) CHARACTER SET utf8 COLLATE utf8_hungarian_ci NOT NULL DEFAULT '',
   `name` tinytext CHARACTER SET utf8 COLLATE utf8_hungarian_ci NOT NULL
-) ENGINE=MyISAM AUTO_INCREMENT=37 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -314,7 +316,7 @@ CREATE TABLE IF NOT EXISTS `teachers` (
 --
 
 CREATE TABLE IF NOT EXISTS `timetable` (
-`id` int(11) NOT NULL,
+  `id` int(11) NOT NULL,
   `classid` int(11) NOT NULL,
   `week` enum('a','b') COLLATE utf8_hungarian_ci NOT NULL,
   `day` tinyint(3) NOT NULL,
@@ -323,7 +325,7 @@ CREATE TABLE IF NOT EXISTS `timetable` (
   `groupid` int(11) NOT NULL,
   `start` time NOT NULL,
   `end` time NOT NULL
-) ENGINE=MyISAM AUTO_INCREMENT=59 DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
 -- --------------------------------------------------------
 
@@ -332,7 +334,7 @@ CREATE TABLE IF NOT EXISTS `timetable` (
 --
 
 CREATE TABLE IF NOT EXISTS `users` (
-`id` int(11) NOT NULL,
+  `id` int(11) NOT NULL,
   `username` tinytext COLLATE utf8_hungarian_ci NOT NULL,
   `password` tinytext COLLATE utf8_hungarian_ci NOT NULL,
   `session` tinytext COLLATE utf8_hungarian_ci NOT NULL,
@@ -344,247 +346,247 @@ CREATE TABLE IF NOT EXISTS `users` (
   `birthday` date NOT NULL,
   `phone` varchar(12) COLLATE utf8_hungarian_ci NOT NULL,
   `google_address` tinytext COLLATE utf8_hungarian_ci NOT NULL
-) ENGINE=MyISAM AUTO_INCREMENT=43 DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
 --
--- Indexes for dumped tables
+-- Indexek a kiírt táblákhoz
 --
 
 --
--- Indexes for table `admins`
+-- A tábla indexei `admins`
 --
 ALTER TABLE `admins`
- ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `class`
+-- A tábla indexei `class`
 --
 ALTER TABLE `class`
- ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `ext_connections`
+-- A tábla indexei `ext_connections`
 --
 ALTER TABLE `ext_connections`
- ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `groups`
+-- A tábla indexei `groups`
 --
 ALTER TABLE `groups`
- ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `group_members`
+-- A tábla indexei `group_members`
 --
 ALTER TABLE `group_members`
- ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `group_themes`
+-- A tábla indexei `group_themes`
 --
 ALTER TABLE `group_themes`
- ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `homeworks`
+-- A tábla indexei `homeworks`
 --
 ALTER TABLE `homeworks`
- ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `invitations`
+-- A tábla indexei `invitations`
 --
 ALTER TABLE `invitations`
- ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `lessons`
+-- A tábla indexei `lessons`
 --
 ALTER TABLE `lessons`
- ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `log_central`
+-- A tábla indexei `log_central`
 --
 ALTER TABLE `log_central`
- ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `log_lesson_add`
+-- A tábla indexei `log_lesson_add`
 --
 ALTER TABLE `log_lesson_add`
- ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `log_lesson_del`
+-- A tábla indexei `log_lesson_del`
 --
 ALTER TABLE `log_lesson_del`
- ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `log_lesson_edit`
+-- A tábla indexei `log_lesson_edit`
 --
 ALTER TABLE `log_lesson_edit`
- ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `log_login`
+-- A tábla indexei `log_login`
 --
 ALTER TABLE `log_login`
- ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `log_user_add`
+-- A tábla indexei `log_user_add`
 --
 ALTER TABLE `log_user_add`
- ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `log_user_del`
+-- A tábla indexei `log_user_del`
 --
 ALTER TABLE `log_user_del`
- ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `log_user_edit`
+-- A tábla indexei `log_user_edit`
 --
 ALTER TABLE `log_user_edit`
- ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `school`
+-- A tábla indexei `school`
 --
 ALTER TABLE `school`
- ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `teachers`
+-- A tábla indexei `teachers`
 --
 ALTER TABLE `teachers`
- ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `timetable`
+-- A tábla indexei `timetable`
 --
 ALTER TABLE `timetable`
- ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `users`
+-- A tábla indexei `users`
 --
 ALTER TABLE `users`
- ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`);
 
 --
--- AUTO_INCREMENT for dumped tables
+-- A kiírt táblák AUTO_INCREMENT értéke
 --
 
 --
--- AUTO_INCREMENT for table `admins`
+-- AUTO_INCREMENT a táblához `admins`
 --
 ALTER TABLE `admins`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
--- AUTO_INCREMENT for table `class`
+-- AUTO_INCREMENT a táblához `class`
 --
 ALTER TABLE `class`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
--- AUTO_INCREMENT for table `ext_connections`
+-- AUTO_INCREMENT a táblához `ext_connections`
 --
 ALTER TABLE `ext_connections`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=11;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
--- AUTO_INCREMENT for table `groups`
+-- AUTO_INCREMENT a táblához `groups`
 --
 ALTER TABLE `groups`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=15;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
--- AUTO_INCREMENT for table `group_members`
+-- AUTO_INCREMENT a táblához `group_members`
 --
 ALTER TABLE `group_members`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=63;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
--- AUTO_INCREMENT for table `group_themes`
+-- AUTO_INCREMENT a táblához `group_themes`
 --
 ALTER TABLE `group_themes`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
--- AUTO_INCREMENT for table `homeworks`
+-- AUTO_INCREMENT a táblához `homeworks`
 --
 ALTER TABLE `homeworks`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=24;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
--- AUTO_INCREMENT for table `invitations`
+-- AUTO_INCREMENT a táblához `invitations`
 --
 ALTER TABLE `invitations`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=15;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
--- AUTO_INCREMENT for table `lessons`
+-- AUTO_INCREMENT a táblához `lessons`
 --
 ALTER TABLE `lessons`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=30;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
--- AUTO_INCREMENT for table `log_central`
+-- AUTO_INCREMENT a táblához `log_central`
 --
 ALTER TABLE `log_central`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=300;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
--- AUTO_INCREMENT for table `log_lesson_add`
+-- AUTO_INCREMENT a táblához `log_lesson_add`
 --
 ALTER TABLE `log_lesson_add`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=11;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
--- AUTO_INCREMENT for table `log_lesson_del`
+-- AUTO_INCREMENT a táblához `log_lesson_del`
 --
 ALTER TABLE `log_lesson_del`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=17;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
--- AUTO_INCREMENT for table `log_lesson_edit`
+-- AUTO_INCREMENT a táblához `log_lesson_edit`
 --
 ALTER TABLE `log_lesson_edit`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=28;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
--- AUTO_INCREMENT for table `log_login`
+-- AUTO_INCREMENT a táblához `log_login`
 --
 ALTER TABLE `log_login`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=151;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
--- AUTO_INCREMENT for table `log_user_add`
+-- AUTO_INCREMENT a táblához `log_user_add`
 --
 ALTER TABLE `log_user_add`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
--- AUTO_INCREMENT for table `log_user_del`
+-- AUTO_INCREMENT a táblához `log_user_del`
 --
 ALTER TABLE `log_user_del`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
--- AUTO_INCREMENT for table `log_user_edit`
+-- AUTO_INCREMENT a táblához `log_user_edit`
 --
 ALTER TABLE `log_user_edit`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=18;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
--- AUTO_INCREMENT for table `school`
+-- AUTO_INCREMENT a táblához `school`
 --
 ALTER TABLE `school`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
--- AUTO_INCREMENT for table `teachers`
+-- AUTO_INCREMENT a táblához `teachers`
 --
 ALTER TABLE `teachers`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=37;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
--- AUTO_INCREMENT for table `timetable`
+-- AUTO_INCREMENT a táblához `timetable`
 --
 ALTER TABLE `timetable`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=59;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
--- AUTO_INCREMENT for table `users`
+-- AUTO_INCREMENT a táblához `users`
 --
 ALTER TABLE `users`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=43;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
