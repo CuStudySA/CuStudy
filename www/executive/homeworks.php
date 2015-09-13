@@ -36,7 +36,7 @@
 					$dates = [];
 
 					while(count(array_diff($dates,$dispDays)) != count($dispDays)){
-						$day = Timetable::GetDayInNumber($fromDate);
+						$day = Timetable::GetDayNumber($fromDate);
 						$week = Timetable::GetActualWeek(false,$fromDate);
 
 						$TT = Timetable::GetHWTimeTable(date('W',$fromDate),$day);
@@ -55,8 +55,8 @@
 					$now = strtotime('12 am');
 
 					if (strtotime('- 1 days',$fDate) == $now) $lockBack = true;
-					else if (Timetable::GetDayInNumber() == 6 && strtotime('+ 2 days',$now) == $fDate) $lockBack = true;
-					else if (Timetable::GetDayInNumber() == 7 && strtotime('+ 1 days',$now) == $fDate) $lockBack = true;
+					else if (Timetable::GetDayNumber() == 6 && strtotime('+ 2 days',$now) == $fDate) $lockBack = true;
+					else if (Timetable::GetDayNumber() == 7 && strtotime('+ 1 days',$now) == $fDate) $lockBack = true;
 					else $lockBack = false;
 
 					?>
@@ -69,7 +69,7 @@
 					$date = strtotime('- 1 days',strtotime($ENV['POST']['date']));
 
 					$week = date('W',$date);
-					$day = Timetable::GetDayInNumber($date);
+					$day = Timetable::GetDayNumber($date);
 
 					$TT = Timetable::GetHWTimeTable($week,$day);
 
@@ -85,8 +85,8 @@
 					$now = strtotime('12 am');
 
 					if ($fDate == $now) $lockBack = true;
-					else if (Timetable::GetDayInNumber() == 6 && strtotime('+ 2 days',$now) == $fDate) $lockBack = true;
-					else if (Timetable::GetDayInNumber() == 7 && strtotime('+ 1 days',$now) == $fDate) $lockBack = true;
+					else if (Timetable::GetDayNumber() == 6 && strtotime('+ 2 days',$now) == $fDate) $lockBack = true;
+					else if (Timetable::GetDayNumber() == 7 && strtotime('+ 1 days',$now) == $fDate) $lockBack = true;
 					else $lockBack = false;
 
 					?>

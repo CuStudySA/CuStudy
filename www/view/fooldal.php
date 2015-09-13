@@ -45,22 +45,16 @@
 	<tr>
 </table>
 <?php   }
-	else print "<p>Nincs megjeleníthető házi feladata...</p>";   ?>
+	else print "<p>Nincs megjeleníthető házi feladat.</p>";
 
-<h3>Következő napi órarend</h3>
-
-<?php
+	// Következő tanítási napi órarend
 	$sort = Timetable::GetActualWeek(true);
-	$day = Timetable::GetDayInNumber();
+	$day = Timetable::GetDayNumber();
 
-	$minute = (int)date('i');
-	$hour = (int)date('H');
-	if (!($hour >= 8 && $minute >= 0)){
-		if ($day == 1)
-			$day = 7;
-		else
-			$day = $day - 1;
-	}
+	$minute = date('i');
+	$hour = date('H');
+	if (!($hour >= 8 && $minute >= 0))
+		$day = $day == 1 ? 7 : $day - 1;
 
 	$sorting = $day > 5 ? ($sort == 'ASC' ? 'DESC' : 'ASC') : $sort;
 
@@ -74,6 +68,7 @@
 		$ids[] = $array['groupid'];
 
 	$dualWeek = Timetable::GetNumberOfWeeks() == 1 ? false : true;
+	$actualWeek = Timetable::GetActualWeek();
 
 	if ($dualWeek){
 		$timeTable = $db->rawQuery("SELECT tt.week, tt.day, tt.lesson, l.name, t.name as teacher, l.color, tt.groupid
@@ -83,7 +78,7 @@
 									WHERE tt.classid = ? && (tt.week = ? && tt.day > ?) || tt.week = ?
 									ORDER BY tt.week {$sorting}, tt.day, tt.lesson",
 
-									array($user['classid'],Timetable::GetActualWeek(),$day,Timetable::GetActualWeek() == 'A' ? 'b' : 'a'));
+									array($user['classid'],$actualWeek,$day,$actualWeek == 'A' ? 'b' : 'a'));
 	}
 	else {
 		$timeTable_partWeek = $db->rawQuery("SELECT tt.week, tt.day, tt.lesson, l.name, t.name as teacher, l.color, tt.groupid
@@ -108,7 +103,8 @@
 		$timeTable = array_merge($timeTable_partWeek,$timeTable_entireWeek);
 	}
 
-	if (!empty($timeTable)){
+	if (empty($timeTable)) echo "<p>Nincs megjeleníthető óra.</p>";
+	else {
 		$lessons = array();
 
 		$firstLesson = $timeTable[0];
@@ -117,19 +113,19 @@
 			if ($entry['week'] == $firstLesson['week'] && $entry['day'] == $firstLesson['day'])
 				$lessons[] = $entry;
 		}
-	}
-	else print "<p>Nincs megjeleníthető óra...</p>";
-?>
+		if (!empty($lessons)){
+			$weekdays = ['Hétfő','Kedd','Szerda','Csütörtök','Péntek','Szombat','Vasárnap'];
+
+			echo "<h3>".$weekdays[$lessons[0]['day']-1]."i órarend</h3>"; ?>
 	<div class='lessonList'>
-<?php
-	if (!empty($lessons)){
-		foreach ($lessons as $lesson){
-			if (!in_array($lesson['groupid'],$ids)) continue; ?>
+<?php       foreach ($lessons as $lesson){
+				if (!in_array($lesson['groupid'],$ids)) continue; ?>
 			<div>
 				<span class='lessonNumber'><?=$lesson['lesson']?>.</span> óra:
 				<span class='lessonName' style='background-color: <?=$lesson['color']?>'><?=$lesson['name']?></span>
 				(tanítja: <span class='lessonTeacher'><?=$lesson['teacher']?></span>)
 			</div>
-<?php	}
-	} ?>
+<?php	    } ?>
 	</div>
+<?php   }
+	} ?>

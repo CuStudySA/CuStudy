@@ -1809,7 +1809,7 @@ STRING
 				$ids[] = $array['groupid'];
 
 			$weekNum = Timetable::GetWeekNum();
-			$dayInWeek = Timetable::GetDayInNumber();
+			$dayInWeek = Timetable::GetDayNumber();
 
 			$query = "SELECT hw.id, hw.text as `homework`, hw.week, tt.day, tt.lesson as `lesson_th`, l.name as `lesson`
 						FROM `timetable` tt
@@ -1859,7 +1859,7 @@ STRING
 				}
 
 				$array['date'] = date('m.d',$hwTime);
-				$array['dayString'] = System::$Days[Timetable::GetDayInNumber($hwTime)];
+				$array['dayString'] = System::$Days[Timetable::GetDayNumber($hwTime)];
 
 				$homeWorks[$array['date']][] = $array;
 
@@ -1945,7 +1945,7 @@ STRING
 					);
 		}
 
-		static function GetDayInNumber($timestamp = null) {
+		static function GetDayNumber($timestamp = null) {
 			$ts = date('w' ,empty($timestamp) ? time() : $timestamp);
 			return $ts == 0 ? 7 : $ts;
 		}
@@ -2044,8 +2044,8 @@ STRING;
 
 			if (!empty($week) && !empty($lastDay)){
 				$weekday = strtotime('+ '.($week - date('W')).' weeks', strtotime('12 am'));
-				if (Timetable::GetDayInNumber() < $lastDay) $weekday = strtotime('+ '.($lastDay - Timetable::GetDayInNumber()).' days',$weekday);
-				else $weekday = strtotime('- '.(Timetable::GetDayInNumber() - $lastDay).' days',$weekday);
+				if (Timetable::GetDayNumber() < $lastDay) $weekday = strtotime('+ '.($lastDay - Timetable::GetDayNumber()).' days',$weekday);
+				else $weekday = strtotime('- '.(Timetable::GetDayNumber() - $lastDay).' days',$weekday);
 				$actWeek = strtolower(Timetable::GetActualWeek(false,$weekday));
 				$addon = array_merge($addon,[$actWeek, $lastDay, $actWeek == 'a' ? 'b' : 'a']);
 				$dayInWeek = $lastDay;
@@ -2058,11 +2058,11 @@ STRING;
 				$weekday = time();
 
 				$addon = array_merge($addon,[self::GetActualWeek(),
-							$hour >= 8 && $minute >= 0 ? self::GetDayInNumber() : self::GetDayInNumber()-1,
+							$hour >= 8 && $minute >= 0 ? self::GetDayNumber() : self::GetDayNumber()-1,
 							strtolower(self::GetActualWeek()) == 'a' ? 'b' : 'a']);
 
 				$actWeek = strtolower(Timetable::GetActualWeek());
-				$dayInWeek = Timetable::GetDayInNumber();
+				$dayInWeek = Timetable::GetDayNumber();
 			}
 			// TODO A $currentWeek nincs használva, ha nem kell, töröld
 			$currentWeek = date('W', $weekday);
@@ -2232,7 +2232,7 @@ STRING;
 <?php                   }
 						else {
 							foreach ($weekdays as $day)
-								print "<th class='weekday'>".date('m.d.',$day).' '.System::$Days[Timetable::GetDayInNumber($day)]."</th>";
+								print "<th class='weekday'>".date('m.d.',$day).' '.System::$Days[Timetable::GetDayNumber($day)]."</th>";
 						} ?>
 					</tr>
 				</thead>
