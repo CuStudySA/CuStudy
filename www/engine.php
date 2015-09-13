@@ -253,19 +253,19 @@
 	# Tevékenység meghatározása
 	if (empty($ENV['do']))
 		$do = USRGRP !== 'guest' ? 'fooldal': 'login';
-	else if (!isset($pages[$ENV['do']]) && $ENV['do'] != 'logout')
+	else if (!isset($pages[$ENV['do']]) && $ENV['do'] != 'logout'){
+		if ($ENV['do'] === 'bb-webhook'){
+			if ($_GET['auth'] !== BB_AUTHCODE || $_SERVER['HTTP_X_EVENT_KEY'] !== 'repo:push') exit;
+
+			exec("git reset HEAD --hard");
+			exec("git pull");
+			die();
+		}
 		$do = '404';
+	}
 	else {
 		if ($ENV['do'] == 'login' && USRGRP != 'guest') $do = 'fooldal';
 		else $do = $ENV['do'];
-	}
-
-	if ($do === 'bb-webhook'){
-		if ($_GET['auth'] !== BB_AUTHCODE || $_SERVER['HTTP_X_EVENT_KEY'] !== 'repo:push') exit;
-
-		exec("git reset HEAD --hard");
-		exec("git pull");
-		die();
 	}
 
 	if ($do === "login" || $do === "fooldal")
