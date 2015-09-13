@@ -255,7 +255,7 @@
 		$do = USRGRP !== 'guest' ? 'fooldal': 'login';
 	else if (!isset($pages[$ENV['do']]) && $ENV['do'] != 'logout'){
 		if ($ENV['do'] === 'bb-webhook'){
-			if ($ENV['GET']['auth'] !== BB_AUTHCODE || $ENV['SERVER']['HTTP_X_EVENT_KEY'] !== 'repo:push') exit;
+			if ($ENV['GET']['auth'] !== BB_AUTHCODE) exit;
 
 			exec("git reset HEAD --hard");
 			exec("git pull");
