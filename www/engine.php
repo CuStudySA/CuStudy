@@ -67,10 +67,10 @@
 	$ENV['SOFTWARE'] = array(
 		'NAME' => 'CuStudy',
 		'CODENAME' => 'BlueSky',
-		'VER' => '1.0 RC1',
+		'VER' => '1.0 RC2',
 		'DEVELOPER' => 'BetonSoft',
 		'DEV_STARTED' => '2014',
-		'COMMIT' => 'e1da8cb',
+		'COMMIT' => LATEST_COMMIT_ID,
 	);
 
 	$ENV['ENGINE'] = array(
