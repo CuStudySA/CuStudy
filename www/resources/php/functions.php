@@ -419,7 +419,7 @@
 				echo json_encode($m);
 				exit;
 			}
-			if ($m === ERR_DB_FAIL && System::PermCheck('admin')){
+			if ($m === Message::$DB_FAIL && System::PermCheck('admin')){
 				global $db;
 				$m .= ": ".$db->getLastError();
 			}
@@ -743,6 +743,8 @@
 			if ($ENV['do'] != 404)
 				die(header('Location: /404?path='.$path));
 		}
+
+		static $DB_FAIL = "Hiba történt az adatbázisba mentés során";
 	}
 
 	class InviteTools {
