@@ -17,7 +17,7 @@ $(function(){
 				</div>\
 			</li>");
 
-	if (typeof Patterns != undefined){
+	if (typeof Patterns !== 'undefined'){
 		$.each(Patterns,function(key,value){
 			var $patternInput = $formTempl.find('[name=' + key + ']');
 
@@ -36,7 +36,9 @@ $(function(){
 		$('main').append($clonedAddForm);
 
 		$("#colorpicker").spectrum({
-		    /*color: "#000000",*/
+		    showInput: true,
+		    showInitial: true,
+		    preferredFormat: "hex",
 		    change: function(color) {
 		        $("#colorpicker").attr("value",color.toHexString());
 		    }
@@ -46,7 +48,8 @@ $(function(){
 
 		/* Hozzáadás gomb eseménye */
 		$('.addlesson').click(function(){
-			var $lessoname = $('.a_l_name').val(),
+			var $lessonname = $('.a_l_name'),
+				lessonname = $lessonname.val(),
 				$lessoncolor = $('#colorpicker').val(),
 				$nameregex = new RegExp("^[A-Za-zöüóőúéáűÖÜÓŐÚÉÁŰ.() ]{4,15}$"),
 				$ul_list = $('.l_l_utag'),
@@ -54,7 +57,7 @@ $(function(){
 				title = "Óra hozzáadása";
 
 			//Formátum ellenörzése
-			if (!$nameregex.test($lessoname)){
+			if (!$nameregex.test(lessonname)){
 				$.Dialog.fail(title,"A tantárgy formátuma nem megfelelő! A tantárgy csak a magyar ABC kis-, és nagybetűit tartalmazhatja!");
 				return;
 			}
@@ -63,20 +66,19 @@ $(function(){
 			$.each($ul_list.children(),function(i,entry){
 				var lesname = $(entry).attr('data-name');
 
-				if (lesname == $lessoname){
+				if (lesname == lessonname){
 					$.Dialog.fail(title,"Már létezik ilyen nevű tantárgy, válassz másik nevet!");
-					nesreturn = true;
-					return;
+					return !(nesreturn = true);
 				}
 			});
 			if (nesreturn) return;
 
 			//Hozzáadás a listához
-			$('.l_l_utag').append('<li data-color="'+ $lessoncolor +'" data-name="'+ $lessoname +'"><span style="color: '+ $lessoncolor +'" class="l_l_litag">'+ $lessoname +'</span><span class="typcn typcn-times l_l_deleteopt"></span></li>');
+			$ul_list.append('<li data-color="'+ $lessoncolor +'" data-name="'+ lessonname +'"><span style="color: '+ $lessoncolor +'" class="l_l_litag">'+ lessonname +'</span><span class="typcn typcn-times l_l_deleteopt"></span></li>');
 
 			//Beviteli mezők alaphelyzetbe állítása és üres jelzés eltávolítása
 			$('.l_l_empty').remove();
-			$('.a_l_name').val('');
+			$lessonname.val('');
 
 			/* Törlés eseménye */
 			$('.l_l_deleteopt').on('click',function(){
@@ -98,7 +100,6 @@ $(function(){
 
 			var $ul = $('.l_l_utag'),
 				$inputs = $('.teacher_info').find('input'),
-				name, short,
 				title = 'Tanár hozzáadása';
 
 			//Tantárgyak listájának előkészítése
@@ -110,18 +111,13 @@ $(function(){
 				lessons.push({'name': name, 'color': color});
 			});
 
+			var data = {'lessons': lessons};
+
 			//Tanár adatainak előkészítése
-			$.each($inputs,function(i,entry){
-				switch ($(entry).attr('name')){
-					case 'name':
-						name = $(entry).val();
-					break;
-					case 'short':
-						short = $(entry).val();
-					break;
-					default:
-						return;
-				}
+			$inputs.filter('[name="name"], [name="short"]').each(function(i,entry){
+				var $entry = $(entry),
+					name = $entry.attr('name');
+				data[name] = $entry.val();
 			});
 
 			$.Dialog.wait(title);
@@ -130,7 +126,7 @@ $(function(){
 			$.ajax({
 				method: 'POST',
 				url: '/teachers/add',
-				data: {'name': name, 'short': short, 'lessons': lessons},
+				data: data,
 				success: function(data){
 					if (typeof data === 'string'){
 						console.log(data);
@@ -141,7 +137,7 @@ $(function(){
 					if (data.status){
 						var $elem = $tileTempl.clone();
 
-						$elem.find('.rovid').text(short);
+						$elem.find('.rovid').text(data.short);
 						$elem.find('.nev').text(name);
 						$elem.find('.js_teacher_edit').attr('href','#' + data.id);
 						$elem.find('.js_teacher_del').attr('href','#' + data.id);

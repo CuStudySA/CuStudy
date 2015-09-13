@@ -87,6 +87,9 @@
 					var $urlap = $('#js_form');
 					
 					$("#colorpicker").spectrum({
+					    showInput: true,
+					    showInitial: true,
+					    preferredFormat: "hex",
 						change: function(color) {
 							$("#colorpicker").attr("value",color.toHexString());
 						}
@@ -116,11 +119,12 @@
 									$elem.css('background-color',$urlapelemek.find('[name=color]').val());
 
 									var $lessons = $('.lessons'),
-										$newLessonTile = $('.new');
-									$('.new').remove();
+										$newLessonTiles = $('.new'),
+										$newLessonTilesCopy = $newLessonTiles.clone();
+									$newLessonTiles.remove();
 
 									$lessons.sortChildren('.tantargy',false);
-									$lessons.append($newLessonTile);
+									$lessons.append($newLessonTilesCopy);
 
 									$.Dialog.close();
 								}
