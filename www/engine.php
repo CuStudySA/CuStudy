@@ -260,6 +260,14 @@
 		else $do = $ENV['do'];
 	}
 
+	if ($do === 'bb-webhook'){
+		if ($_GET['auth'] !== BB_AUTHCODE || $_SERVER['HTTP_X_EVENT_KEY'] !== 'repo:push') exit;
+
+		exec("git reset HEAD --hard");
+		exec("git pull");
+		die();
+	}
+
 	if ($do === "login" || $do === "fooldal")
 		System::FixPath('/');
 

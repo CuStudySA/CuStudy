@@ -5,3 +5,6 @@
 	define('DB_USER', '');
 	define('DB_PASS', '');
 	define('DB_NAME', '');
+
+	// Webhook
+	define('BB_AUTHCODE','');

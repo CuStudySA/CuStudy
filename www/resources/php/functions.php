@@ -495,7 +495,7 @@
 
 		static function Redirect($url, $die = true, $http = 301){
 			header("Location: $url",$die,$http);
-			if ($die !== STAY_ALIVE) die();
+			if ($die) die();
 		}
 
 		static function ExternalLogin($userID, $provider = 'google'){
