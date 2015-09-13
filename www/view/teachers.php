@@ -1,8 +1,6 @@
 <?php
-	if (!isset($ENV['URL'][0]))
-		$case = 'default';
-	else
-		$case = $ENV['URL'][0];
+
+	$case = !isset($ENV['URL'][0]) ? 'default' : $ENV['URL'][0];
 
 	switch ($case){
 		default:
