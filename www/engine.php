@@ -257,8 +257,10 @@
 		if ($ENV['do'] === 'bb-webhook'){
 			if ($ENV['GET']['auth'] !== BB_AUTHCODE) exit;
 
-			exec("git reset HEAD --hard");
-			exec("git pull");
+			$out = array();
+			exec("git reset HEAD --hard", $out);
+			exec("git pull", $out);
+			echo implode("<br>", $out);
 			die();
 		}
 		$do = '404';
