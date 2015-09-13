@@ -1,5 +1,8 @@
 <?php
 	# DogM Engine - Developed by mbalint987 (member of BetonSoft)
+
+	# Konfigurációs fájl betöltése
+	require "conf.php";
 	
 	# Karakterkódolás beállítása
 	header('Content-Type: text/html; charset=utf-8;');
@@ -9,23 +12,17 @@
 	if (substr($root,-1) !== '/') $root .= '/';
 	
 	$rootdoc = '/';
-	define('ABSPATH','http://'.$_SERVER['SERVER_NAME']);
-	
-	# Adatbázis adatok beállítása
-	$db_HOST = 'localhost';
-	$db_USER = 'bhwbeta';
-	$db_PASS = 'jellyBEAN22';
-	$db_NAME = 'betonhomework';
+	define('ABSPATH',(!empty($_SERVER['HTTPS'])?'https':'http').'//'.$_SERVER['SERVER_NAME']);
 	
 	# Külső erőforrás fájlok betöltése
-	include $root.'resources/php/Cookie.php';
-	include $root.'resources/php/MysqliDb.php';
+	require $root.'resources/php/Cookie.php';
+	require $root.'resources/php/MysqliDb.php';
 
 	# Adatbázis kapcsolat felépítése
-	$db = new MysqliDb($db_HOST,$db_USER,$db_PASS,$db_NAME);
+	$db = new MysqliDb(DB_HOST,DB_USER,DB_PASS,DB_NAME);
 	
 	# Funkciótár betöltése
-	include $root.'resources/php/functions.php';
+	require $root.'resources/php/functions.php';
 
 	# Scipt futattásának kezdeti idejének lekérése
 	$ENV = array(
@@ -263,15 +260,14 @@
 		else $do = $ENV['do'];
 	}
 
+	if ($do === "login" || $do === "fooldal")
+		System::FixPath('/');
+
 	# Kiléptetés
 	if ($do === 'logout'){
 		$status = !System::Logout();
-		if ($_SERVER['REQUEST_METHOD'] === 'GET') header("Location: /");
-		else {
-			header('Content-Type: application/json;');
-			echo json_encode(array('status' => $status)); #respond
-		}
-		die();
+		if ($_SERVER['REQUEST_METHOD'] === 'GET') System::Redirect('/');
+		else System::Respond(true);
 	}
 
 	// 'Executive' rész \\

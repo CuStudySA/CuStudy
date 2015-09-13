@@ -393,18 +393,13 @@
 		}
 		
 		// Jogosultság ellenörző
-		static function PermCheck($minjog, $maxjog = ''){
+		static function PermCheck($minjog, $maxjog = null){
 			global $PERM;
 
-			if (empty($maxjog)){
-				if (USRPERM < $PERM[$minjog]) return true;
-				return false;
-			}
+			if (empty($maxjog))
+				return USRPERM < $PERM[$minjog];
 
-			if (USRPERM < $PERM[$minjog] || USRPERM > $PERM[$maxjog])
-				return true;
-
-			return false;
+			return USRPERM < $PERM[$minjog] || USRPERM > $PERM[$maxjog];
 		}
 		
 		// Szükséges értékek ellenörzése
@@ -418,10 +413,23 @@
 		// Válaszadó funkció AJAX-hoz
 		static function Respond($m = 'A művelet végrehajtása sikertelen volt!', $s = 0, $x = array()){
 			header('Content-Type: application/json');
-			die(json_encode(array_merge(array(
+			if ($m === true) $m = array();
+			if (is_array($m) && $s == false && empty($x)){
+				$m['status'] = true;
+				echo json_encode($m);
+				exit;
+			}
+			if ($m === ERR_DB_FAIL && System::PermCheck('admin')){
+				global $db;
+				$m .= ": ".$db->getLastError();
+			}
+			$r = array(
 				"message" => $m,
 				"status" => $s,
-			),$x)));
+			);
+			if (!empty($x)) $r = array_merge($r, $x);
+			echo json_encode($r);
+			exit;
 		}
 
 		// Asszociatív tömb-e?
@@ -485,9 +493,9 @@
 			return $json ? json_decode($contents, true) : $contents;
 		}
 
-		static function Redirect($url){
-			header('Location: '.$url);
-			die();
+		static function Redirect($url, $die = true, $http = 301){
+			header("Location: $url",$die,$http);
+			if ($die !== STAY_ALIVE) die();
 		}
 
 		static function ExternalLogin($userID, $provider = 'google'){
@@ -543,6 +551,23 @@
 		    self::$mailSended = true;
 
 			return $action ? 0 : 1;
+		}
+
+		/**
+		 * "Rögzíti" a jelenlegi lekérés URL-jét
+		 * Használatával könnyen változtatható az oldal URL-je
+		 *   átirányítás kezdeményezése nélkül.
+		 *
+		 * @param string $desired_path A kívánt elérési útvonal
+		 * @param int $http Az átirányítást végző funkciónak átadandó státusz kód
+		 *
+		 * @return void
+		 */
+		static function FixPath($desired_path, $http = 301){
+			$query = !empty($_SERVER['QUERY_STRING']) ? preg_replace('~do=[^&]*&data=[^&]*(&|$)~','',$_SERVER['QUERY_STRING']) : '';
+			if (!empty($query)) $query = "?$query";
+			if ($_SERVER['REQUEST_URI'] !== "$desired_path$query")
+				self::Redirect("$desired_path$query", STAY_ALIVE, $http);
 		}
 	}
 

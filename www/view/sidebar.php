@@ -6,9 +6,9 @@
 		<h2 class="name"><?=$user['realname']?></h2>
 		<span class="email"><?=$user['email']?></span>
 	</div>
-	<div class="options"><?php
+	<nav class="options"><?php
 $Actions = array(
-	array('home','fooldal','Főoldal'),
+	array('home','','Főoldal'),
 	array('calendar','timetables','Órarend'),
 	array('globe','homeworks','Házi feladatok'),
 	/*
@@ -32,16 +32,16 @@ $Actions[] = array('power','#logout','Kijelentkezés');
 
 foreach ($Actions as $a){
 	list($icon, $link, $text) = $a;
-	if ($link[0] === '#') $link = array('id', substr($link,1));
-	else {
-		if ($do == $link) $icon .= ' current';
-		$link = array('href',"/$link");
-	}
-	list($attr,$val) = $link;
+
+	if (!!preg_match("~^/$link($|/)~", $_SERVER['REQUEST_URI'])) $icon .= ' current';
+
+	if (!empty($link) && $link[0] === '#')
+		list($attr,$val) = array('id', substr($link, 1));
+	else list($attr,$val) = array('href',"/$link");
 
 	echo "<a $attr='$val' class='typcn typcn-{$icon}'>{$text}</a>";
 }
-	?></div>
+	?></nav>
 
 	<h1>CuStudy</h1>
 </div>

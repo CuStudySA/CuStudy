@@ -36,6 +36,9 @@ body > * {
 	left: 0;
 	margin: 10px;
 }
+#sidebar > .userdata > * {
+	cursor: default;
+}
 #sidebar > .userdata .avatar {
 	float: left;
 	margin-right: 10px;
@@ -73,6 +76,7 @@ body > * {
 }
 #sidebar > .options {
 	top: 105px;
+	display: block;
 	padding: 0;
 	margin: 0;
 	height: calc(100% - 105px - 43px);
@@ -119,6 +123,7 @@ body > * {
 	margin: 0;
 	text-align: center;
 	font-size: 1.5em;
+	line-height: 1.5em;
 }
 body:not(.sidebar-slide) #sidebar + main {
 	margin-left: 25%;
@@ -188,11 +193,6 @@ button.btn:enabled:focus {
 	box-shadow: 0 1px 3px rgba(0,0,0,.8);
 }
 :not(button).btn[disabled] { cursor: not-allowed !important }
-:not(button).btn[disabled]:active,
-button.btn:disabled:active {
-	position: relative;
-	animation: shake .2s ease-in-out;
-}
 
 /* Flex megj. */
 .flex {
