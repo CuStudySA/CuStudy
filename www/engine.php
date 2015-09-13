@@ -12,7 +12,7 @@
 	if (substr($root,-1) !== '/') $root .= '/';
 	
 	$rootdoc = '/';
-	define('ABSPATH',(!empty($_SERVER['HTTPS'])?'https':'http').'//'.$_SERVER['SERVER_NAME']);
+	define('ABSPATH',(!empty($_SERVER['HTTPS'])?'https':'http').'://'.$_SERVER['SERVER_NAME']);
 	
 	# Külső erőforrás fájlok betöltése
 	require $root.'resources/php/Cookie.php';
