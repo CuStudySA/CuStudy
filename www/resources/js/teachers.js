@@ -47,7 +47,9 @@ $(function(){
 		$(document.body).animate({scrollTop: $clonedAddForm.offset().top - 10 }, 500);
 
 		/* Hozzáadás gomb eseménye */
-		$('.addlesson').click(function(){
+		$('.addlesson').click(function(e){
+			e.preventDefault();
+			
 			var $lessonname = $('.a_l_name'),
 				lessonname = $lessonname.val(),
 				$lessoncolor = $('#colorpicker').val(),
@@ -94,7 +96,9 @@ $(function(){
 
 		var lessons = [], adding = false;
 		/* Elküldés gomb eseménye */
-		$('.a_t_f_sendButton').click(function(){
+		$('.a_t_f_sendButton').click(function(e){
+			e.preventDefault();
+
 			if (adding === true) return;
 			adding = true;
 
@@ -127,18 +131,18 @@ $(function(){
 				method: 'POST',
 				url: '/teachers/add',
 				data: data,
-				success: function(data){
-					if (typeof data === 'string'){
-						console.log(data);
+				success: function(data2){
+					if (typeof data2 === 'string'){
+						console.log(data2);
 						$(window).trigger('ajaxerror');
 						return false;
 					}
 
-					if (data.status){
+					if (data2.status){
 						var $elem = $tileTempl.clone();
 
 						$elem.find('.rovid').text(data.short);
-						$elem.find('.nev').text(name);
+						$elem.find('.nev').text(data.name);
 						$elem.find('.js_teacher_edit').attr('href','#' + data.id);
 						$elem.find('.js_teacher_del').attr('href','#' + data.id);
 						$elem.attr('data-id',data.id);
@@ -160,7 +164,7 @@ $(function(){
 						$clonedAddForm = undefined;
 						$.Dialog.close();
 					}
-					else $.Dialog.fail(title,data.message);
+					else $.Dialog.fail(title,data2.message);
 				},
 				complete: function(){
 					adding = false;
