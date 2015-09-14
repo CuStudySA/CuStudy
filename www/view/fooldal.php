@@ -103,7 +103,7 @@
 		$timeTable = array_merge($timeTable_partWeek,$timeTable_entireWeek);
 	}
 
-	if (empty($timeTable)) echo "<p>Nincs megjeleníthető óra.</p>";
+	if (empty($timeTable)) echo "<h3>Következő napi órarend</h3><p>Nincs megjeleníthető óra.</p>";
 	else {
 		$lessons = array();
 
