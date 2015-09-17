@@ -20,6 +20,25 @@
 			else System::Respond('A házi feladat törlése sikertelenül záródott, mert '.Message::GetError('rewriteThis',$action)."! (hibakód: $action)",0);
 		break;
 
+		case 'makeMarkedDone':
+			if (!empty($ENV['POST']['id'])){
+				$action = HomeworkTools::MakeMarkedDone($ENV['POST']['id']);
+
+				if ($action == 0)
+					System::Respond('A kiválasztott házi feladat késznek lett jelölve, így az nem fog már megjelenni!',1);
+				else
+					System::Respond("A kiválasztott házi feladat nem lett késznek jelölve, mert ismeretlen hiba történt a művelet során! (Hibakód: {$action})",0);
+			}
+		break;
+
+		case 'getDoneHomeworks':
+			HomeworkTools::RenderHomeworks(3,false);
+		break;
+
+		case 'getNotDoneHomeworks':
+			HomeworkTools::RenderHomeworks(3,true);
+		break;
+
 		case 'getTimetable':
 			$case  = isset($ENV['URL'][1]) ? $ENV['URL'][1] : System::Respond();
 

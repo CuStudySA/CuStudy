@@ -37,6 +37,80 @@ $(function(){
 		$(this).blur();
 	});
 
+	$('.js_makeMarkedDone').click(function(e){
+		e.preventDefault();
+
+		var $elem = $(e.currentTarget),
+			id = $elem.attr('href').substring(1),
+		    title = 'Házi feladat késznek jelölése';
+
+		$.Dialog.wait(title);
+
+		$.ajax({
+			method: "POST",
+			data: {'id': id},
+			url: '/homeworks/makeMarkedDone',
+			success: function(data){
+				if (typeof data !== 'object'){
+					console.log(data);
+					$(window).trigger('ajaxerror');
+					return false;
+				}
+				if (data.status){
+					$elem.parent().detach();
+					deleteEmptyTd();
+					$.Dialog.close();
+				}
+				else $.Dialog.fail(title,data.message);
+			}
+		});
+	});
+
+	var getDoneHW = function(e){
+		e.preventDefault();
+
+		var $content = $('.hwContent'),
+			title = 'Házi feladatok lekérése';
+
+		$.Dialog.wait(title);
+
+		$.ajax({
+			method: "POST",
+			url: '/homeworks/getDoneHomeworks',
+			success: function(data){
+				$content.empty().append(data);
+				$('.js_hideMarkedDown').on('click',getNotDoneHW);
+				$.Dialog.close();
+			},
+			error: function(){
+				$.Dialog.fail(title,'A házi feladatok lekérése nem sikerült egy ismeretlen hiba miatt!');
+			}
+		});
+	};
+	$('.js_showMarkedDown').on('click',getDoneHW);
+
+	var getNotDoneHW = function(e){
+		e.preventDefault();
+
+		var $content = $('.hwContent'),
+			title = 'Házi feladatok lekérése';
+
+		$.Dialog.wait(title);
+
+		$.ajax({
+			method: "POST",
+			url: '/homeworks/getNotDoneHomeworks',
+			success: function(data){
+				$content.empty().append(data);
+				$('.js_showMarkedDown').on('click',getDoneHW);
+				$.Dialog.close();
+			},
+			error: function(){
+				$.Dialog.fail(title,'A házi feladatok lekérése nem sikerült egy ismeretlen hiba miatt!');
+			}
+		});
+	};
+
 	$('.sendForm').on('click',function(e){
 		e.preventDefault();
 
@@ -66,7 +140,6 @@ $(function(){
 				else $.Dialog.fail(title,data.message);
 			}
 		});
-
 	});
 
 	var title2 = 'Órakiválasztó-felület frissítése',

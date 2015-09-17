@@ -229,7 +229,7 @@
 			$AllowedHTMLTags = '<b><i><u><span><br><br/>';
 
 		// Bevitel helyességének ellenörzése
-		static function InputCheck($text,$type){	
+		static function InputCheck($text,$type){
 			switch ($type){
 				case 'username':
 					$preg = '/^[a-zA-Z\d]{3,15}$/';
@@ -292,19 +292,19 @@
 		static function OptionCheck($text = '',$values = []){
 			return !in_array($text, $values) ? true : false;
 		}
-		
+
 		// Aktív-e a felh. az öröklődő csop. alapján?
 		static function UserActParent($userarray){
 			global $db,$ENV;
-			
+
 			# Osztály ellenörzése
 			$ENV['class'] = $db->where('id',$userarray['classid'])->getOne('class');
 			if (!$ENV['class']['active']) return true;
-			
+
 			# Iskola ellenörzése
 			$ENV['school'] = $db->where('id',$ENV['class']['school'])->getOne('school');
 			if (!$ENV['school']['active']) return true;
-				
+
 			return false;
 		}
 
@@ -316,14 +316,14 @@
 			$session = Cookie::get('PHPSESSID');
 			if (empty($session)) return 'guest';
 			$isadmin = false;
-			
+
 			$user = $db->where('session',$session)->getOne('users');
 			if (!isset($user)) {
 				$user = $db->where('session',$session)->getOne('admins');
 				if (empty($user)) return 'guest';
 				$isadmin = true;
 			}
-			
+
 			if (!$isadmin)
 				if (self::UserActParent($user)) return 'guest';
 
@@ -375,23 +375,23 @@
 
 			return $action;
 		}
-		
+
 		// Kiléptetés
 		static function Logout(){
 			global $db, $user;
-			
+
 			# Felh. bejelentkézésnek ellenörzése
 			if (empty($user)) return 1;
-			
+
 			$db->where('username',$user['username'])->update('users',array(
 				'session' => '',
 			));
-			
+
 			Cookie::delete('PHPSESSID');
 
 			return 0;
 		}
-		
+
 		// Jogosultság ellenörző
 		static function PermCheck($minjog, $maxjog = null){
 			global $PERM;
@@ -401,12 +401,12 @@
 
 			return USRPERM < $PERM[$minjog] || USRPERM > $PERM[$maxjog];
 		}
-		
+
 		// Szükséges értékek ellenörzése
 		static function ValuesExists($data,$reqitem){
 			foreach ($reqitem as $sub)
 				if (!isset($data[$sub])) return false;
-				
+
 			return true;
 		}
 
@@ -735,7 +735,7 @@
 					die(header('Location: /404'));
 			}
 		}
-		
+
 		# 404-es hiba esetén
 		static function Missing($path = ''){
 			global $ENV;
@@ -972,29 +972,29 @@ STRING
 		# Admin. hozzáadása
 		static function Add($dataf){
 			global $db;
-			
+
 			# Jog. ellenörzése
 			if (System::PermCheck('sysadmin')) return 2;
-			
+
 			# Bevitel ellenörzése
 			foreach ($dataf as $key => $value){
 				if (System::InputCheck($value,$key)) return 3;
-				
+
 				# Jelszó kódolása
 				if ($key == 'password') $dataf[$key] = Password::Kodolas($value);
 			}
-			
+
 			# Létezik-e már ilyen felh.?
 			if ($db->where('username',$dataf['username'])->getOne('admins') != false) return 4;
-			
+
 			# Regisztráció
 			$action = $db->insert('admins',$dataf);
-			
+
 			if (!$action) return 5;
 			else return 0;
 		}
 	}
-	
+
 	class LessonTools {
 // Tantárgy hozzáadása
 		private static function _add($data_a){
@@ -1151,69 +1151,69 @@ STRING
 		}
 	}
 // Tantárgy törlése vége
-	
+
 	class ClassTools {
 		static function AddClass($dataf){
 			global $db;
 
 			# Admin. jogkör ellenörzése
 			if (System::PermCheck('schooladmin')) return 2;
-			
+
 /*			array(
 				'classid' => 10.B
 				'school' => 1
 			);						*/
-			
+
 			# Formátum ellenörzése
 			if (!System::ValuesExists($dataf,['classid','school'])) return 2;
 			foreach ($dataf as $key => $value){
 				if ($key == 'classid') $type = 'class';
 				if ($key == 'school') $type = 'numeric';
-				
+
 				if (System::InputCheck($value,$type)) return 2;
 			}
-			
+
 			# Létezik-e már ilyen osztály?
 			if ($db->where('classid',$dataf['classid'])->getOne('class') != false) return 3;
-			
+
 			# Regisztráció
 			$action = $db->insert('class',$dataf);
-			
+
 			return $action;
 		}
-		
+
 		# Akitválás/Inaktiválás/Áll. lekérdezése
 		static function ActiveI($case,$classid){
 			global $db;
 
 			# Admin. jogkör ellenörzése
 			if (System::PermCheck('schooladmin')) return 2;
-			
+
 			switch ($case){
 				case 'activate':
 					return !$db->where('classid',$classid)->update('class',array(
 						'active' => 1,
 					));
 				break;
-				
+
 				case 'inactivate':
 					return !$db->where('classid',$classid)->update('class',array(
 						'active' => 0,
 					));
 				break;
-				
+
 				case 'getstatus':
 					$data = $db->where('classid',$classid)->getOne('class');
-					
+
 					# Felh. létezésének ellenörzése
 					if (empty($data)) return 2;
-					
+
 					return $data['active'];
 				break;
 			}
 		}
 	}
-	
+
 	class UserTools {
 // Felh. hozzáadása
 		private static function _addUser($data_a){
@@ -1359,7 +1359,7 @@ STRING
 // Felh. törlése
 		private static function _deleteUser($id){
 			global $db;
-			
+
 			$action = $db->where('id',$id)->delete('users');
 
 			if ($action) return 0;
@@ -1798,14 +1798,14 @@ STRING
 			else return 3;
 		}
 
-		static function GetHomeworks($numberOfHomework = 3){
+		static function GetHomeworks($numberOfHomework = 3, $onlyListActive = false){
 			global $db, $user;
 
 			$grpmember = $db->rawQuery('SELECT `groupid`
 							FROM `group_members`
 							WHERE `classid` = ? && `userid` = ?',array($user['classid'],$user['id']));
 
-			$addon = [$user['classid']];
+			$addon = [$user['id'],$user['classid']];
 			$ids = array(0);
 			foreach ($grpmember as $array)
 				$ids[] = $array['groupid'];
@@ -1813,12 +1813,15 @@ STRING
 			$weekNum = Timetable::GetWeekNum();
 			$dayInWeek = Timetable::GetDayNumber();
 
-			$query = "SELECT hw.id, hw.text as `homework`, hw.week, tt.day, tt.lesson as `lesson_th`, l.name as `lesson`
+			$active = $onlyListActive ? '&& (SELECT `id` FROM `hw_markDone` WHERE `homework` = hw.id && `userid` = ?) IS NULL' : '';
+
+			$query = "SELECT hw.id, hw.text as `homework`, hw.week, tt.day, tt.lesson as `lesson_th`, l.name as `lesson`,
+							(SELECT `id` FROM `hw_markDone` WHERE `homework` = hw.id && `userid` = ?) as markedDone
 						FROM `timetable` tt
 						LEFT JOIN (`homeworks` hw, `lessons` l)
 						ON (hw.lesson = tt.id && l.id = tt.lessonid)
-						WHERE tt.classid = ? && tt.groupid IN (".implode(',', $ids).') && ((hw.week = ? && tt.day > ?) || hw.week > ?) && hw.text IS NOT NULL
-						ORDER BY hw.week, tt.day, tt.lesson';
+						WHERE tt.classid = ? && tt.groupid IN (".implode(',', $ids).") && ((hw.week = ? && tt.day > ?) || hw.week > ?) && hw.text IS NOT NULL {$active}
+						ORDER BY hw.week, tt.day, tt.lesson";
 
 			/*
 			 *  $a = isset($_GET['a']) ? $_GET['a'] : '';
@@ -1842,8 +1845,9 @@ STRING
 				$_weekNum = $weekNum;
 			}
 
-			$timetable = $db->rawQuery($query,array_merge($addon,array($_weekNum, $_dayInWeek, $_weekNum)));
-
+			$activeArray = $onlyListActive ? array($user['id']) : array();
+			$timetable = $db->rawQuery($query,array_merge($addon,array($_weekNum, $_dayInWeek, $_weekNum),$activeArray));
+			//var_dump($timetable);
 			$homeWorks = [];
 
 			$i = 0;
@@ -1871,6 +1875,81 @@ STRING
 			array_splice($homeWorks,$numberOfHomework);
 			return $homeWorks;
 		}
+
+		static function MakeMarkedDone($id){
+			global $db, $user, $ENV;
+
+			# Formátum ellenörzése
+			if (System::InputCheck($id,'numeric')) return 1;
+
+			# Létezik-e már?
+			$data = $db->rawQuery('SELECT *
+									FROM `hw_markdone`
+									WHERE `classid` = ? && `userid` = ? && `homework` = ?',array($user['classid'],$user['id'],$id));
+			if (!empty($data)) return 2;
+
+			# Létezik-e a H.Feladat?
+			$data = $db->where('id',$id)->getOne('homeworks');
+			if (empty($data)) return 3;
+
+			# Adatbázisba írás
+			$action = $db->insert('hw_markdone',array(
+				'userid' => $user['id'],
+				'homework' => $id,
+				'classid' => $user['classid'],
+			));
+
+			return $action ? 0 : 4;
+		}
+
+		static function RenderHomeworks($numberOfHomework = 3, $onlyListActive = false){
+			$homeWorks = HomeworkTools::GetHomeworks($numberOfHomework,$onlyListActive);
+?>
+
+<?php       if (empty($homeWorks)) print "<p>Nincs megjelenítendő házi feladat! A kezdéshez adjon hozzá egyet...</p>"; ?>
+
+			<table class='homeworks'>
+		        <tbody>
+		            <tr>
+<?php
+					     foreach(array_keys($homeWorks) as $value)
+					        print "<td><b>{$homeWorks[$value][0]['dayString']}</b> ({$value})</td>";
+?>
+		            </tr>
+		            <tr>
+<?php
+						foreach(array_keys($homeWorks) as $value){
+							print '<td>';
+							foreach($homeWorks[$value] as $array){ ?>
+						        <div class='hw'>
+						            <span class='lesson-name'><?=$array['lesson']?></span><span class='lesson-number'><?=$array['lesson_th']?>. óra</span>
+						            <div class='hw-text'><?=$array['homework']?></div>
+<?php if (!System::PermCheck('admin')){
+		if (empty($array['markedDone'])){ ?>
+			<a class="typcn typcn-tick js_makeMarkedDone" title='Késznek jelölés' href='#<?=$array['id']?>'></a>
+<?php   }
+		else { ?>
+			<a class="typcn typcn-times js_undoMarkedDown" title='Késznek jelölés visszavonása' href='#<?=$array['id']?>'></a>
+<?php   } ?>
+						            <a class="typcn typcn-info-large js_more_info" title='További információk' href='#<?=$array['id']?>'></a>
+						            <a class="typcn typcn-trash js_delete" title='Bejegyzés törlése' href='#<?=$array['id']?>'></a>
+<?php } ?>
+						        </div>
+<?php				        }
+							print '</td>';
+						}
+?>
+		            </tr>
+		        </tbody>
+		    </table>
+<?php if (!System::PermCheck('admin')){ ?>
+		    <a class='typcn typcn-plus btn js_add_hw' href='/homeworks/new'>Új házi feladat hozzáadása</a>
+<?php }
+	  if ($onlyListActive)
+			print "<a class='typcn typcn-tick btn js_add_hw js_showMarkedDown' href='#'>Elrejtett házi feladatok megjelenítése</a>";
+	  else
+	        print "<a class='typcn typcn-times btn js_add_hw js_hideMarkedDown' href='#'>Visszatérés az eredeti nézethez</a>";
+	  }
 	}
 
 	class Timetable {

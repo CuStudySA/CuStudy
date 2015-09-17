@@ -42,43 +42,8 @@
 		break;
 
 		default:
-			$homeWorks = HomeworkTools::GetHomeworks();
-?>
-
-			<h1>Házi feladatok</h1>
-
-<?php       if (empty($homeWorks)) print "<p>Nincs megjelenítendő házi feladat! A kezdéshez adjon hozzá egyet...</p>"; ?>
-
-			<table class='homeworks'>
-		        <tbody>
-		            <tr>
-<?php
-					     foreach(array_keys($homeWorks) as $value)
-					        print "<td><b>{$homeWorks[$value][0]['dayString']}</b> ({$value})</td>";
-?>
-		            </tr>
-		            <tr>
-<?php
-						foreach(array_keys($homeWorks) as $value){
-							print '<td>';
-							foreach($homeWorks[$value] as $array){ ?>
-						        <div class='hw'>
-						            <span class='lesson-name'><?=$array['lesson']?></span><span class='lesson-number'><?=$array['lesson_th']?>. óra</span>
-						            <div class='hw-text'><?=$array['homework']?></div>
-<?php if (!System::PermCheck('admin')){ ?>
-						            <a class="typcn typcn-tick js_finished" title='Késznek jelölés' href='#<?=$array['id']?>'></a>
-						            <a class="typcn typcn-info-large js_more_info" title='További információk' href='#<?=$array['id']?>'></a>
-						            <a class="typcn typcn-trash js_delete" title='Bejegyzés törlése' href='#<?=$array['id']?>'></a>
-<?php } ?>
-						        </div>
-<?php				        }
-							print '</td>';
-						}
-?>
-		            </tr>
-		        </tbody>
-		    </table>
-<?php if (!System::PermCheck('admin')){ ?>
-		    <a class='typcn typcn-plus btn js_add_hw' href='/homeworks/new'>Új házi feladat hozzáadása</a>
-<?php }
-	} ?>
+			print "<h1>Házi feladatok</h1><div class='hwContent'>";
+				HomeworkTools::RenderHomeworks(3,true);
+			print "</div>";
+		break;
+	}
