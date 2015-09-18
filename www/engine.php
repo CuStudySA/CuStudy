@@ -12,7 +12,7 @@
 	if (substr($root,-1) !== '/') $root .= '/';
 	
 	$rootdoc = '/';
-	define('ABSPATH',(!empty($_SERVER['HTTPS'])?'https':'http').'//'.$_SERVER['SERVER_NAME']);
+	define('ABSPATH',(!empty($_SERVER['HTTPS'])?'https':'http').'://'.$_SERVER['SERVER_NAME']);
 	
 	# Külső erőforrás fájlok betöltése
 	require $root.'resources/php/Cookie.php';
@@ -67,10 +67,10 @@
 	$ENV['SOFTWARE'] = array(
 		'NAME' => 'CuStudy',
 		'CODENAME' => 'BlueSky',
-		'VER' => '1.0 RC1',
+		'VER' => '1.0 RC2',
 		'DEVELOPER' => 'BetonSoft',
 		'DEV_STARTED' => '2014',
-		'COMMIT' => 'e1da8cb',
+		'COMMIT' => LATEST_COMMIT_ID,
 	);
 
 	$ENV['ENGINE'] = array(
@@ -253,8 +253,16 @@
 	# Tevékenység meghatározása
 	if (empty($ENV['do']))
 		$do = USRGRP !== 'guest' ? 'fooldal': 'login';
-	else if (!isset($pages[$ENV['do']]) && $ENV['do'] != 'logout')
+	else if (!isset($pages[$ENV['do']]) && $ENV['do'] != 'logout'){
+		if ($ENV['do'] === 'bb-webhook' && !empty($ENV['GET']['auth']) && $ENV['GET']['auth'] === BB_AUTHCODE){
+			$out = array();
+			exec("git reset HEAD --hard", $out);
+			exec("git pull", $out);
+			echo implode("<br>", $out);
+			die();
+		}
 		$do = '404';
+	}
 	else {
 		if ($ENV['do'] == 'login' && USRGRP != 'guest') $do = 'fooldal';
 		else $do = $ENV['do'];

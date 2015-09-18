@@ -119,12 +119,10 @@
 									$elem.css('background-color',$urlapelemek.find('[name=color]').val());
 
 									var $lessons = $('.lessons'),
-										$newLessonTiles = $('.new'),
-										$newLessonTilesCopy = $newLessonTiles.clone();
-									$newLessonTiles.remove();
+										$newLessonTiles = $('.new').detach();
 
 									$lessons.sortChildren('.tantargy',false);
-									$lessons.append($newLessonTilesCopy);
+									$lessons.append($newLessonTiles);
 
 									$.Dialog.close();
 								}
@@ -208,9 +206,7 @@
 							var $lessons = $('.lessons');
 							$lessons.append($elem);
 
-							var $newLessonTile = $('.new');
-							$('.new').remove();
-
+							var $newLessonTile = $('.new').detach();
 							$lessons.sortChildren('.tantargy',false);
 							$lessons.append($newLessonTile);
 

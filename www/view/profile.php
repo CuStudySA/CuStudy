@@ -1,6 +1,6 @@
 <?php
-	if (!isset($ENV['URL'][0])) $do = 'default';
-	else $do = $ENV['URL'][0];
+
+	$do = !isset($ENV['URL'][0]) ? 'default' : $ENV['URL'][0];
 
 	switch ($do) {
 		case 'connect':

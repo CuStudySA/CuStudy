@@ -495,7 +495,7 @@
 
 		static function Redirect($url, $die = true, $http = 301){
 			header("Location: $url",$die,$http);
-			if ($die !== STAY_ALIVE) die();
+			if ($die) die();
 		}
 
 		static function ExternalLogin($userID, $provider = 'google'){
@@ -2178,7 +2178,10 @@ STRING;
 
 				$data_nW = array();
 				foreach ($data_nextWeek as $array){
-					if ($array['day'] < ($hour >= 8 && $minute >= 0 ? $dayInWeek : $dayInWeek-1))
+					$nextD = $hour >= 8 && $minute >= 0;
+					$if = $dayInWeek == 1 ? ($nextD ? $dayInWeek : 7) : ($nextD ? $dayInWeek : $dayInWeek - 1);
+
+					if ($array['day'] <= $if)
 						$data_nW[] = $array;
 				}
 
@@ -2194,7 +2197,7 @@ STRING;
 				$lesson = $class['lesson']-1;
 
 				if ($actWeek == $class['week']){
-					if ($class['day'] < $dayInWeek)
+					if ($class['day'] <= $dayInWeek)
 						if ($dualWeek)
 							$date = strtotime('+ '.(14 + $class['day']).' days',$weekday);
 						else
@@ -2214,6 +2217,7 @@ STRING;
 					$Timetable[$lesson][$date][] = array($class['name'],'',$class['color'],$class['id'],$class['group_name'],date('W',$date));
 			}
 			$Timetable['opt'] = $days;
+
 			return $Timetable;
 		}
 
@@ -2275,6 +2279,7 @@ STRING;
 				if (isset($class['name']))
 					$Timetable[$lesson][$weekday][] = array($class['name'],$class['teacher'],$class['color'],$class['id'],$grp_list[$class['groupid']]);
 			}
+
 			return $Timetable;
 		}
 
