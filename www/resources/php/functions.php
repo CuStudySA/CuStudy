@@ -1816,7 +1816,7 @@ STRING
 			$weekNum = Timetable::GetWeekNum();
 			$dayInWeek = Timetable::GetDayNumber();
 
-			$active = $onlyListActive ? '&& (SELECT `id` FROM `hw_markDone` WHERE `homework` = hw.id && `userid` = ?) IS NULL' : '';
+			$active = $onlyListActive ? '&& (SELECT `id` FROM `hw_markdone` WHERE `homework` = hw.id && `userid` = ?) IS NULL' : '';
 
 			$query = "SELECT hw.id, hw.text as `homework`, hw.week, tt.day, tt.lesson as `lesson_th`, l.name as `lesson`,
 							(SELECT `id` FROM `hw_markdone` WHERE `homework` = hw.id && `userid` = ?) as markedDone
