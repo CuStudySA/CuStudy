@@ -1255,6 +1255,9 @@ STRING
 			$data = $db->where('email',$data_a['email'])->getOne('users');
 			if (!empty($data)) return 6;
 
+			# Ideiglenes jelszó készítése
+			$data_a['password'] = Password::Kodolas(Password::Generalas(6));
+
 			# Regisztráció
 			return [$db->insert('users',$data_a)];
 		}
@@ -1902,11 +1905,29 @@ STRING
 			return $action ? 0 : 4;
 		}
 
+		static function UndoMarkedDone($id){
+			global $db, $user, $ENV;
+
+			# Formátum ellenörzése
+			if (System::InputCheck($id,'numeric')) return 1;
+
+			# Létezik-e már?
+			$data = $db->rawQuery('SELECT *
+									FROM `hw_markdone`
+									WHERE `classid` = ? && `userid` = ? && `homework` = ?',array($user['classid'],$user['id'],$id));
+			if (empty($data)) return 2;
+
+			# Adatbázisba írás
+			$action = $db->where('homework',$id)->where('userid',$user['id'])->delete('hw_markdone');
+
+			return $action ? 0 : 4;
+		}
+
 		static function RenderHomeworks($numberOfHomework = 3, $onlyListActive = false){
 			$homeWorks = HomeworkTools::GetHomeworks($numberOfHomework,$onlyListActive);
 ?>
 
-<?php       if (empty($homeWorks)) print "<p>Nincs megjelenítendő házi feladat! A kezdéshez adjon hozzá egyet...</p>"; ?>
+<?php       if (empty($homeWorks)) print "<p>Nincs megjelenítendő házi feladat! A kezdéshez adjon hozzá egyet, vagy váltson nézetet!</p>"; ?>
 
 			<table class='homeworks'>
 		        <tbody>
@@ -1924,16 +1945,16 @@ STRING
 						        <div class='hw'>
 						            <span class='lesson-name'><?=$array['lesson']?></span><span class='lesson-number'><?=$array['lesson_th']?>. óra</span>
 						            <div class='hw-text'><?=$array['homework']?></div>
-<?php if (!System::PermCheck('admin')){
-		if (empty($array['markedDone'])){ ?>
+<?php	if (empty($array['markedDone'])){ ?>
 			<a class="typcn typcn-tick js_makeMarkedDone" title='Késznek jelölés' href='#<?=$array['id']?>'></a>
 <?php   }
 		else { ?>
-			<a class="typcn typcn-times js_undoMarkedDown" title='Késznek jelölés visszavonása' href='#<?=$array['id']?>'></a>
-<?php   } ?>
+			<a class="typcn typcn-times js_undoMarkedDone" title='Késznek jelölés visszavonása' href='#<?=$array['id']?>'></a>
+<?php   }
+		if (!System::PermCheck('admin')){ ?>
 						            <a class="typcn typcn-info-large js_more_info" title='További információk' href='#<?=$array['id']?>'></a>
 						            <a class="typcn typcn-trash js_delete" title='Bejegyzés törlése' href='#<?=$array['id']?>'></a>
-<?php } ?>
+<?php   } ?>
 						        </div>
 <?php				        }
 							print '</td>';
@@ -1946,9 +1967,9 @@ STRING
 		    <a class='typcn typcn-plus btn js_add_hw' href='/homeworks/new'>Új házi feladat hozzáadása</a>
 <?php }
 	  if ($onlyListActive)
-			print "<a class='typcn typcn-tick btn js_add_hw js_showMarkedDown' href='#'>Elrejtett házi feladatok megjelenítése</a>";
+			print "<a class='typcn typcn-tick btn js_add_hw js_showMarkedDone' href='#'>Elrejtett házi feladatok megjelenítése</a>";
 	  else
-	        print "<a class='typcn typcn-times btn js_add_hw js_hideMarkedDown' href='#'>Visszatérés az eredeti nézethez</a>";
+	        print "<a class='typcn typcn-times btn js_add_hw js_hideMarkedDone' href='#'>Visszatérés az eredeti nézethez</a>";
 	  }
 	}
 

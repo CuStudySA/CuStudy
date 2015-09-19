@@ -31,6 +31,17 @@
 			}
 		break;
 
+		case 'undoMarkedDone':
+			if (!empty($ENV['POST']['id'])){
+				$action = HomeworkTools::UndoMarkedDone($ENV['POST']['id']);
+
+				if ($action == 0)
+					System::Respond('A kiválasztott házi feladat kész jelölése eltávolítva!',1);
+				else
+					System::Respond("A kiválasztott házi feladat kész jelölése nem lett eltávolítva, mert ismeretlen hiba történt a művelet során! (Hibakód: {$action})",0);
+			}
+		break;
+
 		case 'getDoneHomeworks':
 			HomeworkTools::RenderHomeworks(3,false);
 		break;
