@@ -1819,7 +1819,7 @@ STRING
 			$active = $onlyListActive ? '&& (SELECT `id` FROM `hw_markDone` WHERE `homework` = hw.id && `userid` = ?) IS NULL' : '';
 
 			$query = "SELECT hw.id, hw.text as `homework`, hw.week, tt.day, tt.lesson as `lesson_th`, l.name as `lesson`,
-							(SELECT `id` FROM `hw_markDone` WHERE `homework` = hw.id && `userid` = ?) as markedDone
+							(SELECT `id` FROM `hw_markdone` WHERE `homework` = hw.id && `userid` = ?) as markedDone
 						FROM `timetable` tt
 						LEFT JOIN (`homeworks` hw, `lessons` l)
 						ON (hw.lesson = tt.id && l.id = tt.lessonid)
