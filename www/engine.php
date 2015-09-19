@@ -108,7 +108,7 @@
 		'fooldal' => array(
 			'title' => 		'Kezdőoldal',
 			'css' => 		['fooldal.css'],
-			'js' => 		[],
+			'js' => 		['fooldal.js'],
 			'minperm' => 	'user',
 			'maxperm' => 	'admin',
 			'reqdoc' => 	[],

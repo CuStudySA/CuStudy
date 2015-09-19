@@ -29,6 +29,7 @@ $(function(){
 							</div>\
 							<div class='bottom'>\
 								<a class='typcn typcn-pencil js_user_edit' href='' title='Módosítás'></a>\
+								<a class='typcn typcn-key js_user_editAccessData' href='' title='Hozzáférési adatok módosítása'></a>\
 								<a class='typcn typcn-user-delete js_user_delete' href='' title='Törlés'></a>\
 							</div>\
 						</li>");
@@ -336,6 +337,7 @@ $(function(){
 							$elem.find('.id').text('#' + data2.id);
 							$elem.find('.js_user_edit').attr('href','#' + data2.id);
 							$elem.find('.js_user_delete').attr('href','#' + data2.id);
+							$elem.find('.js_user_editAccessData').attr('href','#' + data2.id);
 							$elem.attr('data-id',data2.id);
 
 							var $elemlista = $('ul');
@@ -346,9 +348,9 @@ $(function(){
 							$elemlista.sortChildren('.vnev',false);
 							$elemlista.append($newLessonTile);
 
-							$('.js_user_add').on('click', e_user_add);
 							$elem.find('.js_user_edit').on('click', e_user_edit);
 							$elem.find('.js_user_delete').on('click', e_user_delete);
+							$elem.find('.js_user_editAccessData').on('click', e_user_editAccessData);
 
 							$.Dialog.close();
 						}

@@ -1,6 +1,7 @@
 $(function(){
 	var title = 'Házi feladat hozzáadása',
-		dispDays = typeof _dispDays !== 'object' ? '' : _dispDays;
+		dispDays = typeof _dispDays !== 'object' ? '' : _dispDays,
+		showHidden = false;
 
 	$("textarea").sceditor({
 		plugins: "bbcode",
@@ -26,6 +27,10 @@ $(function(){
 		});
 		if (index == -1) return;
 		$trs.eq(0).children().eq(index).remove();
+
+		$trs.each(function(i, el){
+			if ($(el).children().length == 0) $(el).remove();
+		});
 	};
 
 	$('.lesson').on('click',function(){
@@ -36,6 +41,132 @@ $(function(){
 	$('.js_add_hw').click(function(){
 		$(this).blur();
 	});
+
+	var makeMarkedDone = function(e){
+		e.preventDefault();
+
+		var $elem = $(e.currentTarget),
+			id = $elem.attr('href').substring(1),
+		    title = 'Házi feladat késznek jelölése';
+
+		$.Dialog.wait(title);
+
+		$.ajax({
+			method: "POST",
+			data: {'id': id},
+			url: '/homeworks/makeMarkedDone',
+			success: function(data){
+				if (typeof data !== 'object'){
+					console.log(data);
+					$(window).trigger('ajaxerror');
+					return false;
+				}
+				if (data.status){
+					if (!showHidden){
+						$elem.parent().detach();
+						deleteEmptyTd();
+
+						if ($('tbody').children().length == 0)
+							$('table').replaceWith('<p>Nincs megjelenítendő házi feladat! A kezdéshez adjon hozzá egyet, vagy váltson nézetet!</p>');
+					}
+					else {
+						$(e.currentTarget).replaceWith("<a class='typcn typcn-times js_undoMarkedDone' title='Késznek jelölés visszavonása' href='#" + id + "'></a>");
+						$('[href=#' + id + ']').filter('.js_undoMarkedDone').on('click',undoMarkedDone);
+					}
+
+					$.Dialog.close();
+				}
+				else $.Dialog.fail(title,data.message);
+			}
+		});
+	};
+	$('.js_makeMarkedDone').click(makeMarkedDone);
+
+	var undoMarkedDone = function(e){
+		e.preventDefault();
+
+		var $elem = $(e.currentTarget),
+			id = $elem.attr('href').substring(1),
+		    title = 'Házi feladat kész jelölésének eltávolítása';
+
+		$.Dialog.wait(title);
+
+		$.ajax({
+			method: "POST",
+			data: {'id': id},
+			url: '/homeworks/undoMarkedDone',
+			success: function(data){
+				if (typeof data !== 'object'){
+					console.log(data);
+					$(window).trigger('ajaxerror');
+					return false;
+				}
+				if (data.status){
+					$(e.currentTarget).replaceWith("<a class='typcn typcn-tick js_makeMarkedDone' title='Késznek jelölés' href='#" + id + "'></a>");
+					$('[href=#' + id + ']').filter('.js_makeMarkedDone').on('click',makeMarkedDone);
+
+					$.Dialog.close();
+				}
+				else $.Dialog.fail(title,data.message);
+			}
+		});
+	};
+	$('.js_undoMarkedDone').click(undoMarkedDone);
+
+	var getDoneHW = function(e){
+		e.preventDefault();
+
+		var $content = $('.hwContent'),
+			title = 'Házi feladatok lekérése';
+
+		$.Dialog.wait(title);
+
+		$.ajax({
+			method: "POST",
+			url: '/homeworks/getDoneHomeworks',
+			success: function(data){
+				$content.empty().append(data);
+				$('.js_hideMarkedDone').on('click',getNotDoneHW);
+				$.Dialog.close();
+
+				$('.js_undoMarkedDone').click(undoMarkedDone);
+				$('.js_makeMarkedDone').click(makeMarkedDone);
+
+				showHidden = true;
+			},
+			error: function(){
+				$.Dialog.fail(title,'A házi feladatok lekérése nem sikerült egy ismeretlen hiba miatt!');
+			}
+		});
+	};
+	$('.js_showMarkedDone').on('click',getDoneHW);
+
+	var getNotDoneHW = function(e){
+		e.preventDefault();
+
+		var $content = $('.hwContent'),
+			title = 'Házi feladatok lekérése';
+
+		$.Dialog.wait(title);
+
+		$.ajax({
+			method: "POST",
+			url: '/homeworks/getNotDoneHomeworks',
+			success: function(data){
+				$content.empty().append(data);
+				$('.js_showMarkedDone').on('click',getDoneHW);
+				$.Dialog.close();
+
+				$('.js_undoMarkedDone').click(undoMarkedDone);
+				$('.js_makeMarkedDone').click(makeMarkedDone);
+
+				showHidden = false;
+			},
+			error: function(){
+				$.Dialog.fail(title,'A házi feladatok lekérése nem sikerült egy ismeretlen hiba miatt!');
+			}
+		});
+	};
 
 	$('.sendForm').on('click',function(e){
 		e.preventDefault();
@@ -66,7 +197,6 @@ $(function(){
 				else $.Dialog.fail(title,data.message);
 			}
 		});
-
 	});
 
 	var title2 = 'Órakiválasztó-felület frissítése',
