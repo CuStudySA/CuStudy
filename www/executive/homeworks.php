@@ -24,10 +24,15 @@
 			if (!empty($ENV['POST']['id'])){
 				$action = HomeworkTools::MakeMarkedDone($ENV['POST']['id']);
 
-				if ($action == 0)
-					System::Respond('A kiválasztott házi feladat késznek lett jelölve, így az nem fog már megjelenni!',1);
-				else
-					System::Respond("A kiválasztott házi feladat nem lett késznek jelölve, mert ismeretlen hiba történt a művelet során! (Hibakód: {$action})",0);
+				if (!empty($ENV['URL'][1]))
+					HomeworkTools::RenderHomeworksMainpage();
+
+				else {
+					if ($action == 0)
+						System::Respond('A kiválasztott házi feladat késznek lett jelölve, így az nem fog már megjelenni!',1);
+					else
+						System::Respond("A kiválasztott házi feladat nem lett késznek jelölve, mert ismeretlen hiba történt a művelet során! (Hibakód: {$action})",0);
+				}
 			}
 		break;
 

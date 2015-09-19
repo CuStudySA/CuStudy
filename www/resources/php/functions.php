@@ -1945,17 +1945,17 @@ STRING
 						        <div class='hw'>
 						            <span class='lesson-name'><?=$array['lesson']?></span><span class='lesson-number'><?=$array['lesson_th']?>. óra</span>
 						            <div class='hw-text'><?=$array['homework']?></div>
-<?php	if (empty($array['markedDone'])){ ?>
-			<a class="typcn typcn-tick js_makeMarkedDone" title='Késznek jelölés' href='#<?=$array['id']?>'></a>
-<?php   }
-		else { ?>
-			<a class="typcn typcn-times js_undoMarkedDone" title='Késznek jelölés visszavonása' href='#<?=$array['id']?>'></a>
-<?php   }
-		if (!System::PermCheck('admin')){ ?>
-						            <a class="typcn typcn-info-large js_more_info" title='További információk' href='#<?=$array['id']?>'></a>
-						            <a class="typcn typcn-trash js_delete" title='Bejegyzés törlése' href='#<?=$array['id']?>'></a>
-<?php   } ?>
-						        </div>
+<?php	    if (empty($array['markedDone'])){ ?>
+				<a class="typcn typcn-tick js_makeMarkedDone" title='Késznek jelölés' href='#<?=$array['id']?>'></a>
+<?php       }
+			else { ?>
+				<a class="typcn typcn-times js_undoMarkedDone" title='Késznek jelölés visszavonása' href='#<?=$array['id']?>'></a>
+<?php       }
+			if (!System::PermCheck('admin')){ ?>
+							            <a class="typcn typcn-info-large js_more_info" title='További információk' href='#<?=$array['id']?>'></a>
+							            <a class="typcn typcn-trash js_delete" title='Bejegyzés törlése' href='#<?=$array['id']?>'></a>
+<?php       } ?>
+						          </div>
 <?php				        }
 							print '</td>';
 						}
@@ -1963,14 +1963,68 @@ STRING
 		            </tr>
 		        </tbody>
 		    </table>
-<?php if (!System::PermCheck('admin')){ ?>
-		    <a class='typcn typcn-plus btn js_add_hw' href='/homeworks/new'>Új házi feladat hozzáadása</a>
-<?php }
-	  if ($onlyListActive)
-			print "<a class='typcn typcn-tick btn js_add_hw js_showMarkedDone' href='#'>Elrejtett házi feladatok megjelenítése</a>";
-	  else
-	        print "<a class='typcn typcn-times btn js_add_hw js_hideMarkedDone' href='#'>Visszatérés az eredeti nézethez</a>";
-	  }
+<?php       if (!System::PermCheck('admin')){ ?>
+			    <a class='typcn typcn-plus btn js_add_hw' href='/homeworks/new'>Új házi feladat hozzáadása</a>
+<?php       }
+	        if ($onlyListActive)
+				print "<a class='typcn typcn-tick btn js_add_hw js_showMarkedDone' href='#'>Elrejtett házi feladatok megjelenítése</a>";
+	        else
+	            print "<a class='typcn typcn-times btn js_add_hw js_hideMarkedDone' href='#'>Visszatérés az eredeti nézethez</a>";
+	    }
+
+	    static function RenderHomeworksMainpage(){
+	        $homeWorks = HomeworkTools::GetHomeworks(1,true);
+
+	        if (empty($homeWorks))
+	            print "<h3>Elkészítésre váró házi feladatok</h3>";
+	        else {
+	            $day = array_keys($homeWorks)[0];
+	            if ((int)substr($day,0,2) == 1 && (int)date('m') == 12) $year = (int)date('y') + 1;
+	            else $year = (int)date('y');
+
+	            $time = strtotime($year.'-'.str_replace('.','-',$day));
+
+	            print "<h3>Házi feladatok ".System::Nevelo(System::$Days[Timetable::GetDayNumber($time)])."i napra ({$day})</h3>";
+	        }
+	        ?>
+
+			<table class='homeworks'>
+				<tr>
+<?php
+					if (!empty($homeWorks)){
+						$day = array_keys($homeWorks)[0];
+
+						print "<td>";
+
+						foreach($homeWorks[$day] as $key => $array){
+							if ($key % 2 == 1) continue; ?>
+					        <div class='hw'>
+					            <span class='lesson-name'><?=$array['lesson']?></span><span class='lesson-number'><?=$array['lesson_th']?>. óra</span>
+					            <div class='hw-text'><?=$array['homework']?></div>
+
+								<a class="typcn typcn-tick js_makeMarkedDone" title='Késznek jelölés' href='#<?=$array['id']?>'></a>
+					        </div>
+<?php   	            }
+
+						print "</td><td>";
+
+						foreach($homeWorks[$day] as $key => $array){
+							if ($key % 2 == 0) continue; ?>
+					        <div class='hw'>
+					            <span class='lesson-name'><?=$array['lesson']?></span><span class='lesson-number'><?=$array['lesson_th']?>. óra</span>
+					            <div class='hw-text'><?=$array['homework']?></div>
+
+					            <a class="typcn typcn-tick js_makeMarkedDone" title='Késznek jelölés' href='#<?=$array['id']?>'></a>
+					        </div>
+<?php               	}
+
+						print "</td>"; ?>
+				<tr>
+			</table>
+<?php               }
+
+					else print "<p>Nincs megjeleníthető házi feladat.</p>";
+		}
 	}
 
 	class Timetable {

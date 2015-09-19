@@ -13,7 +13,7 @@ h3 {
 }
 .hw {
     background-color: rgba(135,177,255,0.4);
-    padding: 6px 6px 6px 6px;
+    padding: 6px 6px 4px 6px;
     border-radius: 2px;
 }
 .hw > .lesson-name {

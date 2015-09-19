@@ -11,41 +11,12 @@
 
 <h1><?=$welcome?> <span class='welcomeName'><?=$user['realname']?></span>!</h1>
 
-<h3>Elkészítésre váró házi feladatok</h3>
-
-<table class='homeworks'>
-	<tr>
+	<div class='hWContent'>
 <?php
-		$homeWorks = HomeworkTools::GetHomeworks(1);
+		HomeworkTools::RenderHomeworksMainpage(); ?>
+	</div>
 
-		if (!empty($homeWorks)){
-			$day = array_keys($homeWorks)[0];
-
-			print "<td>";
-
-			foreach($homeWorks[$day] as $key => $array){
-				if ($key % 2 == 1) continue; ?>
-		        <div class='hw'>
-		            <span class='lesson-name'><?=$array['lesson']?></span><span class='lesson-number'><?=$array['lesson_th']?>. óra</span>
-		            <div class='hw-text'><?=$array['homework']?></div>
-		        </div>
-<?php   	}
-
-			print "</td><td>";
-
-			foreach($homeWorks[$day] as $key => $array){
-				if ($key % 2 == 0) continue; ?>
-		        <div class='hw'>
-		            <span class='lesson-name'><?=$array['lesson']?></span><span class='lesson-number'><?=$array['lesson_th']?>. óra</span>
-		            <div class='hw-text'><?=$array['homework']?></div>
-		        </div>
-<?php   	}
-
-			print "</td>"; ?>
-	<tr>
-</table>
-<?php   }
-	else print "<p>Nincs megjeleníthető házi feladat.</p>";
+<?php
 
 	// Következő tanítási napi órarend
 	$sort = Timetable::GetActualWeek(true);
