@@ -604,8 +604,10 @@
 				'grant_type' => 'authorization_code',
 			));
 
-			if (isset($data['error']))
+			if (isset($data['error'])){
+				var_dump($data['error']);
 				die(header("Location: /?errtype=remote"));
+			}
 
 			return $data['access_token'];
 		}
