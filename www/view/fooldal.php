@@ -2,11 +2,10 @@
 	$minute = (int)date('i');
 	$hour = (int)date('H');
 
-	if ($hour < 6) $welcome = 'Jó éjszakát';
+	if ($hour < 6 || $hour >= 22) $welcome = 'Jó éjszakát';
 	else if ($hour < 10) $welcome = 'Jó reggelt';
 	else if ($hour < 18) $welcome = 'Jó napot';
 	else if ($hour < 22) $welcome = 'Jó estét';
-	else $welcome = 'Jó éjszakát';
 ?>
 
 <h1><?=$welcome?> <span class='welcomeName'><?=$user['realname']?></span>!</h1>
