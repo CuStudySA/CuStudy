@@ -84,6 +84,9 @@
 
 	$ENV['EE_MESSAGE'] = '';
 
+	# Rendszerbeállítások lekérése
+	GlobalSettings::Load();
+
 	# Beépülő modulok leírásai
 	$addons = array(
 		'sceditor' => array(

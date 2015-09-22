@@ -308,24 +308,50 @@
 			return false;
 		}
 
+		static function GetBrowserEnvInfo(){
+			global $ENV;
+
+			$returnKeys = array(
+				'ip' => 'REMOTE_ADDR',
+				'useragent' => 'HTTP_USER_AGENT',
+			);
+
+			$return = array();
+
+			foreach ($returnKeys as $key => $value){
+				if (empty($ENV['SERVER'][$value])) return 1;
+
+				$return[$key] = $ENV['SERVER'][$value];
+			}
+
+			return $return;
+		}
+
 		//Cookie ellenőrzés & '$user' generálása
 		static function CheckLogin() {
-			global $db, $user;
+			global $db, $user, $ENV;
 
 			if (!Cookie::exists('PHPSESSID')) return 'guest';
 			$session = Cookie::get('PHPSESSID');
+
 			if (empty($session)) return 'guest';
-			$isadmin = false;
+			else $session = md5($session);
 
-			$user = $db->where('session',$session)->getOne('users');
-			if (!isset($user)) {
-				$user = $db->where('session',$session)->getOne('admins');
-				if (empty($user)) return 'guest';
-				$isadmin = true;
-			}
+			$envInfos = self::GetBrowserEnvInfo();
+			if (!is_array($envInfos)) return 'guest';
 
-			if (!$isadmin)
-				if (self::UserActParent($user)) return 'guest';
+			$query = $db->rawQuery("SELECT *
+						FROM `sessions`
+						WHERE `session` = ? && `ip` = ? && `useragent` = ?
+						LIMIT 1",array($session,$envInfos['ip'],$envInfos['useragent']));
+
+			if (empty($query)) return 'guest';
+			else $userId = $query[0]['userid'];
+
+			$user = $db->where('id',$userId)->getOne('users');
+			if (empty($user)) return 'guest';
+
+			if (self::UserActParent($user)) return 'guest';
 
 			return $user['priv'];
 		}
@@ -352,12 +378,24 @@
 			if ($isadmin == 'users')
 				if (self::UserActParent($data)) return 5;
 
+			# Session generálása és süti beállítása
 			$session = Password::GetSession($username);
-			$db->where('username',$username)->update($isadmin,array('session' => $session));
+			Cookie::set('PHPSESSID',$session,false);
+
+			$envInfos = self::GetBrowserEnvInfo();
+			if (!is_array($envInfos)) return 'guest';
+
+			$db->rawQuery("DELETE FROM `sessions`
+						WHERE `userid` = ?",array($data['id']));
+
+			$db->insert('sessions',array(
+				'session' => md5($session),
+				'userid' => $data['id'],
+				'ip' => $envInfos['ip'],
+				'useragent' => $envInfos['useragent'],
+			));
 
 			if ($remember) Cookie::set('username',$username);
-
-			Cookie::set('PHPSESSID',$session,false);
 
 			return [$data['id']];
 		}
@@ -383,9 +421,8 @@
 			# Felh. bejelentkézésnek ellenörzése
 			if (empty($user)) return 1;
 
-			$db->where('username',$user['username'])->update('users',array(
-				'session' => '',
-			));
+			$db->rawQuery("DELETE FROM `sessions`
+						WHERE `userid` = ?",array($user['id']));
 
 			Cookie::delete('PHPSESSID');
 
@@ -568,6 +605,25 @@
 			if (!empty($query)) $query = "?$query";
 			if ($_SERVER['REQUEST_URI'] !== "$desired_path$query")
 				self::Redirect("$desired_path$query", STAY_ALIVE, $http);
+		}
+	}
+
+	class GlobalSettings {
+		static $Settings;
+
+		// Globális beállítások betöltése
+		static function Load(){
+			global $db;
+
+			$data = $db->get('global_settings');
+
+			foreach ($data as $array)
+				$Settings[$array['key']] = $array['value'];
+		}
+
+		// Beállítás lekérdezése
+		static function Get($key){
+			return !empty($Settings[$key]) ? $Settings[$key] : null;
 		}
 	}
 

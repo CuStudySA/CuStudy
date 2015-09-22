@@ -206,3 +206,16 @@ button.btn:enabled:focus {
 .flex li:last-of-type {
 	max-width: 190px;
 }
+
+.maintenance {
+	margin-bottom: 11px;
+    font-size: 1.35em;
+	color: aliceblue;
+    font-weight: bold;
+    background-color: darkred;
+    display: inline-block;
+    border-radius: 3px;
+}
+.maintenance .notBold {
+	font-weight: initial;
+}
