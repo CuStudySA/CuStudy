@@ -11,7 +11,7 @@
 						System::Redirect('/profile?error=A fiók összekapcsolása nem sikerült, mert távoli szolgáltatónál ismeretlen hiba történt!');
 
 					if (isset($ENV['GET']['code'])){
-						$remUser = ExtConnTools::Request('https://www.googleapis.com/plus/v1/people/me',ExtConnTools::GetAccessToken($ENV['GET']['code'],'https://custudy.tk/profile/connect/google'));
+						$remUser = ExtConnTools::Request('https://www.googleapis.com/plus/v1/people/me',ExtConnTools::GetAccessToken($ENV['GET']['code'],ABSPATH.'/profile/connect/google'));
 						$data = $db->where('account_id',$remUser['id'])->getOne('ext_connections');
 
 						if (!empty($data)){
