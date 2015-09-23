@@ -1,10 +1,7 @@
 ﻿<?php
-	if (isset($ENV['POST']['username']) && isset($ENV['POST']['password']))
-		$action = System::Login($ENV['POST']['username'],$ENV['POST']['password'],isset($ENV['POST']['remember']) ? true : false);
+	if (empty($ENV['POST']['username']) || empty($ENV['POST']['password']))
+		System::Respond();
 
-	else System::Respond();
+	$action = System::Login($ENV['POST']['username'], $ENV['POST']['password'],isset($ENV['POST']['remember']) ? true : false);
 
-	if (is_array($action))
-		System::Respond('Juhé',1);
-	else
-		System::Respond('A bejelentkezés sikertelen volt, mert '.Message::GetError('login',$action).'! (Hibakód: '.$action.')');
+	System::Respond(is_array($action) ? true : 'A bejelentkezés sikertelen volt, mert '.Message::GetError('login',$action).'! (Hibakód: '.$action.')');

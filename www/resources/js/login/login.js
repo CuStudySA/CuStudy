@@ -73,7 +73,7 @@ $(function(){
 					if (isIE) return window.location.reload();
 					$.get('?no-header-js',function(data){ setTimeout(function(){
 						var $data = $(data),
-							$scripts = $data.filter('script'),
+							$scripts = $data.filter('script[src]'),
 							$styles = $data.filter('link[rel=stylesheet]'),
 							$body = $(document.body), $head = $(document.head),
 							load = {css: [], js: []};
@@ -113,7 +113,7 @@ $(function(){
 									//JS auto. lefut
 									loadJS(i+1);
 								},
-								error: function(){ window.location.reload() }
+								error: function(){ throw new Error('JS #'+i+' - '+load.js[i]) }
 							});
 						}
 
@@ -127,7 +127,7 @@ $(function(){
 									$head.append($(document.createElement('style')).text(data));
 									loadCSS(i+1);
 								},
-								error: function(){ window.location.reload() }
+								error: function(){ throw new Error('CSS #'+i+' - '+load.css[i]) }
 							});
 						})(0);
 					},500) });

@@ -37,7 +37,8 @@ $Actions[] = array('power','#logout','Kijelentkezés');
 foreach ($Actions as $a){
 	list($icon, $link, $text) = $a;
 
-	if (!!preg_match("~^/$link($|/)~", $_SERVER['REQUEST_URI'])) $icon .= ' current';
+	if (preg_match("~^/$link($|/)~", strtok($ENV['SERVER']['REQUEST_URI'],'?')))
+		$icon .= ' current';
 
 	if (!empty($link) && $link[0] === '#')
 		list($attr,$val) = array('id', substr($link, 1));
