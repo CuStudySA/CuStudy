@@ -618,12 +618,12 @@
 			$data = $db->get('global_settings');
 
 			foreach ($data as $array)
-				$Settings[$array['key']] = $array['value'];
+				self::$Settings[$array['key']] = $array['value'];
 		}
 
 		// Beállítás lekérdezése
 		static function Get($key){
-			return !empty($Settings[$key]) ? $Settings[$key] : null;
+			return !empty(self::$Settings[$key]) ? self::$Settings[$key] : null;
 		}
 	}
 
