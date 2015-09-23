@@ -9,6 +9,8 @@
 
 			if (is_array($action))
 				System::Respond('',1,array('html' => $action[0]));
+			else if ($action == 10)
+				System::Respond('nogroup',0);
 			else
 				System::Respond("A regisztráció sikertelenül zárult, mert ismeretlen hiba történt a művelet közben! (Hibakód: {$action})",0);
 		break;

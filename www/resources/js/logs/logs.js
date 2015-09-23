@@ -25,6 +25,7 @@ $(function(){
 					$.ajax({
 						method: "POST",
 						url: '/logs/details/'+logdata[0],
+						data: pushToken({}),
 						success: function(data){
 							if (typeof data === 'string') return console.log(data) === $(window).trigger('ajaxerror');
 

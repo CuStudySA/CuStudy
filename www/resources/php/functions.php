@@ -372,7 +372,7 @@
 				$isadmin = 'admins';
 			}
 
-			if (!Password::Ellenorzes($password,$data['password'])) return 3;
+			if (!Password::Ellenorzes($password,$data['password'])) return 2;
 			if (!$data['active']) return 4;
 
 			if ($isadmin == 'users')
@@ -608,6 +608,22 @@
 		}
 	}
 
+	class CSRF {
+		const tokenLength = 8;
+		static function Generate(){
+			if (Cookie::get('JSSESSID') !== false) Cookie::delete('JSSESSID');
+			Cookie::set('JSSESSID',Password::Generalas(self::tokenLength),false);
+		}
+
+		static function Check($post){
+			$cookie = Cookie::get('JSSESSID');
+
+			if ($cookie === false) return false;
+			if ($cookie == $post) return true;
+			else return false;
+		}
+	}
+
 	class GlobalSettings {
 		static $Settings;
 
@@ -730,8 +746,7 @@
 			),
 			'login' => array(
 				1 => 'valamelyik megadott adat formátuma hibás',
-				2 => 'a felhasználó nem létezik',
-				3 => 'a megadott jelszó nem egyezik a felhasználó jelszavával',
+				2 => 'a felhasználó nem létezik, esetleg hibás a jelszó',
 				4 => 'a felhasználó állapota tiltott',
 				5 => 'az osztály vagy iskola állapota tiltott',
 			),
@@ -942,15 +957,24 @@ STRING
 			));
 
 			$session = Password::GetSession($data['username']);
-			$db->insert('users',array(
+			$envInfos = System::GetBrowserEnvInfo();
+			if (!is_array($envInfos)) return 5;
+
+			$id = $db->insert('users',array(
 				'username' => $data['username'],
 				'password' => Password::Kodolas($data['password']),
-				'session' => $session,
 				'realname' => $data['realname'],
 				'classid' => $token_d['classid'],
 				'email' => $token_d['email'],
 				'priv' => 'user',
 				'active' => 1,
+			));
+
+			$db->insert('sessions',array(
+				'session' => md5($session),
+				'userid' => $id,
+				'ip' => $envInfos['ip'],
+				'useragent' => $envInfos['useragent'],
 			));
 
 			Cookie::set('PHPSESSID',$session,false);
@@ -962,6 +986,8 @@ STRING
 											LEFT JOIN `groups`g
 											ON (g.theme = gt.id)
 											WHERE g.classid = gt.classid = ?',array($token_d['classid']));
+
+			if (empty($group_data)) return 10;
 
 			$groups = array();
 			$gt_names = array();
@@ -988,6 +1014,7 @@ STRING
 
 			return [$print.self::$groupChooser[1]];
 		}
+
 		static function SetGroupMembers($data){
 			global $db,$user;
 

@@ -1,4 +1,10 @@
 $(function(){
+	function getCookie(name) {
+		var value = "; " + document.cookie;
+		var parts = value.split("; " + name + "=");
+		if (parts.length == 2) return parts.pop().split(";").shift();
+	}
+
 	$.fn.checkInputs = function(){
 		 var $elem = $(this),
 		     $ch = $elem.find('input'),
@@ -29,4 +35,36 @@ $(function(){
 	    }).appendTo($elem);
 	    return $elem;
 	};
+
+	$.fn.serializeForm = function(){
+		var $return = {};
+		$(this).find('input').each(function(i,e){
+			var $e = $(e);
+
+			$return[$e.attr('name')] = $e.val();
+		});
+
+		var token = getCookie('JSSESSID');
+		if (typeof token == 'undefined') return $return;
+
+		$return['JSSESSID'] = token;
+
+		return $return;
+	};
+
+	function getToken(){
+		var token = getCookie('JSSESSID');
+		if (typeof token == 'undefined') return '';
+
+		return token;
+	}
+
+	window.pushToken = function(data){
+		var token = getCookie('JSSESSID');
+		if (typeof token == 'undefined') return data;
+
+		data['JSSESSID'] = token;
+
+		return data;
+	}
 });

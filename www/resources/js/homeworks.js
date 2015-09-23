@@ -53,7 +53,7 @@ $(function(){
 
 		$.ajax({
 			method: "POST",
-			data: {'id': id},
+			data: pushToken({'id': id}),
 			url: '/homeworks/makeMarkedDone',
 			success: function(data){
 				if (typeof data !== 'object'){
@@ -93,7 +93,7 @@ $(function(){
 
 		$.ajax({
 			method: "POST",
-			data: {'id': id},
+			data: pushToken({'id': id}),
 			url: '/homeworks/undoMarkedDone',
 			success: function(data){
 				if (typeof data !== 'object'){
@@ -123,6 +123,7 @@ $(function(){
 
 		$.ajax({
 			method: "POST",
+			data: pushToken({}),
 			url: '/homeworks/getDoneHomeworks',
 			success: function(data){
 				$content.empty().append(data);
@@ -152,6 +153,7 @@ $(function(){
 		$.ajax({
 			method: "POST",
 			url: '/homeworks/getNotDoneHomeworks',
+			data: pushToken({}),
 			success: function(data){
 				$content.empty().append(data);
 				$('.js_showMarkedDone').on('click',getDoneHW);
@@ -181,7 +183,7 @@ $(function(){
 
 		$.ajax({
 			method: "POST",
-			data: {'lesson': $selLesson.find('.del').attr('data-id'), 'text': text, 'week': $selLesson.attr('data-week')},
+			data: pushToken({'lesson': $selLesson.find('.del').attr('data-id'), 'text': text, 'week': $selLesson.attr('data-week')}),
 			success: function(data){
 				if (typeof data !== 'object'){
 					console.log(data);
@@ -212,7 +214,7 @@ $(function(){
 			$.ajax({
 				method: "POST",
 				url: '/homeworks/getTimetable/nextBack',
-				data: {'move': button, 'dispDays': dispDays},
+				data: pushToken({'move': button, 'dispDays': dispDays}),
 				success: function(data){
 					var $data = $(data);
 
@@ -252,7 +254,7 @@ $(function(){
 		$.ajax({
 			method: "POST",
 			url: '/homeworks/getTimetable/date',
-			data: {'date': $(this).val()},
+			data: pushToken({'date': $(this).val()}),
 			success: function(data){
 				var $data = $(data);
 
@@ -289,7 +291,7 @@ $(function(){
 			$.ajax({
 				method: "POST",
 				url: '/homeworks/delete',
-				data: {'id': id},
+				data: pushToken({'id': id}),
 				success: function(data){
 					if (typeof data !== 'object'){
 						console.log(data);

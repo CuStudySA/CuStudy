@@ -165,7 +165,7 @@ $(function(){
 			$.ajax({
 				method: 'POST',
 				url: '/users/invite',
-				data: {'invitations': invitations},
+				data: pushToken({'invitations': invitations}),
 				success: function(data){
 					if (typeof data === 'string'){
 						console.log(data);
@@ -212,7 +212,7 @@ $(function(){
 				$.ajax({
 					method: "POST",
 					url: "/users/editAccessData",
-					data: $urlap.serialize(),
+					data: $urlap.serializeForm(),
 					success: function(data2){
 						if (typeof data2 === 'string'){
 							console.log(data2);
@@ -238,7 +238,7 @@ $(function(){
 		$.ajax({
 			method: "POST",
 			url: "/users/get",
-			data: {'id': id},
+			data: pushToken({'id': id}),
 			success: function(data){
 				if (typeof data === 'string'){
 					console.log(data);
@@ -266,7 +266,7 @@ $(function(){
 						$.ajax({
 							method: "POST",
 							url: "/users/edit",
-							data: $urlap.serialize(),
+							data: $urlap.serializeForm(),
 							success: function(data2){
 								if (typeof data2 === 'string'){
 									console.log(data2);
@@ -319,7 +319,7 @@ $(function(){
 				$.ajax({
 					method: "POST",
 					url: "/users/add",
-					data: $urlap.serialize(),
+					data: $urlap.serializeForm(),
 					success: function(data2){
 						if (typeof data2 === 'string'){
 							console.log(data2);
@@ -375,7 +375,7 @@ $(function(){
 			$.ajax({
 				method: "POST",
 				url: "/users/delete",
-				data: {'id':id},
+				data: pushToken({'id':id}),
 				success: function(data){
 					if (data.status){
 						$(e.currentTarget).parent().parent().remove();

@@ -10,7 +10,7 @@
 <script>
 	var Patterns = <?=json_encode(System::GetHtmlPatterns())?>;
 </script>
-
+<main>
 <div id="main">
 	<div id="wrap">
 		<div id="mid">

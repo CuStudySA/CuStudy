@@ -10,7 +10,7 @@ $(function(){
 			$.ajax({
 				method: "POST",
 				url: "/groups/delete",
-				data: {'id':id},
+				data: pushToken({'id':id}),
 				success: function(data){
 					if (data.status){
 						$.Dialog.success(title,data.message);

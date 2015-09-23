@@ -301,10 +301,21 @@
 			}
 		}
 
+		# CSRF-elleni védelem
+		if (empty($ENV['POST']['JSSESSID'])) System::Respond();
+		if (!CSRF::Check($ENV['POST']['JSSESSID'])) System::Respond();
+
+		unset($ENV['POST']['JSSESSID']);
+
+		CSRF::Generate();
+
 		die(include "executive/{$pages[$do]['file']}.php");
 	}
 
 	// Oldal felépítése \\
+
+	# JS token generálása
+	CSRF::Generate();
 	
 	# Létezik a megjelenítésfájl?
 	$resc = "view/{$pages[$do]['file']}.php";

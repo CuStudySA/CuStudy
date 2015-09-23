@@ -61,7 +61,7 @@ $(function(){
 
 		$.ajax({
 			method: "POST",
-			data: $form.serialize(),
+			data: $form.serializeForm(),
 			success: function(data){
 				if (typeof data === 'string'){
 					console.log(data);

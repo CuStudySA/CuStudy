@@ -14,6 +14,79 @@ $(function(){
 		});
 	}
 
+	function goToMainpage(){
+		var $inner = $('#inner');
+
+		$.Dialog.close();
+
+		$inner
+			.width($inner.width()+1)
+			.height($inner.height()+1)
+			.addClass('animate');
+
+		$.get('/fooldal?no-header-js',function(data){ setTimeout(function(){
+			var $data = $(data),
+				$scripts = $data.filter('script[src]'),
+				$styles = $data.filter('link[rel=stylesheet]'),
+				$body = $(document.body), $head = $(document.head),
+				load = {css: [], js: []};
+
+			$styles.each(function(){
+				var a = document.createElement('a');
+				a.href = this.href;
+				if ($head.children('style[data-href="'+a.pathname+'"]').length === 0)
+					load.css.push(a.pathname);
+			});
+
+			$scripts.each(function(){
+				var a = document.createElement('a');
+				a.href = this.src;
+				if ($body.children('script[src="'+a.pathname+'"]').length === 0)
+					load.js.push(a.pathname);
+			});
+
+			function done(){
+				$data.filter('#sidebar').prependTo($body);
+				$body.addClass('sidebar-slide');
+				$('title').text($data.filter('title').text());
+				$('main').prepend($data.filter('main').html());
+				$('#main').fadeOut(500,function(){
+					$(this).remove();
+				});
+				history.pushState('', {}, '/');
+				loadJS(0);
+			}
+
+			function loadJS(i){
+				if (typeof load.js[i] === 'undefined')
+					return;
+				$.ajax({
+					url: load.js[i],
+					dataType: "script",
+					success: function(){
+						//JS auto. lefut
+						loadJS(i+1);
+					},
+					error: function(){ window.location.reload() }
+				});
+			}
+
+			(function loadCSS(i){
+				if (typeof load.css[i] === 'undefined')
+					return done();
+				$.ajax({
+					url: load.css[i],
+					success: function(data){
+						if (typeof data !== 'string') return window.location.reload();
+						$head.append($(document.createElement('style')).text(data));
+						loadCSS(i+1);
+					},
+					error: function(){ window.location.reload() }
+				});
+			})(0);
+		},500) });
+	}
+
 	// baseDataForm elküldése esetén...
 	$Form.on('submit',function(e){
 		e.preventDefault();
@@ -30,13 +103,12 @@ $(function(){
 		$.ajax({
 			method: 'POST',
 			url: '/invitation/registration',
-			data: $Form.serialize(),
+			data: $Form.serializeForm(),
 			success: function(data){
 				if (data.status){
 					$('#contentDiv').html(data.html);
 
 					$Form = $('form');
-					var $inner = $('#inner');
 					$Form.on('submit',function(e){
 						e.preventDefault();
 
@@ -45,77 +117,10 @@ $(function(){
 						$.ajax({
 							method: 'POST',
 							url: '/invitation/setGroupMembers',
-							data: $Form.serialize(),
+							data: $Form.serializeForm(),
 							success: function(data){
 								if (data.status){
-									$.Dialog.close();
-									return window.location.reload();
-
-									$inner
-										.width($inner.width()+1)
-										.height($inner.height()+1)
-										.addClass('animate');
-
-									$.get('/fooldal?no-header-js',function(data){ setTimeout(function(){
-										var $data = $(data),
-											$scripts = $data.filter('script'),
-											$styles = $data.filter('link[rel=stylesheet]'),
-											$body = $(document.body), $head = $(document.head),
-											load = {css: [], js: []};
-
-										$styles.each(function(){
-											var a = document.createElement('a');
-											a.href = this.href;
-											if ($head.children('style[data-href="'+a.pathname+'"]').length === 0)
-												load.css.push(a.pathname);
-										});
-
-										$scripts.each(function(){
-											var a = document.createElement('a');
-											a.href = this.src;
-											if ($body.children('script[src="'+a.pathname+'"]').length === 0)
-												load.js.push(a.pathname);
-										});
-
-										function done(){
-											$data.filter('#sidebar').prependTo($body);
-											$body.addClass('sidebar-slide');
-											$('title').text($data.filter('title').text());
-											$('main').prepend($data.filter('main').html());
-											$('#main').fadeOut(500,function(){
-												$(this).remove();
-											});
-											loadJS(0);
-										}
-
-										function loadJS(i){
-											if (typeof load.js[i] === 'undefined')
-												return;
-											$.ajax({
-												url: load.js[i],
-												dataType: "script",
-												success: function(){
-													//JS auto. lefut
-													loadJS(i+1);
-												},
-												error: function(){ window.location.reload() }
-											});
-										}
-
-										(function loadCSS(i){
-											if (typeof load.css[i] === 'undefined')
-												return done();
-											$.ajax({
-												url: load.css[i],
-												success: function(data){
-													if (typeof data !== 'string') return window.location.reload();
-													$head.append($(document.createElement('style')).text(data));
-													loadCSS(i+1);
-												},
-												error: function(){ window.location.reload() }
-											});
-										})(0);
-									},500) });
+									goToMainpage();
 								}
 								else $.Dialog.fail(title,data.message);
 							}
@@ -124,7 +129,8 @@ $(function(){
 
 					$.Dialog.close();
 				}
-				else $.Dialog.fail(title,data.message);
+				else if (data.message != 'nogroup') $.Dialog.fail(title,data.message);
+				else goToMainpage();
 			}
 		});
 	});

@@ -77,7 +77,7 @@ $('#sendform').on('click',function(){
 	$.Dialog.wait(title);
 	$.ajax({
 		method: 'POST',
-		data: json,
+		data: pushToken(json),
 		success: function(data){
 			if (typeof data === 'string') return console.log(data) === $(window).trigger('ajaxerror');
 

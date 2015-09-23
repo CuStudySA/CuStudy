@@ -6,7 +6,7 @@ $('#dataform').on('submit',function(e){
 	$.Dialog.wait(title);
 	$.ajax({
 		method: 'POST',
-		data: $(this).serialize(),
+		data: $(this).serializeForm(),
 		success: function(data){
 			if (typeof data === 'string') return console.log(data) === $(window).trigger('ajaxerror');
 

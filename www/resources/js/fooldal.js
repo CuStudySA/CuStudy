@@ -12,7 +12,7 @@ $(function(){
 
 		$.ajax({
 			method: "POST",
-			data: {'id': id},
+			data: pushToken({'id': id}),
 			url: '/homeworks/makeMarkedDone/mainPage',
 			success: function(data){
 				$hWContent.empty().append(data);

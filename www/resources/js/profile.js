@@ -6,7 +6,7 @@ $('#dataform').on('submit',function(e){
 	$.ajax({
 		method: 'POST',
 		url: '/profile/edit',
-		data: $(this).serialize(),
+		data: $(this).serializeForm(),
 		success: function(data){
 			if (typeof data === 'string'){
 				console.log(data);
@@ -49,7 +49,7 @@ $('.disconnect').on('click',function(e){
 		$.ajax({
 			method: 'POST',
 			url: '/profile/unlink',
-			data: {'id': $(e.currentTarget).attr('href').substring(1)},
+			data: pushToken({'id': $(e.currentTarget).attr('href').substring(1)}),
 			success: function(data){
 				if (typeof data === 'string'){
 					console.log(data);
@@ -80,7 +80,7 @@ $('.deactivate').on('click',function(e){
 		$.ajax({
 			method: 'POST',
 			url: '/profile/deactivate',
-			data: {'id': $(e.currentTarget).attr('href').substring(1)},
+			data: pushToken({'id': $(e.currentTarget).attr('href').substring(1)}),
 			success: function(data){
 				if (typeof data === 'string'){
 					console.log(data);
@@ -111,7 +111,7 @@ $('.activate').on('click',function(e){
 		$.ajax({
 			method: 'POST',
 			url: '/profile/activate',
-			data: {'id': $(e.currentTarget).attr('href').substring(1)},
+			data: pushToken({'id': $(e.currentTarget).attr('href').substring(1)}),
 			success: function(data){
 				if (typeof data === 'string'){
 					console.log(data);

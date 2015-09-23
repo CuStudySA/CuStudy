@@ -130,7 +130,7 @@ $(function(){
 			$.ajax({
 				method: 'POST',
 				url: '/teachers/add',
-				data: data,
+				data: pushToken(data),
 				success: function(data2){
 					if (typeof data2 === 'string'){
 						console.log(data2);
@@ -181,7 +181,7 @@ $(function(){
 		$.ajax({
 			method: "POST",
 			url: "/teachers/get",
-			data: {'id': id},
+			data: pushToken({'id': id}),
 			success: function(data){
 				if (typeof data === 'string'){
 					console.log(data);
@@ -208,7 +208,7 @@ $(function(){
 						$.ajax({
 							method: "POST",
 							url: "/teachers/edit",
-							data: $urlap.serialize(),
+							data: $urlap.serializeForm(),
 							success: function(data2){
 								if (typeof data2 === 'string'){
 									console.log(data2);
@@ -251,7 +251,7 @@ $(function(){
 			$.ajax({
 				method: "POST",
 				url: "/teachers/delete",
-				data: {'id': id},
+				data: pushToken({'id': id}),
 				success: function(data){
 					if (typeof data === 'string'){
 						console.log(data);

@@ -17,6 +17,7 @@ $(function(){
 	$.ajax({
 		method: 'POST',
 		url: '/timetables/getoptions',
+		data: pushToken({}),
 		success: function(data){
 			if (typeof data === 'string') return console.log(data) === $(window).trigger('ajaxerror');
 
@@ -184,7 +185,7 @@ $(function(){
 				$.ajax({
 					method: 'POST',
 					url: '/timetables/save',
-					data: container,
+					data: pushToken(container),
 					success: function(data){
 						if (typeof data === 'string') return console.log(data) === $(window).trigger('ajaxerror');
 
