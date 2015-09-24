@@ -27,7 +27,7 @@
 		}
 	}
 
-	class Logging{
+	class Logging {
 		static $subTables = array(
 			'login' => 'login',
 		);
@@ -1963,21 +1963,36 @@ STRING
 			return $homeWorks;
 		}
 
-		static function MakeMarkedDone($id){
-			global $db, $user, $ENV;
+		static function CheckMarkedDone($id, $canExist = false){
+			global $db, $user;
 
 			# Formátum ellenörzése
 			if (System::InputCheck($id,'numeric')) return 1;
 
-			# Létezik-e már?
-			$data = $db->rawQuery('SELECT *
-									FROM `hw_markdone`
-									WHERE `classid` = ? && `userid` = ? && `homework` = ?',array($user['classid'],$user['id'],$id));
-			if (!empty($data)) return 2;
-
 			# Létezik-e a H.Feladat?
-			$data = $db->where('id',$id)->getOne('homeworks');
-			if (empty($data)) return 3;
+			$data = $db->where('id',$id)->has('homeworks');
+			if (!$data) return 3;
+
+			# Késznek van-e már jelölve?
+			$exists = $db
+				->where('classid', $user['classid'])
+				->where('userid', $user['id'])
+				->where('homework', $id)
+				->has('hw_markdone');
+
+			if ($canExist)
+				$exists = !$exists;
+
+			return $exists ? 2 : 0;
+		}
+
+		const CAN_EXIST = true;
+		static function MakeMarkedDone($id){
+			global $db, $user;
+
+			# Ellenőrzés
+			$check = self::CheckMarkedDone($id);
+			if ($check) return $check;
 
 			# Adatbázisba írás
 			$action = $db->insert('hw_markdone',array(
@@ -1990,16 +2005,11 @@ STRING
 		}
 
 		static function UndoMarkedDone($id){
-			global $db, $user, $ENV;
+			global $db, $user;
 
-			# Formátum ellenörzése
-			if (System::InputCheck($id,'numeric')) return 1;
-
-			# Létezik-e már?
-			$data = $db->rawQuery('SELECT *
-									FROM `hw_markdone`
-									WHERE `classid` = ? && `userid` = ? && `homework` = ?',array($user['classid'],$user['id'],$id));
-			if (empty($data)) return 2;
+			# Ellenőrzés
+			$check = self::CheckMarkedDone($id, self::CAN_EXIST);
+			if ($check) return $check;
 
 			# Adatbázisba írás
 			$action = $db->where('homework',$id)->where('userid',$user['id'])->delete('hw_markdone');
@@ -2120,13 +2130,12 @@ STRING
 		static function GetNumberOfWeeks(){
 			global $db,$user;
 
-			$data = $db->rawQuery('SELECT *
-									FROM `timetable`
-									WHERE (`classid` = ? && `week` = ?)
-									LIMIT 1',array($user['classid'],'b'));
+			$data = $db
+				->where('classid', $user['classid'])
+				->where('week', 'b')
+				->has('timetable');
 
-			if (empty($data)) return 1;
-			else return 2;
+			return empty($data) ? 1 : 2;
 		}
 
 		static function GetEdgesOfWeek($date){
@@ -2459,7 +2468,7 @@ STRING;
 
 			<table class='timet'>
 				<thead>
-<?php				if (!empty($weekdays)) {
+<?php				if (!empty($weeks)) {
 						print "<tr><th>H</th>";
 						foreach ($weeks as $key => $array){
 							print "<th colspan='$array[0]'>{$array[1]}. hét ({$key}. hét)</th>";
@@ -2475,10 +2484,9 @@ STRING;
 							<th class="weekday">Csütörtök</th>
 							<th class="weekday">Péntek</th>
 <?php                   }
-						else {
+						else
 							foreach ($weekdays as $day)
-								print "<th class='weekday'>".date('m.d.',$day).' '.System::$Days[Timetable::GetDayNumber($day)]."</th>";
-						} ?>
+								print "<th class='weekday'>".date('m.d.',$day).' '.System::$Days[Timetable::GetDayNumber($day)]."</th>"; ?>
 					</tr>
 				</thead>
 
