@@ -395,8 +395,6 @@
 				'useragent' => $envInfos['useragent'],
 			));
 
-			if ($remember) Cookie::set('username',$username);
-
 			return [$data['id']];
 		}
 		static function Login($username,$password,$remember = false){

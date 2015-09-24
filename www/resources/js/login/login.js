@@ -43,9 +43,18 @@ $(function(){
 			$tabItems.first().focus();
 		}
 	});
-	var $inner = $('#inner');
+	var $inner = $('#inner'),
+		$loginForm = $('#loginform');
 
-	$('#loginform').on('submit',function(e){
+
+	try {
+		var savedUsername = localStorage.getItem('username');
+		if (savedUsername)
+			$loginForm.find('input[name=username]').val(savedUsername);
+	}
+	catch(e){}
+
+	$loginForm.on('submit',function(e){
 		e.preventDefault();
 		$inner
 			.width($inner.width()+1)
@@ -57,11 +66,12 @@ $(function(){
 		$.each(tempdata,function(i,el){
 			data[el.name] = el.value;
 		}); */
-		var isIE = navigator.userAgent.toLowerCase().indexOf('trident') !== -1 || navigator.userAgent.toLowerCase().indexOf('msie') !== -1;
+		var isIE = navigator.userAgent.toLowerCase().indexOf('trident') !== -1 || navigator.userAgent.toLowerCase().indexOf('msie') !== -1,
+			formData = $form.serializeForm();
 
 		$.ajax({
 			method: "POST",
-			data: $form.serializeForm(),
+			data: formData,
 			success: function(data){
 				if (typeof data === 'string'){
 					console.log(data);
@@ -70,6 +80,13 @@ $(function(){
 				}
 
 				if (data.status){
+					if (formData.remember){
+						try {
+							localStorage.setItem('username', formData.username);
+						}
+						catch(e){}
+					}
+
 					if (isIE) return window.location.reload();
 					$.get('?no-header-js',function(data){ setTimeout(function(){
 						var $data = $(data),

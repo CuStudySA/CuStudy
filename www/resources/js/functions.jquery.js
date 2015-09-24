@@ -37,29 +37,29 @@ $(function(){
 	};
 
 	$.fn.serializeForm = function(){
-		var $return = {};
+		var data = {};
 		$(this).find('input').each(function(i,e){
 			var $e = $(e);
 
-			$return[$e.attr('name')] = $e.val();
+			data[$e.attr('name')] = $e.val();
 		});
 		$(this).find('select').each(function(i,e){
 			var $e = $(e);
 
-			$return[$e.attr('name')] = $e.val();
+			data[$e.attr('name')] = $e.val();
 		});
 		$(this).find('textarea').each(function(i,e){
 			var $e = $(e);
 
-			$return[$e.attr('name')] = $e.val();
+			data[$e.attr('name')] = $e.val();
 		});
 
 		var token = getCookie('JSSESSID');
-		if (typeof token == 'undefined') return $return;
+		if (typeof token == 'undefined') return data;
 
-		$return['JSSESSID'] = token;
+		data['JSSESSID'] = token;
 
-		return $return;
+		return data;
 	};
 
 	function getToken(){
