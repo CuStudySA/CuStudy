@@ -34,3 +34,6 @@
 			die(header('Location: /'));
 	}
 ?>
+<div id="links">
+	<a href="mailto:webmaster@<?=$ENV['SERVER']['SERVER_NAME']?>?subject=CuStudy%20Hibabejelentés">Hibabejelentés</a>
+</div>
