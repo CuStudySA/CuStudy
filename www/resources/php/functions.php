@@ -723,37 +723,126 @@
 	}
 
 	class Message {
-		static $ErrorCode = array(
-			'adduser' => array(
-				1 => 'hiányzik egy szükséges adat',
-				2 => 'valamelyik megadott adat formátuma hibás',
-				3 => 'a megadott jelszavak nem egyeznek',
-				4 => 'már foglalt a megadott felhasználónév',
-				5 => 'már foglalt a megadott felhasználónév',
-				6 => 'létezik felhasználó a megadott e-mail címmel',
-				7 => 'az űrlap adatai nem változtak (vagy adatb. hiba)'
+		static $Messages = array(
+			'system' => array(
+				'login' => array(
+					'errors' => array(
+						1 => 'valamelyik megadott adat formátuma hibás',
+						2 => 'a felhasználó nem létezik, esetleg hibás a jelszó',
+						4 => 'a felhasználó állapota tiltott',
+						5 => 'az osztály vagy iskola állapota tiltott',
+					),
+					'messages' => array(
+						1 => 'A bejelentkezés sikertelen volt, mert @msg! (Hibakód: @code)',
+					),
+				)
 			),
-			'edituser' => array(
-				1 => 'nincs jogosultsága a művelethez',
-				2 => 'valamelyik megadott adat formátuma hibás',
-				3 => 'a megadott jelszavak nem egyeznek',
-				4 => 'már foglalt a megadott felhasználónév',
-				5 => 'már foglalt a megadott felhasználónév',
-				6 => 'létezik felhasználó a megadott e-mail címmel',
-				7 => 'az űrlap adatai nem változtak (vagy adatb. hiba)'
+
+			'users' => array(
+				'add' => array(
+					'errors' => array(
+						1 => 'hiányzik egy szükséges adat',
+						2 => 'valamelyik megadott adat formátuma hibás',
+						3 => 'a megadott jelszavak nem egyeznek',
+						4 => 'már foglalt a megadott felhasználónév',
+						5 => 'már foglalt a megadott felhasználónév',
+						6 => 'létezik felhasználó a megadott e-mail címmel',
+						7 => 'nincs jogosultsága a művelethez'
+					),
+					'messages' => array(
+						0 => 'A felhasználó hozzáadása sikeresen megtörtént!',
+						1 => 'A felhasználót nem sikerült létrehozni, mert @msg! (Hibakód: @code)',
+					),
+				),
+				'edit' => array(
+					'errors' => array(
+						1 => 'nincs jogosultsága a művelethez',
+						2 => 'valamelyik megadott adat formátuma hibás',
+						6 => 'létezik felhasználó a megadott e-mail címmel',
+						7 => 'az űrlap adatai nem változtak (vagy adatb. hiba)'
+					),
+					'messages' => array(
+						0 => 'A felhasználó adatainak módosítása sikeresen megtörtént!',
+						1 => 'A felhasználó adatait nem sikerült módosítani, mert @msg! (Hibakód: @code)',
+					),
+				),
+				'editAccessData' => array(
+					'errors' => array(
+						1 => 'nincs jogosultsága a művelethez',
+						2 => 'a megadott két új jelszó nem egyezik meg',
+					),
+					'messages' => array(
+						0 => 'A felhasználó hozzáférési adatainak módosítása sikeres volt!',
+						1 => 'A felhasználó hozzáférési adatainak módosítása sikertelen volt, mert @msg! (Hibakód: @code)',
+					),
+				),
 			),
-			'login' => array(
-				1 => 'valamelyik megadott adat formátuma hibás',
-				2 => 'a felhasználó nem létezik, esetleg hibás a jelszó',
-				4 => 'a felhasználó állapota tiltott',
-				5 => 'az osztály vagy iskola állapota tiltott',
+
+			'extConnTools' => array(
+				'deactivate' => array(
+					'errors' => array(
+						1 => 'valamelyik megadott adat formátuma hibás',
+						2 => 'az összekapcsolás nem található',
+						3 => 'nincs jogosultsága a művelethez',
+						4 => 'az összekapcsolás státusza már deaktív'
+					),
+					'messages' => array(
+						0 => 'A távoli szolgátatóval történő összekacsolás deaktiválása megtörtént! Az oldal frissül, várjon...',
+						1 => 'A távoli szolgátatóval történő összekacsolás deaktiválás sikertelen volt, mert @msg! (Hibakód: @code)',
+					),
+				),
+				'activate' => array(
+					'errors' => array(
+						1 => 'valamelyik megadott adat formátuma hibás',
+						2 => 'az összekapcsolás nem található',
+						3 => 'nincs jogosultsága a művelethez',
+						4 => 'az összekapcsolás státusza már aktív'
+					),
+					'messages' => array(
+						0 => 'A távoli szolgátatóval történő összekacsolás aktiválása megtörtént! Az oldal frissül, várjon...',
+						1 => 'A távoli szolgátatóval történő összekacsolás aktiválása sikertelen volt, mert @msg! (Hibakód: @code)',
+					),
+				),
+				'unlink' => array(
+					'errors' => array(
+						1 => 'valamelyik megadott adat formátuma hibás',
+						2 => 'az összekapcsolás nem található',
+						3 => 'nincs jogosultsága a művelethez',
+					),
+					'messages' => array(
+						0 => 'A távoli szolgátató fiókjának leválasztása sikeresen megtörtént! Az oldal frissül, várjon...',
+						1 => 'A távoli szolgátató fiókjának leválasztása sikertelen volt, mert @msg! (Hibakód: @code)',
+					),
+				),
+				'editMyProfile' => array(
+					'errors' => array(
+						1 => 'a megadott jelszó nem egyezik meg a felhasználó jelszavával',
+						2 => 'a megadott két új jelszó nem egyezik meg',
+					),
+					'messages' => array(
+						0 => 'A felhasználói adatok frissítése sikeresen megtörtént!',
+						1 => 'A felhasználói adatok frissítése sikertelen volt, mert @msg! (Hibakód: @code)',
+					),
+				),
 			),
 		);
 
 		// Hibakód feldolgozása (to string)
-		static function GetError($activity,$code){
-			if (isset(self::$ErrorCode[$activity][$code])) return self::$ErrorCode[$activity][$code];
-			else return 'a hibakód nem létezik';
+		static function Respond($activity,$code = 0){
+			$array = explode('.',$activity);
+
+			$class = $array[0];
+			$action = $array[1];
+
+			if ($code != 0){
+				$errorMsg = isset(self::$Messages[$class][$action]['errors'][$code]) ? self::$Messages[$class][$action]['errors'][$code] :
+					'ismeretlen hiba történt a művelet során';
+
+				return str_replace('@code',$code,str_replace('@msg',$errorMsg,self::$Messages[$class][$action]['messages'][1]));
+			}
+			
+			else
+				return self::$Messages[$class][$action]['messages'][0];
 		}
 
 		static $HTTP_STATUS_CODES = array(
@@ -1302,7 +1391,7 @@ STRING
 			global $db, $user;
 
 			# Jog. ellelnörzése
-			if(System::PermCheck('admin')) return 8;
+			if(System::PermCheck('admin')) return 7;
 
 			# Bevitel ellenörzése
 			if (!System::ValuesExists($data_a,['username','realname','priv','email','active'])) return 1;

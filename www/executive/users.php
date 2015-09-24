@@ -42,10 +42,7 @@
 
 			else System::Respond();
 
-			if (is_array($action))
-				System::Respond('A felhasználó hozzáadása sikeres volt!',1,['id' => $action[0]]);
-			else
-				System::Respond('A felhasználó hozzáadása sikertelen volt, mert '.Message::GetError('adduser',$action).'! (Hibakód: '.$action.')');
+			System::Respond(Message::Respond('users.add',$action), is_array($action) ? 1 : 0);
 		break;
 
 		case 'edit':
@@ -55,10 +52,7 @@
 			}
 			else System::Respond();
 
-			if ($action === 0)
-				System::Respond('A felhasználó adatainak módosítása sikeres volt!',1);
-			else
-				System::Respond('A felhasználó adatainak módosítása sikertelen volt, mert '.Message::GetError('edituser',$action).'! (Hibakód: '.$action.')');
+			System::Respond(Message::Respond('users.edit',$action), $action == 0 ? 1 : 0);
 		break;
 
 		case 'delete':
@@ -80,10 +74,7 @@
 				$action = UserTools::EditAccessData($ENV['POST']['id'],$ENV['POST']);
 			}
 
-			if ($action === 0)
-				System::Respond('A felhasználó hozzáférési adatainak módosítása sikeres volt!',1);
-			else
-				System::Respond('A felhasználó hozzáférési adatainak módosítása sikertelen volt, mert '.Message::GetError('deleteuser',$action).'! (Hibakód: '.$action.')');
+			System::Respond(Message::Respond('users.editAccessData',$action), $action == 0 ? 1 : 0);
 		break;
 
 		default:

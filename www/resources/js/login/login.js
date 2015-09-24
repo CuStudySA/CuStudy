@@ -60,6 +60,9 @@ $(function(){
 			.width($inner.width()+1)
 			.height($inner.height()+1)
 			.addClass('animate');
+
+		$('#links').detach();
+
 		var $form = $(this), title = "Bejelentkezés";
 
 		/* var tempdata = $form.serializeArray(), data = {};
