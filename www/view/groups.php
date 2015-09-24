@@ -210,7 +210,7 @@
 			print "</ul><p><a class='btn' href='/groups'>Visszalépés</a></p>";
 		break;
 
-		case 'theme':
+		case 'theme': # TODO hozzáadó űrlap elkészítése
 			switch($ENV['URL'][1]){
 				case 'edit':
 					$id = $ENV['URL'][2];
