@@ -7,8 +7,7 @@
 
 			$action = HomeworkTools::Add($ENV['POST']);
 
-			if ($action == 0) System::Respond('A házi feladat hozzáadása sikeresen befejezeődött!',1);
-			else System::Respond('A házi feladat hozzáadása sikertelenül záródott, mert '.Message::GetError('rewriteThis',$action)."! (hibakód: $action)",0);
+			System::Respond(Message::Respond('homeworks.add',$action), $action == 0 ? 1 : 0);
 		break;
 
 		case 'delete':
@@ -16,8 +15,7 @@
 
 			$action = HomeworkTools::Delete($ENV['POST']['id']);
 
-			if ($action == 0) System::Respond('',1);
-			else System::Respond('A házi feladat törlése sikertelenül záródott, mert '.Message::GetError('rewriteThis',$action)."! (hibakód: $action)",0);
+			System::Respond(Message::Respond('homeworks.delete',$action), $action == 0 ? 1 : 0);
 		break;
 
 		case 'makeMarkedDone':

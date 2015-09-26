@@ -20,28 +20,19 @@
 		case 'add':
 			$action = TeacherTools::Add($ENV['POST']);
 
-			if (is_array($action))
-				System::Respond('A tanár (és tantárgyak) hozzáadása sikeres volt!',1,array('id' => $action[0]));
-			else
-				System::Respond('A tanár (vagy/és tantárgyak) hozzáadása sikertelen volt, mert '.Message::GetError('addteacher',$action).'! (Hibakód: '.$action.')');
+			System::Respond(Message::Respond('teachers.add',is_array($action) ? 0 : $action), is_array($action) ? 1 : 0, is_array($action) ? ['id' => $action[0]] : array());
 		break;
 
 		case 'edit':
 			$action = TeacherTools::Edit($ENV['POST']);
 
-			if ($action === 0)
-				System::Respond('A tanár adatainak módosítása sikeres volt!',1);
-			else
-				System::Respond('A tanár adatainak módosítása sikertelen volt, mert '.Message::GetError('editteacher',$action).'! (Hibakód: '.$action.')');
+			System::Respond(Message::Respond('teachers.edit',$action), $action == 0 ? 1 : 0);
 		break;
 
 		case 'delete':
 			$action = TeacherTools::Delete($ENV['POST']['id']);
 
-			if ($action === 0)
-				System::Respond('A tanár törlése a rendszerből sikeres volt!',1);
-			else
-				System::Respond('A tanár törlése a rendszerből sikertelen volt, mert '.Message::GetError('deleteteacher',$action).'! (Hibakód: '.$action.')');
+			System::Respond(Message::Respond('teachers.delete',$action), $action == 0 ? 1 : 0);
 		break;
 
 		default:

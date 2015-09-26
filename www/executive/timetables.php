@@ -24,9 +24,6 @@
 				$action = Timetable::ProgressTable($ENV['POST']);
 			else System::Respond();
 
-			if ($action === 0)
-				System::Respond('Az órarend frissítése sikeres volt!',1);
-			else
-				System::Respond('Az órarend frissítése sikertelen volt, mert '.Message::GetError('edit_tt',$action).'! (Hibakód: '.$action.')');
+			System::Respond(Message::Respond('timetables.progressTable',$action), $action == 0 ? 1 : 0);
 		break;
 	}

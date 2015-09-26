@@ -143,9 +143,9 @@ $(function(){
 
 						$elem.find('.rovid').text(data.short);
 						$elem.find('.nev').text(data.name);
-						$elem.find('.js_teacher_edit').attr('href','#' + data.id);
-						$elem.find('.js_teacher_del').attr('href','#' + data.id);
-						$elem.attr('data-id',data.id);
+						$elem.find('.js_teacher_edit').attr('href','#' + data2.id);
+						$elem.find('.js_teacher_del').attr('href','#' + data2.id);
+						$elem.attr('data-id',data2.id);
 
 						var $elemlista = $('.teachers');
 
@@ -229,6 +229,7 @@ $(function(){
 
 									$.Dialog.close();
 								}
+								else $.Dialog.fail(title,data2.message);
 							}
 						});
 					});

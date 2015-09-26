@@ -48,9 +48,15 @@ $(function(){
 
 
 	try {
-		var savedUsername = localStorage.getItem('username');
-		if (savedUsername)
-			$loginForm.find('input[name=username]').val(savedUsername);
+		var savedUsername = localStorage.getItem('username'),
+			$loginInput = $loginForm.find('input[name=username]');
+
+		if (savedUsername){
+			$loginInput.val(savedUsername);
+			$loginForm.find('input[name=password]').focus();
+		}
+		else
+			$loginInput.focus();
 	}
 	catch(e){}
 
@@ -83,7 +89,7 @@ $(function(){
 				}
 
 				if (data.status){
-					if (formData.remember){
+					if ($('[name=remember]').prop('checked')){
 						try {
 							localStorage.setItem('username', formData.username);
 						}

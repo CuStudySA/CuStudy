@@ -7,8 +7,7 @@
 
 			$action = InviteTools::BatchInvite($ENV['POST']['invitations']);
 
-			if (is_array($action)) System::Respond('A felhasználók meghívása befejeződött, de néhány felhasználó meghívása nem sikerült.',0);
-			else System::Respond('A felhasználók meghívása sikeresen befejeződött. A meghívók megérkezése azonban akár 12 órát is igénybe vehet!',1);
+			System::Respond(Message::Respond('invitation.batchInvite',$action), $action == 0 ? 1 : 0);
 		break;
 
 		case 'getPatterns':
@@ -42,7 +41,7 @@
 
 			else System::Respond();
 
-			System::Respond(Message::Respond('users.add',$action), is_array($action) ? 1 : 0);
+			System::Respond(Message::Respond('users.add',is_array($action) ? 0 : $action), is_array($action) ? 1 : 0, is_array($action) ? ['id' => $action[0]] : array());
 		break;
 
 		case 'edit':
@@ -62,10 +61,7 @@
 			}
 			else System::Respond();
 
-			if ($action === 0)
-				System::Respond('A felhasználó törlése sikeres volt!',1);
-			else
-				System::Respond('A felhasználó törlése sikertelen volt, mert '.Message::GetError('deleteuser',$action).'! (Hibakód: '.$action.')');
+			System::Respond(Message::Respond('users.delete',$action), $action == 0 ? 1 : 0);
 		break;
 
 		case 'editAccessData':

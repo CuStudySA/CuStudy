@@ -357,7 +357,7 @@
 		}
 
 		// Bejelentkezés
-		static private function _login($username,$password,$remember = false){
+		static private function _login($username,$password){
 			global $db;
 
 			# Formátum ellenörzése
@@ -397,8 +397,8 @@
 
 			return [$data['id']];
 		}
-		static function Login($username,$password,$remember = false){
-			$action = self::_login($username,$password,$remember);
+		static function Login($username,$password){
+			$action = self::_login($username,$password);
 
 			Logging::Insert(array(
 				'action' => 'login',
@@ -766,6 +766,15 @@
 						1 => 'A felhasználó adatait nem sikerült módosítani, mert @msg! (Hibakód: @code)',
 					),
 				),
+				'delete' => array(
+					'errors' => array(
+						1 => 'nincs jogosultsága a művelethez',
+					),
+					'messages' => array(
+						0 => 'A felhasználó törlése sikeresen megtörtént!',
+						1 => 'A felhasználó törlése sikertelen volt, mert @msg! (Hibakód: @code)',
+					),
+				),
 				'editAccessData' => array(
 					'errors' => array(
 						1 => 'nincs jogosultsága a művelethez',
@@ -825,6 +834,165 @@
 					),
 				),
 			),
+			'lessons' => array(
+				'add' => array(
+					'errors' => array(
+						1 => 'nincs jogosultsága a művelethez',
+						2 => 'valamelyik megadott adat formátuma hibás',
+					),
+					'messages' => array(
+						0 => 'A tantárgy hozzáadása sikeres volt!',
+						1 => 'A tantárgy hozzáadása sikertelen volt, mert @msg! (Hibakód: @code)',
+					),
+				),
+				'edit' => array(
+					'errors' => array(
+						1 => 'nincs jogosultsága a művelethez',
+						2 => 'valamelyik megadott adat formátuma hibás',
+					),
+					'messages' => array(
+						0 => 'A tantárgy szerkesztése sikeres volt!',
+						1 => 'A tantárgy szerkesztése sikertelen volt, mert @msg! (Hibakód: @code)',
+					),
+				),
+				'delete' => array(
+					'errors' => array(
+						1 => 'nincs jogosultsága a művelethez',
+					),
+					'messages' => array(
+						0 => 'A tantárgy törlése sikeres volt!',
+						1 => 'A tantárgy törlése sikertelen volt, mert @msg! (Hibakód: @code)',
+					),
+				),
+			),
+			'invitation' => array(
+				'batchInvite' => array(
+					'errors' => array(
+						1 => 'nincs jogosultsága a művelethez',
+						2 => 'egyes felhasználóknak nem sikerült elküldeni a meghívó e-mailt',
+					),
+					'messages' => array(
+						0 => 'A felhasználók meghívása sikeresen befejeződött. A meghívók megérkezése azonban akár 12 órát is igénybe vehet!',
+						1 => 'Az összes felhasználó meghívása nem sikerült, mert @msg! (Hibakód: @code)',
+					),
+				),
+			),
+			'groups' => array(
+				'add' => array(
+					'errors' => array(
+						2 => 'valamelyik megadott adat formátuma hibás',
+						3 => 'valamelyik megadott adat formátuma hibás',
+						4 => 'a megadott kategória nem található',
+						5 => 'a csoporthoz hozzáadandó felhasználók valamelyike nem található',
+					),
+					'messages' => array(
+						0 => 'A csoport hozzáadása sikeres volt!',
+						1 => 'A csoport hozzáadása sikertelen volt, mert @msg! (Hibakód: @code)',
+					),
+				),
+				'edit' => array(
+					'errors' => array(
+						1 => 'nincs jogosultsága a művelethez',
+						2 => 'valamelyik megadott adat formátuma hibás',
+						3 => 'valamelyik megadott adat formátuma hibás',
+						4 => 'valamelyik megadott adat formátuma hibás',
+					),
+					'messages' => array(
+						0 => 'A csoport szerkesztése sikeres volt!',
+						1 => 'A csoport szerkesztése sikertelen volt, mert @msg! (Hibakód: @code)',
+					),
+				),
+				'delete' => array(
+					'errors' => array(
+						1 => 'nincs jogosultsága a művelethez',
+						2 => 'valamelyik megadott adat formátuma hibás',
+						3 => 'nem létezik a csoport',
+					),
+					'messages' => array(
+						0 => 'A csoport törlése sikeres volt!',
+						1 => 'A csoport törlése sikertelen volt, mert @msg! (Hibakód: @code)',
+					),
+				),
+			),
+			'groupThemes' => array(
+				'edit' => array(
+					'errors' => array(
+						1 => 'nincs jogosultsága a művelethez',
+						2 => 'valamelyik megadott adat formátuma hibás',
+					),
+					'messages' => array(
+						0 => 'A csoportkategória szerkesztése sikeres volt!',
+						1 => 'A csoportkategória szerkesztése sikertelen volt, mert @msg! (Hibakód: @code)',
+					),
+				),
+			),
+			'homeworks' => array(
+				'add' => array(
+					'errors' => array(
+						1 => 'nincs jogosultsága a művelethez',
+						2 => 'valamelyik megadott adat formátuma hibás',
+						3 => 'az órarend-bejegyzés nem található',
+						4 => 'a meadott órarend-bejegyzés a kapott hét sorszámával nem összeegyeztethető',
+					),
+					'messages' => array(
+						0 => 'A házi feladat hozzáadása sikeresen befejezeődött!',
+						1 => 'A házi feladat hozzáadása sikertelenül záródott, mert @msg! (Hibakód: @code)',
+					),
+				),
+				'delete' => array(
+					'errors' => array(
+						1 => 'nincs jogosultsága a művelethez',
+						2 => 'valamelyik megadott adat formátuma hibás',
+					),
+					'messages' => array(
+						1 => 'A házi feladat törlése sikertelenül záródott, mert @msg! (Hibakód: @code)',
+					),
+				),
+			),
+			'teachers' => array(
+				'add' => array(
+					'errors' => array(
+						1 => 'nincs jogosultsága a művelethez',
+						2 => 'valamelyik megadott adat formátuma hibás',
+						4 => 'néhány tantárgy hozzáadása nem sikerült',
+					),
+					'messages' => array(
+						0 => 'A tanár (és tantárgyak) hozzáadása sikeres volt!',
+						1 => 'A tanár (vagy/és tantárgyak) hozzáadása sikertelen volt, mert @msg! (Hibakód: @code)',
+					),
+				),
+				'edit' => array(
+					'errors' => array(
+						1 => 'nincs jogosultsága a művelethez',
+						2 => 'valamelyik megadott adat formátuma hibás',
+					),
+					'messages' => array(
+						0 => 'A tanár adatainak módosítása sikeres volt!',
+						1 => 'A tanár adatainak módosítása sikertelen volt, mert @msg! (Hibakód: @code)',
+					),
+				),
+				'delete' => array(
+					'errors' => array(
+						1 => 'nincs jogosultsága a művelethez',
+					),
+					'messages' => array(
+						0 => 'A tanár törlése a rendszerből sikeres volt!',
+						1 => 'A tanár törlése a rendszerből sikertelen volt, mert @msg! (Hibakód: @code)',
+					),
+				),
+			),
+			'timetables' => array(
+				'progressTable' => array(
+					'errors' => array(
+						1 => 'valamelyik megadott adat formátuma hibás',
+						2 => 'nincs jogosultsága a művelethez',
+					),
+					'messages' => array(
+						0 => 'Az órarend frissítése sikeres volt!',
+						1 => 'Az órarend frissítése sikertelen volt, mert @msg! (Hibakód: @code)',
+					),
+				),
+			),
 		);
 
 		// Hibakód feldolgozása (to string)
@@ -842,7 +1010,7 @@
 			}
 			
 			else
-				return self::$Messages[$class][$action]['messages'][0];
+				return isset(self::$Messages[$class][$action]['messages'][0]) ? self::$Messages[$class][$action]['messages'][0] : 'A művelet sikerült!';
 		}
 
 		static $HTTP_STATUS_CODES = array(
@@ -998,7 +1166,7 @@ STRING
 			}
 
 			if (empty($invalidEntrys)) return 0;
-			else return $invalidEntrys;
+			else return 2;
 		}
 
 		static function Registration($data){
@@ -1175,7 +1343,6 @@ STRING
 			if (System::PermCheck('admin')) return 1;
 
 			# Formátum ellenörzése
-			#var_dump($data_a);
 			if (!System::ValuesExists($data_a,['name','teacherid'])) return 2;
 			foreach ($data_a as $key => $value){
 				if ($key == 'color') continue;
@@ -1192,7 +1359,6 @@ STRING
 					break;
 				}
 				if (System::InputCheck($value,$type)) return 2;
-				if (!System::InputCheck($value,'attack')) return 99;
 			}
 
 			if (!isset($data_a['color']) || $data_a['color'] == '#000000') $data_a['color'] = 'default';
@@ -1689,7 +1855,6 @@ STRING
 					break;
 				}
 				if (System::InputCheck($value,$type)) return 2;
-				if (!System::InputCheck($value,'attack')) return 99;
 			}
 
 			$db->where('id',$id)->update('groups',array(
@@ -1807,7 +1972,7 @@ STRING
 			if(System::PermCheck('admin')) return 1;
 
 			# Alapadatok feldolgozása
-			if (!isset($datas['name']) || !isset($datas['short'])) return 21;
+			if (!isset($datas['name']) || !isset($datas['short'])) return 2;
 			$basedata = array(
 				'name' => $datas['name'],
 				'short' => $datas['short'],
@@ -1821,7 +1986,7 @@ STRING
 						$type = $key;
 					break;
 				}
-				if (System::InputCheck($value,$type)) return 22;
+				if (System::InputCheck($value,$type)) return 2;
 			}
 			$basedata['classid'] = $user['classid'];
 			$action = $db->insert('teachers',$basedata);

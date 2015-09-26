@@ -8,10 +8,25 @@
 
 			else System::Respond();
 
-			if (is_array($action))
-				System::Respond('A tantárgy hozzáadása sikeres volt!',1,['id' => $action]);
-			else
-				System::Respond('A tantárgy hozzáadása sikertelen volt, mert '.Message::GetError('addlesson',$action).'! (Hibakód: '.$action.')');
+			System::Respond(Message::Respond('lessons.add',is_array($action) ? 0 : $action), is_array($action) ? 1 : 0, is_array($action) ? ['id' => $action[0]] : array());
+		break;
+
+		case 'edit':
+			if (isset($ENV['POST']['name']))
+				$action = LessonTools::Edit($ENV['POST']);
+
+			else System::Respond();
+
+			System::Respond(Message::Respond('lessons.edit',$action), $action == 0 ? 1 : 0);
+		break;
+
+		case 'delete':
+			if (isset($ENV['POST']['id']))
+				$action = LessonTools::Delete($ENV['POST']['id']);
+
+			else System::Respond();
+
+			System::Respond(Message::Respond('lessons.delete',$action), $action == 0 ? 1 : 0);
 		break;
 
 		case 'get':
@@ -61,29 +76,4 @@
 				break;
 			}
 		break;
-
-		case 'delete':
-			if (isset($ENV['POST']['id']))
-				$action = LessonTools::Delete($ENV['POST']['id']);
-
-			else System::Respond();
-
-			if ($action === 0)
-				System::Respond('A tantárgy törlése sikeres volt!',1);
-			else
-				System::Respond('A tantárgy törlése sikertelen volt, mert '.Message::GetError('deletelesson',$action).'! (Hibakód: '.$action.')');
-		break;
-
-		case 'edit':
-			if (isset($ENV['POST']['name']))
-				$action = LessonTools::Edit($ENV['POST']);
-
-			else System::Respond();
-
-			if ($action === 0)
-				System::Respond('A tantárgy szerkesztése sikeres volt!',1);
-			else
-				System::Respond('A tantárgy szerkesztése sikertelen volt, mert '.Message::GetError('editlesson',$action).'! (Hibakód: '.$action.')');
-		break;
-
 	}

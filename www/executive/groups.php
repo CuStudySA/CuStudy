@@ -2,27 +2,21 @@
 	$act = $ENV['URL'][0];
 
 	switch ($act) {
-		case 'edit':
-			if (!empty($ENV['URL'][1]) && !empty($ENV['POST']))
-				$action = GroupTools::Edit($ENV['URL'][1],$ENV['POST']);
-			else System::Respond();
-
-			if ($action === 0)
-				System::Respond('A csoport szerkesztése sikeres volt!',1);
-			else
-				System::Respond('A csoport szerkesztése sikertelen volt, mert '.Message::GetError('editgroup',$action).'! (Hibakód: '.$action.')');
-
-		break;
-
 		case 'add':
 			if (!empty($ENV['POST']))
 				$action = GroupTools::Add($ENV['POST']);
 			else System::Respond();
 
-			if ($action === 0)
-				System::Respond('A csoport hozzáadása sikeres volt!',1);
-			else
-				System::Respond('A csoport hozzáadása sikertelen volt, mert '.Message::GetError('addgroup',$action).'! (Hibakód: '.$action.')');
+			System::Respond(Message::Respond('groups.add',$action), $action == 0 ? 1 : 0);
+		break;
+
+		case 'edit':
+			if (!empty($ENV['URL'][1]) && !empty($ENV['POST']))
+				$action = GroupTools::Edit($ENV['URL'][1],$ENV['POST']);
+			else System::Respond();
+
+			System::Respond(Message::Respond('groups.edit',$action), $action == 0 ? 1 : 0);
+
 		break;
 
 		case 'delete':
@@ -30,10 +24,7 @@
 				$action = GroupTools::Delete($ENV['POST']['id']);
 			else System::Respond();
 
-			if ($action === 0)
-				System::Respond('A csoport törlése sikeres volt!',1);
-			else
-				System::Respond('A csoport törlése sikertelen volt, mert '.Message::GetError('delgroup',$action).'! (Hibakód: '.$action.')');
+			System::Respond(Message::Respond('groups.delete',$action), $action == 0 ? 1 : 0);
 		break;
 
 		case 'theme':
@@ -41,10 +32,7 @@
 				case 'edit':
 					$action = GroupThemeTools::Edit(end($ENV['URL']),$ENV['POST']);
 
-					if ($action === 0)
-						System::Respond('A csoportkategória szerkesztése sikeres volt!',1);
-					else
-						System::Respond('A csoportkategória szerkesztése sikertelen volt, mert '.Message::GetError('editgrptheme',$action).'! (Hibakód: '.$action.')');
+					System::Respond(Message::Respond('groupThemes.edit',$action), $action == 0 ? 1 : 0);
 				break;
 			}
 		break;
