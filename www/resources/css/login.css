@@ -143,6 +143,16 @@ body.sidebar-slide > main {
 	}
 }
 
+.js_login_google {
+	border: 0 !important;
+	transition: none !important;
+	margin-top: 5px;
+	display: block;
+}
+.js_login_google img {
+	width: 208px;
+}
+
 #links {
 	position: absolute;
 	bottom: 10px;
