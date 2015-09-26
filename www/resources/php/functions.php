@@ -548,7 +548,18 @@
 				System::Redirect("/?errtype=local&prov={$provider}&err=az osztály vagy iskola nem aktív a rendszerben");
 
 			$session = Password::GetSession($user['username']);
-			$db->where('username',$user['username'])->update('users',array('session' => $session));
+			$envInfos = self::GetBrowserEnvInfo();
+			if (!is_array($envInfos)) System::Redirect('/');
+
+			$db->rawQuery("DELETE FROM `sessions`
+						WHERE `userid` = ?",array($data['id']));
+
+			$db->insert('sessions',array(
+				'session' => md5($session),
+				'userid' => $data['id'],
+				'ip' => $envInfos['ip'],
+				'useragent' => $envInfos['useragent'],
+			));
 
 			Cookie::set('PHPSESSID',$session,null);
 
