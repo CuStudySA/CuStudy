@@ -2073,7 +2073,7 @@ STRING
 			global $db, $user;
 
 			# Jog. ellenörzése
-			if(System::PermCheck('admin')) return 1;
+			if(System::PermCheck('editor')) return 1;
 
 			# Formátum ellenörzése
 			if (!System::ValuesExists($data,['lesson','text','week'])) return 2;
@@ -2309,7 +2309,7 @@ STRING
 		            </tr>
 		        </tbody>
 		    </table>
-<?php       if (!System::PermCheck('admin')){ ?>
+<?php       if (!System::PermCheck('editor')){ ?>
 			    <a class='typcn typcn-plus btn js_add_hw' href='/homeworks/new'>Új házi feladat hozzáadása</a>
 <?php       }
 	        if ($onlyListActive)
