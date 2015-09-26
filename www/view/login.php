@@ -16,5 +16,5 @@
 		</div>
 	</div>
 	<div id="links">
-		<a href="mailto:webmaster@<?=$ENV['SERVER']['SERVER_NAME']?>?subject=CuStudy%20Hibabejelentés">Hibabejelentés</a>
+		<a href="mailto:mbalint987@pageloop.tk?subject=CuStudy%20Hibabejelentés">Hibabejelentés</a>
 	</div>
