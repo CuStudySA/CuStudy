@@ -552,7 +552,7 @@
 			if (!is_array($envInfos)) System::Redirect('/');
 
 			$db->rawQuery("DELETE FROM `sessions`
-						WHERE `userid` = ?",array($data['id']));
+						WHERE `userid` = ?",array($user['id']));
 
 			$db->insert('sessions',array(
 				'session' => md5($session),
