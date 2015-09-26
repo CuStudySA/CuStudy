@@ -556,7 +556,7 @@
 
 			$db->insert('sessions',array(
 				'session' => md5($session),
-				'userid' => $data['id'],
+				'userid' => $user['id'],
 				'ip' => $envInfos['ip'],
 				'useragent' => $envInfos['useragent'],
 			));
