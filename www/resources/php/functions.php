@@ -580,12 +580,12 @@
 			$message = Swift_Message::newInstance($mail['title']); //Üzenet objektum beállítása és tárgy létrehozása
 
 			$message->setBody($mail['body'], 'text/html'); //Szövegtörzs beállítása és szövegtípus beállítása
-			$message->setFrom(array('ugyfelszolgalat@betonsoft.tk' => 'BetonSoft Ügyfélszolgálat')); //Feladó e-mail és feladó név
+			$message->setFrom(array(MAIL_ADDR => MAIL_DISPNAME)); //Feladó e-mail és feladó név
 			$message->setTo(array($mail['to']['address'] => $mail['to']['name'])); //Címzett e-mail és címzett
 
-			$transport = Swift_SmtpTransport::newInstance('smtp.gmail.com', 465, 'ssl') //Kapcsolódási objektum létrehozása és csatlakozási adatok a Google Mailhez
-		     ->setUsername('ugyfelszolgalat@betonsoft.tk') //SMTP felhasználónév
-		     ->setPassword('3VhBQ%uQ') //SMTP jelszó
+			$transport = Swift_SmtpTransport::newInstance(MAIL_HOST, MAIL_PORT, 'ssl') //Kapcsolódási objektum létrehozása és csatlakozási adatok a Google Mailhez
+		     ->setUsername(MAIL_USRNAME) //SMTP felhasználónév
+		     ->setPassword(MAIL_PWD) //SMTP jelszó
 		     ->setSourceIp('0.0.0.0'); //IPv4 kényszerítése
 
 		    $mailer = Swift_Mailer::newInstance($transport); //Küldő objektum létrehozása
