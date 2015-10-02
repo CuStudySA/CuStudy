@@ -2080,6 +2080,11 @@ STRING
 			return $ret;
 		}
 
+		static $RomanMonths = array(null,'I','II','II','IV','V','VI','VII','VIII','IX','X','XI','XII');
+		static function FormatMonthDay($time){
+			return HomeworkTools::$RomanMonths[date('m', $time)].'.'.date('d', $time);
+		}
+
 		static function Add($data){
 			global $db, $user;
 
@@ -2214,7 +2219,7 @@ STRING
 					$hwTime = strtotime('+ '.($array['day'] - 1).' days', $hwTime);
 				}
 
-				$array['date'] = date('m.d',$hwTime);
+				$array['date'] = self::FormatMonthDay($hwTime);
 				$array['dayString'] = System::$Days[Timetable::GetDayNumber($hwTime)];
 
 				$homeWorks[$array['date']][] = $array;
@@ -2749,7 +2754,7 @@ STRING;
 <?php                   }
 						else
 							foreach ($weekdays as $day)
-								print "<th class='weekday'>".date('m.d.',$day).' '.System::$Days[Timetable::GetDayNumber($day)]."</th>"; ?>
+								print "<th class='weekday'>".HomeworkTools::FormatMonthDay($day).' '.System::$Days[Timetable::GetDayNumber($day)]."</th>"; ?>
 					</tr>
 				</thead>
 
