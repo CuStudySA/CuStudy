@@ -163,6 +163,7 @@ main > h1 {
 	z-index: 1;
 	border: 0 solid rgba(255,255,255,0);
 	font-size: .95em;
+	line-height: normal;
 	text-decoration:none;
 	display: inline-block;
 	margin: 2px 0;
