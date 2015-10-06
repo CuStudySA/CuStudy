@@ -217,6 +217,18 @@
 			'file' => 		'googleauth',
 		),
 
+		'pw-reset' => array(
+			'title' => 		'Jelszóvisszaállítás',
+			'css' => 		['login.css'],
+			'js' => 		['pw-reset.js'],
+			'customjs' =>   [],
+			'minperm' => 	'guest',
+			'maxperm' => 	'guest',
+			'reqdoc' => 	[],
+			'file' => 		'pw-reset',
+			'addons' =>     ['swiftMailer'],
+		),
+
 		'profile' => array(
 			'title' => 		'Profilom szerkesztése',
 			'css' => 		['profile.css'],

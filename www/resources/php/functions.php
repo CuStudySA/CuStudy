@@ -239,7 +239,7 @@
 					$preg = '/^[\w\d]{6,20}$/';
 				break;
 				case 'email':
-					$preg = '/^[a-zA-Z0-9.-_]+(\+[a-zA-Z0-9])?@[a-z0-9]+\.[a-z]{2,4}$/';
+					$preg = '/^[a-zA-Z0-9.-_]+(\+[a-zA-Z0-9]+)?@[a-z0-9]+\.[a-z]{2,4}$/';
 				break;
 				case 'name':
 					$preg = '/^[A-ZÁÉÍÓÖŐÚÜŰ][a-záéíóöőúüű.]+[ ][A-ZÁÉÍÓÖŐÚÜŰ][a-záéíóöőúüű]+[ a-zA-ZáéíóöőúüűÁÉÍÓÖŐÚÜŰ]*$/u';
@@ -576,6 +576,9 @@
 				)
 				'body' (string)
 			) */
+
+			if (!class_exists('Swift_Message'))
+				trigger_error('Nincs betöltve a swiftMailer addon', E_USER_ERROR);
 
 			$message = Swift_Message::newInstance($mail['title']); //Üzenet objektum beállítása és tárgy létrehozása
 
@@ -1789,6 +1792,108 @@ STRING
 
 			if (!$action) return 3;
 			else return 0;
+		}
+
+	}
+
+	class PasswordReset {
+		static function GetRow($hash){
+			global $db;
+
+			$Reset = $db->where('hash',$hash)->getOne('pw_reset');
+			$Reset['expired'] = empty($Reset) || strtotime($Reset['expires']) < time();
+			if ($Reset['expired'] && !empty($Reset['hash']))
+				self::Invalidate($Reset['hash']);
+
+			return $Reset;
+		}
+
+		static function Invalidate($hash){
+			global $db;
+			$db->where('id',$hash)->delete('pw_reset');
+		}
+
+		static $resetBody = <<<STRING
+		<h2>CuStudy - Jelszóvisszaállítási kérelem</h2>
+
+		<h3>Tisztelt ++NAME++!</h3>
+
+		<p>A CuStudy rendszerében jelszava visszaállítását kezdeményezték. Ammennyiben nem Ön kérte ezt, az üzenetünket figyelmen kivül hagyhatja. Ellenkező esetben <a href="++URL++">kattintson ide</a> egy új jelszó megadásához, vagy másolja be ezt a linket a böngésző címsorába:<br><a href="++URL++">++URL++</a></p>
+
+		<p>Felhívjuk figyelmét, hogy a link az üzenet küldéstől számítva 30 percig (++VALID++) használható. Amennyiben a lejárat előtt újabb jelzóvisszallítási kérelmet kezdeményez, a korábbi kérelmek törlésre kerülnek.</p>
+
+		<p>Üdvözlettel,<br>
+		<b>CuStudy Software Alliance</p>
+STRING;
+
+		static function SendMail(){
+			global $ENV, $db;
+
+			$email = trim($ENV['POST']['email']);
+			if (System::InputCheck($email,'email'))
+				System::Respond('A megadott e-mail cím formátuma nem megfelelő');
+
+			$User = $db->where('email', $email)->getOne('users','id,realname,email');
+			if (empty($User))
+				System::Respond('A megadott e-mail címhez nem tartozik felhasználói fiók');
+
+			// Korábbi visszaállítási kódok érvénytelenítése
+			$db->where('userid', $User['id'])->delete('pw_reset');
+
+			$hash = openssl_random_pseudo_bytes(64);
+			$valid = strtotime('+30 minutes');
+			if (!$db->insert('pw_reset',array(
+				'hash' => $hash,
+				'userid' => $User['id'],
+				'expires' => date('c',$valid)
+			))) System::Respond('A jelszóvisszaállító kulcs tárolása siketelen volt, próbálkozzon újra később');
+
+			$body = self::$resetBody;
+			$body = str_replace('++NAME++',$User['realname'],$body);
+			$body = str_replace('++URL++',ABSPATH.'/pw-reset?key='.urlencode($hash),$body);
+			$body = str_replace('++VALID++',date('Y-m-d H:i:s',$valid),$body);
+
+			if (System::SendMail(array(
+				'title' => 'CuStudy - Jelszóvisszaállítási kérelem',
+				'to' => array(
+					'name' => $User['realname'],
+					'address' => $User['email'],
+				),
+				'body' => $body,
+			))) System::Respond('Az e-mail elküldése sikertelen volt, próbálkozzon újra később');
+
+			System::Respond('Üzenet elküldve, kérem, ellenőrizze az e-mail fiókját', 1);
+		}
+
+		static function Reset(){
+			global $ENV, $db;
+
+			if (empty($ENV['POST']['hash']))
+				System::Respond('A visszaállítási kérés nem azonosítható');
+
+			$Reset = self::GetRow(urldecode($ENV['POST']['hash']));
+			if (empty($Reset) || $Reset['expired'])
+				System::Respond('Ez a jelszóvisszaállítási kérelem már lejárt vagy érvénytelen');
+
+			if (empty($ENV['POST']['password']) || empty($ENV['POST']['verpasswd']))
+				System::Respond('Töltsön ki minden mezőt!');
+
+			$password = $ENV['POST']['password'];
+			$verpassword = $ENV['POST']['verpasswd'];
+
+			$User = $db->where('id', $Reset['userid'])->getOne('users');
+			if (empty($User))
+				System::Respond('A kéréshez tartozó felhasználó nem létezik');
+
+			if ($password != $verpassword)
+				System::Respond('A megadott jelszavak nem egyeznek');
+
+			$password = Password::Kodolas($password);
+			if (!$db->where('id', $User['id'])->update('users', array('password' => $password)))
+				System::Respond('Az új jelszó mentése sikertelen, kérjük próbálja újra');
+
+			self::Invalidate($Reset['hash']);
+			System::Respond('Az új jelszó mentése sikeres, átirányitjuk a főoldalra', 1);
 		}
 	}
 

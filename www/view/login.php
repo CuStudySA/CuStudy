@@ -9,6 +9,7 @@
 						<input type='text' name='username' placeholder='Felhasználónév' tabindex=1 autocomplete="off">
 						<input type='password' name='password' placeholder='Jelszó' tabindex=2>
 						<p><button class='btn' tabindex=4>Belépés</button> <label><input type="checkbox" name="remember" tabindex=3 checked> Megjegyzés</label></p>
+						<p><button class='btn' id='pw-forgot'>Efelejtette jelszavát?</button></p>
 					</form>
 					<div><a class='js_login_google' href='https://accounts.google.com/o/oauth2/auth?response_type=code&client_id=<?=ExtConnTools::CLIENTID?>&redirect_uri=<?=urlencode(ABSPATH."/googleauth")?>&scope=email'><img src="/resources/img/google_login.png"></a></div>
 				</div>
