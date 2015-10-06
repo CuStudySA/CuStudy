@@ -15,6 +15,7 @@ $Actions = array(
 	array('home','','Főoldal'),
 	array('calendar','timetables','Órarend'),
 	array('globe','homeworks','Házi feladatok'),
+	array('document','files','Dokumentumok'),
 	/*
 		TODO Eseméynek menüpont elkészítése
 		

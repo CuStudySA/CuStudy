@@ -88,3 +88,24 @@
 .startDate {
 	vertical-align: sub !important;
 }
+
+/* File uploading */
+.uploadContainer {
+	padding: 9px;
+	background-color: rgba(75,105,255,.7);
+	border-radius: 2px;
+	width: 50%;
+	color: white;
+	margin-bottom: 13px;
+}
+.fileTitle {
+	margin-bottom: 8px;
+	margin-top: 10px;
+}
+.uploadContainer input {
+	width: 97%;
+}
+.uploadContainer textarea {
+	resize: vertical;
+	width: 97%;
+}

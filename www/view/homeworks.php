@@ -35,6 +35,18 @@
 				<div id='lessonPicker'><?=RenderTT()?></div>
 				<p class='step2p'><b>2. lépés:</b> <b>Add meg</b> a feladat <b>szövegét</b>!</p>
 				<p style='margin-top: 0'><textarea class='BBCodeEditor'></textarea></p>
+
+				<p><b>3. lépés:</b> Válassz <b>dokumentumot</b> a házi feladathoz kapcsolódóan!</p>
+
+				<!-- File uploading -->
+				<div class='uploadContainer'>
+					<input type="file" class='uploadField' name='uploadField'>
+					<div class='infoContainer' style='display: none;'>
+						<p class='fileTitle'><input type='text' name='fileTitle' placeholder='Dokumentum címe' required></p>
+						<textarea name='fileDesc' placeholder='Dokumentum tartalma, leírása' required></textarea>
+					</div>
+				</div>
+
 				<button class='btn sendForm'>Adatok mentése</button> vagy <a href='/homeworks'>visszatérés a házi feladatokhoz</a>
 <?php       }
 			else print "<p>Úgy néz ki, hogy az osztály órarendje üres. Kérjük, tölstd fel azt az <a href='/timetables'>Órarend menüpont</a> segítségével!</p>";
