@@ -177,7 +177,7 @@ $(function(){
 
 				$.Dialog.wait(title, 'Üzenet küldése');
 
-				$.post('/pw-reset',$(this).serializeForm(),function(data){
+				$.post('/pw-reset/send',$(this).serializeForm(),function(data){
 					if (typeof data !== 'object'){
 						console.log(data);
 						$(window).trigger('ajaxerror');

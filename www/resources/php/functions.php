@@ -1007,6 +1007,32 @@
 					),
 				),
 			),
+			'passwordReset' => array(
+				'sendMail' => array(
+					'errors' => array(
+						1 => 'valamelyik megadott adat formátuma hibás',
+						2 => 'nem található az e-mail címhez kapcsolt felhasználó',
+						4 => 'a levél elküldése közben problémák adódtak',
+					),
+					'messages' => array(
+						0 => 'A jelszóvisszaállító levél a felhasználó e-mail címére elküldve!',
+						1 => 'A jelszóvisszaállító levél elküldése nem sikerült, mert @msg! (Hibakód: @code)',
+					),
+				),
+				'reset' => array(
+					'errors' => array(
+						1 => 'nincs megadva visszaállító azonosító',
+						2 => 'a visszaállító azonosító nem létezik, estleg lejárt',
+						3 => 'nincs megadva új jleszó',
+						4 => 'a felhasználó nem található',
+						5 => 'a megadott jelszavak nem egyeznek',
+					),
+					'messages' => array(
+						0 => 'A jelszóvisszaállítás sikeresen megtörtént. Kérjük jelentkezzen be!',
+						1 => 'A jelszóvisszaállítás nem sikerült, mert @msg! (Hibakód: @code)',
+					),
+				),
+			),
 		);
 
 		// Hibakód feldolgozása (to string)
@@ -1810,6 +1836,7 @@ STRING
 
 		static function Invalidate($hash){
 			global $db;
+
 			$db->where('id',$hash)->delete('pw_reset');
 		}
 
@@ -1826,27 +1853,26 @@ STRING
 		<b>CuStudy Software Alliance</p>
 STRING;
 
-		static function SendMail(){
+		static function SendMail($email){
 			global $ENV, $db;
 
-			$email = trim($ENV['POST']['email']);
-			if (System::InputCheck($email,'email'))
-				System::Respond('A megadott e-mail cím formátuma nem megfelelő');
+			$email = trim($email);
+			if (System::InputCheck($email,'email')) return 1;
 
 			$User = $db->where('email', $email)->getOne('users','id,realname,email');
-			if (empty($User))
-				System::Respond('A megadott e-mail címhez nem tartozik felhasználói fiók');
+			if (empty($User)) return 2;
 
 			// Korábbi visszaállítási kódok érvénytelenítése
 			$db->where('userid', $User['id'])->delete('pw_reset');
 
 			$hash = openssl_random_pseudo_bytes(64);
 			$valid = strtotime('+30 minutes');
+
 			if (!$db->insert('pw_reset',array(
 				'hash' => $hash,
 				'userid' => $User['id'],
 				'expires' => date('c',$valid)
-			))) System::Respond('A jelszóvisszaállító kulcs tárolása siketelen volt, próbálkozzon újra később');
+			))) return 3;
 
 			$body = self::$resetBody;
 			$body = str_replace('++NAME++',$User['realname'],$body);
@@ -1860,40 +1886,34 @@ STRING;
 					'address' => $User['email'],
 				),
 				'body' => $body,
-			))) System::Respond('Az e-mail elküldése sikertelen volt, próbálkozzon újra később');
+			))) return 4;
 
-			System::Respond('Üzenet elküldve, kérem, ellenőrizze az e-mail fiókját', 1);
+			return 0;
 		}
 
-		static function Reset(){
+		static function Reset($data){
 			global $ENV, $db;
 
-			if (empty($ENV['POST']['hash']))
-				System::Respond('A visszaállítási kérés nem azonosítható');
+			if (empty($data['hash'])) return 1;
 
-			$Reset = self::GetRow(urldecode($ENV['POST']['hash']));
-			if (empty($Reset) || $Reset['expired'])
-				System::Respond('Ez a jelszóvisszaállítási kérelem már lejárt vagy érvénytelen');
+			$Reset = self::GetRow(urldecode($data['hash']));
+			if (empty($Reset) || $Reset['expired']) return 2;
 
-			if (empty($ENV['POST']['password']) || empty($ENV['POST']['verpasswd']))
-				System::Respond('Töltsön ki minden mezőt!');
+			if (empty($data['password']) || empty($data['verpasswd'])) return 3;
 
-			$password = $ENV['POST']['password'];
-			$verpassword = $ENV['POST']['verpasswd'];
+			$password = $data['password'];
+			$verpassword = $data['verpasswd'];
 
 			$User = $db->where('id', $Reset['userid'])->getOne('users');
-			if (empty($User))
-				System::Respond('A kéréshez tartozó felhasználó nem létezik');
+			if (empty($User)) return 4;
 
-			if ($password != $verpassword)
-				System::Respond('A megadott jelszavak nem egyeznek');
+			if ($password != $verpassword) return 5;
 
 			$password = Password::Kodolas($password);
-			if (!$db->where('id', $User['id'])->update('users', array('password' => $password)))
-				System::Respond('Az új jelszó mentése sikertelen, kérjük próbálja újra');
+			if (!$db->where('id', $User['id'])->update('users', array('password' => $password))) return 6;
 
 			self::Invalidate($Reset['hash']);
-			System::Respond('Az új jelszó mentése sikeres, átirányitjuk a főoldalra', 1);
+			return 0;
 		}
 	}
 

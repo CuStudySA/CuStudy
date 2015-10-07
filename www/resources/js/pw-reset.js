@@ -6,7 +6,7 @@ $(function(){
 
 		$.Dialog.wait(title, 'Új jelszó mentése');
 
-		$.post('/pw-reset', $(this).serializeForm(), function(data){
+		$.post('/pw-reset/reset', $(this).serializeForm(), function(data){
 			if (typeof data !== 'object'){
 				console.log(data);
 				$(window).trigger('ajaxerror');
