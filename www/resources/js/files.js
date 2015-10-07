@@ -3,7 +3,7 @@ $(function(){
 		<div class='uploadContainer'>\
 			<input type='file' class='uploadField' name='uploadField'>\
 			<div class='infoContainer' style='display: none;'>\
-				<p class='fileTitle'><input type='text' name='fileTitle' placeholder='Dokumentum címe' required></p>\
+				<input type='text' name='fileTitle' placeholder='Dokumentum címe' required autofocus='true'>\
 				<textarea name='fileDesc' placeholder='Dokumentum tartalma, leírása' required></textarea>\
 			</div>\
 		</div>"),
@@ -39,7 +39,8 @@ $(function(){
 
 	var e_inputChange = function(e){
 		var file = e.target.files[0],
-			$infoCont = $(e.currentTarget).parent().children().filter('.infoContainer');
+			$infoCont = $(e.currentTarget).parent().children().filter('.infoContainer'),
+			$formContainer = $('.fileFormContainer');
 
 		if (typeof file != 'undefined'){
 			$infoCont.show();
@@ -53,6 +54,7 @@ $(function(){
 			$(e.currentTarget).parent().prop('prevFiles',e.target.files);
 
 			$formContainer.append($uploadForm.clone());
+			//$('.uploadContainer').last().find('[name=fileTitle]').focus();
 			$('.uploadField').on('change',e_inputChange);
 		}
 		else
@@ -60,25 +62,44 @@ $(function(){
 	};
 	$('.uploadField').on('change',e_inputChange);
 
-	$('.js_file_add').on('click',function(e){
+	var e_file_add = function(e){
 		e.preventDefault();
+
+		var $fileForm = $('.uploadFileForm');
 
 		$fileForm.show();
 		$(document.body).animate({scrollTop: $fileForm.offset().top - 10 }, 500);
-	});
+	};
+	$('.js_file_add').on('click',e_file_add);
 
-	$('.js_uploadFiles').on('click',function(e){
+	var e_upload_files = function(e){
 		e.preventDefault();
 
 		var data = new FormData();
 		var $fileInputs = $('.uploadContainer').find('input[type=file]'),
 			title = 'Fájl(ok) feltöltése';
 
+		$.Dialog.wait(title);
+
 		$.each($fileInputs,function(key,value){
 			var input = value.files[0];
 			if (typeof input != 'undefined')
 				data.append(key,input);
 		});
+
+		var $infoConts = $('.uploadContainer').find('.infoContainer');
+		$.each($infoConts,function(key,value){
+			var $elem = $(value);
+
+			if ($elem.css('display') != 'none'){
+				var fileTitle = $elem.find('[name=fileTitle]');
+				var fileDesc = $elem.find('[name=fileDesc]');
+
+				data.append(key + '.' + 'title',fileTitle.val());
+				data.append(key + '.' + 'desc',fileDesc.val());
+			}
+		});
+
 		data.append('JSSESSID',getToken());
 
 		$.ajax({
@@ -104,8 +125,82 @@ $(function(){
 						window.location.href = '/files';
 					},2500);
 				}
+				else {
+					$('.uploadFileForm').remove();
+					$('main').append($uploadFileForm);
+
+					$('.uploadField').on('change',e_inputChange);
+					$('.js_uploadFiles').on('click',e_upload_files);
+					$('.js_file_add').on('click',e_file_add);
+
+					$.Dialog.fail(title,data.message);
+				}
+			}
+		});
+	};
+	$('.js_uploadFiles').on('click',e_upload_files);
+
+	var e_delete = function(e){
+		e.preventDefault();
+
+		var id = $(e.currentTarget).attr('href').substring(1),
+			title = 'Dokumentum törlése';
+
+		$.Dialog.confirm(title,'Arra készül, hogy törli a kiválasztott dokumentumot a szerverről. A művelet nem visszavonható! Folytatja?',['Végleges törlés','Visszalépés'],
+			function(sure){
+				if (!sure) return;
+
+				$.Dialog.wait(title);
+
+				$.ajax({
+					method: 'POST',
+					url: '/files/delete',
+					data: pushToken({'id': id}),
+					success: function(data){
+						if (typeof data !== 'object'){
+							console.log(data);
+							$(window).trigger('ajaxerror');
+							return false;
+						}
+
+						if (data.status){
+							$(e.currentTarget).parent().parent().remove();
+							$.Dialog.close();
+						}
+
+						else $.Dialog.fail(title,data.message);
+					}
+				});
+			});
+	};
+	$('.js_delete').on('click',e_delete);
+
+	var e_getFileInfo = function(e){
+		e.preventDefault();
+
+		var id = $(e.currentTarget).attr('href').substring(1),
+			title = 'Dokumentum információk lekérése';
+
+		$.Dialog.wait(title);
+
+		$.ajax({
+			method: 'POST',
+			url: '/files/getFileInfo',
+			data: pushToken({'id': id}),
+			success: function(data){
+				if (typeof data !== 'object'){
+					console.log(data);
+					$(window).trigger('ajaxerror');
+					return false;
+				}
+
+				if (data.status)
+					$.Dialog.info(title,data.html);
+
 				else $.Dialog.fail(title,data.message);
 			}
 		});
-	});
+	};
+	$('.js_more_info').on('click',e_getFileInfo);
+
 });

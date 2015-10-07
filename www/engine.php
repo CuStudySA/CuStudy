@@ -257,7 +257,7 @@
 			'css' => 		['files.css'],
 			'js' => 		['files.js'],
 			'customjs' =>   [],
-			'minperm' => 	'admin',
+			'minperm' => 	'user',
 			'maxperm' => 	'admin',
 			'reqdoc' => 	[],
 			'file' => 		'files',
@@ -316,7 +316,7 @@
 		# POST-kérés méretének ellenörzése
 		$postMaxSize = ini_get('post_max_size');
 		if ((int)$_SERVER['CONTENT_LENGTH'] > (int)substr($postMaxSize,0,strlen($postMaxSize)-1) * 1024 * 1024)
-			System::Respond('A POST-kérés mérete túl lett lépve, így a művelet megszakadt!');
+			System::Respond('A POST-kérés mérete túl lett lépve, így a művelet megszakadt! Ez általában túl nagy fájlok feltöltése miatt fordul elő.');
 
 		# CSRF-elleni védelem
 		if (empty($ENV['POST']['JSSESSID'])) System::Respond();

@@ -1004,6 +1004,30 @@
 					),
 				),
 			),
+			'files' => array(
+				'uploadFiles' => array(
+					'errors' => array(
+						1 => 'egy fájl egy hiba miatt nem töltődött fel a szerverre',
+						2 => 'egy fájl mérete nagyobb a megengedettnél',
+						3 => 'az osztály tárhelyén nincs elég szabad hely',
+						4 => 'a kiszolgálón nincs elég hely egy fájl feltöltéséhez',
+					),
+					'messages' => array(
+						0 => 'A fájlok feltöltése sikeresen megtörtént!',
+						1 => 'Valemlyik fájl (vagy fájlok) feltöltése nem sikerült, mert @msg! (Hibakód: @code)',
+					),
+				),
+				'delete' => array(
+					'errors' => array(
+						1 => 'nincs jogosultsága a művelethez',
+						2 => 'a fájl nem található az adatbázisban',
+					),
+					'messages' => array(
+						0 => 'A fájl törlése sikeresen megtörtént!',
+						1 => 'A fájl törlése nem sikerült, mert @msg! (Hibakód: @code)',
+					),
+				),
+			),
 		);
 
 		// Hibakód feldolgozása (to string)
@@ -1336,7 +1360,19 @@ STRING
 			return self::CLASS_SPACE - $usedSpace;
 		}
 
+		static function FormatSize($byte){
+			if ($byte < 1024)
+				return $byte.' B';
+			else if ($byte > 1024 && $byte < 1024 * 1024)
+				return round(($byte/1024),2).' KB';
+			else
+				return round(($byte/(1024*1024)),2).' MB';
+		}
+
 		static function UploadFile($file){
+			// Van-e jogosultság?
+			if (System::PermCheck('editor')) return 6;
+
 			// Sikerült-e a fájlfeltöltés?
 			if ($file['error'] != 0) return 1;
 			
@@ -1367,6 +1403,7 @@ STRING
 			$fileName = $data['filename'];
 
 			$path = "$root/usr_uploads/".$data['tempname'];
+			if (!file_exists($path)) die();
 
 			$finfo = finfo_open(FILEINFO_MIME_ENCODING);
 			header('Content-Transfer-Encoding: utf-8');
@@ -1385,6 +1422,44 @@ STRING
 			if (empty($data)) return 1;
 
 
+		}
+
+		static function DeleteFile($id){
+			global $db, $user, $root;
+
+			# Jog. ellenörzése
+			if (System::PermCheck('admin')) return 1;
+
+			$data = $db->where('id',$id)->where('classid',$user['classid'])->getOne('files');
+			if (empty($data)) return 2;
+
+			$path = "$root/usr_uploads/".$data['tempname'];
+			if (file_exists($path))
+				unlink($path);
+
+			$action = $db->where('id',$id)->delete('files');
+
+			return $action ? 0 : 3;
+		}
+
+		static function GetFileInfo($id){
+			global $db, $user, $root;
+
+			$data = $db->where('id',$id)->where('classid',$user['classid'])->getOne('files');
+			if (empty($data)) return 1;
+
+			$lesson = $db->where('id',$data['lessonid'])->getOne('lessons');
+			$uploader = $db->where('id',$data['uploader'])->getOne('users');
+
+			return array(
+				'name' => $data['name'],
+				'description' => $data['description'],
+				'lesson' => empty($lesson) ? 'nincs hozzárendelve' : $lesson['name'],
+				'size' => self::FormatSize($data['size']),
+				'time' => $data['time'],
+				'uploader' => empty($uploader) ? 'ismeretlen' : $uploader['realname'].' (#'.$uploader['id'].')',
+				'filename' => $data['filename'],
+			);
 		}
 	}
 
