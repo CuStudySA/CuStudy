@@ -1041,7 +1041,7 @@
 					),
 				),
 			),
-			
+
 			'files' => array(
 				'uploadFiles' => array(
 					'errors' => array(
