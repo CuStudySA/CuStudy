@@ -50,12 +50,12 @@ $(function(){
 		return data;
 	};
 
-	function getToken(){
+	window.getToken = function(){
 		var token = getCookie('JSSESSID');
 		if (typeof token == 'undefined') return '';
 
 		return token;
-	}
+	};
 
 	window.pushToken = function(data){
 		var token = getCookie('JSSESSID');
@@ -64,5 +64,5 @@ $(function(){
 		data['JSSESSID'] = token;
 
 		return data;
-	}
+	};
 });

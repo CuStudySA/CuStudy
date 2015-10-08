@@ -848,6 +848,7 @@
 					),
 				),
 			),
+
 			'lessons' => array(
 				'add' => array(
 					'errors' => array(
@@ -879,6 +880,7 @@
 					),
 				),
 			),
+
 			'invitation' => array(
 				'batchInvite' => array(
 					'errors' => array(
@@ -891,6 +893,7 @@
 					),
 				),
 			),
+
 			'groups' => array(
 				'add' => array(
 					'errors' => array(
@@ -928,6 +931,7 @@
 					),
 				),
 			),
+
 			'groupThemes' => array(
 				'edit' => array(
 					'errors' => array(
@@ -940,13 +944,14 @@
 					),
 				),
 			),
+
 			'homeworks' => array(
 				'add' => array(
 					'errors' => array(
-						1 => 'nincs jogosultsága a művelethez',
-						2 => 'valamelyik megadott adat formátuma hibás',
-						3 => 'az órarend-bejegyzés nem található',
-						4 => 'a meadott órarend-bejegyzés a kapott hét sorszámával nem összeegyeztethető',
+						0x1 => 'nincs jogosultsága a művelethez',
+						0x2 => 'valamelyik megadott adat formátuma hibás',
+						0x3 => 'az órarend-bejegyzés nem található',
+						0x4 => 'a meadott órarend-bejegyzés a kapott hét sorszámával nem összeegyeztethető',
 					),
 					'messages' => array(
 						0 => 'A házi feladat hozzáadása sikeresen befejezeődött!',
@@ -963,6 +968,7 @@
 					),
 				),
 			),
+
 			'teachers' => array(
 				'add' => array(
 					'errors' => array(
@@ -995,6 +1001,7 @@
 					),
 				),
 			),
+
 			'timetables' => array(
 				'progressTable' => array(
 					'errors' => array(
@@ -1007,6 +1014,7 @@
 					),
 				),
 			),
+
 			'passwordReset' => array(
 				'sendMail' => array(
 					'errors' => array(
@@ -1030,6 +1038,31 @@
 					'messages' => array(
 						0 => 'A jelszóvisszaállítás sikeresen megtörtént. Kérjük jelentkezzen be!',
 						1 => 'A jelszóvisszaállítás nem sikerült, mert @msg! (Hibakód: @code)',
+					),
+				),
+			),
+			
+			'files' => array(
+				'uploadFiles' => array(
+					'errors' => array(
+						1 => 'egy fájl egy hiba miatt nem töltődött fel a szerverre',
+						2 => 'egy fájl mérete nagyobb a megengedettnél',
+						3 => 'az osztály tárhelyén nincs elég szabad hely',
+						4 => 'a kiszolgálón nincs elég hely egy fájl feltöltéséhez',
+					),
+					'messages' => array(
+						0 => 'A fájlok feltöltése sikeresen megtörtént!',
+						1 => 'Valemlyik fájl (vagy fájlok) feltöltése nem sikerült, mert @msg! (Hibakód: @code)',
+					),
+				),
+				'delete' => array(
+					'errors' => array(
+						1 => 'nincs jogosultsága a művelethez',
+						2 => 'a fájl nem található az adatbázisban',
+					),
+					'messages' => array(
+						0 => 'A fájl törlése sikeresen megtörtént!',
+						1 => 'A fájl törlése nem sikerült, mert @msg! (Hibakód: @code)',
 					),
 				),
 			),
@@ -1344,6 +1377,127 @@ STRING
 			}
 
 			return 0;
+		}
+	}
+
+	class FileTools {
+		const CLASS_SPACE = 268435456;
+		const CLASS_MAX_FILESIZE = 15728640;
+
+		static function GetFreeSpace(){
+			global $db, $user, $ENV;
+
+			$data = $db->rawQuery('SELECT `size`
+									FROM `files`
+									WHERE `classid` = ?',array($user['classid']));
+			$usedSpace = 0;
+
+			foreach ($data as $array)
+				$usedSpace += $array['size'];
+
+			return self::CLASS_SPACE - $usedSpace;
+		}
+
+		static function FormatSize($byte){
+			if ($byte < 1024)
+				return $byte.' B';
+			else if ($byte > 1024 && $byte < 1024 * 1024)
+				return round(($byte/1024),2).' KB';
+			else
+				return round(($byte/(1024*1024)),2).' MB';
+		}
+
+		static function UploadFile($file){
+			// Van-e jogosultság?
+			if (System::PermCheck('editor')) return 6;
+
+			// Sikerült-e a fájlfeltöltés?
+			if ($file['error'] != 0) return 1;
+			
+			// Méret ellenörzése
+			if ($file['size'] > self::CLASS_MAX_FILESIZE) return 2;
+			
+			// Van-e hely a tárhelyen?
+			if ($file['size'] > self::GetFreeSpace()) return 3;
+			
+			// Van-e hely a szerveren?
+			if ($file['size'] > disk_free_space('/')) return 4;
+			
+			// Hely meghatározása
+			$fileName = Password::Generalas();
+			$path = "usr_uploads/{$fileName}";
+			
+			// Mozgatás a végleges helyre
+			if (move_uploaded_file($file['tmp_name'],$path)) return [$fileName];
+			else return 5;
+		}
+
+		static function DownloadFile($id){
+			global $db, $user, $root;
+
+			$data = $db->where('id',$id)->where('classid',$user['classid'])->getOne('files');
+
+			if (empty($data)) die(header('Location: /files'));
+			$fileName = $data['filename'];
+
+			$path = "$root/usr_uploads/".$data['tempname'];
+			if (!file_exists($path)) die();
+
+			$finfo = finfo_open(FILEINFO_MIME_ENCODING);
+			header('Content-Transfer-Encoding: utf-8');
+			header("Content-Description: File Transfer");
+			header("Content-Type: application/octet-stream");
+			header("Content-Disposition: attachment; filename=\"$fileName\"");
+
+			readfile($path);
+			die();
+		}
+
+		static function GetFileInfos($id){
+			global $db, $user, $root;
+
+			$data = $db->where('id',$id)->where('classid',$user['classid'])->getOne('files');
+			if (empty($data)) return 1;
+
+
+		}
+
+		static function DeleteFile($id){
+			global $db, $user, $root;
+
+			# Jog. ellenörzése
+			if (System::PermCheck('admin')) return 1;
+
+			$data = $db->where('id',$id)->where('classid',$user['classid'])->getOne('files');
+			if (empty($data)) return 2;
+
+			$path = "$root/usr_uploads/".$data['tempname'];
+			if (file_exists($path))
+				unlink($path);
+
+			$action = $db->where('id',$id)->delete('files');
+
+			return $action ? 0 : 3;
+		}
+
+		static function GetFileInfo($id){
+			global $db, $user, $root;
+
+			$data = $db->where('id',$id)->where('classid',$user['classid'])->getOne('files');
+			if (empty($data)) return 1;
+
+			$lesson = $db->where('id',$data['lessonid'])->getOne('lessons');
+			$uploader = $db->where('id',$data['uploader'])->getOne('users');
+
+			return array(
+				'name' => $data['name'],
+				'description' => $data['description'],
+				'lesson' => empty($lesson) ? 'nincs hozzárendelve' : $lesson['name'],
+				'size' => self::FormatSize($data['size']),
+				'time' => $data['time'],
+				'uploader' => empty($uploader) ? 'ismeretlen' : $uploader['realname'].' (#'.$uploader['id'].')',
+				'filename' => $data['filename'],
+			);
 		}
 	}
 
@@ -2214,10 +2368,10 @@ STRING;
 			global $db, $user;
 
 			# Jog. ellenörzése
-			if(System::PermCheck('editor')) return 1;
+			if(System::PermCheck('editor')) return 0x1;
 
 			# Formátum ellenörzése
-			if (!System::ValuesExists($data,['lesson','text','week'])) return 2;
+			if (!System::ValuesExists($data,['lesson','text','week'])) return 0x2;
 			foreach ($data as $key => $value){
 				switch ($key){
 					case 'lesson':
@@ -2228,11 +2382,19 @@ STRING;
 					break;
 					case 'text':
 						continue 2;
+
+					case 'fileTitle':
+						$type = 'text';
+					break;
+					case 'fileDesc':
+						$type = 'text';
+					break;
+
 					default:
-						return 2;
+						return 0x2;
 					break;
 				}
-				if (System::InputCheck($value,$type)) return 2;
+				if (System::InputCheck($value,$type)) return 0x2;
 			}
 
 			$parser = new JBBCode\Parser();
@@ -2251,16 +2413,41 @@ STRING;
 										WHERE tt.classid = l.classid = t.classid = ? && tt.id = ? && t.name IS NOT NULL && l.name IS NOT NULL',
 							array($user['classid'],$data['lesson']));
 
-			if (empty($dbdata)) return 3;
+			if (empty($dbdata)) return 0x3;
 			else $dbdata = $dbdata[0];
 
-			//(Timetable::GetActualWeek(false,$dateFromUI),strtoupper($dbdata['week']));
-			if (Timetable::GetActualWeek(false,$dateFromUI) != strtoupper($dbdata['week'])) return 4;
+			if (Timetable::GetActualWeek(false,$dateFromUI) != strtoupper($dbdata['week'])) return 0x4;
 
-			$action = $db->insert('homeworks',array_merge($data,array('author' => $user['id'], 'classid' => $user['classid'])));
+			// Mellékelt fájl feltöltése
+			$uploadStatus = 0;
+			if (!empty($_FILES)){
+				$file = reset($_FILES);
+				$uploadStatus = FileTools::UploadFile($file);
 
-			if ($action) return 0;
-			else return 5;
+				if (is_array($uploadStatus)){
+					$lessonId = $db->rawQuery('SELECT `lessonid`
+												FROM `timetable`
+												WHERE `id` = ?',array($data['lesson']))[0]['lessonid'];
+
+					$action = $db->insert('files',array(
+						'name' => isset($data['fileTitle']) ? $data['fileTitle'] : 'Házi feladathoz feltöltött fájl',
+						'description' => isset($data['fileDesc']) ? $data['fileDesc'] : 'Házi feladathoz feltöltött fájl',
+						'lessonid' => $lessonId,
+						'classid' => $user['classid'],
+						'uploader' => $user['id'],
+						'size' => $file['size'],
+						'filename' => $file['name'],
+						'tempname' => $uploadStatus[0],
+					));
+					$uploadStatus = 0;
+					unset($data['fileTitle']);
+					unset($data['fileDesc']);
+				}
+			}
+
+			$db->insert('homeworks',array_merge($data,array('author' => $user['id'], 'classid' => $user['classid'])));
+
+			return $uploadStatus;
 		}
 
 		static function Delete($id){
@@ -2469,7 +2656,13 @@ STRING;
 	            if ((int)substr($day,0,2) == 1 && (int)date('m') == 12) $year = (int)date('y') + 1;
 	            else $year = (int)date('y');
 
-	            $time = strtotime($year.'-'.str_replace('.','-',$day));
+				$date = explode('.',$day);
+
+				$date[0] = array_search($date[0],HomeworkTools::$RomanMonths);
+				$date[0] = strlen($date[0]) == 1 ? '0'.$date[0] : $date[0];
+				$date = $year.'-'.implode('-',$date);
+
+	            $time = strtotime($date);
 
 	            print "<h3>Házi feladatok ".System::Nevelo(System::$Days[Timetable::GetDayNumber($time)])."i napra ({$day})</h3>";
 	        }
