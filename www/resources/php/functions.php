@@ -1382,7 +1382,7 @@ STRING
 
 	class FileTools {
 		const CLASS_SPACE = 268435456;
-		const CLASS_MAX_FILESIZE = 15728640;
+		const CLASS_MAX_FILESIZE = 36700160;
 
 		static function GetFreeSpace(){
 			global $db, $user, $ENV;
@@ -1451,15 +1451,6 @@ STRING
 
 			readfile($path);
 			die();
-		}
-
-		static function GetFileInfos($id){
-			global $db, $user, $root;
-
-			$data = $db->where('id',$id)->where('classid',$user['classid'])->getOne('files');
-			if (empty($data)) return 1;
-
-
 		}
 
 		static function DeleteFile($id){
