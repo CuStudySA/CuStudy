@@ -25,6 +25,9 @@ h2 {
 	font-size: 1em;
 	border: 1px solid;
 }
+.notAdmin {
+	cursor: initial !important;
+}
 td.editing {
 	z-index: 2;
 	display: block;

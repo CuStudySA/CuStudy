@@ -204,6 +204,6 @@ button.btn:enabled:focus {
 	flex: 1 0 auto;
 	max-width: 30%;
 }
-.flex li:last-of-type {
+.flex .new {
 	max-width: 190px;
 }

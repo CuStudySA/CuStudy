@@ -11,7 +11,10 @@ $(function(){
 		window.location.href = '/timetables/week/' + $('#select_tt').children().filter(':selected').attr('value');
 	});
 
-	if (USRGRP == 'user' || USRGRP == 'editor') return;
+	if (USRGRP == 'user' || USRGRP == 'editor'){
+		$('tr td').addClass('notAdmin');
+		return;
+	}
 
 	// Órarend hozz.-t segítő listaelemek hozzáadása
 	$.ajax({

@@ -59,8 +59,8 @@
 			if (typeof additional_info === 'function' && callback === 'undefined'){
 				callback = additional_info;
 			}
-			if (typeof additional_info !== 'string' || additional_info.length < 2) additional_info = 'Kérés küldése';
-			$.Dialog.display('wait',title,additional_info[0].toUpperCase()+additional_info.substring(1)+'...',callback);
+			if (typeof additional_info !== 'string' || additional_info.length < 2) additional_info = 'Kérés küldése...';
+			$.Dialog.display('wait',title,additional_info[0].toUpperCase()+additional_info.substring(1),callback);
 		},
 		request: function(title,content,formid,caption,callback){
 			if (typeof caption === 'function' && typeof callback === 'undefined'){

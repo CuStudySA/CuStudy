@@ -8,13 +8,12 @@
 							WHERE `classid` = ?
 							ORDER BY `time` DESC
 							LIMIT 10",array($user['classid']));
-	define('MAX_DESC_LIMIT',30);
 
 	foreach($data as $file){ ?>
 		<li>
 			<div class="top">
 				<span class='rovid'><?=$file['name']?></span>
-				<span class='nev'><?=$file['description'] == substr($file['description'],0,MAX_DESC_LIMIT) ? $file['description'] : substr($file['description'],0,MAX_DESC_LIMIT).'...'?></span>
+				<span class='nev'><?=$file['description']?></span>
 			</div>
 			<div class="bottom">
 				<a class="typcn typcn-info-large js_more_info" href="#<?=$file['id']?>" title="További információk"></a>
