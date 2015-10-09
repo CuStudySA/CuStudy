@@ -79,7 +79,7 @@ $(function(){
 		var $fileInputs = $('.uploadContainer').find('input[type=file]'),
 			title = 'Fájl(ok) feltöltése';
 
-		$.Dialog.wait(title);
+		$.Dialog.wait(title,"A fájlok feltöltése folyamatban van... Kérjük, ne zárja be ezt az ablakot!");
 
 		$.each($fileInputs,function(key,value){
 			var input = value.files[0];
@@ -135,7 +135,10 @@ $(function(){
 
 					$.Dialog.fail(title,data.message);
 				}
-			}
+			},
+			error: function(){
+				$.Dialog.fail(title,'A fájlok szerverre történtő továbbítása sikertelenül zárult! Kérjük, próbálja újra!');
+			},
 		});
 	};
 	$('.js_uploadFiles').on('click',e_upload_files);
