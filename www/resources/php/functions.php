@@ -1447,6 +1447,7 @@ STRING
 			header('Content-Transfer-Encoding: utf-8');
 			header("Content-Description: File Transfer");
 			header("Content-Type: application/octet-stream");
+			header('Content-Length: '.filesize($path));
 			header("Content-Disposition: attachment; filename=\"$fileName\"");
 
 			readfile($path);
