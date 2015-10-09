@@ -165,4 +165,28 @@ $(function(){
 			}
 		});
 	});
+
+	$('#pw-forgot').on('click',function(e){
+		e.preventDefault();
+
+		var title = 'Jelszóvisszaállítás';
+
+		$.Dialog.request(title,"<form id='pw-reset'><p><p>Kérjük adja meg e-mail címét, és küldünk önnek egy<br>linket, melyre kattintva vissza tudja állítani jelszavát.</p><input type='email' name='email' placeholder='E-mail cím' required></label></form>",'pw-reset',function(){
+			$('#pw-reset').on('submit',function(e){
+				e.preventDefault();
+
+				$.Dialog.wait(title, 'Üzenet küldése');
+
+				$.post('/pw-reset/send',$(this).serializeForm(),function(data){
+					if (typeof data !== 'object'){
+						console.log(data);
+						$(window).trigger('ajaxerror');
+						return false;
+					}
+
+					$.Dialog[data.status?'success':'fail'](title, data.message, true);
+				});
+			})
+		});
+	})
 });

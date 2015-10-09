@@ -16,7 +16,7 @@
 		 * Get the value of a cookie if it exists
 		 *
 		 * @param string $name
-		 * @return Value of cookie
+		 * @return string|bool Value of cookie
 		 */
 		public static function get($name) {
 			if (isset($_COOKIE[$name])) {
@@ -50,4 +50,3 @@
 			return $success;
 		}
 	}
-?>

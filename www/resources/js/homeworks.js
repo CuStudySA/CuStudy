@@ -1,9 +1,10 @@
 $(function(){
 	var title = 'Házi feladat hozzáadása',
 		dispDays = typeof _dispDays !== 'object' ? '' : _dispDays,
-		showHidden = false;
+		showHidden = false,
+		files;
 
-	$("textarea").sceditor({
+	$("textarea").eq(0).sceditor({
 		plugins: "bbcode",
 		toolbar: "bold,italic,underline|color,removeformat|cut,copy,paste|source",
 		style: '/resources/addons/sceditor/jquery.sceditor.default.min.css',
@@ -170,6 +171,17 @@ $(function(){
 		});
 	};
 
+	$('.uploadField').on('change',function(e){
+		files = e.target.files;
+		var $infoCont = $('.infoContainer');
+
+		if (typeof files[0] != 'undefined'){
+			$infoCont.show();
+			$(document.body).animate({scrollTop: $infoCont.offset().top - 10 }, 500);
+		}
+		else
+			$infoCont.hide();
+	});
 	$('.sendForm').on('click',function(e){
 		e.preventDefault();
 
@@ -181,9 +193,31 @@ $(function(){
 
 		$.Dialog.wait(title);
 
+		var data = new FormData();
+
+		$.each(files, function(key, value){
+			data.append(key, value);
+		});
+
+		if (typeof files[0] != 'undefined'){
+			data.append('fileTitle',$('[name=fileTitle]').val());
+			data.append('fileDesc',$('[name=fileDesc]').val());
+		}
+
+		$.each(pushToken({'lesson': $selLesson.find('.del').attr('data-id'), 'text': text, 'week': $selLesson.attr('data-week')}), function(key, value){
+			data.append(key, value);
+		});
+
 		$.ajax({
 			method: "POST",
-			data: pushToken({'lesson': $selLesson.find('.del').attr('data-id'), 'text': text, 'week': $selLesson.attr('data-week')}),
+
+			// For file uploading
+			cache: false,
+			dataType: 'json',
+			processData: false,
+			contentType: false,
+
+			data: data,
 			success: function(data){
 				if (typeof data !== 'object'){
 					console.log(data);

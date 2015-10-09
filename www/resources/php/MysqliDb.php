@@ -335,6 +335,7 @@ class MysqliDb
         }
 
         $stmt->execute();
+        $this->count = $stmt->affected_rows;
         $this->_stmtError = $stmt->error;
         $this->_lastQuery = $this->replacePlaceHolders ($this->_query, $params);
         $res = $this->_dynamicBindResults($stmt);
@@ -395,7 +396,7 @@ class MysqliDb
      */
     public function query($query, $numRows = null)
     {
-        $this->_query = filter_var($query, FILTER_SANITIZE_STRING);
+        $this->_query = $query;
         $stmt = $this->_buildQuery($numRows);
         $stmt->execute();
         $this->_stmtError = $stmt->error;
@@ -693,7 +694,7 @@ class MysqliDb
             die ('Wrong JOIN type: '.$joinType);
 
         if (!is_object ($joinTable))
-            $joinTable = self::$prefix . filter_var($joinTable, FILTER_SANITIZE_STRING);
+            $joinTable = self::$prefix . $joinTable;
 
         $this->_join[] = Array ($joinType,  $joinTable, $joinCondition);
 
@@ -1237,7 +1238,7 @@ class MysqliDb
      */
     public function __destruct()
     {
-        if (!$this->isSubQuery)
+        if ($this->isSubQuery)
             return;
         if ($this->_mysqli)
             $this->_mysqli->close();

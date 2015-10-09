@@ -37,21 +37,9 @@ $(function(){
 	};
 
 	$.fn.serializeForm = function(){
-		var data = {};
-		$(this).find('input').each(function(i,e){
-			var $e = $(e);
-
-			data[$e.attr('name')] = $e.val();
-		});
-		$(this).find('select').each(function(i,e){
-			var $e = $(e);
-
-			data[$e.attr('name')] = $e.val();
-		});
-		$(this).find('textarea').each(function(i,e){
-			var $e = $(e);
-
-			data[$e.attr('name')] = $e.val();
+		var tempdata = $(this).serializeArray(), data = {};
+		$.each(tempdata,function(i,el){
+			data[el.name] = el.value;
 		});
 
 		var token = getCookie('JSSESSID');
@@ -62,12 +50,12 @@ $(function(){
 		return data;
 	};
 
-	function getToken(){
+	window.getToken = function(){
 		var token = getCookie('JSSESSID');
 		if (typeof token == 'undefined') return '';
 
 		return token;
-	}
+	};
 
 	window.pushToken = function(data){
 		var token = getCookie('JSSESSID');
@@ -76,5 +64,5 @@ $(function(){
 		data['JSSESSID'] = token;
 
 		return data;
-	}
+	};
 });
