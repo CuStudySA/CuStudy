@@ -137,7 +137,7 @@ $(function(){
 				}
 			},
 			error: function(){
-				$.Dialog.fail(title,'A fájlok szerverre történtő továbbítása sikertelenül zárult! Kérjük, próbálja újra!');
+				$.Dialog.fail(title,'A fájlok szerverre történő továbbítása sikertelenül zárult! Kérjük, próbálja újra!');
 			},
 		});
 	};
