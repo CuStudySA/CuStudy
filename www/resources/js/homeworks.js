@@ -2,7 +2,7 @@ $(function(){
 	var title = 'Házi feladat hozzáadása',
 		dispDays = typeof _dispDays !== 'object' ? '' : _dispDays,
 		showHidden = false,
-		files;
+		files = [];
 
 	$("textarea").eq(0).sceditor({
 		plugins: "bbcode",
