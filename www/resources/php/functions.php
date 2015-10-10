@@ -3065,7 +3065,7 @@ STRING;
 				if (array_search($date,$days) === false) $days[] = $date;
 
 				if (isset($class['name']))
-					$Timetable[$lesson][$date][] = array($class['name'],'',$class['color'],$class['id'],$class['group_name'],date('W',$date));
+					$Timetable[$lesson][$date][] = array($class['name'],'',$class['color'],$class['id'],$allgroup ? $class['group_name'] : '',date('W',$date));
 			}
 			$Timetable['opt'] = $days;
 

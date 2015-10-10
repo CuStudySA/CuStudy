@@ -19,7 +19,7 @@
 
 			print "<h1 id=h1cim>A személyre szabott órarendem</h1>"; ?>
 			<script>var _dispDays = <?=json_encode($days)?></script>
-			<a class='btn' href='/timetables/edit'>Belépés szerkesztői módba >></a> <a class='btn js_showAllTT' href='#'>Az összes csoport órarendjének megjelenítése</a>
+			<a class='btn' href='/timetables/edit'><?=!System::PermCheck('admin') ? 'Belépés szerkesztői módba >>' : 'Átváltás általános órarendre >>'?></a> <a class='btn js_showAllTT' href='#'>Az összes csoport órarendjének megjelenítése</a>
 			<p class='weekPickerP'>
 				<button class='btn backWeek' disabled><< Vissza az előző napokra</button>
 				<span class='startDate'>
