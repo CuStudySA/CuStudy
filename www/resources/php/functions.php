@@ -2864,7 +2864,100 @@ STRING;
 			'b' => "'B'",
 		);
 
-		static function GetHWTimeTable($week = null, $lastDay = null){
+		static function MoveNextBack($move,$dispDays,$showAllGroups = true){
+			$numberOfDays = count($dispDays);
+
+			if ($move == 'next') $fromDate = $dispDays[count($dispDays)-1];
+			else $fromDate = strtotime("- {$numberOfDays} days",$dispDays[0]);
+
+			$dates = [];
+
+			while(count(array_diff($dates,$dispDays)) != count($dispDays)){
+				$day = Timetable::GetDayNumber($fromDate);
+				$week = Timetable::GetActualWeek(false,$fromDate);
+
+				$TT = Timetable::GetHWTimeTable(date('W',$fromDate),$day,$showAllGroups);
+
+				$dates = $TT['opt'];
+				unset($TT['opt']);
+
+				sort($dates,SORT_NUMERIC);
+				$dates = array_splice($dates,0,$numberOfDays);
+
+				$fromDate = strtotime(($move == 'next' ? '+' : '-').' 1 days',$fromDate);
+			}
+
+			Timetable::Render(null, $TT, $dates);
+			$fDate = strtotime('12 am',$dates[0]);
+			$now = strtotime('12 am');
+
+			if (strtotime('- 1 days',$fDate) == $now) $lockBack = true;
+			else if (Timetable::GetDayNumber() == 6 && strtotime('+ 2 days',$now) == $fDate) $lockBack = true;
+			else if (Timetable::GetDayNumber() == 7 && strtotime('+ 1 days',$now) == $fDate) $lockBack = true;
+			else $lockBack = false;
+
+			?>
+			<span class='dispDays'><?=json_encode($dates)?></span>
+			<span class='lockBack'><?=json_encode($lockBack)?></span>
+<?php	}
+
+		static function MoveDate($date,$numberOfDays = 3,$showAllGroups = true){
+			$date = strtotime('- 1 days',strtotime($date));
+
+			$week = date('W',$date);
+			$day = Timetable::GetDayNumber($date);
+
+			$TT = Timetable::GetHWTimeTable($week,$day,$showAllGroups);
+
+			$dates = $TT['opt'];
+			unset($TT['opt']);
+
+			sort($dates,SORT_NUMERIC);
+			$dates = array_splice($dates,0,$numberOfDays);
+
+			Timetable::Render(null, $TT, $dates);
+
+			$fDate = strtotime('12 am',$dates[0]);
+			$now = strtotime('12 am');
+
+			if ($fDate == $now) $lockBack = true;
+			else if (Timetable::GetDayNumber() == 6 && strtotime('+ 2 days',$now) == $fDate) $lockBack = true;
+			else if (Timetable::GetDayNumber() == 7 && strtotime('+ 1 days',$now) == $fDate) $lockBack = true;
+			else $lockBack = false;
+
+			?>
+			<span class='dispDays'><?=json_encode($dates)?></span>
+			<span class='lockBack'><?=json_encode($lockBack)?></span>
+<?php	}
+
+		static function SwitchView($fromDate,$allgroup = true){
+			$fromDate = strtotime('- 1 days',$fromDate);
+			$day = Timetable::GetDayNumber($fromDate);
+
+			$TT = Timetable::GetHWTimeTable(date('W',$fromDate),$day,$allgroup);
+
+			$days = $TT['opt'];
+			unset($TT['opt']);
+
+			sort($days,SORT_NUMERIC);
+			$days = array_splice($days,0,5);
+
+			Timetable::Render(null, $TT, $days);
+
+			$fDate = strtotime('12 am',$days[0]);
+			$now = strtotime('12 am');
+
+			if ($fDate == $now) $lockBack = true;
+			else if (Timetable::GetDayNumber() == 6 && strtotime('+ 2 days',$now) == $fDate) $lockBack = true;
+			else if (Timetable::GetDayNumber() == 7 && strtotime('+ 1 days',$now) == $fDate) $lockBack = true;
+			else $lockBack = false;
+
+			?>
+			<span class='dispDays'><?=json_encode($days)?></span>
+			<span class='lockBack'><?=json_encode($lockBack)?></span>
+<?php	}
+
+		static function GetHWTimeTable($week = null, $lastDay = null, $allgroup = true){
 			global $user, $db;
 
 			$addon = array($user['classid']);
@@ -2896,30 +2989,42 @@ STRING;
 
 			$dualWeek = Timetable::GetNumberOfWeeks() == 1 ? false : true;
 
+			$userInGroups = $db->rawQuery('SELECT `groupid`
+											FROM `group_members`
+											WHERE `classid` = ? && `userid` = ?',array($user['classid'],$user['id']));
+			$groups = array(0);
+			foreach ($userInGroups as $array)
+				$groups[] = $array['groupid'];
+
+			if (!$allgroup)
+				$onlyGrp = '&& tt.groupid IN ('.implode(',',$groups).')';
+			else
+				$onlyGrp = '';
+
 			if ($dualWeek){
 				$whereString = "&& ((tt.week = ? && tt.day > ?) || tt.week = ?)";
 				$data = $db->rawQuery("SELECT l.name, l.color, tt.id, tt.lesson, tt.day, tt.week, (SELECT `name` FROM `groups` WHERE `id` = tt.groupid) as group_name
 							FROM timetable tt
 							LEFT JOIN lessons l
 							ON (l.id = tt.lessonid && l.classid = tt.classid)
-							WHERE tt.classid = ? $whereString
+							WHERE tt.classid = ? $whereString $onlyGrp
 							ORDER BY tt.week, tt.day, tt.lesson ASC",$addon);
 			}
 			else {
-				$data_onWeek = $db->rawQuery('SELECT l.name, l.color, tt.id, tt.lesson, tt.day, tt.week, (SELECT `name` FROM `groups` WHERE `id` = tt.groupid) as group_name
+				$data_onWeek = $db->rawQuery("SELECT l.name, l.color, tt.id, tt.lesson, tt.day, tt.week, (SELECT `name` FROM `groups` WHERE `id` = tt.groupid) as group_name
 											FROM timetable tt
 											LEFT JOIN lessons l
 											ON (l.id = tt.lessonid && l.classid = tt.classid)
-											WHERE tt.classid = ? && tt.day > ?
-											ORDER BY tt.day, tt.lesson'
+											WHERE tt.classid = ? && tt.day > ? $onlyGrp
+											ORDER BY tt.day, tt.lesson"
 									,array($user['classid'],$hour >= 8 && $minute >= 0 ? $dayInWeek : $dayInWeek-1));
 
-				$data_nextWeek = $db->rawQuery('SELECT l.name, l.color, tt.id, tt.lesson, tt.day, tt.week, (SELECT `name` FROM `groups` WHERE `id` = tt.groupid) as group_name
+				$data_nextWeek = $db->rawQuery("SELECT l.name, l.color, tt.id, tt.lesson, tt.day, tt.week, (SELECT `name` FROM `groups` WHERE `id` = tt.groupid) as group_name
 											FROM timetable tt
 											LEFT JOIN lessons l
 											ON (l.id = tt.lessonid && l.classid = tt.classid)
-											WHERE tt.classid = ?
-											ORDER BY tt.day, tt.lesson'
+											WHERE tt.classid = ? $onlyGrp
+											ORDER BY tt.day, tt.lesson"
 									,array($user['classid']));
 
 				$data_nW = array();

@@ -6,205 +6,138 @@ $(function(){
 		postDatas = {},
 		USRGRP = _USRGRP;
 
-	//Órarend-választás <select> tag működése
-	$('#select_tt').change(function(){
-		window.location.href = '/timetables/week/' + $('#select_tt').children().filter(':selected').attr('value');
-	});
+	var title2 = 'Órakiválasztó-felület frissítése',
+		dispDays = typeof _dispDays !== 'object' ? '' : _dispDays,
+		prevDispDays = dispDays,
+		showHidden = false,
+		showAllGroups = 0,
 
-	if (USRGRP == 'user' || USRGRP == 'editor'){
-		$('tr td').addClass('notAdmin');
-		return;
-	}
+		backNextWeek = function(button){
+			var $lP = $('#lessonPicker'),
+				$bWButton = $('.backWeek');
 
-	// Órarend hozz.-t segítő listaelemek hozzáadása
-	$.ajax({
-		method: 'POST',
-		url: '/timetables/getoptions',
-		data: pushToken({}),
-		success: function(data){
-			if (typeof data === 'string') return console.log(data) === $(window).trigger('ajaxerror');
+			if (button == 'back' && $bWButton.attr('disabled') == 'disabled')
+				return $.Dialog.fail(title2,'A jelenlegi hétről nem tudsz visszalépni egy előző hétre!');
 
-			if (data.status){
-				var $LOptions = $(document.createElement('div')),
-					$GOptions = $(document.createElement('div'));
+			$.Dialog.wait(title2);
 
-				$.each(data.lessons,function(_,lesson){
-					$LOptions.append($(document.createElement('option')).attr('value',lesson.id).attr('data-name',lesson.name).text(lesson.name+' ('+lesson.teacher+')'));
-				});
-				$GOptions.append($(document.createElement('option')).attr('value','0').text('Teljes o.'));
-				$.each(data.groups,function(_,group){
-					$GOptions.append($(document.createElement('option')).attr('value',group.id).text(group.name));
-				});
+			$.ajax({
+				method: "POST",
+				url: '/homeworks/getTimetable/nextBack',
+				data: pushToken({'move': button, 'dispDays': dispDays, 'showAllGroups': showAllGroups}),
+				success: function(data){
+					var $data = $(data);
 
-				$.extend($.fn.powerTip.defaults,{
-					placement:"se",
-					mouseOnToPopup: true,
-					smartPlacement: true,
-					manual: true,
-				});
+					prevDispDays = dispDays;
+					dispDays = JSON.parse($data.filter('.dispDays').detach().text());
+					var lockBack = JSON.parse($data.filter('.lockBack').detach().text());
 
-				var $form = $('#form-template').children();
-				$form.find('.lessons').html($LOptions.children().clone());
-				$form.find('.groups').html($GOptions.children().clone());
-				$form.on('submit',function(e){
-					// Órarend-elem hozzáadásakor
-					e.preventDefault();
-					var $form = $(this),
-						toolTipIDArray = $form.parent().attr('id').split('-').slice(1),
-						weekday = parseInt(toolTipIDArray[0]),
-						lesson = parseInt(toolTipIDArray[1]),
-						$td = $('.timet tbody tr').eq(lesson).children().eq(weekday),
-						$selects = $form.find('select'),
-						$groups = $selects.filter('[name=groups]'),
-						$lessons = $selects.filter('[name=lessons]');
+					$lP.empty().append($data.prop('outerHTML'));
 
-					var nwelem = {'group': $groups.val(), 'tantargy': $lessons.val(), 'lesson': lesson+1, 'day': weekday};
-					container.add.push(nwelem);
+					if (lockBack) $bWButton.attr('disabled','disabled');
+					else $bWButton.removeAttr('disabled');
 
-					$td.removeClass('empty');
-					if ($td.hasClass('editing')){
-						$td.removeClass('editing');
-						$.powerTip.hide();
-					}
+					$bWButton.blur();
+					$('.nextWeek').blur();
 
-					var ntn = $lessons.find('option:selected').attr('data-name'),
-						ntc = "#E1E4FA",
-						grpnme = '',
-						grpnmef = $groups.find('option:selected').text();
-					$.each(postDatas.lessons,function(_,lesson){
-						if (ntn == lesson.name) ntc = lesson.color;
-					});
-
-					if (grpnmef != 'Teljes o.')
-						grpnme = ' (' + grpnmef + ')';
-
-					$td.append("<span class='lesson' style='background: "+ ntc +"'>"+ ntn + grpnme +"<span class='del typcn typcn-times' data-id='#"+ nwelem.tantargy +"'></span></span>");
-				});
-				$tds.each(function(){
-					var $add = $(this).find('.add'),
-						$td = $add.parent(),
-						popupId = 'add-'+$td.index()+'-'+$td.parent().index();
-
-					$add.data('powertipjq',$form).powerTip({
-						popupId: popupId,
-					});
-					$('.tooltips, #'+popupId).off('mouseenter mouseleave');
-				});
-
-				postDatas = data;
-			}
-			else $.Dialog.fail(title);
-		}
-	});
-
-	//Módosítást tároló tömbök létr.
-	var container = {
-		'delete': [],
-		'add': [],
-		'week': '',
-	};
-
-	$tds.on('click',function(e){
-		e.preventDefault();
-		e.stopPropagation();
-
-		var $this = $(this),
-			isEditing = $this.hasClass('editing');
-		if (!isEditing) $tds.removeClass('editing');
-
-		$this[(isEditing?'remove':'add')+'Class']('editing');
-		if (!isEditing){
-			$this.find('.add').removeClass('typcn-minus').addClass('typcn-plus');
-			$.powerTip.hide();
-		}
-	}).find('.add').on('click',function(e){
-		e.stopPropagation();
-		var $this = $(this);
-
-		if (!$this.parent().hasClass('editing'))
-			return $this.parent().trigger('click');
-
-		if ($this.hasClass('typcn-plus'))
-			$this.powerTip('show');
-		else $.powerTip.hide();
-
-		$this.toggleClass('typcn-plus typcn-minus');
-	});
-
-	// Megnyitott elemre való kattintáskor eltűnik a szerkesztő
-	$(document).on('click',function(e){
-		var $target = $(e.target);
-		if ($(e.target).closest('[id^="add-"]').length === 0 && $target.closest('.lesson-field').length === 0){
-			$tds.removeClass('editing');
-			$.powerTip.hide();
-		}
-	});
-
-	// Törölt órarend-elemek listába foglalása
-	$tds.on('click','.del',function(){
-		var $elem = $(this),
-			dataid = $elem.attr('data-id');
-		var $ttobj = $elem.parent(),
-			$cella = $ttobj.parent();
-
-		if (dataid.substring(0,1) != '#')
-			container.delete.push({'id': dataid});
-		else {
-			var weekday = $cella.index(),
-				lesson = $cella.parent().index()+1,
-				$ni = false,
-				$lesson_e = dataid.substring(1);
-			$.each(container.add,function(i,entry){
-				if (weekday == entry.day && lesson == entry.lesson && $lesson_e == entry.tantargy)
-					$ni = i;
+					$.Dialog.close();
+				}
 			});
-
-			if ($ni !== false){
-				var seged = [];
-				$.each(container.add,function(i,entry){
-					if ($ni != i)
-						seged.push(entry);
-				});
-				container.add = seged;
-			}
-		}
-
-		if ($cella.children().length == 2) $cella.addClass('empty');
-		$ttobj.remove();
+		};
+	$('.backWeek').on('click',function(){
+		backNextWeek('back');
+	});
+	$('.nextWeek').on('click',function(){
+		backNextWeek('next');
 	});
 
-	$('.sendbtn').on('click',function(){
-		var title = 'Órarend mentése';
+	$('#startDatePicker').on('change',function(){
+		var $lP = $('#lessonPicker'),
+			$bWButton = $('.backWeek');
 
-		$.Dialog.confirm(title,
-			'Arra készülsz, hogy mented az órarend változtatásait. Ha töröltél valamilyen tantárgyat az órarendből, a hozzá tartozó házi feladatok is törlődnek. Folytatod az órarend mentésével?',
-			['Változtatások mentése','Visszalépés'],
+		$.Dialog.wait(title2);
 
-			function(sure){
-				if (!sure) return;
+		$.ajax({
+			method: "POST",
+			url: '/homeworks/getTimetable/date',
+			data: pushToken({'date': $(this).val(), 'days': 5, 'showAllGroups': showAllGroups}),
+			success: function(data){
+				var $data = $(data);
 
-				container.week = $('.week').text();
-				$.Dialog.wait(title);
-				$.ajax({
-					method: 'POST',
-					url: '/timetables/save',
-					data: pushToken(container),
-					success: function(data){
-						if (typeof data === 'string') return console.log(data) === $(window).trigger('ajaxerror');
+				prevDispDays = dispDays;
+				dispDays = JSON.parse($data.filter('.dispDays').detach().text());
+				var lockBack = JSON.parse($data.filter('.lockBack').detach().text());
 
-						if (data.status){
-							$.Dialog.success(title,data.message);
-							setTimeout(function(){
-								window.location.href = '/timetables';
-							},2500);
-						}
+				$lP.empty().append($data.prop('outerHTML'));
 
-						else {
-							$.Dialog.fail(title,data.message);
-						}
-					}
-				});
+				if (lockBack) $bWButton.attr('disabled','disabled');
+				else $bWButton.removeAttr('disabled');
+
+				$.Dialog.close();
 			}
-		);
+		});
 	});
+
+	var $lP = $('#lessonPicker'),
+		$bWButton = $('.backWeek');
+
+	var e_showAllTT = function(e){
+		e.preventDefault();
+
+		$.Dialog.wait();
+
+		$.ajax({
+			method: "POST",
+			url: '/timetables/showTimetable/all',
+			data: pushToken({'dispDays': dispDays}),
+			success: function(data){
+				showAllGroups = 1;
+				var $data = $(data);
+
+				dispDays = JSON.parse($data.filter('.dispDays').detach().text());
+				var lockBack = JSON.parse($data.filter('.lockBack').detach().text());
+
+				$lP.empty().append($data.prop('outerHTML'));
+
+				if (lockBack) $bWButton.attr('disabled','disabled');
+				else $bWButton.removeAttr('disabled');
+
+				$('.js_showAllTT').replaceWith('<a class="btn js_hideAllTT" href="#">A saját órarendem megjelenítése</a>');
+				$('.js_hideAllTT').on('click',e_hideAllTT);
+
+				$.Dialog.close();
+			}
+		});
+	};
+	$('.js_showAllTT').on('click',e_showAllTT);
+
+	var e_hideAllTT = function(e){
+		e.preventDefault();
+
+		$.Dialog.wait();
+
+		$.ajax({
+			method: "POST",
+			url: '/timetables/showTimetable/my',
+			data: pushToken({'dispDays': dispDays}),
+			success: function(data){
+				showAllGroups = 0;
+				var $data = $(data);
+
+				dispDays = JSON.parse($data.filter('.dispDays').detach().text());
+				var lockBack = JSON.parse($data.filter('.lockBack').detach().text());
+
+				$lP.empty().append($data.prop('outerHTML'));
+
+				if (lockBack) $bWButton.attr('disabled','disabled');
+				else $bWButton.removeAttr('disabled');
+
+				$('.js_hideAllTT').replaceWith('<a class="btn js_showAllTT" href="#">Az összes csoport órarendjének megjelenítése</a>');
+				$('.js_showAllTT').on('click',e_showAllTT);
+
+				$.Dialog.close();
+			}
+		});
+	};
+	$('.js_hideAllTT').on('click',e_hideAllTT);
 });
