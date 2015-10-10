@@ -10,7 +10,7 @@ h2 {
 .timet {
 	border-collapse: collapse;
 	width: 100%;
-		-webkit-user-select: none;
+	-webkit-user-select: none;
 	-moz-user-select: none;
 	-ms-user-select: none;
 }
@@ -24,6 +24,9 @@ h2 {
 	cursor: pointer;
 	font-size: 1em;
 	border: 1px solid;
+}
+.notAdmin {
+	cursor: initial !important;
 }
 td.editing {
 	z-index: 2;

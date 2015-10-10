@@ -26,4 +26,15 @@
 
 			System::Respond(Message::Respond('timetables.progressTable',$action), $action == 0 ? 1 : 0);
 		break;
+
+		case 'showTimetable':
+			switch ($ENV['URL'][1]){
+				case 'all':
+					Timetable::SwitchView(reset($ENV['POST']['dispDays']),true);
+				break;
+				case 'my':
+					Timetable::SwitchView(reset($ENV['POST']['dispDays']),false);
+				break;
+			}
+		break;
 	}

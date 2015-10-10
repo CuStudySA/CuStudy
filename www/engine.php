@@ -140,7 +140,7 @@
 		),
 
 		'users' => array(
-			'title' => 		'Felh.-k kezelése',
+			'title' => 		'Felhasználók',
 			'css' => 		['users.css'],
 			'js' => 		['users.js'],
 			'customjs' =>   [],
@@ -163,7 +163,7 @@
 		),*/
 
 		'lessons' => array(
-			'title' => 		'Tantárgyak kezelése',
+			'title' => 		'Tantárgyak',
 			'css' => 		['lessons.css','spectrum.css'],
 			'js' => 		['lessons.js','spectrum.js','colorpicker.js'],
 			'customjs' =>   [],
@@ -174,10 +174,10 @@
 		),
 
 		'timetables' => array(
-			'title' => 		'Órarend kezelése',
-			'css' => 		['jquery.powertip.min.css','timet.css'],
+			'title' => 		'Órarend',
+			'css' => 		['jquery.powertip.min.css','timet.css','timetables.css'],
 			'js' => 		['jquery.powertip.min.js','timetables/ttedit.js'],
-			'customjs' =>   [],
+			'customjs' =>   ['edit' => 'timetables/ttedit2.js','week' => 'timetables/ttedit2.js'],
 			'minperm' => 	'user',
 			'maxperm' => 	'admin',
 			'reqdoc' => 	[],
@@ -185,7 +185,7 @@
 		),
 
 		'teachers' => array(
-			'title' => 		'Tanárok kezelése',
+			'title' => 		'Tanárok',
 			'css' => 		['teachers.css','spectrum.css'],
 			'js' => 		['teachers.js','spectrum.js'],
 			'customjs' =>   [],
@@ -196,7 +196,7 @@
 		),
 
 		'groups' => array(
-			'title' => 		'Csoportok kezelése',
+			'title' => 		'Csoportok',
 			'css' => 		['groups.css'],
 			'js' => 		['groups/delete.js'],
 			'customjs' =>   ['edit' => 'groups/edit.js','add' => 'groups/add.js', 'theme/edit' => 'groups/edittheme.js'],

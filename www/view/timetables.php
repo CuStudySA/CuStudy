@@ -6,6 +6,34 @@
 
 	switch ($case){
 		default:
+			// Órarend előkészítése
+			$TT = Timetable::GetHWTimeTable(null,null,false);
+
+			$days = $TT['opt'];
+			unset($TT['opt']);
+
+			sort($days,SORT_NUMERIC);
+			$days = array_splice($days,0,5);
+
+			function RenderTT() { global $TT, $days; return Timetable::Render(null, $TT, $days); }
+
+			print "<h1 id=h1cim>A személyre szabott órarendem</h1>"; ?>
+			<script>var _dispDays = <?=json_encode($days)?></script>
+			<a class='btn' href='/timetables/edit'><?=!System::PermCheck('admin') ? 'Belépés szerkesztői módba >>' : 'Átváltás általános órarendre >>'?></a> <a class='btn js_showAllTT' href='#'>Az összes csoport órarendjének megjelenítése</a>
+			<p class='weekPickerP'>
+				<button class='btn backWeek' disabled><< Vissza az előző napokra</button>
+				<span class='startDate'>
+					Kezdő nap megadása:
+					<input type='date' value='<?=date('Y-m-d')?>' id='startDatePicker'>
+				</span>
+				<button class='btn nextWeek'>Előre a következő napokhoz >></button>
+			</p>
+
+			<div id='lessonPicker'><?=RenderTT()?></div>
+<?php
+		break;
+
+		case 'edit':
 			print "<h1 id=h1cim>".System::Nevelo($ENV['class']['classid'],true)." osztály órarendje</h1>"; ?>
 
 			<p>Órarend választása: <select id='select_tt'>
@@ -13,12 +41,12 @@
 				$selected = $key == 'a' ? ' selected' : '';
 				print "<option value='{$key}'".$selected.">{$value} órarend</option>";
 			} ?>
-			</select></p>
+			</select> <a class='btn goToMyTT' href='/timetables'><< Visszalépés a saját órarendemhez</a></p>
 
 			<h2>'A' órarend</h2>
 
 <?php		echo '<div class="template" id="form-template">'.Timetable::ADD_FORM_HTML.'</div>';
-			// TODO A Timetable::Render max. 3 paramétert fogad el,viszont 4-et adsz meg
+
 			Timetable::Render('a', Timetable::GetTimeTable('a',true), null, true);
 		break;
 
@@ -33,7 +61,7 @@
 				$selected = $key == $week ? ' selected' : '';
 				print "<option value='{$key}'".$selected.">{$value} órarend</option>";
 			} ?>
-			</select></p>
+			</select> <a class='btn goToMyTT' href='/timetables'><< Visszalépés a saját órarendemhez</a></p>
 
 <?php		print "<h2>'".strtoupper($week)."' órarend</h2>";
 			echo '<div class="template" id="form-template">'.Timetable::ADD_FORM_HTML.'</div>';
