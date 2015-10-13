@@ -1066,6 +1066,28 @@
 					),
 				),
 			),
+			'events' => array(
+				'add' => array(
+					'errors' => array(
+						1 => 'nincs jogosultsága a művelethez',
+						2 => 'valamelyik megadott adat formátuma hibás',
+						3 => "az esemény időtartama nem 'kezdet ~ vég' formátumban lett megadva",
+						4 => 'a megadott intervallum nem értelmezhető',
+					),
+					'messages' => array(
+						0 => 'Az esemény hozzáadása sikeresen megtörtént!',
+						1 => 'Az esemény hozzáadása nem sikerült, mert @msg! (Hibakód: @code)',
+					),
+				),
+				'getInfos' => array(
+					'errors' => array(
+						1 => 'az esemény nem található',
+					),
+					'messages' => array(
+						1 => 'Az esemény információinak lekérése nem sikerült, mert @msg! (Hibakód: @code)',
+					),
+				),
+			),
 		);
 
 		// Hibakód feldolgozása (to string)
@@ -2696,6 +2718,97 @@ STRING;
 <?php               }
 
 					else print "<p>Nincs megjeleníthető házi feladat.</p>";
+		}
+	}
+
+	class EventTools {
+		static function GetEvents($start, $end){
+			global $db, $user;
+
+			$data = $db->rawQuery('SELECT *
+									FROM `events`
+									WHERE `classid` = ? && `start` > ? && `end` < ?',
+
+									array($user['classid'],date('Y-m-d H:i:s',strtotime($start)),date('Y-m-d H:i:s',strtotime($end))));
+
+			$output = [];
+			foreach ($data as $event)
+				$output[] = array(
+					'id' => $event['id'],
+					'title' => $event['title'],
+					'start' => $event['start'],
+					'end' => $event['end'],
+					'allDay' => $event['isallday'] ? true : false,
+				);
+
+			return $output;
+		}
+
+		static function Add($data){
+			global $db, $user;
+
+			# Jog. ellenörzése
+			if(System::PermCheck('editor')) return 1;
+
+			# Formátum ellenörzése
+			if (!System::ValuesExists($data,['title','description','interval'])) return 2;
+			foreach ($data as $key => $value){
+				switch ($key){
+					case 'isFullDay':
+						$type = 'numeric';
+					break;
+					case 'title':
+						$type = 'text';
+					break;
+					case 'description':
+						$type = 'text';
+					break;
+					default:
+						continue 2;
+					break;
+				}
+				if (System::InputCheck($value,$type)) return 2;
+			}
+
+			# Dátum értelmezése
+			$range = trim($data['interval']);
+			$rangeParts = explode('~',$range);
+			if (count($rangeParts) != 2) return 3;
+
+			$start = trim($rangeParts[0]);
+			$start = strtotime(str_replace('.','-',$start));
+			if ($start === false) return 4;
+
+			$end = trim($rangeParts[1]);
+			$end = strtotime(str_replace('.','-',$end));
+			if ($end === false) return 4;
+
+			$action = $db->insert('events',array(
+				'classid' => $user['classid'],
+				'start' => date('c',$start),
+				'end' => date('c',$end),
+				'title' => $data['title'],
+				'description' => $data['description'],
+				'isallday' => isset($data['isFullDay']) ? true : false,
+			));
+
+			if (!is_int($action)) return 5;
+			else return 0;
+		}
+
+		static function GetEventInfos($id){
+			global $db,$user;
+
+			$data = $db->where('id',$id)->where('classid',$user['classid'])->getOne('events');
+			if (empty($data)) return 1;
+
+			return array(
+				'Esemény címe' => $data['title'],
+				'Esemény kezdete' => date(!$data['isallday'] ? 'Y.m.d. H:i' : 'Y.m.d.',strtotime($data['start'])),
+				'Esemény vége' => date(!$data['isallday'] ? 'Y.m.d. H:i' : 'Y.m.d.',strtotime($data['end'])),
+				'Egész napos?' => $data['isallday'] ? 'igen' : 'nem',
+				'Esemény leírása' => $data['description'],
+			);
 		}
 	}
 

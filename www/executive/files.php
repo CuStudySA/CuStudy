@@ -31,6 +31,7 @@
 				$infos = [];
 
 				foreach ($ENV['POST'] as $key => $value){
+					if (empty($value) || $value == 'null') continue;
 					$keys = explode('_',$key);
 					$infos[(int)$keys[0]][$keys[1]] = $value;
 				}
@@ -42,8 +43,8 @@
 						System::Respond(Message::Respond('files.uploadFiles',$action));
 
 					$db->insert('files',array(
-						'name' => isset($infos[$key]['title']) ? $infos[$key]['title'] : 'Feltöltött dokumentum',
-						'description' => isset($infos[$key]['desc']) ? $infos[$key]['desc'] : 'Egy feltöltött dokumentum leírása',
+						'name' => !empty($infos[$key]['title']) ? $infos[$key]['title'] : 'Feltöltött dokumentum',
+						'description' => !empty($infos[$key]['desc']) ? $infos[$key]['desc'] : 'Egy feltöltött dokumentum leírása',
 						'lessonid' => 0,
 						'classid' => $user['classid'],
 						'uploader' => $user['id'],
