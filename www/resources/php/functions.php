@@ -2506,7 +2506,7 @@ STRING;
 
 			$activeArray = $onlyListActive ? array($user['id']) : array();
 			$timetable = $db->rawQuery($query,array_merge($addon,array($_weekNum, $_dayInWeek, $_weekNum),$activeArray));
-			//var_dump($timetable);
+			
 			$homeWorks = [];
 
 			$i = 0;
@@ -2747,29 +2747,38 @@ STRING;
 
 			$yearPassed = $timestamp >= $start && $timestamp < $end;
 
-			return !$sorting
-				? $ENV['class']['pairweek'] === 'A'
-					? (
-						$weekNum % 2 == 0
-						? (!$yearPassed ? 'A' : 'B')
-						: (!$yearPassed ? 'B' : 'A')
-					)
-					: (
-						$weekNum % 2 == 0
-						? (!$yearPassed ? 'B' : 'A')
-						: (!$yearPassed ? 'A' : 'B')
-					)
-				: $ENV['class']['pairweek'] === 'A'
-					? (
-						$weekNum % 2 == 0
-						? (!$yearPassed ? 'ASC' : 'DESC')
-						: (!$yearPassed ? 'DESC' : 'ASC')
-					)
-					: (
-						$weekNum % 2 == 0
-						? (!$yearPassed ? 'DESC' : 'ASC')
-						: (!$yearPassed ? 'ASC' : 'DESC')
-					);
+			if (!$sorting){
+				if ($ENV['class']['pairweek'] === 'A'){
+					if ($weekNum % 2 == 0)
+						return !$yearPassed ? 'A' : 'B';
+					else
+						return !$yearPassed ? 'B' : 'A';
+				}
+				else {
+					if ($ENV['class']['pairweek'] === 'A'){
+						if ($weekNum % 2 == 0)
+							return !$yearPassed ? 'B' : 'A';
+						else
+							return !$yearPassed ? 'A' : 'B';
+					}
+				}
+			}
+			else {
+				if ($ENV['class']['pairweek'] === 'A'){
+					if ($weekNum % 2 == 0)
+						return !$yearPassed ? 'ASC' : 'DESC';
+					else
+						return !$yearPassed ? 'DESC' : 'ASC';
+				}
+				else {
+					if ($ENV['class']['pairweek'] === 'A'){
+						if ($weekNum % 2 == 0)
+							return !$yearPassed ? 'DESC' : 'ASC';
+						else
+							return !$yearPassed ? 'ASC' : 'DESC';
+					}
+				}
+			}
 		}
 
 		static function GetDayNumber($timestamp = null) {
