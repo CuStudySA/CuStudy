@@ -2431,7 +2431,7 @@ STRING;
 										FROM timetable tt
 										LEFT JOIN (teachers t, lessons l)
 										ON (tt.lessonid = l.id && l.teacherid = t.id)
-										WHERE tt.classid = l.classid = t.classid = ? && tt.id = ? && t.name IS NOT NULL && l.name IS NOT NULL',
+										WHERE tt.classid = ? && tt.id = ? && t.name IS NOT NULL && l.name IS NOT NULL',
 							array($user['classid'],$data['lesson']));
 
 			if (empty($dbdata)) return 0x3;
