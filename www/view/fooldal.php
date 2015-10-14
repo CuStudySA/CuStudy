@@ -98,4 +98,6 @@
 <?php	    } ?>
 	</div>
 <?php   }
-	} ?>
+	}
+
+	EventTools::ListEvents(); ?>

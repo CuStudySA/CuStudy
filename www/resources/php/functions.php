@@ -215,14 +215,21 @@
 			'invitation' => ['username','realname','email','password','verpasswd'],
 		);
 
-		static $Days = array(
-			1 => 'Hétfő',
-			2 => 'Kedd',
-			3 => 'Szerda',
-			4 => 'Csütörtök',
-			5 => 'Péntek',
-			6 => 'Szombat',
-			7 => 'Vasárnap',
+		static $Days = array(null,
+			'Hétfő',
+			'Kedd',
+			'Szerda',
+			'Csütörtök',
+			'Péntek',
+			'Szombat',
+			'Vasárnap',
+		);
+
+		static $ShortMonths = array(null,
+			'Jan',  'Febr', 'Márc',
+			'Ápr',  'Máj',  'Jún',
+			'Júl',  'Aug',  'Szep',
+			'Okt',  'Nov',  'Dec'
 		);
 
 		static /** @noinspection HtmlDeprecatedTag */
@@ -1063,6 +1070,28 @@
 					'messages' => array(
 						0 => 'A fájl törlése sikeresen megtörtént!',
 						1 => 'A fájl törlése nem sikerült, mert @msg! (Hibakód: @code)',
+					),
+				),
+			),
+			'events' => array(
+				'add' => array(
+					'errors' => array(
+						1 => 'nincs jogosultsága a művelethez',
+						2 => 'valamelyik megadott adat formátuma hibás',
+						3 => "az esemény időtartama nem 'kezdet ~ vég' formátumban lett megadva",
+						4 => 'a megadott intervallum nem értelmezhető',
+					),
+					'messages' => array(
+						0 => 'Az esemény hozzáadása sikeresen megtörtént!',
+						1 => 'Az esemény hozzáadása nem sikerült, mert @msg! (Hibakód: @code)',
+					),
+				),
+				'getInfos' => array(
+					'errors' => array(
+						1 => 'az esemény nem található',
+					),
+					'messages' => array(
+						1 => 'Az esemény információinak lekérése nem sikerült, mert @msg! (Hibakód: @code)',
 					),
 				),
 			),
@@ -2699,6 +2728,133 @@ STRING;
 		}
 	}
 
+	class EventTools {
+		static function GetEvents($start, $end){
+			global $db, $user;
+
+			$data = $db->rawQuery('SELECT *
+									FROM `events`
+									WHERE `classid` = ? && `start` > ? && `end` < ?',
+
+									array($user['classid'],date('c',strtotime($start)),date('c',strtotime($end))));
+
+			$output = [];
+			foreach ($data as $event)
+				$output[] = array(
+					'id' => $event['id'],
+					'title' => $event['title'],
+					'start' => $event['start'],
+					'end' => $event['end'],
+					'allDay' => (bool) $event['isallday'],
+				);
+
+			return $output;
+		}
+
+		static function Add($data){
+			global $db, $user;
+
+			# Jog. ellenörzése
+			if(System::PermCheck('editor')) return 1;
+
+			# Formátum ellenörzése
+			if (!System::ValuesExists($data,['title','description','interval'])) return 2;
+			foreach ($data as $key => $value){
+				switch ($key){
+					case 'isFullDay':
+						$type = 'numeric';
+					break;
+					case 'title':
+						$type = 'text';
+					break;
+					case 'description':
+						$type = 'text';
+					break;
+					default:
+						continue 2;
+					break;
+				}
+				if (System::InputCheck($value,$type)) return 2;
+			}
+
+			# Dátum értelmezése
+			$range = trim($data['interval']);
+			$rangeParts = explode('~',$range);
+			if (count($rangeParts) != 2) return 3;
+
+			$start = trim($rangeParts[0]);
+			$start = strtotime(preg_replace('/^(\d{4})\.(\d{2})\.(\d{2})\.? (\d{2})\:(\d{2})(\:(?:\d{2}))?$/','$1-$2-$3 $4:$5$6',$start));
+			if ($start === false) return 4;
+
+			$end = trim($rangeParts[1]);
+			$end = strtotime(preg_replace('/^(\d{4})\.(\d{2})\.(\d{2})\.? (\d{2})\:(\d{2})(\:(?:\d{2}))?$/','$1-$2-$3 $4:$5$6',$end));
+			if ($end === false) return 4;
+
+			$action = $db->insert('events',array(
+				'classid' => $user['classid'],
+				'start' => date('c',$start),
+				'end' => date('c',$end),
+				'title' => $data['title'],
+				'description' => $data['description'],
+				'isallday' => isset($data['isFullDay']) ? true : false,
+			));
+
+			if (!is_int($action)) return 5;
+			else return 0;
+		}
+
+		static function GetEventInfos($id){
+			global $db,$user;
+
+			$data = $db->where('id',$id)->where('classid',$user['classid'])->getOne('events');
+			if (empty($data)) return 1;
+
+			return array(
+				'Esemény címe' => $data['title'],
+				'Esemény kezdete' => date(!$data['isallday'] ? 'Y.m.d. H:i' : 'Y.m.d.',strtotime($data['start'])),
+				'Esemény vége' => date(!$data['isallday'] ? 'Y.m.d. H:i' : 'Y.m.d.',strtotime($data['end'])),
+				'Egész napos?' => $data['isallday'] ? 'igen' : 'nem',
+				'Esemény leírása' => $data['description'],
+			);
+		}
+
+		// Események listázása a főoldalon
+		static function ListEvents($Events = null){
+			if (empty($Events)){
+				global $db;
+				$Events = $db->where('start > NOW()')->orderBy('start', 'ASC')->get('events', 10);
+			}
+			if (empty($Events)) return;
+
+			$HTML = '<h3>Fontos dátumok</h3><ul id="events">';
+			foreach ($Events as $i => $ev){
+				$starttime = strtotime($ev['start']);
+				$start = array(System::$ShortMonths[intval(date('n', $starttime))], date('j', $starttime));
+				$endtime = strtotime($ev['end']);
+				$end = array(System::$ShortMonths[intval(date('n', $endtime))], date('j', $endtime));
+
+				$sameMonthDay = $start[0] == $end[0] && $start[1] == $end[1];
+				$time = $ev['isallday'] ? '' : date('H:i', $starttime).(!$sameMonthDay?'-tól':'').' ';
+				$append = '';
+				if (!$sameMonthDay)
+					$append .= HomeworkTools::FormatMonthDay($endtime);
+				if (!$ev['isallday'])
+					$append .= ' '.date('H:i',$endtime).'-ig';
+				else if (!$sameMonthDay) $append .= '-ig';
+				if (!empty($append))
+					$time .= "$append";
+				if ($ev['isallday']){
+					$time .= ', egész nap';
+					$time = preg_replace('/^, eg/','Eg',$time);
+				}
+
+				$HTML .= "<li><div class='calendar'><span class='top'>{$start[0]}</span><span class='bottom'>{$start[1]}</span></div>".
+					"<div class='meta'><span class='title'>{$ev['title']}</span><span class='time'>$time</span></div></li>";
+			}
+			echo $HTML.'</ul>';
+		}
+	}
+
 	class Timetable {
 		static function GetWeekNum(){
 			$dateObj = new DateTime();
@@ -2993,8 +3149,6 @@ STRING;
 				$actWeek = strtolower(Timetable::GetActualWeek());
 				$dayInWeek = Timetable::GetDayNumber();
 			}
-			// TODO A $currentWeek nincs használva, ha nem kell, töröld
-			$currentWeek = date('W', $weekday);
 
 			$dualWeek = Timetable::GetNumberOfWeeks() == 1 ? false : true;
 

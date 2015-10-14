@@ -99,6 +99,14 @@
 		'swiftMailer' => array(
 			'php' => ['swiftMailer/swift_required.php'],
 		),
+		'fullCalendar' => array(
+			'css' => ['fullCalendar/fullcalendar.css'],
+			'js' => ['fullCalendar/lib/moment.min.js','fullCalendar/fullcalendar.js','fullCalendar/lang/hu.js'],
+		),
+		'dateRangePicker' => array(
+			'css' => ['dateRangePicker/daterangepicker.css'],
+			'js' => ['fullCalendar/lib/moment.min.js','dateRangePicker/jquery.daterangepicker.js'],
+		),
 	);
 
 	# Menüpontok beállítása
@@ -275,6 +283,18 @@
 			'file' => 		'files',
 			'addons' =>     [],
 		),
+
+		'events' => array(
+			'title' => 		'Események',
+			'css' => 		['events.css'],
+			'js' => 		['events.js'],
+			'customjs' =>   [],
+			'minperm' => 	'user',
+			'maxperm' => 	'admin',
+			'reqdoc' => 	[],
+			'file' => 		'events',
+			'addons' =>     ['fullCalendar','dateRangePicker'],
+		),
 	);
 
 	# Tevékenység meghatározása
@@ -305,6 +325,13 @@
 		else System::Respond(true);
 	}
 
+	# Események lekérésénél 'Executive' végrehajtása
+	if (!empty($ENV['URL'][0]))
+		if ($ENV['URL'][0] == 'getEvents' && $do == 'events'){
+			$ENV['SERVER']['REQUEST_METHOD'] = 'POST';
+			$skipCSRF = true;
+		}
+
 	// 'Executive' rész \\
 	if ($ENV['SERVER']['REQUEST_METHOD'] == 'POST'){
 		# Jogosultság ellenörzése
@@ -327,16 +354,19 @@
 
 		# POST-kérés méretének ellenörzése
 		$postMaxSize = ini_get('post_max_size');
-		if ((int)$_SERVER['CONTENT_LENGTH'] > (int)substr($postMaxSize,0,strlen($postMaxSize)-1) * 1024 * 1024)
-			System::Respond('A POST-kérés mérete túl lett lépve, így a művelet megszakadt! Ez általában túl nagy fájlok feltöltése miatt fordul elő.');
+		if (!empty($_SERVER['CONTENT_LENGTH']))
+			if ((int)$_SERVER['CONTENT_LENGTH'] > (int)substr($postMaxSize,0,strlen($postMaxSize)-1) * 1024 * 1024)
+				System::Respond('A POST-kérés mérete túl lett lépve, így a művelet megszakadt! Ez általában túl nagy fájlok feltöltése miatt fordul elő.');
 
 		# CSRF-elleni védelem
-		if (empty($ENV['POST']['JSSESSID'])) System::Respond();
-		if (!CSRF::Check($ENV['POST']['JSSESSID'])) System::Respond();
+		if (!isset($skipCSRF)){
+			if (empty($ENV['POST']['JSSESSID'])) System::Respond();
+			if (!CSRF::Check($ENV['POST']['JSSESSID'])) System::Respond();
 
-		unset($ENV['POST']['JSSESSID']);
+			unset($ENV['POST']['JSSESSID']);
 
-		CSRF::Generate();
+			CSRF::Generate();
+		}
 
 		die(include "executive/{$pages[$do]['file']}.php");
 	}

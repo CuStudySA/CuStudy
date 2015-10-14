@@ -1,6 +1,6 @@
 $(function(){
 	var title = 'Házi feladat hozzáadása',
-		dispDays = typeof _dispDays !== 'object' ? '' : _dispDays,
+		dispDays = typeof _dispDays !== 'object' ? '' : _dispDays.slice(),
 		showHidden = false,
 		files = [];
 
