@@ -49,13 +49,13 @@ td .teacher {
 td .lesson {
 	display: inline-block;
 	padding: 2px 3px;
-	color: #01264A;
-	border: 1px solid;
+	color: rgba(255,255,255,.97);
 	border-radius: 5px;
 	font-weight: bold;
 	margin: 3px;
-	/*white-space:nowrap;*/
-	-webkit-transition: border-radius 1s, padding 1s;
+	transition: border-radius 1s,padding 1s;
+	border: 1px solid #01264A;
+	text-shadow: 0 0 5px rgba(0,0,0,.6);
 }
 td .lesson:not(:last-child) {
 	margin-left: 0;
