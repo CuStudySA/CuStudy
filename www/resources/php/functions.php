@@ -2776,11 +2776,11 @@ STRING;
 			if (count($rangeParts) != 2) return 3;
 
 			$start = trim($rangeParts[0]);
-			$start = strtotime(str_replace('.','-',$start));
+			$start = strtotime(preg_replace('/^(\d{4})\.(\d{2})\.(\d{2})\. (\d{2})\:(\d{2})(\:(?:\d{2}))?$/','$1-$2-$3 $4:$5$6',$start));
 			if ($start === false) return 4;
 
 			$end = trim($rangeParts[1]);
-			$end = strtotime(str_replace('.','-',$end));
+			$end = strtotime(preg_replace('/^(\d{4})\.(\d{2})\.(\d{2})\. (\d{2})\:(\d{2})(\:(?:\d{2}))?$/','$1-$2-$3 $4:$5$6',$end));
 			if ($end === false) return 4;
 
 			$action = $db->insert('events',array(
@@ -3106,8 +3106,6 @@ STRING;
 				$actWeek = strtolower(Timetable::GetActualWeek());
 				$dayInWeek = Timetable::GetDayNumber();
 			}
-			// TODO A $currentWeek nincs használva, ha nem kell, töröld
-			$currentWeek = date('W', $weekday);
 
 			$dualWeek = Timetable::GetNumberOfWeeks() == 1 ? false : true;
 
