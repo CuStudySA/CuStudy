@@ -215,14 +215,21 @@
 			'invitation' => ['username','realname','email','password','verpasswd'],
 		);
 
-		static $Days = array(
-			1 => 'Hétfő',
-			2 => 'Kedd',
-			3 => 'Szerda',
-			4 => 'Csütörtök',
-			5 => 'Péntek',
-			6 => 'Szombat',
-			7 => 'Vasárnap',
+		static $Days = array(null,
+			'Hétfő',
+			'Kedd',
+			'Szerda',
+			'Csütörtök',
+			'Péntek',
+			'Szombat',
+			'Vasárnap',
+		);
+
+		static $ShortMonths = array(null,
+			'Jan',  'Febr', 'Márc',
+			'Ápr',  'Máj',  'Jún',
+			'Júl',  'Aug',  'Szep',
+			'Okt',  'Nov',  'Dec'
 		);
 
 		static /** @noinspection HtmlDeprecatedTag */
@@ -2729,7 +2736,7 @@ STRING;
 									FROM `events`
 									WHERE `classid` = ? && `start` > ? && `end` < ?',
 
-									array($user['classid'],date('Y-m-d H:i:s',strtotime($start)),date('Y-m-d H:i:s',strtotime($end))));
+									array($user['classid'],date('c',strtotime($start)),date('c',strtotime($end))));
 
 			$output = [];
 			foreach ($data as $event)
@@ -2738,7 +2745,7 @@ STRING;
 					'title' => $event['title'],
 					'start' => $event['start'],
 					'end' => $event['end'],
-					'allDay' => $event['isallday'] ? true : false,
+					'allDay' => (bool) $event['isallday'],
 				);
 
 			return $output;
@@ -2776,11 +2783,11 @@ STRING;
 			if (count($rangeParts) != 2) return 3;
 
 			$start = trim($rangeParts[0]);
-			$start = strtotime(preg_replace('/^(\d{4})\.(\d{2})\.(\d{2})\. (\d{2})\:(\d{2})(\:(?:\d{2}))?$/','$1-$2-$3 $4:$5$6',$start));
+			$start = strtotime(preg_replace('/^(\d{4})\.(\d{2})\.(\d{2})\.? (\d{2})\:(\d{2})(\:(?:\d{2}))?$/','$1-$2-$3 $4:$5$6',$start));
 			if ($start === false) return 4;
 
 			$end = trim($rangeParts[1]);
-			$end = strtotime(preg_replace('/^(\d{4})\.(\d{2})\.(\d{2})\. (\d{2})\:(\d{2})(\:(?:\d{2}))?$/','$1-$2-$3 $4:$5$6',$end));
+			$end = strtotime(preg_replace('/^(\d{4})\.(\d{2})\.(\d{2})\.? (\d{2})\:(\d{2})(\:(?:\d{2}))?$/','$1-$2-$3 $4:$5$6',$end));
 			if ($end === false) return 4;
 
 			$action = $db->insert('events',array(
@@ -2809,6 +2816,36 @@ STRING;
 				'Egész napos?' => $data['isallday'] ? 'igen' : 'nem',
 				'Esemény leírása' => $data['description'],
 			);
+		}
+
+		// Események listázása a főoldalon
+		static function ListEvents($Events = null){
+			if (empty($Events)){
+				global $db;
+				$Events = $db->where('start > NOW()')->orderBy('start', 'ASC')->get('events', 10);
+			}
+			if (empty($Events)) return;
+
+			$HTML = '<h3>Fontos dátumok</h3><ul id="events">';
+			foreach ($Events as $i => $ev){
+				$starttime = strtotime($ev['start']);
+				$start = array(System::$ShortMonths[intval(date('n', $starttime))], date('j', $starttime));
+				$endtime = strtotime($ev['end']);
+				$end = array(System::$ShortMonths[intval(date('n', $endtime))], date('j', $endtime));
+
+				if ($ev['isallday'])
+					$time = 'Egész nap';
+				else {
+					$time = date('H:i',$starttime).' - ';
+					if ($start[0] !== $end[0] || $start[1] !== $end[1])
+						$time .= HomeworkTools::FormatMonthDay($endtime).' ';
+					$time .= date('H:i',$endtime);
+				}
+
+				$HTML .= "<li><div class='calendar'><span class='top'>{$start[0]}</span><span class='bottom'>{$start[1]}</span></div>".
+					"<div class='meta'><span class='title'>{$ev['title']}</span><span class='time'>$time</span></div></li>";
+			}
+			echo $HTML.'</ul>';
 		}
 	}
 

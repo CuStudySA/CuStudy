@@ -19,6 +19,8 @@ SET time_zone = "+00:00";
 --
 -- Adatbázis: `betonhomework`
 --
+CREATE DATABASE IF NOT EXISTS `betonhomework` DEFAULT CHARACTER SET utf8 COLLATE utf8_hungarian_ci;
+USE `betonhomework`;
 
 -- --------------------------------------------------------
 
