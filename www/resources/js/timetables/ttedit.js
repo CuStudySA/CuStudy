@@ -102,7 +102,7 @@ $(function(){
 				if (lockBack) $bWButton.attr('disabled','disabled');
 				else $bWButton.removeAttr('disabled');
 
-				$('.js_showAllTT').replaceWith('<a class="btn js_hideAllTT" href="#">A saját órarendem megjelenítése</a>');
+				$('.js_showAllTT').replaceWith('<a class="btn js_hideAllTT typcn typcn-user" href="#">A saját órarendem megjelenítése</a>');
 				$('.js_hideAllTT').on('click',e_hideAllTT);
 
 				$.Dialog.close();
@@ -132,7 +132,7 @@ $(function(){
 				if (lockBack) $bWButton.attr('disabled','disabled');
 				else $bWButton.removeAttr('disabled');
 
-				$('.js_hideAllTT').replaceWith('<a class="btn js_showAllTT" href="#">Az összes csoport órarendjének megjelenítése</a>');
+				$('.js_hideAllTT').replaceWith("<a class='btn js_showAllTT typcn typcn-group' href='#'>Az egész osztály órarendjének megjelenítése</a>");
 				$('.js_showAllTT').on('click',e_showAllTT);
 
 				$.Dialog.close();

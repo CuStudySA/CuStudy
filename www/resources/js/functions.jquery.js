@@ -59,10 +59,16 @@ $(function(){
 
 	window.pushToken = function(data){
 		var token = getCookie('JSSESSID');
-		if (typeof token == 'undefined') return data;
+		if (typeof data != 'undefined'){
+			if (typeof token == 'undefined') return data;
 
-		data['JSSESSID'] = token;
+			data['JSSESSID'] = token;
 
-		return data;
+			return data;
+		}
+		else {
+			if (typeof token == 'undefined') return {};
+			return {'JSSESSID': token};
+		}
 	};
 });

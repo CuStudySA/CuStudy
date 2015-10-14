@@ -72,3 +72,72 @@ h3 {
 	font-weight: bold;
 	user-select: none;
 }
+
+#events {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    text-align: left;
+}
+#events li {
+    display: block;
+    white-space: nowrap;
+}
+#events li:not(:last-child) {
+    margin-bottom: 5px;
+}
+#events li > * { vertical-align: middle }
+#events li .calendar {
+    width: 43px;
+    height: 43px;
+    display: inline-block;
+    position: relative;
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, .3);
+    background: #fafafa;
+    text-align: center;
+}
+#events li .calendar > * {
+    width: 100%;
+    display: block;
+    box-sizing: border-box;
+    font-family: sans-serif;
+}
+#events li .calendar .top {
+    top: 0;
+    height: 18px;
+    line-height: 18px;
+    background: #171D2D linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, .1) 100%);
+    color: #fff;
+    text-transform: uppercase;
+    font-weight: bold;
+    font-size: 13px;
+}
+#events li .calendar .bottom {
+    bottom: 0;
+    height: 25px;
+    line-height: 25px;
+    font-size: 1.5em;
+    color: #000;
+    border: 1px solid #171D2D;
+    border-top: 0;
+}
+#events li .meta {
+    display: inline-block;
+    margin: 2.5px 0 2.5px 7px;
+    max-width: calc(100% - 47px);
+}
+#events li .title, #events li .time {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+	line-height: 1em;
+}
+#events li .title {
+    font-size: 18px;
+    height: 25px;
+    font-weight: bold;
+}
+#events li .time {
+	font-size: 14px;
+	height: 18px;
+}

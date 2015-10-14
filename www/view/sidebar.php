@@ -15,12 +15,8 @@ $Actions = array(
 	array('home','','Főoldal'),
 	array('calendar','timetables','Órarend'),
 	array('globe','homeworks','Házi feladatok'),
+	//array('flash','events','Események'),
 	array('document','files','Dokumentumok'),
-	/*
-		TODO Eseméynek menüpont elkészítése
-		
-	array('flash','events','Események'),
-	*/
 	array('user','profile','Profilom'),
 	array('contacts','teachers','Tanárok'),
 	array('th-menu','lessons','Tantárgyak'),

@@ -108,7 +108,6 @@ $(function(){
 
 			// For file uploading
 			cache: false,
-			dataType: 'json',
 			processData: false,
 			contentType: false,
 
