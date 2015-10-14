@@ -130,6 +130,7 @@ h3 {
     display: block;
     overflow: hidden;
     text-overflow: ellipsis;
+	line-height: 1em;
 }
 #events li .title {
     font-size: 18px;
