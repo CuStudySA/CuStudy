@@ -2833,13 +2833,19 @@ STRING;
 				$endtime = strtotime($ev['end']);
 				$end = array(System::$ShortMonths[intval(date('n', $endtime))], date('j', $endtime));
 
-				if ($ev['isallday'])
-					$time = 'Egész nap';
-				else {
-					$time = date('H:i',$starttime).' - ';
-					if ($start[0] !== $end[0] || $start[1] !== $end[1])
-						$time .= HomeworkTools::FormatMonthDay($endtime).' ';
-					$time .= date('H:i',$endtime);
+				$sameMonthDay = $start[0] == $end[0] && $start[1] == $end[1];
+				$time = $ev['isallday'] ? '' : date('H:i', $starttime).(!$sameMonthDay?'-tól':'').' ';
+				$append = '';
+				if (!$sameMonthDay)
+					$append .= HomeworkTools::FormatMonthDay($endtime);
+				if (!$ev['isallday'])
+					$append .= ' '.date('H:i',$endtime).'-ig';
+				else if (!$sameMonthDay) $append .= '-ig';
+				if (!empty($append))
+					$time .= "$append";
+				if ($ev['isallday']){
+					$time .= ', egész nap';
+					$time = preg_replace('/^, eg/','Eg',$time);
 				}
 
 				$HTML .= "<li><div class='calendar'><span class='top'>{$start[0]}</span><span class='bottom'>{$start[1]}</span></div>".
