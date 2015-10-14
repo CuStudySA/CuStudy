@@ -88,8 +88,8 @@ h3 {
 }
 #events li > * { vertical-align: middle }
 #events li .calendar {
-    width: 40px;
-    height: 40px;
+    width: 43px;
+    height: 43px;
     display: inline-block;
     position: relative;
     box-shadow: inset 0 0 5px rgba(0, 0, 0, .3);
