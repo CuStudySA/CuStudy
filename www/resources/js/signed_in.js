@@ -1,4 +1,8 @@
 $(function(){
+	$('#sidebar').find('.avatar').children('img').on('error',function(){
+		this.src = '/resources/img/user.svg';
+	});
+
 	$('#logout').on('click',function(e){
 		e.preventDefault();
 
