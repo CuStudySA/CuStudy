@@ -15,8 +15,13 @@ h1 {
 	color: white;
 	display: none;
 }
+.fc-day-grid-event {
+	padding: 1px !important;
+	border: 3px solid transparent !important;
+	transition: none !important;
+}
 .selectedEvent {
-	border: #000 solid 3px !important;
+	border-color: rgba(0,0,0,.4) !important;
 }
 #dialogContent input[name=title] {
 	width: 85%;

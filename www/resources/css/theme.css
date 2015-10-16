@@ -195,7 +195,10 @@ button.btn:enabled:focus {
 	padding: 2px 3px;
 	box-shadow: 0 1px 3px rgba(0,0,0,.8);
 }
-:not(button).btn[disabled] { cursor: not-allowed !important }
+:not(button).btn:disabled {
+	cursor: not-allowed !important;
+	pointer-events: none;
+}
 
 /* Flex megj. */
 .flex {

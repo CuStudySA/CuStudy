@@ -177,9 +177,10 @@
 					else if (!params.buttons && $dialogButtons.length !== 0) $dialogButtons.remove();
 					else $dialogButtons.empty();
 
-					$dialogBox.css({
+					$dialogBox.stop().css({
 						left: ($w.width() - $dialogBox.outerWidth()) / 2,
 						top: ($w.height() - $dialogBox.outerHeight()) / 2,
+						opacity: 1,
 					});
 				}
 				
@@ -190,7 +191,7 @@
 					$button.attr('type','button');
 					$button.attr('class','fg-color-white bg-color-' + params.color);
 					if (obj.form){
-						$form = $('#'+obj.form);
+						var $form = $('#'+obj.form);
 						if ($form.length == 1){
 							var $submitbtn = $(document.createElement('button')).hide().appendTo($form);
 							$button.on('click',function(){

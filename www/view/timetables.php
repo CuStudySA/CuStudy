@@ -21,7 +21,7 @@
 			<script>var _dispDays = <?=json_encode($days)?></script>
 			<a class='btn typcn typcn-pencil' href='/timetables/edit'>Szerkesztői nézet</a>
 			<a class='btn js_showAllTT typcn typcn-group' href='#'>Teljes nézet</a>
-			<a class='btn typcn typcn-th-menu' style='float: right;'>Hagyományos nézet</a>
+			<a class='btn typcn typcn-eye' id='js_switchView' style='float: right;'>Kompakt nézet</a>
 			<p class='weekPickerP'>
 				<button class='btn backWeek' disabled><< Vissza az előző napokra</button>
 				<span class='startDate'>
