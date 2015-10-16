@@ -53,7 +53,7 @@ td .lesson {
 	border-radius: 5px;
 	font-weight: bold;
 	margin: 3px;
-	transition: border-radius 1s,padding 1s;
+	/*transition: border-radius 1s,padding 1s;*/
 	border: 1px solid #01264A;
 	text-shadow: 0 0 5px rgba(0,0,0,.6);
 }
@@ -169,4 +169,16 @@ body > [id^='add-'] button {
 .sendbtn {
 	float: right;
 	margin-top: 10px !important;
+}
+
+.timet.single td .lesson {
+    display: block;
+    border: 0;
+    margin: 0;
+    border-radius: 0;
+    padding: 15px;
+}
+.timet.single tbody td {
+	padding: 0;
+	margin: 0;
 }

@@ -258,7 +258,7 @@
 					$preg = '/^\d+$/';
 				break;
 				case 'text':
-					$preg = '/^[0-9A-ZÁÉÍÓÖŐÚÜŰa-záéíóöőúüű. ]{2,}$/';
+					$preg = '/^[0-9A-ZÁÉÍÓÖŐÚÜŰa-záéíóöőúüű.-?,!()"" ]{2,}$/';
 				break;
 				case 'suburl':
 					$preg = '/^[a-zA-Z0-9\/]{1,}$/';
@@ -1084,6 +1084,26 @@
 					'messages' => array(
 						0 => 'Az esemény hozzáadása sikeresen megtörtént!',
 						1 => 'Az esemény hozzáadása nem sikerült, mert @msg! (Hibakód: @code)',
+					),
+				),
+				'edit' => array(
+					'errors' => array(
+						1 => 'nincs jogosultsága a művelethez',
+						2 => 'valamelyik megadott adat formátuma hibás',
+						3 => "az esemény időtartama nem 'kezdet ~ vég' formátumban lett megadva",
+						4 => 'a megadott intervallum nem értelmezhető',
+					),
+					'messages' => array(
+						0 => 'Az esemény szerkesztése sikeresen megtörtént!',
+						1 => 'Az esemény szerkesztése nem sikerült, mert @msg! (Hibakód: @code)',
+					),
+				),
+				'delete' => array(
+					'errors' => array(
+						1 => 'az esemény nem található vagy nincs engedélye a törléshez',
+					),
+					'messages' => array(
+						1 => 'Az esemény törlése nem sikerült, mert @msg! (Hibakód: @code)',
 					),
 				),
 				'getInfos' => array(
@@ -2751,6 +2771,16 @@ STRING;
 			return $output;
 		}
 
+		static function ParseDates($start,$end){
+			$start = strtotime(preg_replace('/^(\d{4})\.(\d{2})\.(\d{2})\.? (\d{2})\:(\d{2})(\:(?:\d{2}))?$/','$1-$2-$3 $4:$5$6',trim($start)));
+			if ($start === false) return false;
+
+			$end = strtotime(preg_replace('/^(\d{4})\.(\d{2})\.(\d{2})\.? (\d{2})\:(\d{2})(\:(?:\d{2}))?$/','$1-$2-$3 $4:$5$6',trim($end)));
+			if ($end === false) return false;
+
+			return [$start,$end];
+		}
+
 		static function Add($data){
 			global $db, $user;
 
@@ -2782,13 +2812,8 @@ STRING;
 			$rangeParts = explode('~',$range);
 			if (count($rangeParts) != 2) return 3;
 
-			$start = trim($rangeParts[0]);
-			$start = strtotime(preg_replace('/^(\d{4})\.(\d{2})\.(\d{2})\.? (\d{2})\:(\d{2})(\:(?:\d{2}))?$/','$1-$2-$3 $4:$5$6',$start));
-			if ($start === false) return 4;
-
-			$end = trim($rangeParts[1]);
-			$end = strtotime(preg_replace('/^(\d{4})\.(\d{2})\.(\d{2})\.? (\d{2})\:(\d{2})(\:(?:\d{2}))?$/','$1-$2-$3 $4:$5$6',$end));
-			if ($end === false) return 4;
+			$dates = self::ParseDates($rangeParts[0],$rangeParts[1]);
+			if (!is_array($dates)) return 4;
 
 			$action = $db->insert('events',array(
 				'classid' => $user['classid'],
@@ -2818,11 +2843,69 @@ STRING;
 			);
 		}
 
+		static function Edit($data){
+			global $db, $user;
+
+			# Értékek ellenörzése
+			if (!System::ValuesExists($data,['title','description','interval'])) return 2;
+
+			# Jog. ellenörzése
+			if(System::ClassPermCheck($data['id'],'events')) return 1;
+
+			# Formátum ellenörzése
+			foreach ($data as $key => $value){
+				switch ($key){
+					case 'isFullDay':
+						$type = 'numeric';
+					break;
+					case 'title':
+						$type = 'text';
+					break;
+					case 'description':
+						$type = 'text';
+					break;
+					default:
+						continue 2;
+					break;
+				}
+				if (System::InputCheck($value,$type)) return 2;
+			}
+
+			# Dátum értelmezése
+			$range = trim($data['interval']);
+			$rangeParts = explode('~',$range);
+			if (count($rangeParts) != 2) return 3;
+
+			$dates = self::ParseDates($rangeParts[0],$rangeParts[1]);
+			if (!is_array($dates)) return 4;
+
+			$action = $db->where('id',$data['id'])->update('events',array(
+				'start' => date('c',$dates[0]),
+				'end' => date('c',$dates[1]),
+				'title' => $data['title'],
+				'description' => $data['description'],
+				'isallday' => isset($data['isFullDay']) ? true : false,
+			));
+
+			if ($action) return 0;
+			else return 5;
+		}
+
+		static function Delete($id){
+			global $db;
+
+			# Jog. ellenörzése
+			if (System::ClassPermCheck($id,'events')) return 1;
+
+			$action = $db->where('id',$id)->delete('events');
+			return $action ? 0 : 2;
+		}
+
 		// Események listázása a főoldalon
 		static function ListEvents($Events = null){
 			if (empty($Events)){
-				global $db;
-				$Events = $db->where('start > NOW()')->orderBy('start', 'ASC')->get('events', 10);
+				global $db, $user;
+				$Events = $db->where('start > NOW()')->where('classid',$user['classid'])->orderBy('start', 'ASC')->get('events', 10);
 			}
 			if (empty($Events)) return;
 

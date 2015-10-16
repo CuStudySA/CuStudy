@@ -33,6 +33,7 @@
 				foreach ($ENV['POST'] as $key => $value){
 					if (empty($value) || $value == 'null') continue;
 					$keys = explode('_',$key);
+					if (empty($keys[1])) continue;
 					$infos[(int)$keys[0]][$keys[1]] = $value;
 				}
 

@@ -15,7 +15,7 @@ $Actions = array(
 	array('home','','Főoldal'),
 	array('calendar','timetables','Órarend'),
 	array('globe','homeworks','Házi feladatok'),
-	//array('flash','events','Események'),
+	array('flash','events','Események'),
 	array('document','files','Dokumentumok'),
 	array('user','profile','Profilom'),
 	array('contacts','teachers','Tanárok'),
