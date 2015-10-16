@@ -1,5 +1,5 @@
 $(function(){
-	var $selectedEvent = undefined,
+	var $selectedEvent,
 		inSelectMode = false,
 		btn_switchToViewMode = "<button class='typcn typcn-zoom btn js_switchToViewMode'>Visszatérés nézegető módba</button>",
 		btn_switchToSelectionMode = $('.js_switchToSelectionMode').clone(),
@@ -46,6 +46,7 @@ $(function(){
 
 			eventClick: function(event) {
 				if (inSelectMode){
+					$('.selectedEvent').removeClass('selectedEvent');
 					$(this).addClass('selectedEvent');
 					$selectedEvent = event;
 
@@ -141,6 +142,145 @@ $(function(){
 						else $.Dialog.fail(title,data.message);
 					}
 				});
+			});
+		});
+	});
+
+
+	$('.js_edit').on('click',function(e){
+		e.preventDefault();
+
+		var $dialog = $formTempl.clone(),
+			title = 'Esemény szerkesztése';
+
+		if (typeof $selectedEvent == 'undefined') return;
+
+		$.ajax({
+			method: "POST",
+			url: "/events/getEventInfos/all",
+			data: pushToken({'id': $selectedEvent.id}),
+			success: function(data){
+				if (typeof data === 'string'){
+					console.log(data);
+					$(window).trigger('ajaxerror');
+					return false;
+				}
+				if (data.status){
+					$dialog.find('input[name=isFullDay]').attr('checked',data.isallday == 1);
+					$dialog.find('input[name=interval]').attr('value',data.start + ' ~ ' + data.end);
+					$dialog.find('input[name=title]').attr('value',data.title);
+					$dialog.find('textarea[name=description]').text(data.description);
+
+					$.Dialog.request(title,$dialog.prop('outerHTML'),'js_form','Mentés',function(){
+						$('#dateRangePicker').dateRangePicker({
+							startOfWeek: 'monday',
+							separator : ' ~ ',
+							format: 'YYYY.MM.DD HH:mm',
+							autoClose: false,
+							time: {
+								enabled: true
+							},
+						});
+
+						$('input[name=isFullDay]').change(function(){
+							$('#dateRangePicker').data('dateRangePicker').destroy();
+							$('#dateRangePicker').dateRangePicker({
+								startOfWeek: 'monday',
+								separator : ' ~ ',
+								format: 'YYYY.MM.DD. HH:mm',
+								autoClose: false,
+								time: {
+									enabled: !timeEnabled
+								},
+							});
+							timeEnabled = !timeEnabled;
+						});
+
+						var $urlap = $('#js_form');
+
+						$urlap.on('submit',function(e){
+							e.preventDefault();
+
+							$.Dialog.wait(title);
+
+							var $data = $urlap.serializeForm();
+							$data['id'] = $selectedEvent.id;
+
+							$.ajax({
+								method: "POST",
+								url: "/events/edit",
+								data: $data,
+								success: function(data){
+									if (typeof data === 'string'){
+										console.log(data);
+										$(window).trigger('ajaxerror');
+										return false;
+									}
+									if (data.status){
+										var $calendar = $('#calendar');
+										$calendar.fullCalendar('destroy');
+										$calendar.fullCalendar(calendarSettings);
+
+										$selectedEvent = undefined;
+										$('.js_edit').attr('disabled',true);
+										$('.js_delete').attr('disabled',true);
+
+										$('.js_switchToViewMode').replaceWith(btn_switchToSelectionMode);
+										$('.js_switchToSelectionMode').on('click',e_switchToSelectionMode);
+										inSelectMode = false;
+
+										$.Dialog.close();
+									}
+									else $.Dialog.fail(title,data.message);
+								}
+							});
+						});
+					});
+				}
+				else return $.Dialog.fail(title,data.message);
+			}
+		});
+	});
+
+	$('.js_delete').on('click',function(e){
+		e.preventDefault();
+
+		var title = 'Esemény törlése';
+
+		if (typeof $selectedEvent == 'undefined') return;
+
+		$.Dialog.confirm(title,'Arra készülsz, hogy törlöd a kiválasztott eseményt! Folytatod?',['Esemény törlése','Visszalépés'],function(sure){
+			if (!sure) return;
+
+			$.Dialog.wait();
+
+			$.ajax({
+				method: "POST",
+				url: "/events/delete",
+				data: pushToken({'id': $selectedEvent.id}),
+				success: function(data){
+					if (typeof data === 'string'){
+						console.log(data);
+						$(window).trigger('ajaxerror');
+						return false;
+					}
+					if (data.status){
+						var $calendar = $('#calendar');
+						$calendar.fullCalendar('destroy');
+						$calendar.fullCalendar(calendarSettings);
+
+						$selectedEvent = undefined;
+						$('.js_edit').attr('disabled',true);
+						$('.js_delete').attr('disabled',true);
+
+						$('.js_switchToViewMode').replaceWith(btn_switchToSelectionMode);
+						$('.js_switchToSelectionMode').on('click',e_switchToSelectionMode);
+						inSelectMode = false;
+
+						$.Dialog.close();
+					}
+					else $.Dialog.fail(title,data.message);
+				}
 			});
 		});
 	});

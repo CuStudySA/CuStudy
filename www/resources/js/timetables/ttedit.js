@@ -11,12 +11,13 @@ $(function(){
 		prevDispDays = dispDays,
 		showHidden = false,
 		showAllGroups = 0,
+		simpleView = false,
+		fullView = true,
 
 		backNextWeek = function(button){
-			var $lP = $('#lessonPicker'),
-				$bWButton = $('.backWeek');
+			var $bWButton = $('.backWeek');
 
-			if (button == 'back' && $bWButton.attr('disabled') == 'disabled')
+			if (button == 'back' && $bWButton.is(':disabled'))
 				return $.Dialog.fail(title2,'A jelenlegi hétről nem tudsz visszalépni egy előző hétre!');
 
 			$.Dialog.wait(title2);
@@ -32,12 +33,9 @@ $(function(){
 					dispDays = JSON.parse($data.filter('.dispDays').detach().text());
 					var lockBack = JSON.parse($data.filter('.lockBack').detach().text());
 
-					$lP.empty().append($data.prop('outerHTML'));
+					$('.timet').html($data.filter('.timet').html());
 
-					if (lockBack) $bWButton.attr('disabled','disabled');
-					else $bWButton.removeAttr('disabled');
-
-					$bWButton.blur();
+					$bWButton.attr('disabled', lockBack).blur();
 					$('.nextWeek').blur();
 
 					$.Dialog.close();
@@ -68,10 +66,9 @@ $(function(){
 				dispDays = JSON.parse($data.filter('.dispDays').detach().text());
 				var lockBack = JSON.parse($data.filter('.lockBack').detach().text());
 
-				$lP.empty().append($data.prop('outerHTML'));
+				$('.timet').html($data.filter('.timet').html());
 
-				if (lockBack) $bWButton.attr('disabled','disabled');
-				else $bWButton.removeAttr('disabled');
+				$bWButton.attr('disabled', lockBack);
 
 				$.Dialog.close();
 			}
@@ -79,7 +76,8 @@ $(function(){
 	});
 
 	var $lP = $('#lessonPicker'),
-		$bWButton = $('.backWeek');
+		$bWButton = $('.backWeek'),
+		$switchView = $('#js_switchView');
 
 	var e_showAllTT = function(e){
 		e.preventDefault();
@@ -97,12 +95,12 @@ $(function(){
 				dispDays = JSON.parse($data.filter('.dispDays').detach().text());
 				var lockBack = JSON.parse($data.filter('.lockBack').detach().text());
 
-				$lP.empty().append($data.prop('outerHTML'));
+				$('.timet').removeClass('single').html($data.filter('.timet').html());
 
-				if (lockBack) $bWButton.attr('disabled','disabled');
-				else $bWButton.removeAttr('disabled');
+				$bWButton.attr('disabled',lockBack);
+				$switchView.attr('disabled', fullView = true);
 
-				$('.js_showAllTT').replaceWith('<a class="btn js_hideAllTT typcn typcn-user" href="#">A saját órarendem megjelenítése</a>');
+				$('.js_showAllTT').replaceWith('<a class="btn js_hideAllTT typcn typcn-user" href="#">Saját órarend</a>');
 				$('.js_hideAllTT').on('click',e_hideAllTT);
 
 				$.Dialog.close();
@@ -127,12 +125,14 @@ $(function(){
 				dispDays = JSON.parse($data.filter('.dispDays').detach().text());
 				var lockBack = JSON.parse($data.filter('.lockBack').detach().text());
 
-				$lP.empty().append($data.prop('outerHTML'));
+				$('.timet').html($data.filter('.timet').html());
 
-				if (lockBack) $bWButton.attr('disabled','disabled');
-				else $bWButton.removeAttr('disabled');
+				$bWButton.attr('disabled', lockBack);
+				$switchView.attr('disabled', fullView = false);
+				if (simpleView)
+					$('.timet').addClass('single');
 
-				$('.js_hideAllTT').replaceWith("<a class='btn js_showAllTT typcn typcn-group' href='#'>Az egész osztály órarendjének megjelenítése</a>");
+				$('.js_hideAllTT').replaceWith("<a class='btn js_showAllTT typcn typcn-group' href='#'>Teljes nézet</a>");
 				$('.js_showAllTT').on('click',e_showAllTT);
 
 				$.Dialog.close();
@@ -140,4 +140,11 @@ $(function(){
 		});
 	};
 	$('.js_hideAllTT').on('click',e_hideAllTT);
+
+	$switchView.on('click',function(){
+		simpleView = !simpleView;
+		$('.timet')[(simpleView ? 'add' : 'remove') + 'Class']('single');
+
+		$switchView.toggleClass('typcn-eye typcn-eye-outline').text(simpleView ? 'Hagyományos nézet' : 'Kompakt nézet');
+	});
 });
