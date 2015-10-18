@@ -25,11 +25,7 @@
 	require $root.'resources/php/functions.php';
 
 	# Scipt futattásának kezdeti idejének lekérése
-	$ENV = array_merge($ENV,array(
-		'EXECTIME' => array(
-			'start' => microtime(true),
-		),
-	));
+	$ENV['EXECTIME'] = array('start' => microtime(true));
 
 	# POST és/vagy GET adatok ill. tevékenység lekérése
 	if (!empty($_GET['do'])){
