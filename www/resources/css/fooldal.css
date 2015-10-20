@@ -68,9 +68,10 @@ h3 {
 .lessonList .lessonName {
 	padding: 3px;
 	border-radius: 3px;
-	text-shadow: 0 0 5px rgba(0,0,0,.1);
+	text-shadow: 0 0 5px rgba(0,0,0,.6);
 	font-weight: bold;
 	user-select: none;
+	color: rgba(255,255,255,.97);
 }
 
 #events {
