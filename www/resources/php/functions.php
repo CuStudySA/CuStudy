@@ -1016,7 +1016,7 @@
 						2 => 'nincs jogosultsága a művelethez',
 					),
 					'messages' => array(
-						0 => 'Az órarend frissítése sikeres volt!',
+						0 => 'Az órarend sikeresen módosítva! Az oldal frissül, várjon...',
 						1 => 'Az órarend frissítése sikertelen volt, mert @msg! (Hibakód: @code)',
 					),
 				),
@@ -1362,7 +1362,7 @@ STRING
 											FROM `group_themes` gt
 											LEFT JOIN `groups`g
 											ON (g.theme = gt.id)
-											WHERE g.classid = gt.classid = ?',array($token_d['classid']));
+											WHERE g.classid = ?',array($token_d['classid']));
 
 			if (empty($group_data)) return 10;
 

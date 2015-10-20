@@ -173,38 +173,47 @@ $(function(){
 		$ttobj.remove();
 	});
 
+	var e_modify = function(){
+		var title = 'Órarend mentése';
+		container.week = $('.week').text();
+
+		$.Dialog.wait(title);
+
+		$.ajax({
+			method: 'POST',
+			url: '/timetables/save',
+			data: pushToken(container),
+			success: function(data){
+				if (typeof data === 'string') return console.log(data) === $(window).trigger('ajaxerror');
+
+				if (data.status){
+					$.Dialog.success(title,data.message);
+					setTimeout(function(){
+						location.reload();
+					},2500);
+				}
+
+				else {
+					$.Dialog.fail(title,data.message);
+				}
+			}
+		});
+	};
+
 	$('.sendbtn').on('click',function(){
 		var title = 'Órarend mentése';
 
-		$.Dialog.confirm(title,
-			'Arra készülsz, hogy mented az órarend változtatásait. Ha töröltél valamilyen tantárgyat az órarendből, a hozzá tartozó házi feladatok is törlődnek. Folytatod az órarend mentésével?',
-			['Változtatások mentése','Visszalépés'],
+		if (container.delete.length != 0)
+			$.Dialog.confirm(title,
+				'Arra készülsz, hogy mented az órarend változtatásait. Ha töröltél valamilyen tantárgyat az órarendből, a hozzá tartozó házi feladatok is törlődnek. Folytatod az órarend mentésével?',
+				['Változtatások mentése','Visszalépés'],
 
-			function(sure){
-				if (!sure) return;
-
-				container.week = $('.week').text();
-				$.Dialog.wait(title);
-				$.ajax({
-					method: 'POST',
-					url: '/timetables/save',
-					data: pushToken(container),
-					success: function(data){
-						if (typeof data === 'string') return console.log(data) === $(window).trigger('ajaxerror');
-
-						if (data.status){
-							$.Dialog.success(title,data.message);
-							setTimeout(function(){
-								location.reload();
-							},2500);
-						}
-
-						else {
-							$.Dialog.fail(title,data.message);
-						}
-					}
-				});
-			}
-		);
+				function(sure){
+					if (!sure) return;
+					e_modify();
+				}
+			);
+		else
+			e_modify();
 	});
 });

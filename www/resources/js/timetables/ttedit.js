@@ -6,6 +6,9 @@ $(function(){
 		postDatas = {},
 		USRGRP = _USRGRP;
 
+	// Szerkesztés letiltása
+	$('tr td').addClass('notAdmin');
+
 	var title2 = 'Órakiválasztó-felület frissítése',
 		dispDays = typeof _dispDays !== 'object' ? '' : _dispDays,
 		prevDispDays = dispDays,
