@@ -171,6 +171,7 @@
 
 		$.Dialog.request(title,$dialog.prop('outerHTML'),'js_form','Mentés',function(){
 			var $urlap = $('#js_form');
+			$urlap.find('[name=id]').detach();
 
 			$("#colorpicker").spectrum({
 				change: function(color) {
