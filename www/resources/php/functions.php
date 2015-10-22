@@ -2754,9 +2754,9 @@ STRING;
 
 			$data = $db->rawQuery('SELECT *
 									FROM `events`
-									WHERE `classid` = ? && `start` > ? && `end` < ?',
+									WHERE `classid` = ? && `start` > ?',
 
-									array($user['classid'],date('c',strtotime($start)),date('c',strtotime($end))));
+									array($user['classid'],date('c',strtotime($start))));
 
 			$output = [];
 			foreach ($data as $event)
@@ -2817,8 +2817,8 @@ STRING;
 
 			$action = $db->insert('events',array(
 				'classid' => $user['classid'],
-				'start' => date('c',$start),
-				'end' => date('c',$end),
+				'start' => date('c',$dates[0]),
+				'end' => date('c',$dates[1]),
 				'title' => $data['title'],
 				'description' => $data['description'],
 				'isallday' => isset($data['isFullDay']) ? true : false,

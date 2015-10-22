@@ -45,7 +45,7 @@
 									FROM timetable tt
 									LEFT JOIN (lessons l, teachers t)
 									ON tt.lessonid = l.id && l.teacherid = t.id
-									WHERE tt.classid = ? && (tt.week = ? && tt.day > ?) || tt.week = ?
+									WHERE tt.classid = ? && ((tt.week = ? && tt.day > ?) || tt.week = ?)
 									ORDER BY tt.week {$sorting}, tt.day, tt.lesson",
 
 									array($user['classid'],$actualWeek,$day,$actualWeek == 'A' ? 'b' : 'a'));

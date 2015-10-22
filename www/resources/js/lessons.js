@@ -211,7 +211,6 @@
 							$lessons.sortChildren('.tantargy',false);
 							$lessons.append($newLessonTile);
 
-							$('.js_lesson_add').on('click', e_lesson_add);
 							$elem.find('.js_lesson_edit').on('click', e_lesson_edit);
 							$elem.find('.js_lesson_delete').on('click', e_lesson_delete);
 

@@ -150,8 +150,14 @@
 	$css_list = array_merge($css, $pages[$do]['css']);
 	$js_list = array_merge($js, $pages[$do]['js']);
 
-	if (!empty($pages[$do]['customjs']) && !empty($ENV['URL'])){
+	if (!empty($pages[$do]['customjs'])){
 		foreach($pages[$do]['customjs'] as $key => $value){
+			if (empty($key) && empty($ENV['URL'][0])){
+				$js_list[] = $value;
+				break;
+			}
+			else if (empty($ENV['URL'])) continue;
+
 			if (strpos($key,'/') === false){
 				if ($ENV['URL'][0] == $key)
 					$js_list[] = $value;
