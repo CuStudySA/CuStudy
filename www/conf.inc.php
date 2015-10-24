@@ -153,7 +153,7 @@
 		'groups' => array(
 			'title' => 		'Csoportok',
 			'css' => 		['groups.css'],
-			'js' => 		['groups/delete.js'],
+			'js' => 		['groups.js'],
 			'customjs' =>   ['edit' => 'groups/edit.js','add' => 'groups/add.js', 'theme/edit' => 'groups/edittheme.js'],
 			'minperm' => 	'user',
 			'maxperm' => 	'admin',

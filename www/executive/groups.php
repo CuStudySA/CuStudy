@@ -29,10 +29,33 @@
 
 		case 'theme':
 			switch ($ENV['URL'][1]){
+				case 'get':
+					if (empty($ENV['POST']['id'])) System::Respond();
+
+					$data = $db->rawQuery('SELECT *
+											FROM `group_themes`
+											WHERE `id` = ? && `classid` = ?',array($ENV['POST']['id'],$user['classid']));
+
+					if (empty($data)) System::Respond();
+					else $data = $data[0];
+
+					$json = array(
+						'name' => $data['name'],
+					);
+
+					System::Respond('', 1, $json);
+				break;
+
 				case 'edit':
-					$action = GroupThemeTools::Edit(end($ENV['URL']),$ENV['POST']);
+					$action = GroupThemeTools::Edit($ENV['POST']);
 
 					System::Respond(Message::Respond('groupThemes.edit',$action), $action == 0 ? 1 : 0);
+				break;
+
+				case 'add':
+					$action = GroupThemeTools::Add($ENV['POST']);
+
+					System::Respond(Message::Respond('groupThemes.add',is_array($action) ? 0 : $action), is_array($action) ? 1 : 0, is_array($action) ? array('id' => $action[0]) : array());
 				break;
 			}
 		break;

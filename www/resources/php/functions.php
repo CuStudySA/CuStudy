@@ -950,6 +950,16 @@
 						1 => 'A csoportkategória szerkesztése sikertelen volt, mert @msg! (Hibakód: @code)',
 					),
 				),
+				'add' => array(
+					'errors' => array(
+						1 => 'nincs jogosultsága a művelethez',
+						2 => 'valamelyik megadott adat formátuma hibás',
+					),
+					'messages' => array(
+						0 => 'A csoportkategória hozzáadása sikeres volt!',
+						1 => 'A csoportkategória hozzáadása sikertelen volt, mert @msg! (Hibakód: @code)',
+					),
+				),
 			),
 
 			'homeworks' => array(
@@ -2270,15 +2280,16 @@ STRING;
 	}
 
 	class GroupThemeTools {
-		static function Edit($id,$data){
-			global $db;
+		static function Add($data){
+			global $db,$user;
 
 			# Jog. ellenörzése
-			If (System::ClassPermCheck($id,'group_themes')) return 1;
+			If (System::PermCheck('admin')) return 1;
 
 			# Szüks. értékek ellenörzése
 			$data = System::TrashForeignValues(['name'],$data,true);
 			if (!System::ValuesExists($data,['name'])) return 2;
+
 			foreach ($data as $key => $value){
 				switch ($key){
 					case 'name':
@@ -2288,7 +2299,35 @@ STRING;
 				if (System::InputCheck($value,$type)) return 2;
 			}
 
-			$action = $db->where('id',$id)->update('group_themes',$data);
+			$data['classid'] = $user['classid'];
+
+			$action = $db->insert('group_themes',$data);
+
+			if ($action === false) return 3;
+			else return [$action];
+		}
+
+		static function Edit($data){
+			global $db;
+
+			# Jog. ellenörzése
+			If (System::ClassPermCheck($data['id'],'group_themes')) return 1;
+
+			# Szüks. értékek ellenörzése
+			$data = System::TrashForeignValues(['name','id'],$data,true);
+			if (!System::ValuesExists($data,['name'])) return 2;
+			foreach ($data as $key => $value){
+				switch ($key){
+					case 'name':
+						$type = 'text';
+					break;
+					case 'id':
+						continue 2;
+				}
+				if (System::InputCheck($value,$type)) return 2;
+			}
+
+			$action = $db->where('id',$data['id'])->update('group_themes',$data);
 
 			if ($action) return 0;
 			else return 3;
