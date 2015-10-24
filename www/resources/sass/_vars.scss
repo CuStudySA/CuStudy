@@ -1,0 +1,47 @@
+// Oldal-szintû színkódok
+$LightBG: #CBD7F1;
+$Link: #171D2D;
+$LinkLight: #326DEC;
+$LinkHover: desaturate(lighten($Link, 13), 7);
+
+// Mobil-Asztali kinézet töréspont
+$Breakpoint: 650px;
+
+// Dialógusablak szinek
+$NBlue: #07f;
+$NBlueBG: #def;
+$NDarkBlue: #03d;
+$NDarkBlueBG: #ddf;
+$NGreen: #090;
+$NGreenBG: #dfd;
+$NRed: #d00;
+$NRedBG: #fdd;
+$NOrange: #d50;
+$NOrangeBG: #fed;
+$NYellow: #b80;
+$NYellowBG: #ffd;
+
+.clearfix {
+	&:before,
+	&:after {
+		content: ".";
+		display: block;
+		overflow: hidden;
+		visibility: hidden;
+		font-size: 0;
+		line-height: 0;
+		width: 0;
+		height: 0;
+	}
+	&:after { clear: both }
+}
+
+// Színes csempék
+$Grey: rgba(0, 0, 0, .4);
+$ColorPalette: #66CCFF, #669CFF, #7D66FF, #C966FF, #FF66BA, #FF7066, #FFA466;
+%color-palette {
+	$cpl: length($ColorPalette)-1;
+	@for $i from 0 through $cpl {
+		&:nth-child(#{$cpl}n+#{$i}) { background-color: nth($ColorPalette, $i+1) }
+	}
+}
