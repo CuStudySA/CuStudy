@@ -68,7 +68,7 @@ gulp.task('sass', function() {
 			outputStyle: 'expanded',
 			errLogToConsole: true,
 		}))
-		.pipe(autoprefixer('last 3 version'))
+		.pipe(autoprefixer('last 2 version'))
 		.pipe(rename({suffix: '.min' }))
 		.pipe(minify({
 			processImport: false,
