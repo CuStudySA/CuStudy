@@ -17,7 +17,7 @@
 			print "<h1 id=h1cim>Csoportok kezelése</h1><div id='groupContainer'>";
 
 			foreach ($themes as $thm){
-				print "<h2 class='grouptitle' data-thm='{$thm['id']}'>{$thm['name']} csoportok</h2><ul class='groups colorli'>";
+				print "<div data-thm='{$thm['id']}'><h2 class='grouptitle' data-thm='{$thm['id']}'>{$thm['name']} csoportok</h2><ul class='groups colorli'>";
 				foreach($groups as $grp){
 					if ($grp['theme'] != $thm['id']) continue; ?>
 
@@ -36,12 +36,12 @@
 				<li>
 					<div class="top">
 						<span class='rovid'>Új csop.</span>
-						<span class='nev'>Új csoport hozzáadása</span>
+						<span class='nev newTile'>Új csoport hozzáadása</span>
 					</div>
 					<div class="bottom">
 						<a class="typcn typcn-plus" href="/groups/add/<?=$thm['id']?>" title="Hozzáadás"></a>
 					</div>
-				</li></ul>
+				</li></ul></div>
 <?php		}
 
 			print "</div><h2 class='grouptitle'>Csoport kategóriák</h2><ul class='groups grps'>";

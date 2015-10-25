@@ -2,7 +2,6 @@ $(function(){
 	var $formTempl = $("<form id='js_form'>\
 							<p>Kategória neve: <input type='text' name='name' required></p>\
 					  </form>"),
-
 		$tileTempl = $("<li>\
 							<div class='top'>\
 								<span class='rovid'></span>\
@@ -13,18 +12,18 @@ $(function(){
 								<a class='typcn typcn-trash js_thm_del' title='Törlés'></a>\
 							</div>\
 					   </li>"),
-		$listTempl = $("<h2 class='grouptitle'></h2>\
+		$listTempl = $("<div><h2 class='grouptitle'></h2>\
 						<ul class='groups colorli'>\
 							<li>\
 								<div class='top'>\
 									<span class='rovid'>Új csop.</span>\
-									<span class='nev'>Új csoport hozzáadása</span>\
+									<span class='nev newTile'>Új csoport hozzáadása</span>\
 								</div>\
 								<div class='bottom'>\
 									<a class='typcn typcn-plus' href='/groups/add/' title='Hozzáadás'></a>\
 								</div>\
 							</li>\
-						</ul>"),
+						</ul></div>"),
 		$grpCont = $('#groupContainer');
 
 	$('.js_grp_del').on('click',function(e){
@@ -105,6 +104,7 @@ $(function(){
 									$elemlista.append($newLessonTile);
 
 									$('h2[data-thm="' + id + '"]').text(newName + " csoportok");
+									$('div[data-thm="' + id + '"]').find('ul').find('.nev:not(.newTile)').text(newName);
 
 									$.Dialog.close();
 								}
@@ -166,8 +166,9 @@ $(function(){
 
 							// Csop.kat. hozzáadása a felülethez
 							var $templ = $listTempl.clone();
-							$templ.filter('.grouptitle').text(newName + ' csoportok').attr('data-thm',data2.id);
+							$templ.find('.grouptitle').text(newName + ' csoportok').attr('data-thm',data2.id);
 							$templ.find('.bottom').children().eq(0).attr('href','/groups/add/' + data2.id);
+							$templ.filter('div').attr('data-thm',data2.id);
 							$grpCont.append($templ);
 
 							$.Dialog.close();
@@ -180,4 +181,33 @@ $(function(){
 		});
 	};
 	$('.js_thm_add').on('click',e_thm_add);
+
+	var e_thm_del = function(e){
+		e.preventDefault();
+
+		var title = 'Csoportkategória törlése';
+
+		$.Dialog.confirm(title,'Biztosan törölni szeretnéd a csoportkategóriát? A kategóriában lévő összes csoport is törlődik. A művelet nem visszavonható!',['Kat. törlése','Visszalépés'],function(sure){
+			if (!sure) return;
+			$.Dialog.wait();
+
+			var id = $(e.currentTarget).attr('href').substring(1);
+
+			$.ajax({
+				method: "POST",
+				url: "/groups/theme/delete",
+				data: pushToken({'id':id}),
+				success: function(data){
+					if (data.status){
+						$(e.currentTarget).parent().parent().remove();
+						$('div[data-thm=' + id + ']').remove();
+
+						$.Dialog.close();
+					}
+					else $.Dialog.fail(title,data.message);
+				}
+			})
+		});
+	};
+	$('.js_thm_del').on('click',e_thm_del);
 });

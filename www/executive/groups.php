@@ -52,6 +52,13 @@
 					System::Respond(Message::Respond('groupThemes.edit',$action), $action == 0 ? 1 : 0);
 				break;
 
+				case 'delete':
+					if (empty($ENV['POST']['id'])) System::Respond();
+					$action = GroupThemeTools::Delete($ENV['POST']['id']);
+
+					System::Respond(Message::Respond('groupThemes.delete',$action), $action == 0 ? 1 : 0);
+				break;
+
 				case 'add':
 					$action = GroupThemeTools::Add($ENV['POST']);
 
