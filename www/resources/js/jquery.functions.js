@@ -39,6 +39,11 @@
 		return func.apply(window, params);
 	};
 
+	// Make first character in string uppercase
+	$.capitalize = function(str){
+		return str.length === 1 ? str.toUpperCase() : str[0].toUpperCase()+str.substring(1);
+	};
+
 	function getCookie(name) {
 		var value = "; " + document.cookie;
 		var parts = value.split("; " + name + "=");

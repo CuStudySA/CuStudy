@@ -172,18 +172,20 @@
 
 	foreach ($css_list as $i => $value){
 		$resc = "resources/css/";
-		if (!file_exists($root.$resc.$value))
-			$value = preg_replace('~\.css$~', '.min.css', $value);
-		if (!file_exists($root.$resc.$value))
+		$minvalue = preg_replace('~\.css$~', '.min.css', $value);
+		if (file_exists($root.$resc.$minvalue))
+			$value = $minvalue;
+		else if (!file_exists($root.$resc.$value))
 			Message::Missing($rootdoc.$resc.$value);
 		$css_list[$i] = $value.'?'.filemtime($root.$resc.$value);
 	}
 
 	foreach ($js_list as $i => $value){
 		$resc = "resources/js/";
-		if (!file_exists($root.$resc.$value))
-			$value = preg_replace('~\.js$~', '.min.js', $value);
-		if (!file_exists($root.$resc.$value))
+		$minvalue = preg_replace('~\.js$~', '.min.js', $value);
+		if (file_exists($root.$resc.$minvalue))
+			$value = $minvalue;
+		else if (!file_exists($root.$resc.$value))
 			Message::Missing($rootdoc.$resc.$value);
 		$js_list[$i] = $value.'?'.filemtime($root.$resc);
 	}
