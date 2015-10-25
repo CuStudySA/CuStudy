@@ -2,9 +2,6 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<!-- Show empty favicon
-<link href="data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAYAAABPYyMiAAAABmJLR0T///////8JWPfcAAAACXBIWXMAAABIAAAASABGyWs+AAAAF0lEQVRIx2NgGAWjYBSMglEwCkbBSAcACBAAAeaR9cIAAAAASUVORK5CYII=" rel="icon" type="image/x-icon" />
-Favicon end -->
 <title><?=$pages[$do]['title']?> - CuStudy</title>
 <?php
 	foreach ($css_list as $value){

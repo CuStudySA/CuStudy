@@ -27,6 +27,34 @@
 			System::Respond(Message::Respond('groups.delete',$action), $action == 0 ? 1 : 0);
 		break;
 
+		case 'members':
+			$id = $ENV['POST']['id'];
+			if (System::ClassPermCheck($id,'groups')) System::Respond();
+
+			$group = $db->rawQuery('SELECT *
+									FROM `groups`
+									WHERE `classid` = ? AND `id` = ?',array($user['classid'],$id))[0];
+			if (empty($group)) System::Respond();
+
+			$html = "<p><b>A(z) {$group['name']} ({$ENV['class']['classid']}) csoport tagjai:</b></p><ul>";
+
+			$members = $db->rawQuery('SELECT users.realname as `name`
+									FROM `group_members`
+									LEFT JOIN `users`
+									ON group_members.userid = users.id
+									WHERE group_members.classid = ? && group_members.groupid = ?',array($user['classid'],$id));
+
+			foreach ($members as $member)
+				$html.= "<li>{$member['name']}</li>";
+
+			if (empty($members))
+				$html .= "<li>(nincs tagja a csoportnak)</li>";
+
+			$html .= "</ul>";
+
+			System::Respond('',1,array('html' => $html));
+		break;
+
 		case 'theme':
 			switch ($ENV['URL'][1]){
 				case 'get':

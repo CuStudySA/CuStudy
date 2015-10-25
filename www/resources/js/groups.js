@@ -210,4 +210,33 @@ $(function(){
 		});
 	};
 	$('.js_thm_del').on('click',e_thm_del);
+
+	var e_getMembers = function(e){
+		e.preventDefault();
+
+		var id = $(e.currentTarget).attr('href').substring(1),
+			title = 'Csoport tagjainak lekérése';
+
+		$.Dialog.wait(title);
+
+		$.ajax({
+			method: 'POST',
+			url: '/groups/members',
+			data: pushToken({'id': id}),
+			success: function(data){
+				if (typeof data !== 'object'){
+					console.log(data);
+					$(window).trigger('ajaxerror');
+					return false;
+				}
+
+				if (data.status)
+					$.Dialog.info(title,data.html);
+
+				else $.Dialog.fail(title,data.message);
+			}
+		});
+	};
+	$('.js_grp_members').on('click',e_getMembers);
+
 });

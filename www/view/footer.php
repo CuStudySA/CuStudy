@@ -13,8 +13,8 @@
 
 <?php
 	# Szoftver információ kiíratása ?>
-	<!-- <?=$ENV['SOFTWARE']['NAME']?> <?=$ENV['SOFTWARE']['VER']?> (commit ID: <?=$ENV['SOFTWARE']['COMMIT']?>, codename: <?=$ENV['SOFTWARE']['CODENAME']?>) -->
-	<!-- Software engine: <?=$ENV['ENGINE']['NAME']?> <?=$ENV['ENGINE']['VER']?> (commit ID: <?=$ENV['ENGINE']['COMMIT']?>, codename: <?=$ENV['ENGINE']['CODENAME']?>) -->
+	<!-- <?=$ENV['SOFTWARE']['NAME']?> <?=$ENV['SOFTWARE']['VER']?> (commit ID: <?=!empty($ENV['SOFTWARE']['COMMIT']) ? $ENV['SOFTWARE']['COMMIT'] : 'unknown'?>, codename: <?=$ENV['SOFTWARE']['CODENAME']?>) -->
+	<!-- Software engine: <?=$ENV['ENGINE']['NAME']?> <?=$ENV['ENGINE']['VER']?> (codename: <?=$ENV['ENGINE']['CODENAME']?>) -->
 
 <?php
 	# Easter Egg üzenet kiíratása

@@ -182,31 +182,4 @@
 
 			<p><button id='sendform' class='btn'>Módosítások mentése</button> vagy <a href='/groups'>visszalépés</a></p>
 <?php	break;
-
-		case 'members':
-			$id = $ENV['URL'][1];
-			if (System::InputCheck($id,'numeric')) die(header('Location: /groups'));
-			if (System::ClassPermCheck($id,'groups')) die(header('Location: /groups'));
-
-			$group = $db->rawQuery('SELECT *
-									FROM `groups`
-									WHERE `classid` = ? AND `id` = ?',array($user['classid'],$id))[0];
-			if (empty($group)) die(header('Location: /groups'));
-
-			print "<h1>A(z) {$group['name']} ({$ENV['class']['classid']}) csoport tagjainak megjelenítése</h1><p class='ptag memberparagh'>Csoport tagjai:</p><ul class='memberlist'>";
-
-			$members = $db->rawQuery('SELECT users.realname as `name`
-									FROM `group_members`
-									LEFT JOIN `users`
-									ON group_members.userid = users.id
-									WHERE group_members.classid = ? && group_members.groupid = ?',array($user['classid'],$ENV['URL'][1]));
-
-			foreach ($members as $member)
-				print "<li>{$member['name']}</li>";
-
-			if (empty($members))
-				print "<li>(nincs tagja a csoportnak)</li>";
-
-			print "</ul><p><a class='btn' href='/groups'>Visszalépés</a></p>";
-		break;
 	}

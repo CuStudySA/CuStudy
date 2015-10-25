@@ -19,8 +19,8 @@
 	$ENV['SOFTWARE'] = array(
 		'NAME' => 'CuStudy',
 		'CODENAME' => 'BlueSky',
-		'VER' => '1.0 RC2',
-		'DEVELOPER' => 'BetonSoft',
+		'VER' => '1.0',
+		'DEVELOPER' => 'CuStudy Software Alliance',
 		'DEV_STARTED' => '2014',
 		'COMMIT' => LATEST_COMMIT_ID,
 	);
@@ -29,7 +29,7 @@
 		'NAME' => 'DogM Engine',
 		'CODENAME' => 'Cornsilk',
 		'VER' => '1.0',
-		'DEVELOPER' => 'Bálint Mészáros (BetonSoft)',
+		'DEVELOPER' => 'Bálint Mészáros (member of PageLoop)',
 		'DEV_STARTED' => '2014',
 		'COMMIT' => 'unknown',
 	);
@@ -153,8 +153,8 @@
 		'groups' => array(
 			'title' => 		'Csoportok',
 			'css' => 		['groups.css'],
-			'js' => 		['groups.js'],
-			'customjs' =>   ['edit' => 'groups/edit.js','add' => 'groups/add.js', 'theme/edit' => 'groups/edittheme.js'],
+			'js' => 		[],
+			'customjs' =>   ['' => 'groups.js', 'edit' => 'groups/edit.js','add' => 'groups/add.js',],
 			'minperm' => 	'user',
 			'maxperm' => 	'admin',
 			'reqdoc' => 	[],
