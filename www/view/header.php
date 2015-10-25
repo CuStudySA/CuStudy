@@ -19,7 +19,6 @@
 
 	if (!isset($_REQUEST['no-header-js'])){ ?>
 		<script src="<?=$rootdoc.'resources/js/'?>jquery.min.js"></script>
-		<script src="<?=$rootdoc.'resources/js/'?>prefixfree.min.js"></script>
 <?php }
 
 	# Beépülő modulok betöltése

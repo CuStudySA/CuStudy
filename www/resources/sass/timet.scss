@@ -1,0 +1,176 @@
+@import "vars";
+// h1 { font-size: 32px }
+h2 { margin-bottom: 10px }
+.timet, tbody, tr, td {
+	background-color: inherit;
+}
+.timet {
+	text-align: center;
+	border-collapse: collapse;
+	width: 100%;
+	user-select: none;
+
+	td, th {
+		border: 1px solid;
+		box-sizing: border-box;
+	}
+	td {
+		padding: 10px;
+		text-align: center;
+		cursor: pointer;
+		font-size: 1em;
+		border: 1px solid;
+
+		&.editing {
+			z-index: 2;
+			display: block;
+			width: 60%;
+			border: 1px solid #01264A;
+			font-size: .6em;
+			transform: scale(1.75);
+			margin-left: 20%;
+			box-shadow: 0 0 10px #01264A;
+			background-color: #CBD7F1;
+
+			> .add { display: block }
+			> .lesson {
+				border-radius: 2px;
+				padding: 1.8px 1.2px;
+
+				> .del { width: 16px }
+			}
+		}
+
+		.teacher {
+			font-size: 32px;
+			font-weight: bold
+		}
+		.lesson {
+			display: inline-block;
+			padding: 2px 3px;
+			color: rgba(255,255,255,.97);
+			border-radius: 5px;
+			font-weight: bold;
+			margin: 3px;
+			// transition: border-radius 1s,padding 1s;
+			border: 1px solid #01264A;
+			text-shadow: 0 0 5px rgba(0,0,0,.6);
+
+			&:not(:last-child) {
+				margin-left: 0;
+			}
+			> .del {
+				width: 0;
+				overflow: hidden;
+				vertical-align: middle;
+				text-decoration: none;
+				// white-space:nowrap;
+
+				&:before {
+					text-decoration: inherit;
+				}
+				&:hover {
+					text-decoration: underline;
+				}
+			}
+		}
+		.add {
+			display: none;
+			position: absolute;
+			bottom: 2px;
+			right: 2px;
+			z-index: 4;
+			cursor: default;
+			font-size: 1.5em;
+			transform: scale(.59);
+
+			&:before {
+				cursor: pointer;
+				color: #60a917;
+				font-size: 1.5em;
+				display: block;
+				z-index: 1;
+			}
+		}
+	}
+	thead tr > .week, tbody tr > th {
+		width: 2.5%
+	}
+	thead tr > .weekday, tbody tr > td {
+		width: 19.5%
+	}
+	tbody td {
+		&:empty, &.empty {
+			&:before {
+				content: "(lyukas óra)";
+				font-style: italic;
+				font-size: .8em;
+				margin: 7px 0;
+				display: block;
+			}
+		}
+	}
+	&.single {
+		tbody td {
+			padding: 0;
+			margin: 0;
+		}
+		td .lesson {
+			display: block;
+			border: 0;
+			margin: 0;
+			border-radius: 0;
+			padding: 15px;
+		}
+	}
+}
+.notAdmin { cursor: initial !important }
+body > [id^='add-'] {
+	cursor: auto;
+	display: none;
+	padding: 10px;
+	font-size: 1em;
+	text-align: left;
+	height: auto;
+	z-index: 4;
+	border: 2px solid $Link;
+	background-color: $LightBG;
+	box-shadow: 0 0 10px $Link;
+	border-radius: 3px;
+	position: absolute;
+
+	label {
+		text-align: center;
+		display: block;
+		white-space: nowrap;
+
+		&:not(:last-of-type) { margin-bottom: 2px }
+		> * {
+			display: inline-block;
+			vertical-align: middle;
+		}
+		span {
+			height: 2em;
+			line-height: 2em;
+			margin-right: 2px;
+		}
+		select {
+			min-height: 0 !important;
+			border-radius: 3px;
+			box-sizing: border-box;
+			height: 1.9em;
+			padding: 1px;
+		}
+		button {
+			display: block;
+			margin: 5px auto 0;
+			border-radius: 3px;
+		}
+		// option { font-size: 2em }
+	}
+}
+
+.sendbtn {
+	float: right;
+	margin-top: 10px !important;
+}

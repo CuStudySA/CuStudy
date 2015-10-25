@@ -1,0 +1,109 @@
+@import "vars";
+@import "spectrum";
+
+#h1cim {
+	margin-bottom: 20px;
+	margin-left: 4px;
+}
+
+.teachers {
+	display: block;
+	list-style: none;
+	padding: 0;
+	margin: 10px 0 0;
+	font-size: 0;
+
+	li {
+		display: inline-block;
+		padding: 7px;
+		margin: 5px;
+		border-radius: 5px;
+		color: #fff;
+		overflow: hidden;
+
+		&.new { background-color: $Grey !important }
+		@extend %color-palette;
+
+		> div {
+			font-size: 18px;
+			text-shadow: 0 0 5px rgba(0, 0, 0, .5);
+		}
+		> .top {
+			margin-bottom: 5px;
+			> span {
+				display: block;
+				margin-left: 3px;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+				overflow: hidden;
+			}
+			> .rovid { font-size: 1.3em }
+			> .nev { font-style: italic }
+		}
+		> .bottom a {
+			color: #fff !important;
+			font-size: 24px;
+			opacity: .8;
+			border: 0;
+			transition: opacity .1s !important;
+
+			&:hover { opacity: 1 }
+		}
+	}
+}
+
+/* Hozzáadás */
+.add_lesson {
+	background-color: rgba(0, 0, 0, .1);
+	border-radius: 8px;
+	/*color: #DFE5F5;*/
+	padding: 11px 14px 11px 11px;
+
+	> p {
+		margin: 0;
+		margin-bottom: 5px !important;
+		padding: 0;
+	}
+}
+.addlesson {
+	padding: 6px !important;
+	font-size: .9em !important;
+}
+.lesson_list {
+	background-color: rgba(0, 0, 0, .1);
+	margin-bottom: 8px;
+	padding: 5px 20px 5px 5px;
+	border-radius: 7px;
+	/* color: #DFE5F5;*/
+}
+.l_l_utag {
+	list-style-type: circle;
+	margin: 0;
+	padding-left: 32px;
+}
+.l_l_addedtext { margin: 3px 0 4px 4px }
+.l_l_deleteopt {
+	vertical-align: middle;
+	margin-left: 2px;
+	margin-bottom: 1px;
+}
+.l_l_deleteopt:hover:before { text-decoration: underline !important }
+.l_l_textspan { background-color: #dbe1ff }
+.l_l_utag > li { margin-bottom: 3px }
+.sp-container.sp-light.sp-input-disabled.sp-palette-buttons-disabled.sp-palette-disabled.sp-initial-disabled {
+	height: 190px;
+}
+
+/* Tanár hozzáadás form */
+.a_t_f_sendButton, .a_t_f_firstParagraph {
+	margin-top: 11px;
+}
+.add_teacher_form {
+	background-color: rgba(0, 0, 0, .1);
+	padding: 12px;
+	width: 33%;
+	margin-top: 9px;
+	margin-left: 4px;
+	border-radius: 6px;
+}
+h3 { margin: 0 }

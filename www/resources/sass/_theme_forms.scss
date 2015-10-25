@@ -1,0 +1,126 @@
+input:not([type=radio]):not([type=checkbox]):not([type=button]),
+select,
+textarea {
+	border: 1px solid #A6B5D6;
+	background-color: #E6EAF1;
+	color: $Link;
+	padding: 4px;
+	outline: 0;
+	min-height: 18px;
+	position: relative;
+	line-height: 16px;
+	font-size: 14px;
+	transition: border-color .2s linear;
+	border-radius: 5px;
+
+	&:focus {
+		border-color: #326DEC;
+		box-shadow: inset 2px 2px 1px rgba(50,109,236,.2);
+	}
+	&:not(select) {
+		&[required], &[pattern] {
+			&:focus {
+				&:invalid {
+					border-color: #d00;
+					color: #a00;
+				}
+				&:valid {
+					border-color: #0d0;
+					color: #0a0;
+				}
+			}
+			&:not(:focus) {
+				:valid:hover {
+					border-color: #0a0;
+					color: #0d0;
+				}
+				:invalid:hover {
+					border-color: #a00;
+					color: #d00;
+				}
+			}
+		}
+	}
+	&:disabled { color: rgba($Link, .75) }
+}
+form:hover textarea {
+	&[required], &[pattern] {
+		&:focus:valid { border-color: #0d0 }
+	}
+}
+select {
+	padding-right: 5px;
+}
+textarea {
+	padding-right: 5px;
+	min-height: 100px;
+}
+input[type=checkbox] {
+	-webkit-appearance: none;
+	display: inline-block;
+	border: 1px solid #A6B5D6;
+	background-color: #E6EAF1;
+	width: 16px;
+	height: 16px;
+	border-radius: 3px;
+	position: relative;
+	margin: 0 3px 0 0;
+	vertical-align: bottom;
+	top: -2px;
+
+	&:disabled { cursor: default }
+	&:before {
+		position: absolute;
+		top: 2px;
+		left: 2px;
+		content: "\2713";
+		font-size: 14px;
+		line-height: 10px;
+		opacity: 0;
+		color: #1F4494;
+		transition: opacity .3s linear;
+	}
+	&:checked:before { opacity: 1 }
+}
+#dialogContent {
+	> div:not(#dialogButtons) {
+		> form[id] {
+			> * {
+				display: block;
+				margin: 0 auto 10px;
+				font-family: inherit;
+				width: 100%;
+				box-sizing: border-box;
+
+				&:last-child { margin-bottom: 0 }
+			}
+			label {
+				text-align: center;
+				cursor: pointer;
+				> * { vertical-align: text-bottom }
+			}
+		}
+		input:not([type=radio]):not([type=checkbox]):not([type=button]),
+		select,
+		textarea {
+			color: #313131;
+			border: 1px solid #CECECE;
+			background-color: #EFEFEF;
+
+			&:not(select) {
+				&[required], &[pattern] {
+					&:not(:focus){
+						&:valid {
+							border-color: #00CE00;
+							color: #070;
+						}
+						&:invalid {
+							border-color: #a00;
+							color: #700;
+						}
+					}
+				}
+			}
+		}
+	}
+}
