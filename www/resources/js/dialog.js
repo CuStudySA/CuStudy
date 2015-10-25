@@ -41,18 +41,17 @@
 		var _open = $dialogContent.length,
 			Dialog = {
 				isOpen: function(){ return typeof _open !== 'undefined' },
-			},
-			closeTimeout = false;;
+			};
 
 		// Pre-defined dialogs
 		Dialog.fail = function(title,content,callback){
 			Display('fail',title,content,{
-				'Close': function(){ Close() }
+				'Bezárás': function(){ Close() }
 			},callback);
 		};
 		Dialog.success = function(title,content,closeBtn,callback){
 			Display('success',title,content,(closeBtn === true ? {
-				'Close': function(){ Close() }
+				'Bezárás': function(){ Close() }
 			} : undefined), callback);
 		};
 		Dialog.wait = function(title,additional_info,callback){
@@ -74,7 +73,7 @@
 					'submit': true,
 					'form': formid,
 				};
-			buttons['Cancel'] = function(){ Close() };
+			buttons['Mégse'] = function(){ Close() };
 
 			Display('request',title,content,buttons,callback);
 		};
@@ -85,7 +84,7 @@
 			if (typeof handlerFunc !== 'function')
 				handlerFunc = function(){ Close() };
 			
-			if (!$.isArray(btnTextArray)) btnTextArray = ['Eeyup','Nope'];
+			if (!$.isArray(btnTextArray)) btnTextArray = ['Igen','Nem'];
 			var buttons = {};
 			buttons[btnTextArray[0]] = function(){ handlerFunc(true) };
 			buttons[btnTextArray[1]] = function(){ handlerFunc(false); Close.call() };
@@ -93,7 +92,7 @@
 		};
 		Dialog.info = function(title,content,callback){
 			Display('info',title,content,{
-				'Close': function(){ Close() }
+				'Bezárás': function(){ Close() }
 			},callback);
 		};
 
@@ -129,11 +128,6 @@
 
 		// Displaying dialogs
 		function Display(type,title,content,buttons,callback) {
-			if (closeTimeout !== false) {
-				clearTimeout(closeTimeout);
-				closeTimeout = false;
-			}
-
 			if (typeof type !== 'string' || typeof colors[type] === 'undefined')
 				throw new TypeError('Invalid dialog type: '+typeof type);
 			
@@ -153,7 +147,7 @@
 
 			var append = Boolean(_open),
 				$contentAdd = $makeDiv().addClass(params.color).append(params.content),
-				appendingToRequest = append && _open.type === 'request',
+				appendingToRequest = append && _open.type === 'request' && ['fail','wait'].includes(params.type),
 				$requestContentDiv;
 			if (append){
 				$dialogOverlay = $('#dialogOverlay');
@@ -163,7 +157,7 @@
 					$dialogHeader.text(params.title);
 				$dialogContent = $('#dialogContent');
 
-				if (appendingToRequest && ['fail','wait'].includes(params.type)){
+				if (appendingToRequest){
 					$requestContentDiv = $dialogContent.children(':not(#dialogButtons)').last();
 					var $ErrorNotice = $requestContentDiv.children('.notice');
 					if (!$ErrorNotice.length){
@@ -206,7 +200,7 @@
 				var overlay = {w: $dialogOverlay.width(), h: $dialogOverlay.height()},
 					dialogpos = {w: $dialogBox.outerWidth(true), h: $dialogBox.outerHeight(true)};
 				$dialogBox.css({
-					top: (Math.max((overlay.h - dialogpos.h) / 2)*.5, 0),
+					top: Math.max(((overlay.h - dialogpos.h) / 2)*.5, 0),
 					left: Math.max((overlay.w - dialogpos.w) / 2, 0),
 				});
 			}
@@ -265,7 +259,7 @@
 				});
 				$dialogButtons.append($button);
 			});
-			Dialog.center();
+			Dialog.center(true, append);
 			_setFocus();
 
 			$.callCallback(callback, [$requestContentDiv]);
@@ -276,35 +270,39 @@
 			if (!Dialog.isOpen())
 				return $.callCallback(callback, false);
 
-			if (closeTimeout !== false) {
-				clearTimeout(closeTimeout);
-				closeTimeout = false;
-			}
-
 			var overlay = {w: $dialogOverlay.width(), h: $dialogOverlay.height()},
 				dialogpos = {w: $dialogBox.outerWidth(true), h: $dialogBox.outerHeight(true)};
-			$dialogBox.css({
-				top: Math.max(((overlay.h - dialogpos.h) / 2) * 1.2, 0),
-				left: Math.max((overlay.w - dialogpos.w) / 2, 0),
-			});
-			$dialogOverlay.css('opacity', 0);
-			closeTimeout = setTimeout(function(){
+			$dialogBox.css('left',Math.max((overlay.w - dialogpos.w) / 2, 0)).animate({
+				top: Math.max(((overlay.h - dialogpos.h) / 2) * 1.2, 0)
+			}, 500, function(){
 				$dialogOverlay.remove();
 				_open = undefined;
 				_restoreFocus();
 				$.callCallback(callback);
 
 				$body.removeClass('dialog-open');
-				closeTimeout = false;
-			}, 500);
+			});
+			$dialogOverlay.css('opacity', 0);
 		}
 		Dialog.close = function(){ Close.apply(Dialog, arguments) };
-		Dialog.center = function(){
+		Dialog.center = function(animate, append){
 			if (typeof _open === 'undefined') return;
 
 			var overlay = {w: $dialogOverlay.width(), h: $dialogOverlay.height()},
 				dialog = {w: $dialogBox.outerWidth(true), h: $dialogBox.outerHeight(true)};
-			$dialogBox.css({
+			if (animate === true){
+				if (append !== true)
+					$dialogBox.css({
+						left: (overlay.w - dialog.w) / 2,
+						top: overlay.h / 2 - dialog.h,
+					});
+
+				$dialogBox.stop().animate({
+					top: (overlay.h - dialog.h) / 2,
+					left: (overlay.w - dialog.w) / 2,
+				}, 350, _setFocus);
+			}
+			else $dialogBox.css({
 				top: Math.max((overlay.h - dialog.h) / 2, 0),
 				left: Math.max((overlay.w - dialog.w) / 2, 0),
 			});

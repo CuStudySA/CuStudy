@@ -44,6 +44,11 @@
 		return str.length === 1 ? str.toUpperCase() : str[0].toUpperCase()+str.substring(1);
 	};
 
+	// Array.includes (ES7) polyfill
+	if (typeof Array.prototype.includes !== 'function')
+		Array.prototype.includes = function(elem){ return this.indexOf(elem) !== -1 };
+
+
 	function getCookie(name) {
 		var value = "; " + document.cookie;
 		var parts = value.split("; " + name + "=");

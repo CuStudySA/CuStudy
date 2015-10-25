@@ -20,7 +20,7 @@ $ZIndexBase: 21000;
 	}
 	#dialogBox {
 		margin: 10px;
-		max-width: 400px;
+		max-width: 700px;
 		width: auto;
 		overflow: hidden;
 		border-radius: 5px;
@@ -52,12 +52,11 @@ body.dialog-open { overflow: hidden }
 }
 #dialogBox {
 	font-family: 'Segoe UI', 'Open Sans', sans-serif;
-	position: relative;
+	position: absolute;
 	top: 40%;
 	left: 40%;
 	min-width: 150px;
 	z-index: $ZIndexBase+1;
-	transition: top .5s;
 
 	/* Colors */
 	.blue-bg     { background-color: $NBlue }
@@ -79,6 +78,8 @@ body.dialog-open { overflow: hidden }
 	padding: 15px 10px;
 	font-size: 16px;
 	font-weight: normal;
+
+	> div:not(.yellow){ text-align: center }
 
 	form > label {
 		> span {
