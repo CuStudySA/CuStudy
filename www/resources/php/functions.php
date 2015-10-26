@@ -922,7 +922,7 @@
 						4 => 'valamelyik megadott adat formátuma hibás',
 					),
 					'messages' => array(
-						0 => 'A csoport szerkesztése sikeres volt!',
+						0 => 'A csoport szerkesztése sikeresen megtörtént! Átirányítjuk...',
 						1 => 'A csoport szerkesztése sikertelen volt, mert @msg! (Hibakód: @code)',
 					),
 				),
@@ -2831,19 +2831,24 @@ STRING;
 
 			$data = $db->rawQuery('SELECT *
 									FROM `events`
-									WHERE `classid` = ? && `start` > ?',
+									WHERE `classid` = ?',
 
-									array($user['classid'],date('c',strtotime($start))));
+									array($user['classid']));
 
 			$output = [];
-			foreach ($data as $event)
+			foreach ($data as $event){
+				if (!(strtotime('12 am',strtotime($start)) < strtotime('12 am',strtotime($event['end']))
+					&& strtotime('12 am',strtotime($event['start'])) < strtotime('12 am',strtotime($end))))
+						continue;
+				
 				$output[] = array(
 					'id' => $event['id'],
 					'title' => $event['title'],
 					'start' => $event['start'],
 					'end' => $event['end'],
-					'allDay' => (bool) $event['isallday'],
+					'allDay' => (bool)$event['isallday'],
 				);
+			}
 
 			return $output;
 		}

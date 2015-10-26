@@ -1,6 +1,6 @@
 $(function(){
 	var $formTempl = $("<form id='js_form'>\
-							<p>Kategória neve: <input type='text' name='name' required></p>\
+							<p>Kategória neve: <input type='text' name='name' placeholder='Kategória neve' required></p>\
 					  </form>"),
 		$tileTempl = $("<li>\
 							<div class='top'>\
