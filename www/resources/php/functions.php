@@ -2016,9 +2016,11 @@ STRING
 
 			global $db,$user;
 
+			# Felhasználó jelszavának ellenörzése
+			if (!Password::Ellenorzes($data['oldpassword'],$user['password'])) return 1;
+
 			# Jelszóváltoztatás esetén...
 			if (!empty($data['oldpassword']) && !empty($data['password']) && !empty($data['verpasswd'])){
-				if (!Password::Ellenorzes($data['oldpassword'],$user['password'])) return 1;
 				if ($data['password'] != $data['verpasswd']) return 2;
 
 				$data['password'] = Password::Kodolas($data['password']);

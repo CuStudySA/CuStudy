@@ -3,6 +3,8 @@ $('#dataform').on('submit',function(e){
 
 	var title = "Felhasználói adataim módosítása";
 
+	$.Dialog.wait(title);
+
 	$.ajax({
 		method: 'POST',
 		url: '/profile/edit',
@@ -22,6 +24,9 @@ $('#dataform').on('submit',function(e){
 			else $.Dialog.fail(title,data.message);
 		}
 	});
+	$('[name=oldpassword]').val('');
+	$('[name=password]').val('');
+	$('[name=verpasswd]').val('');
 });
 
 if($('#connect_s').children().length == 0)
