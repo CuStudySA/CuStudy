@@ -59,8 +59,8 @@
 	);
 
 	# Menüpontok beállítása, JS és CSS fájlok tömbjeinek kezdeti értékadása
-	$css = ['theme.css'];
-	$js = ['jquery.functions.js','dialog.js'];
+	$css = ['theme.css','dialog_old.css'];
+	$js = ['jquery.functions.js','dialog_old.js'];
 
 	$pages = array(
 		'fooldal' => array(

@@ -1,0 +1,495 @@
+.bg-color-black { background-color: #000000 !important }
+.bg-color-white { background-color: #ffffff !important }
+.bg-color-lime { background-color: #a4c400 !important }
+.bg-color-green { background-color: #60a917 !important }
+.bg-color-emerald { background-color: #008a00 !important }
+.bg-color-teal { background-color: #00aba9 !important }
+.bg-color-cyan { background-color: #1ba1e2 !important }
+.bg-color-cobalt { background-color: #0050ef !important }
+.bg-color-indigo { background-color: #6a00ff !important }
+.bg-color-violet { background-color: #aa00ff !important }
+.bg-color-pink { background-color: #dc4fad !important }
+.bg-color-magenta { background-color: #d80073 !important }
+.bg-color-crimson { background-color: #a20025 !important }
+.bg-color-red { background-color: #e51400 !important }
+.bg-color-orange { background-color: #fa6800 !important }
+.bg-color-amber { background-color: #f0a30a !important }
+.bg-color-yellow { background-color: #e3c800 !important }
+.bg-color-brown { background-color: #825a2c !important }
+.bg-color-olive { background-color: #6d8764 !important }
+.bg-color-steel { background-color: #647687 !important }
+.bg-color-mauve { background-color: #76608a !important }
+.bg-color-taupe { background-color: #87794e !important }
+.bg-color-gray { background-color: #555555 !important }
+.bg-color-dark { background-color: #333333 !important }
+.bg-color-darker { background-color: #222222 !important }
+.bg-color-transparent { background-color: transparent !important }
+.bg-color-darkBrown { background-color: #63362f !important }
+.bg-color-darkCrimson { background-color: #640024 !important }
+.bg-color-darkMagenta { background-color: #81003c !important }
+.bg-color-darkIndigo { background-color: #4b0096 !important }
+.bg-color-darkCyan { background-color: #1b6eae !important }
+.bg-color-darkCobalt { background-color: #00356a !important }
+.bg-color-darkTeal { background-color: #004050 !important }
+.bg-color-darkEmerald { background-color: #003e00 !important }
+.bg-color-darkGreen { background-color: #128023 !important }
+.bg-color-darkOrange { background-color: #bf5a15 !important }
+.bg-color-darkRed { background-color: #9a1616 !important }
+.bg-color-darkPink { background-color: #9a165a !important }
+.bg-color-darkViolet { background-color: #57169a !important }
+.bg-color-darkBlue { background-color: #16499a !important }
+.bg-color-lightBlue { background-color: #4390df !important }
+.bg-color-lightRed { background-color: #ff2d19 !important }
+.bg-color-lightGreen { background-color: #7ad61d !important }
+.bg-color-lighterBlue { background-color: #00ccff !important }
+.bg-color-lightTeal { background-color: #45fffd !important }
+.bg-color-lightOlive { background-color: #78aa1c !important }
+.bg-color-lightOrange { background-color: #c29008 !important }
+.bg-color-lightPink { background-color: #f472d0 !important }
+.bg-color-grayDark { background-color: #333333 !important }
+.bg-color-grayDarker { background-color: #222222 !important }
+.bg-color-grayLight { background-color: #999999 !important }
+.bg-color-grayLighter { background-color: #eeeeee !important }
+.bg-color-blue { background-color: #00aff0 !important }
+.fg-color-black { color: #000000 !important }
+.fg-color-white { color: #ffffff !important }
+.fg-color-lime { color: #a4c400 !important }
+.fg-color-green { color: #60a917 !important }
+.fg-color-emerald { color: #008a00 !important }
+.fg-color-teal { color: #00aba9 !important }
+.fg-color-cyan { color: #1ba1e2 !important }
+.fg-color-cobalt { color: #0050ef !important }
+.fg-color-indigo { color: #6a00ff !important }
+.fg-color-violet { color: #aa00ff !important }
+.fg-color-pink { color: #dc4fad !important }
+.fg-color-magenta { color: #d80073 !important }
+.fg-color-crimson { color: #a20025 !important }
+.fg-color-red { color: #e51400 !important }
+.fg-color-orange { color: #fa6800 !important }
+.fg-color-amber { color: #f0a30a !important }
+.fg-color-yellow { color: #e3c800 !important }
+.fg-color-brown { color: #825a2c !important }
+.fg-color-olive { color: #6d8764 !important }
+.fg-color-steel { color: #647687 !important }
+.fg-color-mauve { color: #76608a !important }
+.fg-color-taupe { color: #87794e !important }
+.fg-color-gray { color: #555555 !important }
+.fg-color-dark { color: #333333 !important }
+.fg-color-darker { color: #222222 !important }
+.fg-color-transparent { color: transparent !important }
+.fg-color-darkBrown { color: #63362f !important }
+.fg-color-darkCrimson { color: #640024 !important }
+.fg-color-darkMagenta { color: #81003c !important }
+.fg-color-darkIndigo { color: #4b0096 !important }
+.fg-color-darkCyan { color: #1b6eae !important }
+.fg-color-darkCobalt { color: #00356a !important }
+.fg-color-darkTeal { color: #004050 !important }
+.fg-color-darkEmerald { color: #003e00 !important }
+.fg-color-darkGreen { color: #128023 !important }
+.fg-color-darkOrange { color: #bf5a15 !important }
+.fg-color-darkRed { color: #9a1616 !important }
+.fg-color-darkPink { color: #9a165a !important }
+.fg-color-darkViolet { color: #57169a !important }
+.fg-color-darkBlue { color: #16499a !important }
+.fg-color-lightBlue { color: #4390df !important }
+.fg-color-lighterBlue { color: #00ccff !important }
+.fg-color-lightTeal { color: #45fffd !important }
+.fg-color-lightOlive { color: #78aa1c !important }
+.fg-color-lightOrange { color: #c29008 !important }
+.fg-color-lightPink { color: #f472d0 !important }
+.fg-color-lightRed { color: #ff2d19 !important }
+.fg-color-lightGreen { color: #7ad61d !important }
+.fg-color-grayDark { color: #333333 !important }
+.fg-color-grayDarker { color: #222222 !important }
+.fg-color-grayLight { color: #999999 !important }
+.fg-color-grayLighter { color: #eeeeee !important }
+.fg-color-blue { color: #00aff0 !important }
+#dialogOverlay {
+	width: 100%;
+	height: 100%;
+	position: fixed;
+	top: 0;
+	left: 0;
+	background-color: rgba(255, 255, 255, 0.7);
+	z-index: 1002;
+}
+#dialogBox {
+	font-family: 'Segoe UI', 'Open Sans', sans-serif;
+	position: fixed;
+	top: 40%;
+	left: 40%;
+	min-width: 150px;
+	z-index: 1002;
+	background-color: rgba(255,255,255,.9);
+	box-shadow: 0 0 20px rgba(0,0,0,.5);
+	max-width: 75%;
+	overflow: hidden;
+}
+#dialogHeader {
+	font-weight: 200;
+	line-height: 26pt;
+	width: auto;
+	padding: 0 5px;
+	font-size: 18px;
+	white-space: nowrap;
+	overflow: hidden;
+	background-color: #2D89EF;
+	color: #fff;
+	background-image: linear-gradient(to bottom, rgba(0,0,0,0) 0%,rgba(0,0,0,.4) 100%);
+}
+#dialogHeader div {
+	position: absolute;
+	right: -5px;
+	top: 5px;
+}
+#dialogContent {
+	padding: 15px;
+	border-left: 1px solid rgba(0, 0, 0, 0.2);
+	border-right: 1px solid rgba(0, 0, 0, 0.2);
+	font-size: 11pt;
+	line-height: 14pt;
+	font-weight: 400;
+}
+#dialogContent p {
+	margin: 0 0 5px;
+}
+#dialogContent > *:not(p) + p {
+	margin-top: 5px;
+}
+#dialogContent > *:last-child {
+	margin-bottom: 0;
+}
+#dialogButtons {
+	position: relative;
+	bottom: 0;
+	width: auto;
+	padding: 0 10px 10px;
+	font-size: 18px;
+	text-align: center;
+	white-space: nowrap;
+	overflow: hidden;
+	border-left: 1px solid rgba(0, 0, 0, 0.2);
+	border-right: 1px solid rgba(0, 0, 0, 0.2);
+	border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+}
+#dialogButtons button,
+#dialogButtons input {
+	font-weight: normal;
+	font-size: 14px;
+	line-height: 20px;
+	min-width: 90px;
+	min-height: 32px;
+	height: 32px;
+	background-color: #ccc;
+	color: #353535;
+	margin: 0 10px 0 0 !important;
+	display: inline-block;
+	text-align: center;
+	vertical-align: middle;
+	cursor: pointer;
+	padding: 4px 10px;
+	position: relative;
+	outline: none;
+	opacity: .85;
+	border: 3px solid transparent;
+	box-sizing: border-box;
+
+	transition: border-color .2s ease-out, opacity .2s ease-out;
+}
+#dialogButtons button:last-child,
+#dialogButtons input:last-child {
+	margin-right: 0 !important;
+}
+#dialogButtons button:active,
+#dialogButtons input:active {
+	top: 1px;
+	left: 1px;
+}
+#dialogButtons button[disabled],
+#dialogButtons input[disabled] {
+	cursor: not-allowed;
+}
+#dialogButtons button:focus,
+#dialogButtons input:focus {
+	opacity: 1;
+	border-color: rgba(0,0,0,.2);
+}
+#dialogContent input[type=text][required]:not(:focus):valid,
+#dialogContent input[type=email][required]:not(:focus):valid,
+#dialogContent input[type=url][required]:not(:focus):valid,
+#dialogContent input[type=phone][required]:not(:focus):valid,
+#dialogContent input[type=password][required]:not(:focus):valid,
+#dialogContent input[type=number][required]:not(:focus):valid,
+#dialogContent input[type=time][required]:not(:focus):valid,
+#dialogContent textarea[required]:not(:focus):valid,
+#dialogContent input[type=text][pattern]:not(:focus):valid,
+#dialogContent input[type=email][pattern]:not(:focus):valid,
+#dialogContent input[type=url][pattern]:not(:focus):valid,
+#dialogContent input[type=phone][pattern]:not(:focus):valid,
+#dialogContent input[type=password][pattern]:not(:focus):valid,
+#dialogContent input[type=number][pattern]:not(:focus):valid,
+#dialogContent input[type=time][pattern]:not(:focus):valid,
+#dialogContent textarea[pattern]:not(:focus):valid {
+	border-color: #00CE00;
+	color: #070;
+}
+#dialogContent input[type=text][required]:not(:focus):invalid,
+#dialogContent input[type=email][required]:not(:focus):invalid,
+#dialogContent input[type=url][required]:not(:focus):invalid,
+#dialogContent input[type=phone][required]:not(:focus):invalid,
+#dialogContent input[type=password][required]:not(:focus):invalid,
+#dialogContent input[type=number][required]:not(:focus):invalid,
+#dialogContent input[type=time][required]:not(:focus):invalid,
+#dialogContent textarea[required]:not(:focus):invalid,
+#dialogContent input[type=text][pattern]:not(:focus):invalid,
+#dialogContent input[type=email][pattern]:not(:focus):invalid,
+#dialogContent input[type=url][pattern]:not(:focus):invalid,
+#dialogContent input[type=phone][pattern]:not(:focus):invalid,
+#dialogContent input[type=password][pattern]:not(:focus):invalid,
+#dialogContent input[type=number][pattern]:not(:focus):invalid,
+#dialogContent input[type=time][pattern]:not(:focus):invalid,
+#dialogContent textarea[pattern]:not(:focus):invalid {
+	border-color: #CE0000;
+	color: #700;
+}
+#dialogContent input[type=text],
+#dialogContent input[type=email],
+#dialogContent input[type=url],
+#dialogContent input[type=phone],
+#dialogContent input[type=password],
+#dialogContent input[type=number],
+#dialogContent input[type=time],
+#dialogContent select,
+#dialogContent textarea {
+	color: #313131;
+	border: 1px solid #CECECE;
+	background-color: #EFEFEF;
+}
+#dialogContent input[type=checkbox]:focus {
+	border-color: #888;
+}
+#dialogContent > div > form[id] > * {
+	display: block;
+	margin: 0 auto 10px;
+	font-family: inherit;
+	width: 100%;
+	box-sizing: border-box;
+}
+#dialogContent > div > form[id] > *:last-child {
+	margin-bottom: 0;
+}
+#dialogContent > div > form[id] label {
+	text-align: center;
+	cursor: pointer;
+}
+#dialogContent > div > form[id] label > * {
+	vertical-align: text-bottom;
+}
+#dialogContent input[type=checkbox] {
+	border: 1px solid #CECECE;
+	background-color: #EFEFEF;
+}
+#dialogContent input[type=checkbox]:hover {
+	background-color: #ddd;
+}
+#dialogContent input[type=checkbox]:before {
+	color: #171D2D;
+}
+input[type=text],
+input[type=email],
+input[type=url],
+input[type=phone],
+input[type=password],
+input[type=number],
+input[type=time],
+select,
+textarea {
+	border: 1px solid #A6B5D6;
+	background-color: #E6EAF1;
+	color: #171D2D;
+	padding: 4px;
+	outline: 0;
+	min-height: 18px;
+	position: relative;
+	line-height: 16px;
+	font-size: 14px;
+	transition: border-color .2s linear;
+	border-radius: 5px;
+}
+input[type=text][disabled],
+input[type=email][disabled],
+input[type=url][disabled],
+input[type=phone][disabled],
+input[type=password][disabled],
+input[type=number][disabled],
+input[type=time][disabled],
+select[disabled],
+textarea[disabled] {
+	position: relative;
+	background-color: #151515;
+}
+input[type=text]:focus,
+input[type=email]:focus,
+input[type=url]:focus,
+input[type=phone]:focus,
+input[type=password]:focus,
+input[type=number]:focus,
+input[type=time]:focus,
+select:focus,
+textarea:focus,
+input[type=checkbox]:focus {
+	border-color: #326DEC;
+	box-shadow: inset 2px 2px 1px rgba(50,109,236,.2);
+}
+input[type=text][required]:not(:focus):valid:hover,
+input[type=email][required]:not(:focus):valid:hover,
+input[type=url][required]:not(:focus):valid:hover,
+input[type=phone][required]:not(:focus):valid:hover,
+input[type=password][required]:not(:focus):valid:hover,
+input[type=number][required]:not(:focus):valid:hover,
+input[type=time][required]:not(:focus):valid:hover,
+textarea[required]:not(:focus):valid:hover,
+input[type=text][pattern]:not(:focus):valid:hover,
+input[type=email][pattern]:not(:focus):valid:hover,
+input[type=url][pattern]:not(:focus):valid:hover,
+input[type=phone][pattern]:not(:focus):valid:hover,
+input[type=password][pattern]:not(:focus):valid:hover,
+input[type=number][pattern]:not(:focus):valid:hover,
+input[type=time][pattern]:not(:focus):valid:hover,
+textarea[pattern]:not(:focus):valid:hover {
+	border-color: #0d0;
+	color: #0a0;
+}
+input[type=text][required]:not(:focus):invalid:hover,
+input[type=email][required]:not(:focus):invalid:hover,
+input[type=url][required]:not(:focus):invalid:hover,
+input[type=phone][required]:not(:focus):invalid:hover,
+input[type=password][required]:not(:focus):invalid:hover,
+input[type=number][required]:not(:focus):invalid:hover,
+input[type=time][required]:not(:focus):invalid:hover,
+textarea[required]:not(:focus):invalid:hover,
+input[type=text][pattern]:not(:focus):invalid:hover,
+input[type=email][pattern]:not(:focus):invalid:hover,
+input[type=url][pattern]:not(:focus):invalid:hover,
+input[type=phone][pattern]:not(:focus):invalid:hover,
+input[type=password][pattern]:not(:focus):invalid:hover,
+input[type=number][pattern]:not(:focus):invalid:hover,
+input[type=time][pattern]:not(:focus):invalid:hover,
+textarea[pattern]:not(:focus):invalid:hover {
+	border-color: #d00;
+	color: #a00;
+}
+input[type=text][required]:focus:invalid,
+input[type=email][required]:focus:invalid,
+input[type=url][required]:focus:invalid,
+input[type=phone][required]:focus:invalid,
+input[type=password][required]:focus:invalid,
+input[type=number][required]:focus:invalid,
+input[type=time][required]:focus:invalid,
+textarea[required]:focus:invalid,
+input[type=text][pattern]:focus:invalid,
+input[type=email][pattern]:focus:invalid,
+input[type=url][pattern]:focus:invalid,
+input[type=phone][pattern]:focus:invalid,
+input[type=password][pattern]:focus:invalid,
+input[type=number][pattern]:focus:invalid,
+input[type=time][pattern]:focus:invalid,
+textarea[pattern]:focus:invalid {
+	border-color: #f00;
+	color: #a00;
+}
+input[type=text][required]:focus:valid,
+input[type=email][required]:focus:valid,
+input[type=url][required]:focus:valid,
+input[type=phone][required]:focus:valid,
+input[type=password][required]:focus:valid,
+input[type=number][required]:focus:valid,
+input[type=time][required]:focus:valid,
+input[type=text][pattern]:focus:valid,
+input[type=email][pattern]:focus:valid,
+input[type=url][pattern]:focus:valid,
+input[type=phone][pattern]:focus:valid,
+input[type=password][pattern]:focus:valid,
+input[type=number][pattern]:focus:valid,
+input[type=time][pattern]:focus:valid {
+	border-color: #0f0;
+	color: #0a0;
+}
+form:hover textarea[required]:focus:valid,
+form:hover textarea[pattern]:focus:valid {
+	border-color: #0f0;
+}
+select {
+	padding-right: 5px;
+}
+textarea {
+	padding-right: 5px;
+	min-height: 100px;
+}
+*:not(#dialogButtons) > input[type="button"]:not(.btn),
+*:not(#dialogButtons) > input[type="submit"]:not(.btn),
+a.button,
+*:not(#dialogButtons) > button:not(.btn) {
+	padding: 5px;
+	margin: 0 5px;
+	border-radius: 5px;
+	font-size: 14px;
+	cursor: pointer;
+	border: 1px dotted transparent;
+	transition-property: transform, border-color;
+	transition-duration: .1s, .2s;
+	transition-timing-function: ease-out;
+}
+*:not(#dialogButtons) > input[type="button"]:not(.btn):active,
+*:not(#dialogButtons) > input[type="submit"]:not(.btn):active,
+a.button:active,
+*:not(#dialogButtons) > button:not(.btn):active {
+	transform: scale(.95);
+}
+*:not(#dialogButtons) > input[type="button"]:not(.btn):focus,
+*:not(#dialogButtons) > input[type="submit"]:not(.btn):focus,
+a.button:focus,
+*:not(#dialogButtons) > button:not(.btn):focus {
+	border-color: #1F4494;
+}
+[disabled] {
+	cursor: not-allowed;
+	opacity: .5;
+}
+input[type=button]:focus,
+input[type=reset]:focus,
+input[type=submit]:focus,
+button:focus {
+	outline: 0;
+}
+input[type=checkbox] {
+	-webkit-appearance: none;
+	display: inline-block;
+	border: 1px solid #A6B5D6;
+	background-color: #E6EAF1;
+	width: 16px;
+	height: 16px;
+	border-radius: 3px;
+	position: relative;
+	margin: 0 3px 0 0;
+	vertical-align: middle;
+	top: -2px;
+	transition: border-color .2s, background-color .2s;
+}
+input[type=checkbox]:before {
+	position: absolute;
+	top: 2px;
+	left: 2px;
+	content: "\2713";
+	font-size: 14px;
+	line-height: 10px;
+	opacity: 0;
+	color: #1F4494;
+	transition: opacity .3s linear;
+}
+input[type=checkbox]:hover:before {
+	opacity: .3;
+}
+input[type=checkbox]:checked:before {
+	opacity: 1;
+}
