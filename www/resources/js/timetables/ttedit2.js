@@ -205,7 +205,7 @@ $(function(){
 
 		if (container.delete.length != 0)
 			$.Dialog.confirm(title,
-				'Arra készülsz, hogy mented az órarend változtatásait. Ha töröltél valamilyen tantárgyat az órarendből, a hozzá tartozó házi feladatok is törlődnek. Folytatod az órarend mentésével?',
+				'Arra készülsz, hogy mented az órarend változtatásait, köztük számos bejegyzés törlését. Ezzel a törölt bejegyzésekhez tartozó adatok is elvesznek. Biztos vagy benne, hogy végrehajtod a változtatásokat?',
 				['Változtatások mentése','Visszalépés'],
 
 				function(sure){

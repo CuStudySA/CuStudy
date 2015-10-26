@@ -1,0 +1,67 @@
+@import "vars";
+
+#h1cim {
+	margin-bottom: 20px;
+	margin-left: 4px;
+}
+
+.groups {
+	display: block;
+	list-style: none;
+	padding: 0;
+	margin: 5px 0 0;
+	font-size: 0;
+
+	li {
+		display: inline-block;
+		padding: 7px;
+		margin: 5px;
+		border-radius: 5px;
+		color: #fff;
+		overflow: hidden;
+		background-color: $Grey;
+		/* background-color: #AEC1EB; */
+
+		> div { font-size: 18px }
+		> .top {
+			margin-bottom: 5px;
+
+			> span {
+				display: block;
+				margin-left: 3px;
+			}
+			> .rovid {
+				font-size: 1.3em;
+			}
+			> .nev {
+				font-style: italic;
+			}
+		}
+		> .bottom a {
+			color: #fff !important;
+			font-size: 24px;
+			opacity: .8;
+			transition: opacity .1s linear !important;
+
+			&:hover { opacity: 1 }
+		}
+	}
+}
+.grouptitle {
+	  margin-bottom: 0;
+	  text-shadow: 1px 1px;
+	  margin-left: 4px;
+}
+.selectp { margin-bottom: 5px }
+.selectdiv { display: inline-block }
+.ptag { margin-bottom: 0 }
+.memberlist { margin-top: 7px }
+.memberparagh { font-weight: bolder }
+
+/* Színezés */
+.colorli li {
+	@extend %color-palette;
+	&:last-child { background-color: $Grey }
+}
+
+.grps li  { background-color: rgba(0,0,0,.30) }

@@ -1,0 +1,54 @@
+@import "vars";
+@import "spectrum";
+
+#h1cim {
+	margin-bottom: 20px;
+	margin-left: 4px;
+}
+.lessons {
+	display: block;
+	list-style: none;
+	padding: 0px;
+	margin: 10px 0px 0px;
+	font-size: 0px;
+
+	> .new { background-color: $Grey }
+	li {
+		display: inline-block;
+		padding: 7px;
+		margin: 5px;
+		border-radius: 5px;
+		color: #fff;
+		overflow: hidden;
+		/* background-color: #AEC1EB; */
+
+		> div {
+			font-size: 18px;
+			text-shadow: 0 0 5px rgba(0,0,0,.5);
+		}
+		> .top {
+			margin-bottom: 5px;
+
+			> span {
+				display: block;
+				margin-left: 3px;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+				overflow: hidden;
+			}
+			> .tantargy { font-size: 1.3em }
+			> .tanar { font-style: italic }
+		}
+		> .bottom a {
+			color: #fff !important;
+			font-size: 24px;
+			opacity: .8;
+			transition: opacity .1s linear !important;
+
+			&:hover { opacity: 1 }
+		}
+	}
+}
+.sp-container.sp-light.sp-input-disabled.sp-palette-buttons-disabled.sp-palette-disabled.sp-initial-disabled {
+	height: 200px;
+}

@@ -1,0 +1,16 @@
+h2 {
+	&:first-of-type { margin-top: 4px }
+	&:first-of-type, &:not(:first-of-type) {
+		margin-bottom: 0;
+	}
+}
+.connected p {
+	&:first-of-type {
+		margin-bottom: 6px;
+		margin-top: 7px;
+	}
+	&:last-of-type {
+		margin-bottom: 10px;
+		margin-top: 1px;
+	}
+}

@@ -910,7 +910,7 @@
 						5 => 'a csoporthoz hozzáadandó felhasználók valamelyike nem található',
 					),
 					'messages' => array(
-						0 => 'A csoport hozzáadása sikeres volt!',
+						0 => 'A csoport hozzáadása sikeresen megtörtént! Átirányítjuk...',
 						1 => 'A csoport hozzáadása sikertelen volt, mert @msg! (Hibakód: @code)',
 					),
 				),
@@ -922,7 +922,7 @@
 						4 => 'valamelyik megadott adat formátuma hibás',
 					),
 					'messages' => array(
-						0 => 'A csoport szerkesztése sikeres volt!',
+						0 => 'A csoport szerkesztése sikeresen megtörtént! Átirányítjuk...',
 						1 => 'A csoport szerkesztése sikertelen volt, mert @msg! (Hibakód: @code)',
 					),
 				),
@@ -948,6 +948,25 @@
 					'messages' => array(
 						0 => 'A csoportkategória szerkesztése sikeres volt!',
 						1 => 'A csoportkategória szerkesztése sikertelen volt, mert @msg! (Hibakód: @code)',
+					),
+				),
+				'add' => array(
+					'errors' => array(
+						1 => 'nincs jogosultsága a művelethez',
+						2 => 'valamelyik megadott adat formátuma hibás',
+					),
+					'messages' => array(
+						0 => 'A csoportkategória hozzáadása sikeres volt!',
+						1 => 'A csoportkategória hozzáadása sikertelen volt, mert @msg! (Hibakód: @code)',
+					),
+				),
+				'delete' => array(
+					'errors' => array(
+						1 => 'nincs jogosultsága a művelethez',
+					),
+					'messages' => array(
+						0 => 'A csoportkategória törlése sikeres volt!',
+						1 => 'A csoportkategória törlése sikertelen volt, mert @msg! (Hibakód: @code)',
 					),
 				),
 			),
@@ -2263,6 +2282,11 @@ STRING;
 				$db->rawQuery($query,array($id));
 			}
 
+			# Függőségek feloldása (timetable)
+			$data = $db->where('classid',$user['classid'])->where('groupid',$id)->get('timetable');
+			foreach ($data as $array)
+				Timetable::DeleteEntrys(array(array('id' => $array['id'])));
+
 			$action = $db->where('id',$id)->delete('groups');
 
 			return $action ? 0 : 4;
@@ -2270,15 +2294,16 @@ STRING;
 	}
 
 	class GroupThemeTools {
-		static function Edit($id,$data){
-			global $db;
+		static function Add($data){
+			global $db,$user;
 
 			# Jog. ellenörzése
-			If (System::ClassPermCheck($id,'group_themes')) return 1;
+			If (System::PermCheck('admin')) return 1;
 
 			# Szüks. értékek ellenörzése
 			$data = System::TrashForeignValues(['name'],$data,true);
 			if (!System::ValuesExists($data,['name'])) return 2;
+
 			foreach ($data as $key => $value){
 				switch ($key){
 					case 'name':
@@ -2288,10 +2313,57 @@ STRING;
 				if (System::InputCheck($value,$type)) return 2;
 			}
 
-			$action = $db->where('id',$id)->update('group_themes',$data);
+			$data['classid'] = $user['classid'];
+
+			$action = $db->insert('group_themes',$data);
+
+			if ($action === false) return 3;
+			else return [$action];
+		}
+
+		static function Edit($data){
+			global $db;
+
+			# Jog. ellenörzése
+			If (System::ClassPermCheck($data['id'],'group_themes')) return 1;
+
+			# Szüks. értékek ellenörzése
+			$data = System::TrashForeignValues(['name','id'],$data,true);
+			if (!System::ValuesExists($data,['name'])) return 2;
+			foreach ($data as $key => $value){
+				switch ($key){
+					case 'name':
+						$type = 'text';
+					break;
+					case 'id':
+						continue 2;
+				}
+				if (System::InputCheck($value,$type)) return 2;
+			}
+
+			$action = $db->where('id',$data['id'])->update('group_themes',$data);
 
 			if ($action) return 0;
 			else return 3;
+		}
+
+		static function Delete($id){
+			global $db,$user;
+
+			# Jog. ellenörzése
+			if (System::ClassPermCheck($id,'group_themes')) return 1;
+
+			# Csoportok törlése
+			$groups = $db->where('classid',$user['classid'])->where('theme',$id)->get('groups');
+
+			foreach ($groups as $group)
+				GroupTools::Delete($group['id']);
+
+			# Kategória törlése
+			$action = $db->where('id',$id)->delete('group_themes');
+
+			if ($action) return 0;
+			else return 2;
 		}
 	}
 
@@ -2492,13 +2564,18 @@ STRING;
 		}
 
 		static function Delete($id){
-			global $db;
+			global $db,$user;
 
 			# Form. ellenörzése
 			if (System::InputCheck($id,'numeric')) return 2;
 
 			# Jog. ellenörzése
 			if (System::ClassPermCheck($id,'homeworks')) return 1;
+
+			# Függőségek feloldása (hw_markdone)
+			$data = $db->where('classid',$user['classid'])->where('homework',$id)->get('hw_markdone');
+			foreach ($data as $array)
+				self::UndoMarkedDone($array['id']);
 
 			$action = $db->where('id',$id)->delete('homeworks');
 
@@ -2613,7 +2690,7 @@ STRING;
 
 			# Ellenőrzés
 			$check = self::CheckMarkedDone($id);
-			if ($check) return $check;
+			if ($check != 0) return 2;
 
 			# Adatbázisba írás
 			$action = $db->insert('hw_markdone',array(
@@ -2630,7 +2707,7 @@ STRING;
 
 			# Ellenőrzés
 			$check = self::CheckMarkedDone($id, self::CAN_EXIST);
-			if ($check) return $check;
+			if ($check != 0) return 2;
 
 			# Adatbázisba írás
 			$action = $db->where('homework',$id)->where('userid',$user['id'])->delete('hw_markdone');
@@ -2754,19 +2831,24 @@ STRING;
 
 			$data = $db->rawQuery('SELECT *
 									FROM `events`
-									WHERE `classid` = ? && `start` > ?',
+									WHERE `classid` = ?',
 
-									array($user['classid'],date('c',strtotime($start))));
+									array($user['classid']));
 
 			$output = [];
-			foreach ($data as $event)
+			foreach ($data as $event){
+				if (!(strtotime('12 am',strtotime($start)) < strtotime('12 am',strtotime($event['end']))
+					&& strtotime('12 am',strtotime($event['start'])) < strtotime('12 am',strtotime($end))))
+						continue;
+				
 				$output[] = array(
 					'id' => $event['id'],
 					'title' => $event['title'],
 					'start' => $event['start'],
 					'end' => $event['end'],
-					'allDay' => (bool) $event['isallday'],
+					'allDay' => (bool)$event['isallday'],
 				);
+			}
 
 			return $output;
 		}
@@ -3053,7 +3135,7 @@ STRING;
 		}
 
 		static function DeleteEntrys($toDelete){
-			global $db;
+			global $db,$user;
 
 			foreach ($toDelete as $sub){
 				if (!isset($sub['id'])) return 5;
@@ -3063,7 +3145,9 @@ STRING;
 				$action = $db->where('id',$id)->delete('timetable',$id);
 
 				# Órarend-entryhez tartozó HW-k törlése
-				$db->where('lesson',$id)->delete('homeworks');
+				$data = $db->where('classid',$user['classid'])->where('lesson',$id)->get('homeworks');
+				foreach ($data as $array)
+					HomeworkTools::Delete($array['id']);
 
 				if (!$action) return 7;
 			}
@@ -3373,8 +3457,10 @@ STRING;
 			foreach ($data as $class){
 				$lesson = $class['lesson']-1;
 				$weekday = $class['day']-1;
-				if (isset($class['name']))
+				if (isset($class['name'])){
+					if (!isset($grp_list[$class['groupid']])) continue;
 					$Timetable[$lesson][$weekday][] = array($class['name'],$class['teacher'],$class['color'],$class['id'],$grp_list[$class['groupid']]);
+				}
 			}
 
 			return $Timetable;

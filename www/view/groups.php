@@ -14,10 +14,10 @@
 									FROM `groups`
 									WHERE `classid` = ?",array($user['classid']));
 
-			print "<h1 id=h1cim>Csoportok kezelése</h1>";
+			print "<h1 id=h1cim>Csoportok kezelése</h1><div id='groupContainer'>";
 
 			foreach ($themes as $thm){
-				print "<h2 class='grouptitle'>{$thm['name']} csoportok</h2><ul class='groups colorli'>";
+				print "<div data-thm='{$thm['id']}'><h2 class='grouptitle' data-thm='{$thm['id']}'>{$thm['name']} csoportok</h2><ul class='groups colorli'>";
 				foreach($groups as $grp){
 					if ($grp['theme'] != $thm['id']) continue; ?>
 
@@ -28,32 +28,32 @@
 						</div>
 						<div class="bottom">
 							<a class="typcn typcn-pencil" href="/groups/edit/<?=$grp['id']?>" title="Módosítás"></a>
-							<a class="typcn typcn-minus delgroup" href="#<?=$grp['id']?>" title="Törlés"></a>
-							<a class="typcn typcn-group" href="/groups/members/<?=$grp['id']?>" title="Tagok listájának megtekintése"></a>
+							<a class="typcn typcn-trash js_grp_del" href="#<?=$grp['id']?>" title="Törlés"></a>
+							<a class="typcn typcn-group js_grp_members" href="#<?=$grp['id']?>" title="Tagok listájának megtekintése"></a>
 						</div>
 					</li>
 <?php			} ?>
 				<li>
 					<div class="top">
 						<span class='rovid'>Új csop.</span>
-						<span class='nev'>Új csoport hozzáadása</span>
+						<span class='nev newTile'>Új csoport hozzáadása</span>
 					</div>
 					<div class="bottom">
 						<a class="typcn typcn-plus" href="/groups/add/<?=$thm['id']?>" title="Hozzáadás"></a>
 					</div>
-				</li></ul>
+				</li></ul></div>
 <?php		}
 
-			print "<h2 class='grouptitle'>Csoport kategóriák</h2><ul class='groups grps'>";
+			print "</div><h2 class='grouptitle'>Csoport kategóriák</h2><ul class='groups grps'>";
 			foreach ($themes as $theme){ ?>
-				<li>
+				<li data-id='<?=$theme['id']?>'>
 					<div class="top">
 						<span class='rovid'><?=$theme['name']?> kat.</span>
 						<span class='nev'></span>
 					</div>
 					<div class="bottom">
-						<a class="typcn typcn-pencil" href="/groups/theme/edit/<?=$theme['id']?>" title="Módosítás"></a>
-						<a class="typcn typcn-minus deltheme" href="#<?=$theme['id']?>" title="Törlés"></a>
+						<a class="typcn typcn-pencil js_thm_edit" href="#<?=$theme['id']?>" title="Módosítás"></a>
+						<a class="typcn typcn-trash js_thm_del" href="#<?=$theme['id']?>" title="Törlés"></a>
 					</div>
 				</li>
 <?php		} ?>
@@ -63,7 +63,7 @@
 						<span class='nev'></span>
 					</div>
 					<div class="bottom">
-						<a class="typcn typcn-plus" href="/groups/theme/add" title="Hozzáadás"></a>
+						<a class="typcn typcn-plus js_thm_add" href="#" title="Hozzáadás"></a>
 					</div>
 				</li>
 			</ul>
@@ -182,54 +182,4 @@
 
 			<p><button id='sendform' class='btn'>Módosítások mentése</button> vagy <a href='/groups'>visszalépés</a></p>
 <?php	break;
-
-		case 'members':
-			$id = $ENV['URL'][1];
-			if (System::InputCheck($id,'numeric')) die(header('Location: /groups'));
-			if (System::ClassPermCheck($id,'groups')) die(header('Location: /groups'));
-
-			$group = $db->rawQuery('SELECT *
-									FROM `groups`
-									WHERE `classid` = ? AND `id` = ?',array($user['classid'],$id))[0];
-			if (empty($group)) die(header('Location: /groups'));
-
-			print "<h1>A(z) {$group['name']} ({$ENV['class']['classid']}) csoport tagjainak megjelenítése</h1><p class='ptag memberparagh'>Csoport tagjai:</p><ul class='memberlist'>";
-
-			$members = $db->rawQuery('SELECT users.realname as `name`
-									FROM `group_members`
-									LEFT JOIN `users`
-									ON group_members.userid = users.id
-									WHERE group_members.classid = ? && group_members.groupid = ?',array($user['classid'],$ENV['URL'][1]));
-
-			foreach ($members as $member)
-				print "<li>{$member['name']}</li>";
-
-			if (empty($members))
-				print "<li>(nincs tagja a csoportnak)</li>";
-
-			print "</ul><p><a class='btn' href='/groups'>Visszalépés</a></p>";
-		break;
-
-		case 'theme': # TODO hozzáadó űrlap elkészítése
-			switch($ENV['URL'][1]){
-				case 'edit':
-					$id = $ENV['URL'][2];
-					if (System::InputCheck($id,'numeric')) die(header('Location: /groups'));
-
-					$data = $db->rawQuery('SELECT *
-											FROM `group_themes`
-											WHERE `classid` = ? && `id` = ?',array($user['classid'],$id));
-
-					if(empty($data)) die(header('Location: /groups'));
-					else $data = $data[0]; ?>
-
-					<h1>A(z) <?=$data['name']?> csoportkategória módosítása</h1>
-					<form id='dataform'>
-						<p class='ptag'>Csoport neve: <input type='text' name='name' value='<?=$data['name']?>'></p>
-
-						<p><button id='sendform' class='btn'>Módosítások mentése</button> vagy <a href='/groups'>visszalépés</a></p>
-					</form>
-<?php			break;
-			}
-		break;
 	}

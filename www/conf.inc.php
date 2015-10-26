@@ -19,8 +19,8 @@
 	$ENV['SOFTWARE'] = array(
 		'NAME' => 'CuStudy',
 		'CODENAME' => 'BlueSky',
-		'VER' => '1.0 RC2',
-		'DEVELOPER' => 'BetonSoft',
+		'VER' => '1.0',
+		'DEVELOPER' => 'CuStudy Software Alliance',
 		'DEV_STARTED' => '2014',
 		'COMMIT' => LATEST_COMMIT_ID,
 	);
@@ -29,7 +29,7 @@
 		'NAME' => 'DogM Engine',
 		'CODENAME' => 'Cornsilk',
 		'VER' => '1.0',
-		'DEVELOPER' => 'Bálint Mészáros (BetonSoft)',
+		'DEVELOPER' => 'Bálint Mészáros (member of PageLoop)',
 		'DEV_STARTED' => '2014',
 		'COMMIT' => 'unknown',
 	);
@@ -59,8 +59,8 @@
 	);
 
 	# Menüpontok beállítása, JS és CSS fájlok tömbjeinek kezdeti értékadása
-	$css = ['grid.css','header.css','theme.css','typicons.css','metro.css'];
-	$js = ['metro-dialog.js','functions.jquery.js'];
+	$css = ['theme.css','dialog_old.css'];
+	$js = ['jquery.functions.js','dialog_old.js'];
 
 	$pages = array(
 		'fooldal' => array(
@@ -119,7 +119,7 @@
 
 		'lessons' => array(
 			'title' => 		'Tantárgyak',
-			'css' => 		['lessons.css','spectrum.css'],
+			'css' => 		['lessons.css'],
 			'js' => 		['lessons.js','spectrum.js','colorpicker.js'],
 			'customjs' =>   [],
 			'minperm' => 	'user',
@@ -130,7 +130,7 @@
 
 		'timetables' => array(
 			'title' => 		'Órarend',
-			'css' => 		['jquery.powertip.min.css','timet.css','timetables.css'],
+			'css' => 		['timet.css','timetables.css'],
 			'js' => 		['jquery.powertip.min.js'],
 			'customjs' =>   ['' => 'timetables/ttedit.js', 'edit' => 'timetables/ttedit2.js','week' => 'timetables/ttedit2.js'],
 			'minperm' => 	'user',
@@ -141,7 +141,7 @@
 
 		'teachers' => array(
 			'title' => 		'Tanárok',
-			'css' => 		['teachers.css','spectrum.css'],
+			'css' => 		['teachers.css'],
 			'js' => 		['teachers.js','spectrum.js'],
 			'customjs' =>   [],
 			'minperm' => 	'user',
@@ -153,8 +153,8 @@
 		'groups' => array(
 			'title' => 		'Csoportok',
 			'css' => 		['groups.css'],
-			'js' => 		['groups/delete.js'],
-			'customjs' =>   ['edit' => 'groups/edit.js','add' => 'groups/add.js', 'theme/edit' => 'groups/edittheme.js'],
+			'js' => 		[],
+			'customjs' =>   ['' => 'groups.js', 'edit' => 'groups/edit.js','add' => 'groups/add.js',],
 			'minperm' => 	'user',
 			'maxperm' => 	'admin',
 			'reqdoc' => 	[],
