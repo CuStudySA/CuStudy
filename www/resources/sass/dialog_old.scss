@@ -456,6 +456,7 @@ a.button:focus,
 [disabled] {
 	cursor: not-allowed;
 	opacity: .5;
+	pointer-events: none;
 }
 input[type=button]:focus,
 input[type=reset]:focus,
