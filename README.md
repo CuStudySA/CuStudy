@@ -1,3 +1,3 @@
 #CuStudy
 
-A BetonSoft csapat Ã¡ltal tanulÃ³k szÃ¡mÃ¡ra fejlesztett webes alkalmazÃ¡s.
+A BetonSoft csapat által tanulók számára fejlesztett webes alkalmazás.
