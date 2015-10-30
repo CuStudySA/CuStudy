@@ -2729,12 +2729,10 @@ STRING;
 						return !$yearPassed ? 'B' : 'A';
 				}
 				else {
-					if ($ENV['class']['pairweek'] === 'A'){
-						if ($weekNum % 2 == 0)
-							return !$yearPassed ? 'B' : 'A';
-						else
-							return !$yearPassed ? 'A' : 'B';
-					}
+					if ($weekNum % 2 == 0)
+						return !$yearPassed ? 'B' : 'A';
+					else
+						return !$yearPassed ? 'A' : 'B';
 				}
 			}
 			else {
