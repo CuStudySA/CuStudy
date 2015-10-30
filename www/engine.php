@@ -1,9 +1,6 @@
 <?php
 	# DogM Engine - Developed by mbalint987 (member of BetonSoft)
 
-	# Konfigurációs fájl betöltése
-	require "conf.inc.php";
-
 	# Karakterkódolás beállítása
 	header('Content-Type: text/html; charset=utf-8;');
 	
@@ -13,16 +10,23 @@
 	
 	$rootdoc = '/';
 	define('ABSPATH',(!empty($_SERVER['HTTPS'])?'https':'http').'://'.$_SERVER['SERVER_NAME']);
-	
+
+	# Konfigurációs fájl betöltése
+	require "conf.inc.php";
+
 	# Külső erőforrás fájlok betöltése
 	require $root.'resources/php/Cookie.php';
 	require $root.'resources/php/MysqliDb.php';
 
+	# Funkciótár és üzenettár betöltése
+	require $root.'resources/php/functions.php';
+	require $root.'resources/php/messages.php';
+
+	# Karbantartási állapot ellenörzése
+	System::LoadMaintenance();
+
 	# Adatbázis kapcsolat felépítése
 	$db = new MysqliDb(DB_HOST,DB_USER,DB_PASS,DB_NAME);
-	
-	# Funkciótár betöltése
-	require $root.'resources/php/functions.php';
 
 	# Scipt futattásának kezdeti idejének lekérése
 	$ENV['EXECTIME'] = array('start' => microtime(true));
@@ -88,6 +92,10 @@
 			$ENV['SERVER']['REQUEST_METHOD'] = 'POST';
 			$skipCSRF = true;
 		}
+
+	# Üzeneteket tartalmazó tömb áthelyezése
+	Message::$Messages = $ENV['Messages'];
+	unset($ENV['Messages']);
 
 	// 'Executive' rész \\
 	if ($ENV['SERVER']['REQUEST_METHOD'] == 'POST'){

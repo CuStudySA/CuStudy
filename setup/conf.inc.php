@@ -2,9 +2,6 @@
 	# Konstansok, paraméterek betöltése
 	require_once 'constants.inc.php';
 
-	# Környezeti változó definiálása
-	$ENV = array();
-
 	# Jogosultásgi szintek meghatározása
 /**
  * A jogosultsági szintek a névvel és a hozzá tartouó szint értékkek (minél nagyobb a jogosultság, annál magasabb az érték).
