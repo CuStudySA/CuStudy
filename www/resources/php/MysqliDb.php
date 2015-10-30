@@ -211,8 +211,9 @@ class MysqliDb
             die ('Mysql host is not set');
 
         $this->_mysqli = new mysqli ($this->host, $this->username, $this->password, $this->db, $this->port);
-        if ($this->_mysqli->connect_error)
+        if ($this->_mysqli->connect_errno){
             throw new Exception ('Connect Error ' . $this->_mysqli->connect_errno . ': ' . $this->_mysqli->connect_error);
+        }
 
         if ($this->charset)
             $this->_mysqli->set_charset ($this->charset);
@@ -1240,7 +1241,7 @@ class MysqliDb
     {
         if ($this->isSubQuery)
             return;
-        if ($this->_mysqli)
+        if ($this->_mysqli && !$this->_mysqli->connect_errno)
             $this->_mysqli->close();
     }
 

@@ -2,9 +2,6 @@
 	# Konstansok, paraméterek betöltése
 	require_once 'constants.inc.php';
 
-	# Környezeti változó definiálása
-	$ENV = array();
-
 	# Jogosultásgi szintek meghatározása
 	$PERM = array(
 		'sysadmin' => 6,
