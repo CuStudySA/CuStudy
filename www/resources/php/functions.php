@@ -2127,7 +2127,7 @@ STRING;
 
 		static $RomanMonths = array(null,'I','II','II','IV','V','VI','VII','VIII','IX','X','XI','XII');
 		static function FormatMonthDay($time){
-			return HomeworkTools::$RomanMonths[date('m', $time)].'.'.date('d', $time);
+			return HomeworkTools::$RomanMonths[(int)date('m', $time)].'.'.date('d', $time);
 		}
 
 		static function Add($data){
