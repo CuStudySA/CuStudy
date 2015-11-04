@@ -64,6 +64,8 @@
 				$action = FileTools::DeleteFile($ENV['POST']['id']);
 			else System::Respond();
 
-			System::Respond(Message::Respond('files.delete',$action),$action == 0 ? 1 : 0);
+			System::Respond(Message::Respond('files.delete',$action),$action == 0 ? 1 : 0, array(
+				'storage' => FileTools::GetSpaceUsage()
+			));
 		break;
 	}

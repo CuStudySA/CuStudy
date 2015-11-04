@@ -1103,18 +1103,37 @@ STRING
 		const CLASS_SPACE = 268435456;
 		const CLASS_MAX_FILESIZE = 36700160;
 
+		static function GetUsedSpace(){
+			global $db, $user;
+
+			return $db->where('classid', $user['classid'])->getOne('files','SUM(size)')['SUM(size)'];
+		}
+
 		static function GetFreeSpace(){
-			global $db, $user, $ENV;
+			return self::CLASS_SPACE - self::GetUsedSpace();
+		}
 
-			$data = $db->rawQuery('SELECT `size`
-									FROM `files`
-									WHERE `classid` = ?',array($user['classid']));
-			$usedSpace = 0;
+		static function GetSpaceUsage($key = null){
+			$Used = (float) self::GetUsedSpace();
+			$Available = self::CLASS_SPACE;
 
-			foreach ($data as $array)
-				$usedSpace += $array['size'];
+			$UsedPercent = 0;
+			if ($Used > 0){
+				$UsedPercent = round(($Used / $Available) * 1000) / 10;
 
-			return self::CLASS_SPACE - $usedSpace;
+				if ($UsedPercent == 0)
+					$UsedPercent = '<0.01';
+			}
+
+			$UsedReadable = FileTools::FormatSize($Used);
+			$AvailableReadable = FileTools::FormatSize($Available);
+
+			$return = array(
+				'Used' => $UsedReadable,
+				'Available' => $AvailableReadable,
+				'Used%' => $UsedPercent,
+			);
+			return !empty($key) ? $return[$key] : $return;
 		}
 
 		static function FormatSize($byte){

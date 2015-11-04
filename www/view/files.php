@@ -3,11 +3,7 @@
 <!-- <h2 class='title'>Nemrégiben hozzáadva</h2> -->
 <ul class='files flex'>
 <?php
-	$data = $db->rawQuery("SELECT *
-							FROM `files`
-							WHERE `classid` = ?
-							ORDER BY `time` DESC
-							LIMIT 10",array($user['classid']));
+	$data = $db->where('classid', $user['classid'])->orderBy('time')->get('files');
 
 	foreach($data as $file){ ?>
 		<li>
@@ -36,6 +32,19 @@
 		</li>
 <?php } ?>
 </ul>
+<?php
+	if (!System::PermCheck('editor')){
+		$Storage = FileTools::GetSpaceUsage(); ?>
+<div id="storage-use">
+<h2>Rendelkezésre álló tárhely</h2>
+<p><?=$Storage['Used']?> (<?=$Storage['Used%']?>%) felhasználva az osztály számára elérhető <?=$Storage['Available']?>-ból.</p>
+<div class="indicator"><?php
+	if (!is_string($Storage['Used%']) && $Storage['Used%'] > 0) {
+		$class = 'used '.($Storage['Used%'] > 75 ? 'high' : 'low');
+		echo "<div class='$class' style='width:{$Storage['Used%']}%'></div>";
+	}
+?></div>
+
 <div class='uploadFileForm' style='display: none;'>
 	<h3>Dokumentumok feltöltése</h3>
 	<div class='fileFormContainer'>
@@ -49,3 +58,4 @@
 	</div>
 	<a href='#' class='js_uploadFiles btn'>Fájl(ok) feltöltése</a>
 </div>
+<?php } ?>
