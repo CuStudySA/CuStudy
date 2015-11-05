@@ -55,6 +55,42 @@
 	text-shadow: 1px 1px;
 }
 
+#storage-use {
+	h2 {
+		margin: 10px 0 5px;
+
+		+ p { margin: 0 0 5px }
+	}
+
+	$IndicatorFillHeight: 24px;
+	$IndicatorFillPadding: 3px;
+	$IndicatorBorder: 1px;
+	.indicator {
+		display: block;
+		max-width: 400px;
+		height: $IndicatorBorder*2 + $IndicatorFillHeight + $IndicatorFillPadding*2;
+		border-radius: 6px;
+		width: 100%;
+		box-sizing: border-box;
+		border: $IndicatorBorder solid #7f7f7f;
+		background: linear-gradient(to top, #fff 0%, #dedede 100%);
+
+		.used {
+			height: $IndicatorFillHeight;
+			margin: $IndicatorFillPadding;
+			border-radius: 4px;
+			overflow: hidden;
+			border: 1px solid rgba(0,0,0,.2);
+			box-sizing: border-box;
+			background-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,.15) 100%);
+			transition: background-color 2s ease-in-out, width 2s ease-in-out;
+
+			&.low  { background-color: $LinkLight }
+			&.high { background-color: adjust_hue($LinkLight, 140) }
+		}
+	}
+}
+
 /* File upload form */
 .uploadFileForm {
 	background-color: rgba(0, 0, 0, 0.05);
