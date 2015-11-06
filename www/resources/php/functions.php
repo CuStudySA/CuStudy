@@ -727,7 +727,9 @@
 		    return json_decode($response, true);
 		}
 
-		static function GetAccessToken($code, $url = 'https://custudy.tk/googleauth'){
+		static function GetAccessToken($code, $url = null){
+			if (empty($url))
+				$url = ABSPATH.'/googleauth';
 			$data = self::Request('https://www.googleapis.com/oauth2/v3/token',null,array(
 				'code' => $code,
 				'client_id' => self::CLIENTID,
@@ -736,9 +738,8 @@
 				'grant_type' => 'authorization_code',
 			));
 
-			if (isset($data['error'])){
+			if (isset($data['error']))
 				die(header("Location: /?errtype=remote"));
-			}
 
 			return $data['access_token'];
 		}
