@@ -142,6 +142,8 @@ $(function(){
 	};
 	$('.js_uploadFiles').on('click',e_upload_files);
 
+	var $UsedSpaceIndicator = $('#storage-use').find('.indicator'),
+		$USIFill = $UsedSpaceIndicator.children('.used');
 	var e_delete = function(e){
 		e.preventDefault();
 
@@ -168,6 +170,23 @@ $(function(){
 						if (data.status){
 							$(e.currentTarget).parent().parent().remove();
 							$.Dialog.close();
+
+							if (typeof data.storage !== 'undefined'){
+								var storage = data.storage,
+									usedperc = data.storage['Used%'];
+								if (!isNaN(usedperc) && usedperc > 0){
+									if ($USIFill.length === 0)
+										$USIFill = $.mk('div').appendTo($UsedSpaceIndicator);
+									$USIFill
+										.css('width', usedperc + '%')
+										.attr('class', 'used '+(usedperc > 75 ? 'high' : 'low'));
+								}
+								else $USIFill.fadeOut(500,function(){
+									$USIFill.remove();
+								});
+
+								$UsedSpaceIndicator.prev().text(storage.Used+' ('+usedperc+'%) felhasználva az osztály számára elérhető '+storage.Available+'-ból.')
+							}
 						}
 
 						else $.Dialog.fail(title,data.message);

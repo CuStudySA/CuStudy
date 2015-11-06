@@ -1,5 +1,5 @@
 <?php
-	# Környezeti változó definiálása
+	# KÃ¶rnyezeti vÃ¡ltozÃ³ definiÃ¡lÃ¡sa
 	$ENV = array();
 
 	// Database connection info
@@ -23,21 +23,21 @@
 	define('MAIL_HOST', '');
 	define('MAIL_PORT', 0);
 
-	# Karbantartási információk beállítása
+	# KarbantartÃ¡si informÃ¡ciÃ³k beÃ¡llÃ­tÃ¡sa
 /**
- * Ennek a tömbnek az értékeivel szabályozható a karbantartási állapot mûködése, és a karbantartás ideje és állapota.
+ * Ennek a tÃ¶mbnek az Ã©rtÃ©keivel szabÃ¡lyozhatÃ³ a karbantartÃ¡si Ã¡llapot mÅ±kÅ±dÃ¶se, a karbantartÃ¡s ideje Ã©s Ã¡llapota.
  *
- * Értékek:
- *      'enabled' => false, //a karbanntartási üzemmód enegedélyezett-e? (true vagy false)
- *      'start' => '1970-01-01 00:00:00', //a karbantartási üzemmód kezdete
- *          Lehetséges értékei és jelentésük:
- *              1) érvényes (példához hasonló) dátum és idõ: a karbantartás idejének kezdetét jelenti (amikor a karb. üzemmód érvénybe lép)
- *              2) érvénytelen dátum és idõ: a karbantartásnak nincs meghatározott idõtartama
- *      'end' => '1970-01-01 00:00:00', //a karbantartási üzemmód vége
- *          Lehetséges értékei és jelentésük:
- *              1) érvényes (példához hasonló) dátum és idõ: a karbantartás idejének végét jelenti (amikor a karb. üzemmód kikapcsol)
- *              2) érvénytelen dátum és idõ: a karbantartásnak nincs meghatározott idõtartama
- *      'requiredDoc' => '', //a karbantartási üzemmód alatt futtatandó .php kiterjesztésû fájl útvonala (a $root változó használható)
+ * Ã‰rtÃ©kek:
+ *      'enabled' => false, //a karbanntartÃ¡si Ã¼zemmÃ³d enegedÃ©lyezett-e? (true vagy false)
+ *      'start' => '1970-01-01 00:00:00', //a karbantartÃ¡si Ã¼zemmÃ³d kezdete
+ *          LehetsÃ©ges Ã©rtÃ©kei Ã©s jelentÃ©sÃ¼k:
+ *              1) Ã‰rvÃ©nyes (pÃ©ldÃ¡hoz hasonlÃ³) dÃ¡tum Ã©s idÅ‘: a karbantartÃ¡s idejÃ©nek kezdetÃ©t jelenti (amikor az Ã¼zemmÃ³d Ã©rvÃ©nybe lÃ©p)
+ *              2) Ã‰rvÃ©nytelen dÃ¡tum Ã©s idÅ‘: a karbantartÃ¡snak nincs meghatÃ¡rozott idÅ‘tartama
+ *      'end' => '1970-01-01 00:00:00', // az Ã¼zemmÃ³d vÃ©ge
+ *          LehetsÃ©ges Ã©rtÃ©kei Ã©s jelentÃ©sÃ¼k:
+ *              1) Ã‰rvÃ©nyes (pÃ©ldÃ¡hoz hasonlÃ³) dÃ¡tum Ã©s idÅ‘: a karbantartÃ¡s idejÃ©nek vÃ©gÃ©t jelenti (amikor az Ã¼zemmÃ³d kikapcsol)
+ *              2) Ã‰rvÃ©nytelen dÃ¡tum Ã©s idÅ‘: a karbantartÃ¡snak nincs meghatÃ¡rozott idÅ‘tartama
+ *      'requiredDoc' => '', //az Ã¼zemmÃ³d alatt futtatandÃ³ .php kiterjesztÃ©sÅ± fÃ¡jl elÃ©rÃ©si Ãºtja (a $root vÃ¡ltozÃ³ hasznÃ¡lhatÃ³)
  */
 	$ENV['maintenance'] = array(
 		'enabled' => false,
