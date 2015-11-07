@@ -80,7 +80,7 @@
 			'file' => 		'login',
 		),
 
-		'404' => array(
+		'not-found' => array(
 			'title' => 		'404',
 			'css' => 		[],
 			'js' => 		[],
@@ -239,4 +239,43 @@
 			'file' => 		'events',
 			'addons' =>     ['fullCalendar','dateRangePicker'],
 		),
+	);
+
+	$Perm = array(
+		'students' => array(
+			'visitor' => array(
+				'timetables' => ['view'],
+				'homeworks' => ['view'],
+				'events' => ['view'],
+				'files' => ['view'],
+				'teachers' => ['view'],
+				'lessons' => ['view'],
+			),
+			'editor' => array(
+				'homeworks' => ['add'],
+				'events' => ['add'],
+				'files' => ['add'],
+			),
+			'admin' => array(
+				'timetables' => ['edit'],
+				'homeworks' => ['delete'],
+				'events' => ['edit','delete'],
+				'files' => ['edit','delete'],
+				'teachers' => ['add','edit','delete'],
+				'lessons' => ['add','edit','delete'],
+				'groups' => ['view', 'add', 'edit', 'delete', 'list'],
+				'groupThemes' => ['add', 'edit', 'delete'],
+				'users' => ['view', 'add', 'edit', 'delete', 'editSecurity', 'invite'],
+			),
+		),
+		'everybody' => array(
+			'not-found' => ['view'],
+			'fooldal' => ['view'],
+			'profile' => ['view'],
+		),
+	);
+
+	$permKeyDB = array(
+		'timetables' => 'timetable',
+		'groupThemes' => 'group_themes',
 	);

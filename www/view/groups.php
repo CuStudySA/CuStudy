@@ -8,11 +8,11 @@
 		default:
 			$themes = $db->rawQuery("SELECT *
 									FROM `group_themes`
-									WHERE `classid` = ?",array($user['classid']));
+									WHERE `classid` = ?",array($user['class'][0]));
 
 			$groups = $db->rawQuery("SELECT *
 									FROM `groups`
-									WHERE `classid` = ?",array($user['classid']));
+									WHERE `classid` = ?",array($user['class'][0]));
 
 			print "<h1 id=h1cim>Csoportok kezelése</h1><div id='groupContainer'>";
 
@@ -70,13 +70,15 @@
 <?php break;
 
 		case 'add':
-			$classmembers = $db->rawQuery('SELECT *
-										FROM `users`
-										WHERE `classid` = ?',array($user['classid']));
+			$classmembers = $db->rawQuery('SELECT u.*
+										FROM `users` u
+										LEFT JOIN `class_members` cm
+										ON u.id = cm.userid
+										WHERE cm.classid = ?',array($user['class'][0]));
 
 			$themes = $db->rawQuery('SELECT *
 									FROM `group_themes`
-									WHERE `classid` = ?',array($user['classid']));
+									WHERE `classid` = ?',array($user['class'][0]));
 
 			$thmid = $ENV['URL'][1];
 			if (System::InputCheck($thmid,'numeric')) die(header('Location: /groups')); ?>
@@ -108,7 +110,7 @@
 				<p class='selectp'>Osztály többi tagja:</p>
 				<select multiple size='10' id='class'>
 <?php               foreach ($classmembers as $member){
-						print "<option value='{$member['id']}'>{$member['realname']}</option>";
+						print "<option value='{$member['id']}'>{$member['name']}</option>";
 					} ?>
 				</select>
 			</div>
@@ -120,23 +122,25 @@
 		case 'edit':
 			$group = $db->rawQuery('SELECT *
 									FROM `groups`
-									WHERE `classid` = ? AND `id` = ?',array($user['classid'],$ENV['URL'][1]));
+									WHERE `classid` = ? AND `id` = ?',array($user['class'][0],$ENV['URL'][1]));
 			if (empty($group)) die(header('Location: /groups'));
 			else $group = $group[0];
 
-			$members = $db->rawQuery('SELECT group_members.id AS id, users.realname as `name`, users.id as uid
+			$members = $db->rawQuery('SELECT group_members.id AS id, users.name as `name`, users.id as uid
 									FROM `group_members`
 									LEFT JOIN `users`
 									ON group_members.userid = users.id
-									WHERE group_members.classid = ? && group_members.groupid = ?',array($user['classid'],$ENV['URL'][1]));
+									WHERE group_members.classid = ? && group_members.groupid = ?',array($user['class'][0],$ENV['URL'][1]));
 
-			$classmembers = $db->rawQuery('SELECT *
-										FROM `users`
-										WHERE `classid` = ?',array($user['classid']));
+			$classmembers = $db->rawQuery('SELECT u.*
+										FROM `users` u
+										LEFT JOIN `class_members` cm
+										ON u.id = cm.userid
+										WHERE cm.classid = ?',array($user['class'][0]));
 
 			$themes = $db->rawQuery('SELECT *
 									FROM `group_themes`
-									WHERE `classid` = ?',array($user['classid']));
+									WHERE `classid` = ?',array($user['class'][0]));
 
 			$cmem = array();
 			foreach($classmembers as $member)
@@ -175,7 +179,7 @@
 				<p class='selectp'>Osztály többi tagja:</p>
 				<select multiple size='10' id='class'>
 <?php               foreach ($classmembers as $member){
-						print "<option value='{$member['id']}'>{$member['realname']}</option>";
+						print "<option value='{$member['id']}'>{$member['name']}</option>";
 					} ?>
 				</select>
 			</div>

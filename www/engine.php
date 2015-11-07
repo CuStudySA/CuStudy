@@ -25,9 +25,6 @@
 	# Karbantartási állapot ellenörzése
 	System::LoadMaintenance();
 
-	# Adatbázis kapcsolat felépítése
-	$db = new MysqliDb(DB_HOST,DB_USER,DB_PASS,DB_NAME);
-
 	# Scipt futattásának kezdeti idejének lekérése
 	$ENV['EXECTIME'] = array('start' => microtime(true));
 
@@ -52,15 +49,14 @@
 	unset($_GET,$_POST);
 
 	# Jogosultsági szintek beállítása
-	define('USRGRP',System::CheckLogin());
-	define('USRPERM',$PERM[USRGRP]);
+	define('ROLE',System::CheckLogin());
 
 	# Rendszerbeállítások lekérése
 	GlobalSettings::Load();
 
 	# Tevékenység meghatározása
 	if (empty($ENV['do']))
-		$do = USRGRP !== 'guest' ? 'fooldal': 'login';
+		$do = ROLE !== 'guest' ? 'fooldal': 'login';
 	else if (!isset($pages[$ENV['do']]) && $ENV['do'] != 'logout'){
 		if ($ENV['do'] === 'bb-webhook' && !empty($ENV['GET']['auth']) && $ENV['GET']['auth'] === BB_AUTHCODE){
 			$out = array();
@@ -69,10 +65,10 @@
 			echo implode("<br>", $out);
 			die();
 		}
-		$do = '404';
+		$do = 'not-found';
 	}
 	else {
-		if ($ENV['do'] == 'login' && USRGRP != 'guest') $do = 'fooldal';
+		if ($ENV['do'] == 'login' && ROLE != 'guest') $do = 'fooldal';
 		else $do = $ENV['do'];
 	}
 
@@ -97,13 +93,16 @@
 	Message::$Messages = $ENV['Messages'];
 	unset($ENV['Messages']);
 
+	# Jogosultságok előkészítése
+	System::CompilePerms();
+
 	// 'Executive' rész \\
 	if ($ENV['SERVER']['REQUEST_METHOD'] == 'POST'){
-		# Jogosultság ellenörzése
-		if (System::PermCheck($pages[$do]['minperm'],$pages[$do]['maxperm'])) System::Respond();
-
 		# Létező oldal?
 		if (!isset($pages[$do])) System::Respond();
+
+		# Jogosultság ellenörzése
+		if (System::PermCheck("{$do}.view")) System::Respond();
 
 		# Létező fájl?
 		if (!file_exists("executive/{$pages[$do]['file']}.php")) System::Respond();
@@ -153,7 +152,7 @@
 		Message::Missing($resc);
 		
 	# Léteznek-e az erőforrások?
-	if (USRGRP !== 'guest') $js[] = 'signed_in.js';
+	if (ROLE !== 'guest') $js[] = 'signed_in.js';
 
 	$css_list = array_merge($css, $pages[$do]['css']);
 	$js_list = array_merge($js, $pages[$do]['js']);
@@ -202,12 +201,12 @@
 	if (isset($pages[$do]['http_code'])) Message::StatusCode($pages[$do]['http_code']);
 	
 	# Hozzáférési jogosultság ellenörzése
-	if (System::PermCheck($pages[$do]['minperm'],$pages[$do]['maxperm'])) Message::AccessDenied();
+	if (System::PermCheck("{$do}.view")) Message::AccessDenied();
 	
 	# Szükséges dokumentumok listájának előkészítése
 	$doc_list = ['header','footer'];
 
-	if (USRGRP !== 'guest') array_splice($doc_list,1,0,['sidebar']);
+	if (ROLE !== 'guest') array_splice($doc_list,1,0,['sidebar']);
 	array_splice($doc_list,-1,0,[$pages[$do]['file']]);
 
 	# Szükséges oldalak betöltése

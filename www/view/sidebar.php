@@ -7,7 +7,7 @@
 		<div class="avatar">
 			<img src="https://www.gravatar.com/avatar/<?=md5($user['email'])?>?s=70&r=g&d=<?=urlencode(ABSPATH_.'/resources/img/user.png')?>">
 		</div>
-		<h2 class="name"><?=$user['realname']?></h2>
+		<h2 class="name"><?=$user['name']?></h2>
 		<span class="email"><?=$user['email']?></span>
 	</div>
 	<nav class="options"><?php
@@ -22,7 +22,7 @@ $Actions = array(
 	array('th-menu','lessons','Tantárgyak'),
 );
 
-if (USRGRP == 'admin')
+if (ROLE == 'admin')
 	$Actions = array_merge($Actions,array(
 		array('th-large','groups','Csoportok'),
 		array('group','users','Felhasználók'),

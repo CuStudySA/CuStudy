@@ -4,10 +4,12 @@
 
 	switch ($case){
 		default:
-			$data = $db->rawQuery('SELECT *
-									FROM `users`
-									WHERE `classid` = ?
-									ORDER BY `realname`',array($user['classid'])); ?>
+			$data = $db->rawQuery('SELECT u.*
+									FROM `users` u
+									LEFT JOIN `class_members` cm
+									ON u.id = cm.userid
+									WHERE cm.classid = ?
+									ORDER BY u.name',array($user['class'][0])); ?>
 
 			<script>
 				var Patterns = <?=json_encode(System::GetHtmlPatterns())?>;
@@ -16,7 +18,7 @@
 			<h1 id=h1cim>A(z) <?=$ENV['class']['classid']?> felhasználóinak kezelése</h1>
 			<ul class="customers flex">
 <?php		foreach ($data as $subarray){
-				$nev = explode(' ',$subarray['realname']);
+				$nev = explode(' ',$subarray['name']);
 				$vnev = array_splice($nev,0,1)[0];
 				$knev = implode(' ',$nev); ?>
 				<li data-id='<?=$subarray['id']?>'>
@@ -80,7 +82,7 @@
 				 <h1>Adja meg az új felhasználó adatait:</h1>
 				 <form method='POST' action='/users/add' id=useradd>
 					<p>Felhasználónév: <input type='text' name='username' placeholder='felhasznalonev' pattern='^[a-zA-Z\d]{3,15}$' required> <i>(3-15 karakter - számok és angol betűk)</i></p>
-					<p>Teljes név: <input type='text' name='realname' placeholder='Vezetéknév Utónév' required pattern='^[A-ZÁÉÍÓÖŐÚÜŰ][a-záéíóöőúüű]+[ ][A-ZÁÉÍÓÖŐÚÜŰ][a-záéíóöőúüű]+[ a-zA-ZáéíóöőúüűÁÉÍÓÖŐÚÜŰ]*$'> <i>(2-3 névtag - magyar betűk)</i></p>
+					<p>Teljes név: <input type='text' name='name' placeholder='Vezetéknév Utónév' required pattern='^[A-ZÁÉÍÓÖŐÚÜŰ][a-záéíóöőúüű]+[ ][A-ZÁÉÍÓÖŐÚÜŰ][a-záéíóöőúüű]+[ a-zA-ZáéíóöőúüűÁÉÍÓÖŐÚÜŰ]*$'> <i>(2-3 névtag - magyar betűk)</i></p>
 					<p>Jelszó: <input type='password' name='password' placeholder='Jelszó' pattern='^[\w\d]{6,20}$'> <i>(nem kötelező - 6-20 karakter)</i></p>
 					<p>Jelszó megerősítése: <input type='password' name='verpasswd' placeholder='Jelszó megerősítése' pattern='^[\w\d]{6,20}$'> <i>(a fenti jelszó újraírása)</i></p>
 					<p>E-mail cím: <input type='text' name='email' placeholder='teszt@teszt.hu' pattern='^[a-zA-Z0-9.-_]+(\+[a-zA-Z0-9])?@[a-z0-9]+\.[a-z]{2,4}$' required> <i>(valós e-mail cím)</i></p>
@@ -111,7 +113,7 @@
 	       	<h1>Felhasználó szerkesztése (#<?=$data['username']?>)</h1>
 				 <form method='POST' action='/users/edit' id=useredit>
 					<p>Felhasználónév: <input type='text' name='username' value='<?=$data['username']?>' pattern='^[a-zA-Z\d]{3,15}$' required> <i>(3-15 karakter - számok és angol betűk)</i></p>
-					<p>Teljes név: <input type='text' name='realname' value='<?=$data['realname']?>' required pattern='^[A-ZÁÉÍÓÖŐÚÜŰ][a-záéíóöőúüű]+[ ][A-ZÁÉÍÓÖŐÚÜŰ][a-záéíóöőúüű]+[ a-zA-ZáéíóöőúüűÁÉÍÓÖŐÚÜŰ]*$'> <i>(2-3 névtag - magyar betűk)</i></p>
+					<p>Teljes név: <input type='text' name='name' value='<?=$data['name']?>' required pattern='^[A-ZÁÉÍÓÖŐÚÜŰ][a-záéíóöőúüű]+[ ][A-ZÁÉÍÓÖŐÚÜŰ][a-záéíóöőúüű]+[ a-zA-ZáéíóöőúüűÁÉÍÓÖŐÚÜŰ]*$'> <i>(2-3 névtag - magyar betűk)</i></p>
 					<p>Jelszó: <input type='password' name='password' placeholder='Jelszó' pattern='^[\w\d]{6,20}$'> <i>(nem kötelező - 6-20 karakter)</i></p>
 					<p>Jelszó megerősítése: <input type='password' name='verpasswd' placeholder='Jelszó megerősítése' pattern='^[\w\d]{6,20}$'> <i>(a fenti jelszó újraírása)</i></p>
 					<p>E-mail cím: <input type='text' name='email' value='<?=$data['email']?>' pattern='^[a-zA-Z0-9.-_]+(\+[a-zA-Z0-9])?@[a-z0-9]+\.[a-z]{2,4}$' required> <i>(valós e-mail cím)</i></p>

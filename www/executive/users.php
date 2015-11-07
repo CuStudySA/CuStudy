@@ -17,17 +17,19 @@
 		case 'get':
 			if (empty($ENV['POST']['id'])) System::Respond();
 
-			$data = $db->rawQuery('SELECT *
-									FROM `users`
-									WHERE `id` = ? && `classid` = ?',array($ENV['POST']['id'],$user['classid']));
+			$data = $db->rawQuery('SELECT u.*
+									FROM `users` u
+									LEFT JOIN `class_members` cm
+									ON u.id = cm.userid
+									WHERE u.id = ? && cm.classid = ?',array($ENV['POST']['id'],$user['class'][0]));
 
 			if (empty($data)) System::Respond();
 			else $data = $data[0];
 
 			$json = array(
 				'username' => $data['username'],
-				'realname' => $data['realname'],
-				'priv' => $data['priv'],
+				'name' => $data['name'],
+				'role' => $data['role'],
 				'email' => $data['email'],
 				'active' => $data['active'],
 			);
@@ -37,7 +39,7 @@
 
 		case 'add':
 			if (isset($ENV['POST']['username']))
-				$action = UserTools::AddUser($ENV['POST'],true);
+				$action = UserTools::AddUser($ENV['POST']);
 
 			else System::Respond();
 

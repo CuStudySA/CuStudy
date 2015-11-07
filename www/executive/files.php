@@ -27,6 +27,8 @@
 		break;
 
 		case 'uploadFiles':
+			if (System::PermCheck('files.add')) System::Respond();
+
 			if (!empty($_FILES)){
 				$infos = [];
 
@@ -47,7 +49,7 @@
 						'name' => !empty($infos[$key]['title']) ? $infos[$key]['title'] : 'Feltöltött dokumentum',
 						'description' => !empty($infos[$key]['desc']) ? $infos[$key]['desc'] : 'Egy feltöltött dokumentum leírása',
 						'lessonid' => 0,
-						'classid' => $user['classid'],
+						'classid' => $user['class'][0],
 						'uploader' => $user['id'],
 						'size' => $file['size'],
 						'filename' => $file['name'],

@@ -18,7 +18,7 @@ $('#dataform').on('submit',function(e){
 
 			if (data.status){
 				$.Dialog.success(title,data.message,true);
-				$('.name').text($('[name=realname]').val());
+				$('.name').text($('[name=name]').val());
 				$('.email').text($('[name=email]').val());
 			}
 			else $.Dialog.fail(title,data.message);
@@ -35,10 +35,14 @@ if($('#connect_s').children().length == 0)
 $('#connect').on('click',function(e){
 	e.preventDefault();
 
+	var title = 'Fiókok összekapcsolása';
+
 	if ($('#connect_s').find(':selected').attr('value') == '#') return $.Dialog.fail('Fiókok összekapcsolása','Fiókjának összekapcsolásához először válasszon ki egy szolgáltatót!');
-	$.Dialog.confirm('Fiókok összekapcsolása','A fiókjának összekapcsolásához át kell irányítanunk Önt a szolgáltatójának weboldalára.<br>A sikeres azonosítás után a rendszer visszairányítja. Folytatja?',['Tovább a szolgáltatóhoz','Visszalépés'],
+
+	$.Dialog.confirm(title,'A fiókjának összekapcsolásához át kell irányítanunk Önt a szolgáltatójának weboldalára.<br>A sikeres azonosítás után a rendszer visszairányítja. Folytatja?',['Tovább a szolgáltatóhoz','Visszalépés'],
 	function(sure){
 		if (!sure) return;
+		$.Dialog.wait(title,'Átirányítjuk...');
 		window.location.href = '/profile/connect/' + $('#connect_s').children().filter(':selected').eq(0).attr('value');
 	});
 });

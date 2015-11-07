@@ -1,10 +1,10 @@
 $(function(){
 	var $formTempl = $("<form id='js_form'>\
 							<p>Felhasználónév: <input type='text' name='username' placeholder='Felhasználónév' required></p>\
-							<p>Teljes név: <input type='text' name='realname' placeholder='Vezetéknév Utónév' required></p>\
+							<p>Teljes név: <input type='text' name='name' placeholder='Vezetéknév Utónév' required></p>\
 							<p>E-mail cím: <input type='text' name='email' placeholder='email@provider.mail' required></p>\
 							<p>Jogosultság: \
-								<select name='priv'>\
+								<select name='role'>\
 									<option value='user' selected>Ált. felhasználó</option>\
 									<option value='editor'>Szerkesztő</option>\
 									<option value='admin'>Csoport adminisztrátor</option>\
@@ -249,9 +249,9 @@ $(function(){
 				var $dialog = $formTempl.clone();
 
 				$dialog.find('[name=username]').attr('value',data.username).attr('disabled','true');
-				$dialog.find('[name=realname]').attr('value',data.realname);
+				$dialog.find('[name=name]').attr('value',data.name);
 				$dialog.find('[name=email]').attr('value',data.email);
-				$dialog.find('[name=priv]').children('option[value=' + data.priv + ']').attr('selected', true);
+				$dialog.find('[name=role]').children('option[value=' + data.role + ']').attr('selected', true);
 				$dialog.find('[name=active]').children('option[value=' + data.active + ']').attr('selected', true);
 				$dialog.find('[name=id]').attr('value',id);
 
@@ -278,7 +278,7 @@ $(function(){
 										$elem = $elemlista.children('[data-id=' + id + ']'),
 										$urlapelemek = $urlap.children();
 
-									var tagoltNev = $urlapelemek.find('[name=realname]').val().split(' ');
+									var tagoltNev = $urlapelemek.find('[name=name]').val().split(' ');
 
 									$elem.find('.vnev').text(tagoltNev.slice(0,1).toString());
 									$elem.find('.knev').text(tagoltNev.slice(1).join(' '));
@@ -330,7 +330,7 @@ $(function(){
 							var $elem = $tileTempl.clone(),
 								$urlapelemek = $urlap.children();
 
-							var tagoltNev = $urlapelemek.find('[name=realname]').val().split(' ');
+							var tagoltNev = $urlapelemek.find('[name=name]').val().split(' ');
 
 							$elem.find('.vnev').text(tagoltNev.slice(0,1).toString());
 							$elem.find('.knev').text(tagoltNev.slice(1).join(' '));

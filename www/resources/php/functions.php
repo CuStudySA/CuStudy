@@ -156,6 +156,7 @@
 			return $action ? 0 : 3;
 		}
 
+		# TODO Át kell írni a GetDetails() funkciót az új jogosultsági szintekhez!
 		static function GetDetails($id){
 			global $db,$user,$ENV;
 			$logclass = new Logging();
@@ -166,10 +167,10 @@
 			$userdataid = $db->where('id',$dataid['user'])->getOne('users');
 
 			# Jogosultság ellenörzése
-			switch (USRGRP){
+			switch (ROLE){
 				case 'admin':
 					if ($dataid['user'] === 0) return 2;
-					if ($userdataid['classid'] != $user['classid']) return 3;
+					if ($userdataid['classid'] != $user['class'][0]) return 3;
 				break;
 
 				case 'schooladmin':
@@ -202,7 +203,7 @@
 		);
 
 		static $ResolveNames = array(
-			'realname' => 'name',
+			'name' => 'name',
 			'verpasswd' => 'password',
 			'newpassword' => 'password',
 			'vernewpasswd' => 'password',
@@ -210,9 +211,9 @@
 		);
 
 		static $Inputs = array(
-			'users' => ['username','realname','email','password','verpasswd','newpassword','vernewpasswd'],
+			'users' => ['username','name','email','password','verpasswd','newpassword','vernewpasswd'],
 			'teachers' => ['name','short'],
-			'invitation' => ['username','realname','email','password','verpasswd'],
+			'invitation' => ['username','name','email','password','verpasswd'],
 		);
 
 		static $Days = array(null,
@@ -242,7 +243,6 @@
 					$preg = '/^[a-zA-Z\d]{3,15}$/';
 				break;
 				case 'password':
-					#$preg = '/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,20}$/';
 					$preg = '/^[\w\d]{6,20}$/';
 				break;
 				case 'email':
@@ -300,16 +300,23 @@
 			return !in_array($text, $values) ? true : false;
 		}
 
+		static function UserIsStudent($role = null){
+			if (empty($ROLE))
+				return (ROLE == 'visitor' || ROLE == 'editor' || ROLE == 'admin');
+			else
+				return ($role == 'visitor' || $role == 'editor' || $role == 'admin');
+		}
+
 		// Aktív-e a felh. az öröklődő csop. alapján?
-		static function UserActParent($userarray){
+		static function UserActParent($classid){
 			global $db,$ENV;
 
 			# Osztály ellenörzése
-			$ENV['class'] = $db->where('id',$userarray['classid'])->getOne('class');
+			$ENV['class'] = $db->where('id',$classid)->getOne('class');
 			if (!$ENV['class']['active']) return true;
 
 			# Iskola ellenörzése
-			$ENV['school'] = $db->where('id',$ENV['class']['school'])->getOne('school');
+			$ENV['school'] = $db->where('id',$ENV['class']['id'])->getOne('school');
 			if (!$ENV['school']['active']) return true;
 
 			return false;
@@ -332,6 +339,19 @@
 			}
 
 			return $return;
+		}
+
+		static function GetUserClasses($userid){
+			global $user, $db;
+
+			$data = $db->where('userid',$userid)->get('class_members');
+			$classes = array();
+			foreach ($data as $array)
+				$classes[] = $array['classid'];
+
+			if (!empty($user)) $user['class'] = $classes;
+
+			return $classes;
 		}
 
 		//Cookie ellenőrzés & '$user' generálása
@@ -358,9 +378,12 @@
 			$user = $db->where('id',$userId)->getOne('users');
 			if (empty($user)) return 'guest';
 
-			if (self::UserActParent($user)) return 'guest';
+			# Osztálytagságok megállapítása
+			self::GetUserClasses($user['id']);
 
-			return $user['priv'];
+			if (self::UserActParent($user['class'][0])) return 'guest';
+
+			return $user['role'];
 		}
 
 		// Bejelentkezés
@@ -370,20 +393,14 @@
 			# Formátum ellenörzése
 			if (self::InputCheck($username,'username')) return 1;
 
-			$isadmin = 'users';
-
 			$data = $db->where('username',$username)->getOne('users');
-			if (empty($data)){
-				$data = $db->where('username',$username)->getOne('admins');
-				if (empty($data)) return 2;
-				$isadmin = 'admins';
-			}
+			if (empty($data)) return 2;
 
 			if (!Password::Ellenorzes($password,$data['password'])) return 2;
 			if (!$data['active']) return 4;
 
-			if ($isadmin == 'users')
-				if (self::UserActParent($data)) return 5;
+			if (self::UserIsStudent($data['role']))
+				if (self::UserActParent(self::GetUserClasses($data['id'])[0])) return 5;
 
 			# Session generálása és süti beállítása
 			$session = Password::GetSession($username);
@@ -434,14 +451,44 @@
 			return 0;
 		}
 
+		static function CompilePerms(){
+			global $Perm, $ENV;
+
+			if (ROLE == 'guest')
+				return $ENV['permissions'] = array('login' => ['view']);
+
+			$roles = array_keys($Perm['students']);
+			if (!in_array(ROLE,$roles) && ROLE != 'guest') return;
+
+			$ENV['permissions'] = $Perm['everybody'];
+
+			if (in_array(ROLE,$roles)){
+				$index = array_search(ROLE,$roles);
+				for ($i = 0; $i <= $index; $i++)
+					$ENV['permissions'] = array_merge_recursive($ENV['permissions'],$Perm['students'][$roles[$i]]);
+			}
+			else
+				$ENV['permissions'] = array_merge_recursive($ENV['permissions'],$Perm[ROLE]);
+		}
+
 		// Jogosultság ellenörző
-		static function PermCheck($minjog, $maxjog = null){
-			global $PERM;
+		static function PermCheck($action, $id = null, $selector = 'id'){
+			global $ENV, $user, $permKeyDB, $db;
 
-			if (empty($maxjog))
-				return USRPERM < $PERM[$minjog];
+			# Alapjog. ell.
+			$array = explode('.',$action);
+			if (!isset($ENV['permissions'][$array[0]])) return true;
+			if (!in_array($array[1],$ENV['permissions'][$array[0]])) return true;
+			if (empty($id)) return false;
 
-			return USRPERM < $PERM[$minjog] || USRPERM > $PERM[$maxjog];
+			# Módosítási jog. ellenörzése
+			if (isset($permKeyDB[$array[0]])) $array[0] = $permKeyDB[$array[0]];
+			$data = $db->where($selector,$id)->getOne($array[0]);
+
+			if (empty($data)) return true;
+			if (!in_array($data['classid'],$user['class'])) return true;
+
+			return false;
 		}
 
 		// Szükséges értékek ellenörzése
@@ -501,41 +548,6 @@
 			else return $a.' '.($btw ? ' '.$btw : '').$str;
 		}
 
-		// Osztályadmin. szerk. jog. ell.
-		static function ClassPermCheck($id,$class){
-			global $db,$user;
-
-			if (!System::PermCheck('sysadmin')) return false;
-
-			$usrdata = $db->where('id',$id)->getOne($class);
-			if (empty($usrdata)) return true;
-			return !($usrdata['classid'] == $user['classid'] && !System::PermCheck('admin'));
-		}
-
-		static function WriteAttackLog($data){
-			$string = "----------\r\nEntry\r\n---------\r\n";
-			foreach($data as $key => $value)
-				$string .= "DATA ".$key.": ".$value."\r\n";
-
-			file_put_contents('attact.log',$string);
-		}
-
-
-		// POST-kérés indítása
-		static function PostRequest($url, $data, $json = false){
-			$options = array(
-			    'http' => array(
-			        'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
-			        'method'  => 'POST',
-			        'content' => http_build_query($data),
-			    ),
-			);
-			$context  = stream_context_create($options);
-
-			$contents = file_get_contents($url, false, $context);
-			return $json ? json_decode($contents, true) : $contents;
-		}
-
 		static function Redirect($url, $die = true, $http = 301){
 			header("Location: $url",$die,$http);
 			if ($die) die();
@@ -552,8 +564,9 @@
 			$user = $db->where('id',$data['userid'])->getOne('users');
 			if (empty($user)) System::Redirect("/?errtype=local&prov={$provider}&err=az összekapcsolás létezik, de nem található a helyi felhasználó");
 
-			if (System::PermCheck('user','admin') && System::UserActParent($user))
-				System::Redirect("/?errtype=local&prov={$provider}&err=az osztály vagy iskola nem aktív a rendszerben");
+			if (self::UserIsStudent($user['role']))
+				if (self::UserActParent(self::GetUserClasses($user['id'])[0]))
+					System::Redirect("/?errtype=local&prov={$provider}&err=az osztály vagy iskola nem aktív a rendszerben");
 
 			$session = Password::GetSession($user['username']);
 			$envInfos = self::GetBrowserEnvInfo();
@@ -594,7 +607,7 @@
 			$message->setFrom(array(MAIL_ADDR => MAIL_DISPNAME)); //Feladó e-mail és feladó név
 			$message->setTo(array($mail['to']['address'] => $mail['to']['name'])); //Címzett e-mail és címzett
 
-			$transport = Swift_SmtpTransport::newInstance(MAIL_HOST, MAIL_PORT, 'ssl') //Kapcsolódási objektum létrehozása és csatlakozási adatok a Google Mailhez
+			$transport = Swift_SmtpTransport::newInstance(MAIL_HOST, MAIL_PORT, 'ssl') //Kapcsolódási objektum létrehozása
 		     ->setUsername(MAIL_USRNAME) //SMTP felhasználónév
 		     ->setPassword(MAIL_PWD) //SMTP jelszó
 		     ->setSourceIp('0.0.0.0'); //IPv4 kényszerítése
@@ -610,16 +623,6 @@
 			return $action ? 0 : 1;
 		}
 
-		/**
-		 * "Rögzíti" a jelenlegi lekérés URL-jét
-		 * Használatával könnyen változtatható az oldal URL-je
-		 *   átirányítás kezdeményezése nélkül.
-		 *
-		 * @param string $desired_path A kívánt elérési útvonal
-		 * @param int $http Az átirányítást végző funkciónak átadandó státusz kód
-		 *
-		 * @return void
-		 */
 		static function FixPath($desired_path, $http = 301){
 			$query = !empty($_SERVER['QUERY_STRING']) ? preg_replace('~do=[^&]*&data=[^&]*(&|$)~','',$_SERVER['QUERY_STRING']) : '';
 			if (!empty($query)) $query = "?$query";
@@ -851,7 +854,7 @@
 				if (USRGRP == 'guest')
 					die(header('Location: /login'));
 				else
-					die(header('Location: /404'));
+					die(header('Location: /not-found'));
 			}
 		}
 
@@ -859,8 +862,8 @@
 		static function Missing($path = ''){
 			global $ENV;
 
-			if ($ENV['do'] != 404)
-				die(header('Location: /404?path='.$path));
+			if ($ENV['do'] != 'not-found')
+				die(header('Location: /not-found?path='.$path));
 		}
 
 		static $DB_FAIL = "Hiba történt az adatbázisba mentés során";
@@ -918,7 +921,7 @@ STRING
 				'invitation' => $invId,
 				'name' => $name,
 				'email' => $email,
-				'classid' => $user['classid'],
+				'classid' => $user['class'][0],
 				'inviter' => $user['id'],
 			));
 
@@ -930,7 +933,7 @@ STRING
 			$body = str_replace('++SCHOOL++',$ENV['school']['name'],$body);
 			$body = str_replace('++CLASS++',$ENV['class']['classid'],$body);
 			$body = str_replace('++ID++',$invId,$body);
-			$body = str_replace('++SENDER++',$user['realname'],$body);
+			$body = str_replace('++SENDER++',$user['name'],$body);
 
 			$action = System::SendMail(array(
 				'title' => 'CuStudy - Meghívásod érkezett',
@@ -966,7 +969,7 @@ STRING
 				'token' (string)
 				'username' (string)
 				'password' (string)
-				'realname' (string)
+				'name' (string)
 			) */
 
 			global $db;
@@ -980,7 +983,7 @@ STRING
 						$type = $key;
 					break;
 
-					case 'realname':
+					case 'name':
 						$type = 'name';
 					break;
 
@@ -1010,7 +1013,7 @@ STRING
 			$id = $db->insert('users',array(
 				'username' => $data['username'],
 				'password' => Password::Kodolas($data['password']),
-				'realname' => $data['realname'],
+				'name' => $data['name'],
 				'classid' => $token_d['classid'],
 				'email' => $token_d['email'],
 				'priv' => 'user',
@@ -1068,10 +1071,10 @@ STRING
 			$gt = $g = array();
 			$group_themes = $db->rawQuery('SELECT `id`
 											FROM `group_themes`
-											WHERE `classid` = ?',array($user['classid']));
+											WHERE `classid` = ?',array($user['class'][0]));
 			$groups = $db->rawQuery('SELECT `id`,`theme`
 								FROM `groups`
-								WHERE `classid` = ?',array($user['classid']));
+								WHERE `classid` = ?',array($user['class'][0]));
 			if (empty($group_themes)) return 1;
 
 
@@ -1089,7 +1092,7 @@ STRING
 				if ($g[$value] != $key) return 4;
 
 				$db->insert('group_members',array(
-					'classid' => $user['classid'],
+					'classid' => $user['class'][0],
 					'groupid' => $value,
 					'userid' => $user['id'],
 				));
@@ -1108,7 +1111,7 @@ STRING
 
 			$data = $db->rawQuery('SELECT `size`
 									FROM `files`
-									WHERE `classid` = ?',array($user['classid']));
+									WHERE `classid` = ?',array($user['class'][0]));
 			$usedSpace = 0;
 
 			foreach ($data as $array)
@@ -1127,9 +1130,6 @@ STRING
 		}
 
 		static function UploadFile($file){
-			// Van-e jogosultság?
-			if (System::PermCheck('editor')) return 6;
-
 			// Sikerült-e a fájlfeltöltés?
 			if ($file['error'] != 0) return 1;
 			
@@ -1154,7 +1154,7 @@ STRING
 		static function DownloadFile($id){
 			global $db, $user, $root;
 
-			$data = $db->where('id',$id)->where('classid',$user['classid'])->getOne('files');
+			$data = $db->where('id',$id)->where('classid',$user['class'][0])->getOne('files');
 
 			if (empty($data)) die(header('Location: /files'));
 			$fileName = $data['filename'];
@@ -1177,9 +1177,9 @@ STRING
 			global $db, $user, $root;
 
 			# Jog. ellenörzése
-			if (System::PermCheck('admin')) return 1;
+			if (System::PermCheck('files.delete')) return 1;
 
-			$data = $db->where('id',$id)->where('classid',$user['classid'])->getOne('files');
+			$data = $db->where('id',$id)->where('classid',$user['class'][0])->getOne('files');
 			if (empty($data)) return 2;
 
 			$path = "$root/usr_uploads/".$data['tempname'];
@@ -1194,7 +1194,7 @@ STRING
 		static function GetFileInfo($id){
 			global $db, $user, $root;
 
-			$data = $db->where('id',$id)->where('classid',$user['classid'])->getOne('files');
+			$data = $db->where('id',$id)->where('classid',$user['class'][0])->getOne('files');
 			if (empty($data)) return 1;
 
 			$lesson = $db->where('id',$data['lessonid'])->getOne('lessons');
@@ -1206,7 +1206,7 @@ STRING
 				'lesson' => empty($lesson) ? 'nincs hozzárendelve' : $lesson['name'],
 				'size' => self::FormatSize($data['size']),
 				'time' => $data['time'],
-				'uploader' => empty($uploader) ? 'ismeretlen' : $uploader['realname'].' (#'.$uploader['id'].')',
+				'uploader' => empty($uploader) ? 'ismeretlen' : $uploader['name'].' (#'.$uploader['id'].')',
 				'filename' => $data['filename'],
 			);
 		}
@@ -1245,7 +1245,7 @@ STRING
 			global $db,$ENV;
 
 			# Jog. ellenörzése
-			if (System::PermCheck('admin')) return 1;
+			if (System::PermCheck('lessons.add')) return 1;
 
 			# Formátum ellenörzése
 			if (!System::ValuesExists($data_a,['name','teacherid'])) return 2;
@@ -1282,7 +1282,7 @@ STRING
 				'errorcode' => (!is_array($action) ? $action : 0),
 				'db' => 'lesson_add',
 			),$data_a,array(
-				'classid' => $user['classid'],
+				'classid' => $user['class'][0],
 				'e_id' => (is_array($action) ? $action[0] : 0),
 			)));
 
@@ -1315,11 +1315,10 @@ STRING
 					break;
 				}
 				if (System::InputCheck($value,$type)) return 2;
-				if (!System::InputCheck($value,'attack')) return 99;
 			}
 
 			# Jogosultság ellenörzése
-			if (System::ClassPermCheck($data_a['id'],'lessons')) return 1;
+			if (System::PermCheck('lessons.edit',$data_a['id'])) return 1;
 
 			$action = $db->where('id',$data_a['id'])->update('lessons',$data_a);
 
@@ -1343,7 +1342,7 @@ STRING
 				'errorcode' => $action,
 				'db' => 'lesson_edit',
 			),$data_a,array(
-				'classid' => $user['classid'],
+				'classid' => $user['class'][0],
 			)));
 
 			return $action;
@@ -1372,7 +1371,7 @@ STRING
 			global $user,$db;
 
 			# Jog. ellenörzése
-			if (System::ClassPermCheck($id,'lessons')) return 1;
+			if (System::PermCheck('lessons.delete',$id)) return 1;
 
 			$data = $db->where('id',$id)->getOne('lessons');
 			$data = System::TrashForeignValues(['classid','name','teacherid','color'],$data);
@@ -1385,7 +1384,7 @@ STRING
 				'errorcode' => $action,
 				'db' => 'lesson_del',
 			),$data,array(
-				'classid' => $user['classid'],
+				'classid' => $user['class'][0],
 				'e_id' => $id,
 			)));
 
@@ -1462,15 +1461,15 @@ STRING
 			global $db, $user;
 
 			# Jog. ellelnörzése
-			if(System::PermCheck('admin')) return 7;
+			if(System::PermCheck('users.add')) return 7;
 
 			# Bevitel ellenörzése
-			if (!System::ValuesExists($data_a,['username','realname','priv','email','active'])) return 1;
+			if (!System::ValuesExists($data_a,['username','name','role','email','active'])) return 1;
 			foreach ($data_a as $key => $value){
-				if (in_array($key,['classid','priv'])) continue;
+				if (in_array($key,['classid','role'])) continue;
 
 				switch ($key){
-					case 'realname':
+					case 'name':
 						$type = 'name';
 					break;
 					case 'active':
@@ -1484,16 +1483,11 @@ STRING
 				if (System::InputCheck($value,$type)) return 2;
 			}
 			if (System::OptionCheck($data_a['active'],['0','1'])) return 2;
-			if (System::OptionCheck($data_a['priv'],['user','editor','admin'])) return 2;
-
-			if (USRGRP != 'sysadmin')
-				$data_a['classid'] = $user['classid'];
+			if (System::OptionCheck($data_a['role'],['user','editor','admin'])) return 2;
 
 			# Létezik-e már ilyen felhasználó?
 			$data = $db->where('username',$data_a['username'])->getOne('users');
 			if (!empty($data)) return 4;
-			$data = $db->where('username',$data_a['username'])->getOne('admins');
-			if (!empty($data)) return 5;
 			$data = $db->where('email',$data_a['email'])->getOne('users');
 			if (!empty($data)) return 6;
 
@@ -1501,21 +1495,30 @@ STRING
 			$data_a['password'] = Password::Kodolas(Password::Generalas(6));
 
 			# Regisztráció
-			return [$db->insert('users',$data_a)];
+			$id = $db->insert('users',$data_a);
+			if ($id === false) return 7;
+
+			# Hozzáadás a csoporthoz
+			$db->insert('class_members',array(
+				'classid' => $user['class'][0],
+				'userid' => $id,
+			));
+
+			return [$id];
 		}
 
 		static function AddUser($data_a){
 			global $user;
 /*			array(
 				'username',
-				'realname',
+				'name',
 				'priv',
 				'email',
 				'active',
 			);					*/
 			$action = self::_addUser($data_a);
 
-			$data_a = System::TrashForeignValues(['username','realname','priv','email','active'],$data_a);
+			$data_a = System::TrashForeignValues(['username','name','role','email','active'],$data_a);
 
 			Logging::Insert(array_merge(array(
 				'action' => 'user_add',
@@ -1523,7 +1526,7 @@ STRING
 				'errorcode' => (!is_array($action) ? $action : 0),
 				'db' => 'user_add',
 			),$data_a,array(
-				'classid' => $user['classid'],
+				'classid' => $user['class'][0],
 				'e_id' => (is_array($action) ? $action[0] : 0),
 			)));
 
@@ -1536,14 +1539,14 @@ STRING
 			global $db, $user;
 
 			# Jog. ellenörzése
-			if (System::ClassPermCheck($id,'users')) return 1;
+			if (System::PermCheck('users.edit')) return 1;
 
 			# Formátum ellenörzése
 			foreach ($datas as $key => $value){
-				if (in_array($key,['classid','priv'])) continue;
+				if (in_array($key,['classid','role'])) continue;
 
 				switch ($key){
-					case 'realname':
+					case 'name':
 						$type = 'name';
 					break;
 					case 'id':
@@ -1560,10 +1563,15 @@ STRING
 				if (System::InputCheck($value,$type)) return 2;
 			}
 			if (System::OptionCheck($datas['active'],['0','1'])) return 2;
-			if (System::OptionCheck($datas['priv'],['user','editor','admin'])) return 2;
+			if (System::OptionCheck($datas['role'],['user','editor','admin'])) return 2;
 
-			if (USRGRP != 'sysadmin')
-				$datas['classid'] = $user['classid'];
+			# Jog. ellenörzése
+			$data = $db->rawQuery('SELECT u.*
+						FROM `users` u
+						LEFT JOIN `class_members` cm
+						ON u.id = cm.userid
+						WHERE u.id = ? && cm.classid = ?',array($datas['id'],$user['class'][0]));
+			if (empty($data)) return 1;
 
 			# Létezik-e már ilyen felhasználó?
 			$userdata = $db->where('id',$id)->getOne('users');
@@ -1585,7 +1593,7 @@ STRING
 
 			$action = self::_modifyUser($id,$datas);
 
-			$datas = System::TrashForeignValues(['username','realname','priv','email','active'],$datas);
+			$datas = System::TrashForeignValues(['username','name','priv','email','active'],$datas);
 
 			Logging::Insert(array_merge(array(
 				'action' => 'user_edit',
@@ -1593,7 +1601,7 @@ STRING
 				'errorcode' => $action,
 				'db' => 'user_edit',
 			),$datas,array(
-				'classid' => $user['classid'],
+				'classid' => $user['class'][0],
 				'e_id' => $id,
 			)));
 
@@ -1615,10 +1623,17 @@ STRING
 			global $user,$db;
 
 			# Jog. ellenörzése
-			if (System::ClassPermCheck($id,'users')) return 1;
+			if (System::PermCheck('users.delete')) return 1;
 
-			$data = $db->where('id',$id)->getOne('users');
-			$data = System::TrashForeignValues(['username','realname','priv','email','active'],$data);
+			$data = $db->rawQuery('SELECT u.*
+									FROM `users` u
+									LEFT JOIN `class_members` cm
+									ON u.id = cm.userid
+									WHERE u.id = ? && cm.classid = ?',array($id,$user['class'][0]));
+			if (empty($data)) return 1;
+			$data = $data[0];
+
+			$data = System::TrashForeignValues(['username','name','role','email','active'],$data);
 
 			$action = self::_deleteUser($id);
 
@@ -1628,7 +1643,7 @@ STRING
 				'errorcode' => $action,
 				'db' => 'user_del',
 			),$data,array(
-				'classid' => $user['classid'],
+				'classid' => $user['class'][0],
 				'e_id' => $id,
 			)));
 
@@ -1641,10 +1656,16 @@ STRING
 			 * @param $data = array('newpassword','vernewpasswd')
 			 */
 
-            global $db;
+            global $db,$user;
 
 			# Jog. ellenörzése
-			if (System::ClassPermCheck($id,'users')) return 1;
+			if (System::PermCheck('users.editSecurity')) return 1;
+			$exists = $db->rawQuery('SELECT u.*
+						FROM `users` u
+						LEFT JOIN `class_members` cm
+						ON u.id = cm.userid
+						WHERE u.id = ? && cm.classid = ?',array($id,$user['class'][0]));
+			if (empty($exists)) return 1;
 
 			if ($data['newpassword'] != $data['vernewpasswd']) return 2;
 
@@ -1658,7 +1679,7 @@ STRING
 
 		static function EditMyProfile($data){
 /*          array(
-				(req)'realname',
+				(req)'name',
 				(req)'email',
 				(opt)'oldpassword',
 				(opt)'password',
@@ -1726,7 +1747,7 @@ STRING;
 			$email = trim($email);
 			if (System::InputCheck($email,'email')) return 1;
 
-			$User = $db->where('email', $email)->getOne('users','id,realname,email');
+			$User = $db->where('email', $email)->getOne('users','id,name,email');
 			if (empty($User)) return 2;
 
 			// Korábbi visszaállítási kódok érvénytelenítése
@@ -1742,14 +1763,14 @@ STRING;
 			))) return 3;
 
 			$body = self::$resetBody;
-			$body = str_replace('++NAME++',$User['realname'],$body);
+			$body = str_replace('++NAME++',$User['name'],$body);
 			$body = str_replace('++URL++',ABSPATH.'/pw-reset?key='.urlencode($hash),$body);
 			$body = str_replace('++VALID++',date('Y-m-d H:i:s',$valid),$body);
 
 			if (System::SendMail(array(
 				'title' => 'CuStudy - Jelszóvisszaállítási kérelem',
 				'to' => array(
-					'name' => $User['realname'],
+					'name' => $User['name'],
 					'address' => $User['email'],
 				),
 				'body' => $body,
@@ -1788,6 +1809,9 @@ STRING;
 		static function Add($data){
 			global $db,$user;
 
+			# Jog. ellenörzése
+			if (System::PermCheck('groups.add')) return 1;
+
 			if (!System::ValuesExists($data,['name','theme','group_members'])) return 3;
 			foreach ($data as $key => $value){
 				switch($key){
@@ -1809,14 +1833,16 @@ STRING;
 			if (empty($theme)) return 4;
 
 			$insertGroup = $db->insert('groups',array(
-				'classid' => $user['classid'],
+				'classid' => $user['class'][0],
 				'name' => $data['name'],
 				'theme' => $data['theme'],
 			));
 
-			$users = $db->rawQuery('SELECT *
-									FROM `users`
-									WHERE `classid` = ?',array($user['classid']));
+			$users = $db->rawQuery('SELECT u.*
+										FROM `users` u
+										LEFT JOIN `class_members` cm
+										ON u.id = cm.userid
+										WHERE cm.classid = ?',array($user['class'][0]));
 			$users_l = array();
 			foreach ($users as $entry)
 				$users_l[] = $entry['id'];
@@ -1827,7 +1853,7 @@ STRING;
 			foreach($grpmem as $mem){
 				if (!in_array($mem,$users_l)) return 5;
 				$db->insert('group_members',array(
-					'classid' => $user['classid'],
+					'classid' => $user['class'][0],
 					'groupid' => $insertGroup,
 					'userid' => $mem,
 				));
@@ -1842,7 +1868,7 @@ STRING;
 			if (System::InputCheck($id,'numeric')) return 2;
 
 			# Jog. ellenörzése
-			if (System::ClassPermCheck($id,'groups')) return 1;
+			if (System::PermCheck('groups.edit',$id)) return 1;
 
 			if (!System::ValuesExists($data,['name','theme'])) return 3;
 			foreach ($data as $key => $value){
@@ -1886,7 +1912,7 @@ STRING;
 											FROM `group_members`
 											LEFT JOIN `users`
 											ON group_members.userid = users.id
-											WHERE group_members.classid = ? && group_members.groupid = ?',array($user['classid'],$id));
+											WHERE group_members.classid = ? && group_members.groupid = ?',array($user['class'][0],$id));
 				$memb = array();
 				foreach($members as $member)
 					$memb[] = $member['id'];
@@ -1896,7 +1922,7 @@ STRING;
 					if (System::InputCheck($entry,'numeric')) return 4;
 					if (in_array($entry,$members)) continue;
 					$db->insert('group_members',array(
-						'classid' => $user['classid'],
+						'classid' => $user['class'][0],
 						'groupid' => $id,
 						'userid' => $entry,
 					));
@@ -1912,17 +1938,17 @@ STRING;
 			if (System::InputCheck($id,'numeric')) return 2;
 
 			# Jog. ellenörzése
-			if (System::PermCheck('admin','admin')) return 1;
+			if (System::PermCheck('groups.delete',$id)) return 1;
 
 			# Csop. ellenörzése
 			$group = $db->rawQuery('SELECT *
 						FROM `groups`
-						WHERE `classid` = ? && `id` = ?',array($user['classid'],$id));
+						WHERE `classid` = ? && `id` = ?',array($user['class'][0],$id));
 			if (empty($group)) return 3;
 
 			$members = $db->rawQuery('SELECT *
 									FROM `group_members`
-									WHERE `classid` = ? && `groupid` = ?',array($user['classid'],$id));
+									WHERE `classid` = ? && `groupid` = ?',array($user['class'][0],$id));
 
 			if (!empty($members)){
 				$uids = [];
@@ -1936,7 +1962,7 @@ STRING;
 			}
 
 			# Függőségek feloldása (timetable)
-			$data = $db->where('classid',$user['classid'])->where('groupid',$id)->get('timetable');
+			$data = $db->where('classid',$user['class'][0])->where('groupid',$id)->get('timetable');
 			foreach ($data as $array)
 				Timetable::DeleteEntrys(array(array('id' => $array['id'])));
 
@@ -1951,7 +1977,7 @@ STRING;
 			global $db,$user;
 
 			# Jog. ellenörzése
-			If (System::PermCheck('admin')) return 1;
+			If (System::PermCheck('groupThemes.add')) return 1;
 
 			# Szüks. értékek ellenörzése
 			$data = System::TrashForeignValues(['name'],$data,true);
@@ -1966,7 +1992,7 @@ STRING;
 				if (System::InputCheck($value,$type)) return 2;
 			}
 
-			$data['classid'] = $user['classid'];
+			$data['classid'] = $user['class'][0];
 
 			$action = $db->insert('group_themes',$data);
 
@@ -1978,7 +2004,7 @@ STRING;
 			global $db;
 
 			# Jog. ellenörzése
-			If (System::ClassPermCheck($data['id'],'group_themes')) return 1;
+			If (System::PermCheck('groupThemes.edit',$data['id'])) return 1;
 
 			# Szüks. értékek ellenörzése
 			$data = System::TrashForeignValues(['name','id'],$data,true);
@@ -2004,10 +2030,10 @@ STRING;
 			global $db,$user;
 
 			# Jog. ellenörzése
-			if (System::ClassPermCheck($id,'group_themes')) return 1;
+			if (System::PermCheck('groupThemes.delete',$id)) return 1;
 
 			# Csoportok törlése
-			$groups = $db->where('classid',$user['classid'])->where('theme',$id)->get('groups');
+			$groups = $db->where('classid',$user['class'][0])->where('theme',$id)->get('groups');
 
 			foreach ($groups as $group)
 				GroupTools::Delete($group['id']);
@@ -2025,7 +2051,7 @@ STRING;
 			global $db,$user;
 
 			# Jog. ellenörzése
-			if(System::PermCheck('admin')) return 1;
+			if(System::PermCheck('teachers.add')) return 1;
 
 			# Alapadatok feldolgozása
 			if (!isset($datas['name']) || !isset($datas['short'])) return 2;
@@ -2044,7 +2070,7 @@ STRING;
 				}
 				if (System::InputCheck($value,$type)) return 2;
 			}
-			$basedata['classid'] = $user['classid'];
+			$basedata['classid'] = $user['class'][0];
 			$action = $db->insert('teachers',$basedata);
 			if (!is_numeric($action)) return 3;
 
@@ -2052,7 +2078,7 @@ STRING;
 			if (!isset($datas['lessons']) || empty($datas['lessons'])) return [$action];
 			foreach ($datas['lessons'] as $sublesson){
 				$action_l = $db->insert('lessons',array(
-					'classid' => $user['classid'],
+					'classid' => $user['class'][0],
 					'name' => $sublesson['name'],
 					'teacherid' => $action,
 					'color' => $sublesson['color'],
@@ -2087,7 +2113,7 @@ STRING;
 			}
 
 			# Jog. ellenörzése
-			if (System::ClassPermCheck($data['id'],'teachers')) return 1;
+			if (System::PermCheck('teachers.edit',$data['id'])) return 1;
 
 			# Adatbázisba írás
 			$action = $db->where('id',$data['id'])->update('teachers',$data);
@@ -2100,7 +2126,7 @@ STRING;
 			global $db;
 
 			# Jog. ellenörzése
-			if (System::ClassPermCheck($id,'teachers')) return 1;
+			if (System::PermCheck('teachers.delete',$id)) return 1;
 
 			$action = $db->where('id',$id)->delete('teachers');
 
@@ -2134,7 +2160,7 @@ STRING;
 			global $db, $user;
 
 			# Jog. ellenörzése
-			if(System::PermCheck('editor')) return 0x1;
+			if(System::PermCheck('homeworks.add')) return 0x1;
 
 			# Formátum ellenörzése
 			if (!System::ValuesExists($data,['lesson','text','week'])) return 0x2;
@@ -2177,7 +2203,7 @@ STRING;
 										LEFT JOIN (teachers t, lessons l)
 										ON (tt.lessonid = l.id && l.teacherid = t.id)
 										WHERE tt.classid = ? && tt.id = ? && t.name IS NOT NULL && l.name IS NOT NULL',
-							array($user['classid'],$data['lesson']));
+							array($user['class'][0],$data['lesson']));
 
 			if (empty($dbdata)) return 0x3;
 			else $dbdata = $dbdata[0];
@@ -2199,7 +2225,7 @@ STRING;
 						'name' => isset($data['fileTitle']) ? $data['fileTitle'] : 'Házi feladathoz feltöltött fájl',
 						'description' => isset($data['fileDesc']) ? $data['fileDesc'] : 'Házi feladathoz feltöltött fájl',
 						'lessonid' => $lessonId,
-						'classid' => $user['classid'],
+						'classid' => $user['class'][0],
 						'uploader' => $user['id'],
 						'size' => $file['size'],
 						'filename' => $file['name'],
@@ -2211,7 +2237,7 @@ STRING;
 				}
 			}
 
-			$db->insert('homeworks',array_merge($data,array('author' => $user['id'], 'classid' => $user['classid'])));
+			$db->insert('homeworks',array_merge($data,array('author' => $user['id'], 'classid' => $user['class'][0])));
 
 			return $uploadStatus;
 		}
@@ -2223,10 +2249,10 @@ STRING;
 			if (System::InputCheck($id,'numeric')) return 2;
 
 			# Jog. ellenörzése
-			if (System::ClassPermCheck($id,'homeworks')) return 1;
+			if (System::PermCheck('homeworks.delete',$id)) return 1;
 
 			# Függőségek feloldása (hw_markdone)
-			$data = $db->where('classid',$user['classid'])->where('homework',$id)->get('hw_markdone');
+			$data = $db->where('classid',$user['class'][0])->where('homework',$id)->get('hw_markdone');
 			foreach ($data as $array)
 				self::UndoMarkedDone($array['id']);
 
@@ -2241,9 +2267,9 @@ STRING;
 
 			$grpmember = $db->rawQuery('SELECT `groupid`
 							FROM `group_members`
-							WHERE `classid` = ? && `userid` = ?',array($user['classid'],$user['id']));
+							WHERE `classid` = ? && `userid` = ?',array($user['class'][0],$user['id']));
 
-			$addon = [$user['id'],$user['classid']];
+			$addon = [$user['id'],$user['class'][0]];
 			$ids = array(0);
 			foreach ($grpmember as $array)
 				$ids[] = $array['groupid'];
@@ -2326,7 +2352,7 @@ STRING;
 
 			# Késznek van-e már jelölve?
 			$exists = $db
-				->where('classid', $user['classid'])
+				->where('classid', $user['class'][0])
 				->where('userid', $user['id'])
 				->where('homework', $id)
 				->has('hw_markdone');
@@ -2349,7 +2375,7 @@ STRING;
 			$action = $db->insert('hw_markdone',array(
 				'userid' => $user['id'],
 				'homework' => $id,
-				'classid' => $user['classid'],
+				'classid' => $user['class'][0],
 			));
 
 			return $action ? 0 : 4;
@@ -2396,7 +2422,7 @@ STRING;
 			else { ?>
 				<a class="typcn typcn-times js_undoMarkedDone" title='Késznek jelölés visszavonása' href='#<?=$array['id']?>'></a>
 <?php       }
-			if (!System::PermCheck('admin')){ ?>
+			if (!System::PermCheck('homeworks.delete')){ ?>
 							            <a class="typcn typcn-info-large js_more_info" title='További információk' href='#<?=$array['id']?>'></a>
 							            <a class="typcn typcn-trash js_delete" title='Bejegyzés törlése' href='#<?=$array['id']?>'></a>
 <?php       } ?>
@@ -2408,7 +2434,7 @@ STRING;
 		            </tr>
 		        </tbody>
 		    </table>
-<?php       if (!System::PermCheck('editor')){ ?>
+<?php       if (!System::PermCheck('homeworks.add')){ ?>
 			    <a class='typcn typcn-plus btn js_add_hw' href='/homeworks/new'>Új házi feladat hozzáadása</a>
 <?php       }
 	        if ($onlyListActive)
@@ -2486,7 +2512,7 @@ STRING;
 									FROM `events`
 									WHERE `classid` = ?',
 
-									array($user['classid']));
+									array($user['class'][0]));
 
 			$output = [];
 			foreach ($data as $event){
@@ -2520,7 +2546,7 @@ STRING;
 			global $db, $user;
 
 			# Jog. ellenörzése
-			if(System::PermCheck('editor')) return 1;
+			if(System::PermCheck('events.add')) return 1;
 
 			# Formátum ellenörzése
 			if (!System::ValuesExists($data,['title','description','interval'])) return 2;
@@ -2551,7 +2577,7 @@ STRING;
 			if (!is_array($dates)) return 4;
 
 			$action = $db->insert('events',array(
-				'classid' => $user['classid'],
+				'classid' => $user['class'][0],
 				'start' => date('c',$dates[0]),
 				'end' => date('c',$dates[1]),
 				'title' => $data['title'],
@@ -2566,7 +2592,7 @@ STRING;
 		static function GetEventInfos($id){
 			global $db,$user;
 
-			$data = $db->where('id',$id)->where('classid',$user['classid'])->getOne('events');
+			$data = $db->where('id',$id)->where('classid',$user['class'][0])->getOne('events');
 			if (empty($data)) return 1;
 
 			return array(
@@ -2585,7 +2611,7 @@ STRING;
 			if (!System::ValuesExists($data,['title','description','interval'])) return 2;
 
 			# Jog. ellenörzése
-			if(System::ClassPermCheck($data['id'],'events')) return 1;
+			if(System::PermCheck('events.edit',$data['id'])) return 1;
 
 			# Formátum ellenörzése
 			foreach ($data as $key => $value){
@@ -2630,7 +2656,7 @@ STRING;
 			global $db;
 
 			# Jog. ellenörzése
-			if (System::ClassPermCheck($id,'events')) return 1;
+			if(System::PermCheck('events.delete',$id)) return 1;
 
 			$action = $db->where('id',$id)->delete('events');
 			return $action ? 0 : 2;
@@ -2640,7 +2666,7 @@ STRING;
 		static function ListEvents($Events = null){
 			if (empty($Events)){
 				global $db, $user;
-				$Events = $db->where('start > NOW()')->where('classid',$user['classid'])->orderBy('start', 'ASC')->get('events', 10);
+				$Events = $db->where('start > NOW()')->where('classid',$user['class'][0])->orderBy('start', 'ASC')->get('events', 10);
 			}
 			if (empty($Events)) return;
 
@@ -2683,7 +2709,7 @@ STRING;
 			global $db,$user;
 
 			$data = $db
-				->where('classid', $user['classid'])
+				->where('classid', $user['class'][0])
 				->where('week', 'b')
 				->has('timetable');
 
@@ -2705,7 +2731,7 @@ STRING;
 
 			$data = $db->rawQuery('SELECT *
 									FROM `timetable`
-									WHERE `classid` = ? && `week` = ?',array($user['classid'],'b'));
+									WHERE `classid` = ? && `week` = ?',array($user['class'][0],'b'));
 			if (empty($data))
 				return $sorting ? 'ASC' : 'A';
 
@@ -2772,7 +2798,7 @@ STRING;
 					if (System::InputCheck($value,'numeric')) return 3;
 
 				$Entry = array(
-					'classid' => $user['classid'],
+					'classid' => $user['class'][0],
 					'week' => $week,
 					'day' => $sub['day'],
 					'lesson' => $sub['lesson'],
@@ -2796,7 +2822,7 @@ STRING;
 				$action = $db->where('id',$id)->delete('timetable',$id);
 
 				# Órarend-entryhez tartozó HW-k törlése
-				$data = $db->where('classid',$user['classid'])->where('lesson',$id)->get('homeworks');
+				$data = $db->where('classid',$user['class'][0])->where('lesson',$id)->get('homeworks');
 				foreach ($data as $array)
 					HomeworkTools::Delete($array['id']);
 
@@ -2806,7 +2832,7 @@ STRING;
 
 		static function ProgressTable($data){
 			# Jog. ellenörzése
-			if (System::PermCheck('admin')) return 2;
+			if (System::PermCheck('timetables.edit')) return 2;
 
 			# Hét ellenörzése
 			$week = strtolower($data['week']);
@@ -2943,7 +2969,7 @@ STRING;
 		static function GetHWTimeTable($week = null, $lastDay = null, $allgroup = true){
 			global $user, $db;
 
-			$addon = array($user['classid']);
+			$addon = array($user['class'][0]);
 
 			if (!empty($week) && !empty($lastDay)){
 				$weekday = strtotime('+ '.($week - date('W')).' weeks', strtotime('12 am'));
@@ -2972,7 +2998,7 @@ STRING;
 
 			$userInGroups = $db->rawQuery('SELECT `groupid`
 											FROM `group_members`
-											WHERE `classid` = ? && `userid` = ?',array($user['classid'],$user['id']));
+											WHERE `classid` = ? && `userid` = ?',array($user['class'][0],$user['id']));
 			$groups = array(0);
 			foreach ($userInGroups as $array)
 				$groups[] = $array['groupid'];
@@ -2998,7 +3024,7 @@ STRING;
 											ON (l.id = tt.lessonid && l.classid = tt.classid)
 											WHERE tt.classid = ? && tt.day > ? $onlyGrp
 											ORDER BY tt.day, tt.lesson"
-									,array($user['classid'],$hour >= 8 && $minute >= 0 ? $dayInWeek : $dayInWeek-1));
+									,array($user['class'][0],$hour >= 8 && $minute >= 0 ? $dayInWeek : $dayInWeek-1));
 
 				$data_nextWeek = $db->rawQuery("SELECT l.name, l.color, tt.id, tt.lesson, tt.day, tt.week, (SELECT `name` FROM `groups` WHERE `id` = tt.groupid) as group_name
 											FROM timetable tt
@@ -3006,7 +3032,7 @@ STRING;
 											ON (l.id = tt.lessonid && l.classid = tt.classid)
 											WHERE tt.classid = ? $onlyGrp
 											ORDER BY tt.day, tt.lesson"
-									,array($user['classid']));
+									,array($user['class'][0]));
 
 				$data_nW = array();
 				foreach ($data_nextWeek as $array){
@@ -3071,13 +3097,13 @@ STRING;
 			WHERE tt.classid = ? && tt.week = ?";
 
 			# Órarend lekérés segédtömb elékészítése
-			$data = array($user['classid'],$user['classid'],$week);
+			$data = array($user['class'][0],$user['class'][0],$week);
 
 			$groupdata = $db->rawQuery(
 				"SELECT DISTINCT g.id
 				FROM group_members gm
 				LEFT JOIN groups g ON gm.groupid = g.name
-				WHERE gm.userid = ? && gm.classid = ?", array($user['id'], $user['classid']));
+				WHERE gm.userid = ? && gm.classid = ?", array($user['id'], $user['class'][0]));
 
 			# Ha minden csoport adatait szeretnénk lekérni...
 			if ($allgroups == false){
@@ -3089,7 +3115,7 @@ STRING;
 				}
 			}
 
-			$groups = $db->rawQuery('SELECT `id`, `name` FROM `groups` WHERE classid = ?',array($user['classid']));
+			$groups = $db->rawQuery('SELECT `id`, `name` FROM `groups` WHERE classid = ?',array($user['class'][0]));
 			$grp_list = array();
 			foreach ($groups as $subg)
 				$grp_list[$subg['id']] = $subg['name'];
@@ -3185,7 +3211,7 @@ STRING;
 			} ?>
 <?php
 		print "</tbody></table>";
-		if (!empty($week) && !System::PermCheck('admin')) print "<button class='btn sendbtn'>Módosítások mentése</button>";
+		if (!empty($week) && !System::PermCheck('timetables.edit')) print "<button class='btn sendbtn'>Módosítások mentése</button>";
 		}
 
 		// Órarend cella kirenderelő

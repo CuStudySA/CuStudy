@@ -47,7 +47,7 @@
 					System::Respond('',1,array('html' => $html));
 				}
 				else {
-					$data = $db->where('id',$ENV['POST']['id'])->where('classid',$user['classid'])->getOne('events');
+					$data = $db->where('id',$ENV['POST']['id'])->where('classid',$user['class'][0])->getOne('events');
 
 					if (!empty($data)){
 						$data['start'] = str_replace('.','-',$data['start']);
