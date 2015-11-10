@@ -148,17 +148,6 @@
 			'file' => 		'groups',
 		),
 
-		'googleauth' => array(
-			'title' => 		'',
-			'css' => 		[],
-			'js' => 		[],
-			'customjs' =>   [],
-			'minperm' => 	'guest',
-			'maxperm' => 	'guest',
-			'reqdoc' => 	[],
-			'file' => 		'googleauth',
-		),
-
 		'pw-reset' => array(
 			'title' => 		'Jelszóvisszaállítás',
 			'css' => 		['login.css'],
@@ -262,7 +251,6 @@
 			'pw-reset' => ['view'],
 			'login' => ['view'],
 			'not-found' => ['view'],
-			'googleauth' => ['view'],
 		),
 		'everybody' => array(
 			'not-found' => ['view'],

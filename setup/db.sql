@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Gép: 127.0.0.1
--- Létrehozás ideje: 2015. Nov 07. 19:08
+-- Létrehozás ideje: 2015. Nov 10. 18:35
 -- Kiszolgáló verziója: 5.6.21
 -- PHP verzió: 5.6.3
 
@@ -19,22 +19,6 @@ SET time_zone = "+00:00";
 --
 -- Adatbázis: `betonhomework`
 --
-
--- --------------------------------------------------------
-
---
--- Tábla szerkezet ehhez a táblához `admins`
---
-
-CREATE TABLE `admins` (
-  `id` int(11) NOT NULL,
-  `username` tinytext CHARACTER SET utf8 COLLATE utf8_hungarian_ci NOT NULL,
-  `password` tinytext CHARACTER SET utf8 COLLATE utf8_hungarian_ci NOT NULL,
-  `session` tinytext CHARACTER SET utf8 COLLATE utf8_hungarian_ci NOT NULL,
-  `realname` tinytext CHARACTER SET utf8 COLLATE utf8_hungarian_ci NOT NULL,
-  `active` int(11) NOT NULL DEFAULT '1',
-  `priv` tinytext CHARACTER SET utf8 COLLATE utf8_hungarian_ci NOT NULL COMMENT 'schooladmin,sysadmin'
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -77,7 +61,7 @@ CREATE TABLE `events` (
   `title` tinytext COLLATE utf8_hungarian_ci NOT NULL,
   `description` text COLLATE utf8_hungarian_ci NOT NULL,
   `isallday` int(11) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
 -- --------------------------------------------------------
 
@@ -88,7 +72,7 @@ CREATE TABLE `events` (
 CREATE TABLE `ext_connections` (
   `id` int(11) NOT NULL,
   `userid` int(11) NOT NULL,
-  `provider` enum('google','facebook','twitter','') COLLATE utf8_hungarian_ci NOT NULL,
+  `provider` tinytext COLLATE utf8_hungarian_ci NOT NULL,
   `account_id` tinytext COLLATE utf8_hungarian_ci NOT NULL,
   `name` tinytext COLLATE utf8_hungarian_ci NOT NULL,
   `picture` text COLLATE utf8_hungarian_ci NOT NULL,
@@ -125,7 +109,7 @@ CREATE TABLE `global_settings` (
   `id` int(11) NOT NULL,
   `key` tinytext COLLATE utf8_hungarian_ci NOT NULL,
   `value` tinytext COLLATE utf8_hungarian_ci NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
 -- --------------------------------------------------------
 
@@ -379,7 +363,7 @@ CREATE TABLE `pw_reset` (
   `hash` binary(64) NOT NULL,
   `userid` int(11) NOT NULL,
   `expires` timestamp NULL DEFAULT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
 -- --------------------------------------------------------
 
@@ -458,12 +442,6 @@ CREATE TABLE `users` (
 --
 -- Indexek a kiírt táblákhoz
 --
-
---
--- A tábla indexei `admins`
---
-ALTER TABLE `admins`
-  ADD PRIMARY KEY (`id`);
 
 --
 -- A tábla indexei `class`
@@ -638,11 +616,6 @@ ALTER TABLE `users`
 --
 
 --
--- AUTO_INCREMENT a táblához `admins`
---
-ALTER TABLE `admins`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
---
 -- AUTO_INCREMENT a táblához `class`
 --
 ALTER TABLE `class`
@@ -651,22 +624,22 @@ ALTER TABLE `class`
 -- AUTO_INCREMENT a táblához `class_members`
 --
 ALTER TABLE `class_members`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 --
 -- AUTO_INCREMENT a táblához `events`
 --
 ALTER TABLE `events`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 --
 -- AUTO_INCREMENT a táblához `ext_connections`
 --
 ALTER TABLE `ext_connections`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 --
 -- AUTO_INCREMENT a táblához `files`
 --
 ALTER TABLE `files`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
 --
 -- AUTO_INCREMENT a táblához `global_settings`
 --
@@ -676,12 +649,12 @@ ALTER TABLE `global_settings`
 -- AUTO_INCREMENT a táblához `groups`
 --
 ALTER TABLE `groups`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 --
 -- AUTO_INCREMENT a táblához `group_members`
 --
 ALTER TABLE `group_members`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 --
 -- AUTO_INCREMENT a táblához `group_themes`
 --
@@ -691,7 +664,7 @@ ALTER TABLE `group_themes`
 -- AUTO_INCREMENT a táblához `homeworks`
 --
 ALTER TABLE `homeworks`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=54;
 --
 -- AUTO_INCREMENT a táblához `homework_files`
 --
@@ -701,7 +674,7 @@ ALTER TABLE `homework_files`
 -- AUTO_INCREMENT a táblához `hw_markdone`
 --
 ALTER TABLE `hw_markdone`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=70;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=71;
 --
 -- AUTO_INCREMENT a táblához `invitations`
 --
@@ -711,52 +684,52 @@ ALTER TABLE `invitations`
 -- AUTO_INCREMENT a táblához `lessons`
 --
 ALTER TABLE `lessons`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 --
 -- AUTO_INCREMENT a táblához `log_central`
 --
 ALTER TABLE `log_central`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=154;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=169;
 --
 -- AUTO_INCREMENT a táblához `log_lesson_add`
 --
 ALTER TABLE `log_lesson_add`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 --
 -- AUTO_INCREMENT a táblához `log_lesson_del`
 --
 ALTER TABLE `log_lesson_del`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 --
 -- AUTO_INCREMENT a táblához `log_lesson_edit`
 --
 ALTER TABLE `log_lesson_edit`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 --
 -- AUTO_INCREMENT a táblához `log_login`
 --
 ALTER TABLE `log_login`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=106;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=112;
 --
 -- AUTO_INCREMENT a táblához `log_user_add`
 --
 ALTER TABLE `log_user_add`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 --
 -- AUTO_INCREMENT a táblához `log_user_del`
 --
 ALTER TABLE `log_user_del`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 --
 -- AUTO_INCREMENT a táblához `log_user_edit`
 --
 ALTER TABLE `log_user_edit`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 --
 -- AUTO_INCREMENT a táblához `pw_reset`
 --
 ALTER TABLE `pw_reset`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 --
 -- AUTO_INCREMENT a táblához `school`
 --
@@ -766,22 +739,22 @@ ALTER TABLE `school`
 -- AUTO_INCREMENT a táblához `sessions`
 --
 ALTER TABLE `sessions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=93;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=103;
 --
 -- AUTO_INCREMENT a táblához `teachers`
 --
 ALTER TABLE `teachers`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 --
 -- AUTO_INCREMENT a táblához `timetable`
 --
 ALTER TABLE `timetable`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
 --
 -- AUTO_INCREMENT a táblához `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

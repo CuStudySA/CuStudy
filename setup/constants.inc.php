@@ -45,3 +45,15 @@
 		'end' => '',
 		'requiredDoc' => '',
 	);
+
+/**
+ * Külsõ szolgáltatókhoz tartozó kliens azonosítõ és titkos kulcs tároló.
+ *
+ * Példa a lenti tömb egyik elemére:
+ * array(
+ *    'id' => '123456789' //kliens azonosítója
+ *    'secret' => 'abcdefghijklmn', //klienshez tartozó titkos kulcs
+ * )
+ */
+	$ENV['oAuthAPI'] = array(
+	);
