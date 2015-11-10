@@ -1090,7 +1090,7 @@ STRING
 		static function GetUsedSpace(){
 			global $db, $user;
 
-			return $db->where('classid', $user['classid'])->getOne('files','SUM(size)')['SUM(size)'];
+			return $db->where('classid', $user['class'][0])->getOne('files','SUM(size)')['SUM(size)'];
 		}
 
 		static function GetFreeSpace(){

@@ -33,7 +33,7 @@
 <?php } ?>
 </ul>
 <?php
-	if (!System::PermCheck('editor')){
+	if (!System::PermCheck('files.add')){
 		$Storage = FileTools::GetSpaceUsage(); ?>
 <div id="storage-use">
 <h2>Rendelkezésre álló tárhely</h2>
