@@ -316,7 +316,7 @@
 			if (!$ENV['class']['active']) return true;
 
 			# Iskola ellenörzése
-			$ENV['school'] = $db->where('id',$ENV['class']['id'])->getOne('school');
+			$ENV['school'] = $db->where('id',$ENV['class']['school'])->getOne('school');
 			if (!$ENV['school']['active']) return true;
 
 			return false;
