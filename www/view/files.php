@@ -3,7 +3,7 @@
 <!-- <h2 class='title'>Nemrégiben hozzáadva</h2> -->
 <ul class='files flex'>
 <?php
-	$data = $db->where('classid', $user['classid'])->orderBy('time')->get('files');
+	$data = $db->where('classid', $user['class'][0])->orderBy('time')->get('files');
 
 	foreach($data as $file){ ?>
 		<li>

@@ -6,7 +6,7 @@
 	$ENV['SOFTWARE'] = array(
 		'NAME' => 'CuStudy',
 		'CODENAME' => 'BlueSky',
-		'VER' => '1.0',
+		'VER' => '1.1',
 		'DEVELOPER' => 'CuStudy Software Alliance',
 		'DEV_STARTED' => '2014',
 		'COMMIT' => LATEST_COMMIT_ID,
