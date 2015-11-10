@@ -29,20 +29,19 @@
 
 		case 'members':
 			$id = $ENV['POST']['id'];
-			if (System::ClassPermCheck($id,'groups')) System::Respond();
 
 			$group = $db->rawQuery('SELECT *
 									FROM `groups`
-									WHERE `classid` = ? AND `id` = ?',array($user['classid'],$id))[0];
+									WHERE `classid` = ? AND `id` = ?',array($user['class'][0],$id))[0];
 			if (empty($group)) System::Respond();
 
 			$html = "<p><b>A(z) {$group['name']} ({$ENV['class']['classid']}) csoport tagjai:</b></p><ul>";
 
-			$members = $db->rawQuery('SELECT users.realname as `name`
+			$members = $db->rawQuery('SELECT users.name as `name`
 									FROM `group_members`
 									LEFT JOIN `users`
 									ON group_members.userid = users.id
-									WHERE group_members.classid = ? && group_members.groupid = ?',array($user['classid'],$id));
+									WHERE group_members.classid = ? && group_members.groupid = ?',array($user['class'][0],$id));
 
 			foreach ($members as $member)
 				$html.= "<li>{$member['name']}</li>";
@@ -62,7 +61,7 @@
 
 					$data = $db->rawQuery('SELECT *
 											FROM `group_themes`
-											WHERE `id` = ? && `classid` = ?',array($ENV['POST']['id'],$user['classid']));
+											WHERE `id` = ? && `classid` = ?',array($ENV['POST']['id'],$user['class'][0]));
 
 					if (empty($data)) System::Respond();
 					else $data = $data[0];

@@ -22,7 +22,7 @@
 						<p>Felhasználónév: <input type='text' name='username' required></p>
 						<p>Jelszó: <input type='password' name='password' required></p>
 						<p>Jelszó megerősít.: <input type='password' name='verpasswd' required></p>
-						<p>Teljes név: <input type='text' name='realname' value='<?=$data['name']?>' required></p>
+						<p>Teljes név: <input type='text' name='name' value='<?=$data['name']?>' required></p>
 						<p>E-mail cím: <input type='text' name='email' value='<?=$data['email']?>' readonly></p>
 						<input type='hidden' name='token' value='<?=$token?>'>
 						<p><button class='btn'>Alapadatok mentése és továbblépés</button></p>

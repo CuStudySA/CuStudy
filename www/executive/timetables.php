@@ -3,7 +3,7 @@
 		case 'getoptions':
 			$Groups = $db->rawQuery("SELECT g.id, g.name
 				FROM groups g
-				WHERE g.classid = ?", array($user['classid']));
+				WHERE g.classid = ?", array($user['class'][0]));
 
 			$Lessons = $db->rawQuery(
 				"SELECT
@@ -11,7 +11,7 @@
 					@teacher := l.teacherid as teacherid,
 					(SELECT short FROM teachers t WHERE t.id = @teacher) as teacher
 				FROM lessons l
-				WHERE l.classid = ? ORDER BY l.name", array($user['classid']));
+				WHERE l.classid = ? ORDER BY l.name", array($user['class'][0]));
 
 			System::Respond('',1,array(
 				'groups' => $Groups,

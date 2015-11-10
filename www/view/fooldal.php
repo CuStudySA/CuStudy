@@ -8,7 +8,7 @@
 	else if ($hour < 22) $welcome = 'Jó estét';
 ?>
 
-<h1><?=$welcome?> <span class='welcomeName'><?=$user['realname']?></span>!</h1>
+<h1><?=$welcome?> <span class='welcomeName'><?=$user['name']?></span>!</h1>
 
 	<div class='hWContent'>
 <?php
@@ -31,7 +31,7 @@
 
 	$grpmember = $db->rawQuery('SELECT `groupid`
 					FROM `group_members`
-					WHERE `classid` = ? && `userid` = ?',array($user['classid'],$user['id']));
+					WHERE `classid` = ? && `userid` = ?',array($user['class'][0],$user['id']));
 
 	$ids = array(0);
 	foreach ($grpmember as $array)
@@ -48,7 +48,7 @@
 									WHERE tt.classid = ? && ((tt.week = ? && tt.day > ?) || tt.week = ?)
 									ORDER BY tt.week {$sorting}, tt.day, tt.lesson",
 
-									array($user['classid'],$actualWeek,$day,$actualWeek == 'A' ? 'b' : 'a'));
+									array($user['class'][0],$actualWeek,$day,$actualWeek == 'A' ? 'b' : 'a'));
 	}
 	else {
 		$timeTable_partWeek = $db->rawQuery("SELECT tt.week, tt.day, tt.lesson, l.name, t.name as teacher, l.color, tt.groupid
@@ -58,7 +58,7 @@
 									WHERE tt.classid = ? && tt.day > ?
 									ORDER BY tt.day, tt.lesson",
 
-									array($user['classid'],$day));
+									array($user['class'][0],$day));
 		if (empty($timeTable_partWeek))
 			$timeTable_entireWeek = $db->rawQuery("SELECT tt.week, tt.day, tt.lesson, l.name, t.name as teacher, l.color, tt.groupid
 								FROM timetable tt
@@ -67,7 +67,7 @@
 								WHERE tt.classid = ?
 								ORDER BY tt.day, tt.lesson",
 
-								array($user['classid']));
+								array($user['class'][0]));
 		else $timeTable_entireWeek = [];
 
 		$timeTable = array_merge($timeTable_partWeek,$timeTable_entireWeek);

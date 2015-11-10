@@ -33,5 +33,5 @@
 </head>
 <body>
 	<script>
-		var _USRGRP = "<?=USRGRP?>";
+		var _USRGRP = "<?=ROLE?>";
 	</script>

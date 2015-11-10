@@ -162,7 +162,7 @@ $(function(){
 							$elemlista.append($newLessonTile);
 
 							$elem.find('.js_thm_edit').on('click', e_thm_edit);
-							//$elem.find('.js_thm_del').on('click', e_thm_del);
+							$elem.find('.js_thm_del').on('click', e_thm_del);
 
 							// Csop.kat. hozzáadása a felülethez
 							var $templ = $listTempl.clone();

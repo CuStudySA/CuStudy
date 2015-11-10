@@ -13,14 +13,14 @@
 			</div>
 			<div class="bottom">
 				<a class="typcn typcn-info-large js_more_info" href="#<?=$file['id']?>" title="További információk"></a>
-<?php           if (!System::PermCheck('admin')){ ?>
+<?php           if (!System::PermCheck('files.delete')){ ?>
 					<a class="typcn typcn-trash js_delete" href="#<?=$file['id']?>" title="Fájl törlése"></a>
 <?php           } ?>
 				<a class="typcn typcn-download" href="/files/download/<?=$file['id']?>" title="Fájl letöltése" download></a>
 			</div>
 		</li>
 <?php }
-	if (!System::PermCheck('editor')) { ?>
+	if (!System::PermCheck('files.add')) { ?>
 		<li class='new'>
 			<div class="top">
 				<span class='rovid'>Új dokumentum</span>

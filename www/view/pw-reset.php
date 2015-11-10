@@ -16,7 +16,7 @@
 				<div id='contentDiv'>
 <?php   if (!$Reset['expired']){
 			$User = $db->where('id', $Reset['userid'])->getOne('users'); ?>
-					<p><?=$User['realname']?>, kérjük adja meg az új jelszavát:</p>
+					<p><?=$User['name']?>, kérjük adja meg az új jelszavát:</p>
 					<form id='pw-reset-form'>
 						<p>Jelszó: <input type='password' name='password' required></p>
 						<p>Jelszó megerősít.: <input type='password' name='verpasswd' required></p>
