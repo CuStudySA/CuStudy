@@ -10,6 +10,7 @@
 	# Script futtatás össidejének kiíratása ?>
 
 	<!-- Script execution time: <?=round($ENV['EXECTIME']['end'] - $ENV['EXECTIME']['start'],4)?>s -->
+	<!-- Executed SQL queries: <?=MysqliDB::$numberOfExecution?> query -->
 
 <?php
 	# Szoftver információ kiíratása ?>

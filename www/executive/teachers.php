@@ -11,7 +11,7 @@
 
 			$data = $db->rawQuery('SELECT *
 									FROM  `teachers`
-									WHERE  `classid` = ? &&  `id` = ?',array($user['classid'],$id));
+									WHERE  `classid` = ? &&  `id` = ?',array($user['class'][0],$id));
 			if (empty($data)) System::Respond();
 
 			System::Respond('',1,$data[0]);

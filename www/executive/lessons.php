@@ -42,12 +42,12 @@
 
 					if (System::InputCheck($lesid,'numeric')) System::Respond();
 
-					if (System::ClassPermCheck($lesid,'lessons')) System::Respond();
+					if (System::PermCheck('lessons.edit',$lesid)) System::Respond();
 
 					$data = $db->rawQuery("SELECT le.name AS name, le.color AS color, t.id AS tid
 											FROM lessons le
 											LEFT JOIN teachers t ON t.id = le.teacherid
-											WHERE le.classid = ? AND le.id = ?",array($user['classid'],$lesid));
+											WHERE le.classid = ? AND le.id = ?",array($user['class'][0],$lesid));
 
 					if (empty($data)) System::Respond();
 					$data = $data[0];
@@ -65,7 +65,7 @@
 				case 'teachers':
 					$teachers = $db->rawQuery("SELECT *
 												FROM teachers WHERE classid = ?
-												ORDER BY name",array($user['classid']));
+												ORDER BY name",array($user['class'][0]));
 
 					$json = array('options' => []);
 

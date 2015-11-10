@@ -3,7 +3,7 @@
 							FROM lessons le
 							LEFT JOIN teachers t ON t.id = le.teacherid
 							WHERE le.classid = ?
-							ORDER BY le.name",array($user['classid'])); ?>
+							ORDER BY le.name",array($user['class'][0])); ?>
 
 	<h1 id="h1cim">A(z) <?=$ENV['class']['classid']?> osztály tantárgyai</h1>
 	<ul class='lessons flex'>
@@ -18,15 +18,19 @@
 				<span class='tantargy'><?=$subarray['name']?></span>
 				<span class='tanar'><?=$subarray['teacher']?></span>
 			</div>
-<?php if (!System::PermCheck('admin')) { ?>
+<?php if (!System::PermCheck('lessons.edit') || !System::PermCheck('lessons.delete')) { ?>
 			<div class="bottom">
-				<a class="typcn typcn-pencil js_lesson_edit" href="#<?=$subarray['id']?>" title="Módosítás"></a>
-				<a class="typcn typcn-trash js_lesson_delete" href="#<?=$subarray['id']?>" title="Törlés"></a>
+<?php           if (!System::PermCheck('lessons.edit')) { ?>
+					<a class="typcn typcn-pencil js_lesson_edit" href="#<?=$subarray['id']?>" title="Módosítás"></a>
+<?php           }
+				if (!System::PermCheck('lessons.delete')) { ?>
+					<a class="typcn typcn-trash js_lesson_delete" href="#<?=$subarray['id']?>" title="Törlés"></a>
+<?php           } ?>
 			</div>
 <?php } ?>
 		</li>
 <?php }
-	if (!System::PermCheck('admin')) { ?>?>
+	if (!System::PermCheck('lessons.add')) { ?>?>
 		<li class='new'>
 			<div class="top clearfix">
 				<span class='tantargy'>Új tantárgy</span>

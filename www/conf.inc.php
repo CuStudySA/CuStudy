@@ -2,21 +2,11 @@
 	# Konstansok, paraméterek betöltése
 	require_once 'constants.inc.php';
 
-	# Jogosultásgi szintek meghatározása
-	$PERM = array(
-		'sysadmin' => 6,
-		'schooladmin' => 5,
-		'admin' => 4,
-		'editor' => 3,
-		'user' => 2,
-		'guest' => 1,
-	);
-
 	# Szoftveradatok definiálása
 	$ENV['SOFTWARE'] = array(
 		'NAME' => 'CuStudy',
 		'CODENAME' => 'BlueSky',
-		'VER' => '1.0',
+		'VER' => '1.1',
 		'DEVELOPER' => 'CuStudy Software Alliance',
 		'DEV_STARTED' => '2014',
 		'COMMIT' => LATEST_COMMIT_ID,
@@ -80,7 +70,7 @@
 			'file' => 		'login',
 		),
 
-		'404' => array(
+		'not-found' => array(
 			'title' => 		'404',
 			'css' => 		[],
 			'js' => 		[],
@@ -158,17 +148,6 @@
 			'file' => 		'groups',
 		),
 
-		'googleauth' => array(
-			'title' => 		'',
-			'css' => 		[],
-			'js' => 		[],
-			'customjs' =>   [],
-			'minperm' => 	'guest',
-			'maxperm' => 	'guest',
-			'reqdoc' => 	[],
-			'file' => 		'googleauth',
-		),
-
 		'pw-reset' => array(
 			'title' => 		'Jelszóvisszaállítás',
 			'css' => 		['login.css'],
@@ -239,4 +218,48 @@
 			'file' => 		'events',
 			'addons' =>     ['fullCalendar','dateRangePicker'],
 		),
+	);
+
+	$Perm = array(
+		'students' => array(
+			'visitor' => array(
+				'timetables' => ['view'],
+				'homeworks' => ['view'],
+				'events' => ['view'],
+				'files' => ['view'],
+				'teachers' => ['view'],
+				'lessons' => ['view'],
+			),
+			'editor' => array(
+				'homeworks' => ['add'],
+				'events' => ['add'],
+				'files' => ['add'],
+			),
+			'admin' => array(
+				'timetables' => ['edit'],
+				'homeworks' => ['delete'],
+				'events' => ['edit','delete'],
+				'files' => ['edit','delete'],
+				'teachers' => ['add','edit','delete'],
+				'lessons' => ['add','edit','delete'],
+				'groups' => ['view', 'add', 'edit', 'delete', 'list'],
+				'groupThemes' => ['add', 'edit', 'delete'],
+				'users' => ['view', 'add', 'edit', 'delete', 'editSecurity', 'invite'],
+			),
+		),
+		'guest' => array(
+			'pw-reset' => ['view'],
+			'login' => ['view'],
+			'not-found' => ['view'],
+		),
+		'everybody' => array(
+			'not-found' => ['view'],
+			'fooldal' => ['view'],
+			'profile' => ['view'],
+		),
+	);
+
+	$permKeyDB = array(
+		'timetables' => 'timetable',
+		'groupThemes' => 'group_themes',
 	);

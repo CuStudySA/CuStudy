@@ -24,7 +24,7 @@
 				$i++;
 				$userdata = $db->where('id',$subdata['user'])->getOne('users');
 				if (empty($userdata)) continue;
-				if (USRGRP == 'admin' && $userdata['classid'] != $user['classid']) continue;
+				if (USRGRP == 'admin' && $userdata['classid'] != $user['class'][0]) continue;
 				switch ($subdata['action']){
 					case 'login':
 						$action = 'Bejelentkezés';
@@ -33,7 +33,7 @@
 						<tr>
 							<td class="entryid"><?=$subdata['id']?></td>
 							<td class="timestamp ttime"><time datetime="<?=date('c',strtotime($subdata['time']))?>" data-order="{{y}}. {{mo}} {{d}}.<br>{{h}}:{{mi}}"></time><span class="dynt-el"></span></td><!--:{{s}}-->
-							<td><?=$userdata['realname']?></td>
+							<td><?=$userdata['name']?></td>
 							<td class="reftype">
 								<span class="expand-section"><?=$action?></span>
 							</td>

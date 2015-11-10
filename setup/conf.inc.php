@@ -2,17 +2,6 @@
 	# Konstansok, paraméterek betöltése
 	require_once 'constants.inc.php';
 
-	# Jogosultásgi szintek meghatározása
-/**
- * A jogosultsági szintek a névvel és a hozzá tartouó szint értékkek (minél nagyobb a jogosultság, annál magasabb az érték).
- *
- * Például:
- *      'guest' => 0,
- *      'user   => 1,
- */
-	$PERM = array(
-	);
-
 	# Szoftveradatok definiálása
 	$ENV['SOFTWARE'] = array(
 		'NAME' => '',
@@ -70,4 +59,12 @@
  * )
  */
 	$pages = array(
+	);
+
+	$Perm = array(
+		'students' => array(
+		),
+	);
+
+	$permKeyDB = array(
 	);
