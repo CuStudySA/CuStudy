@@ -22,6 +22,9 @@
 	require $root.'resources/php/functions.php';
 	require $root.'resources/php/messages.php';
 
+	# Külső szolgáltatók API-jának betöltése
+	require $root.'resources/php/ExternalAPIs.php';
+
 	# Karbantartási állapot ellenörzése
 	System::LoadMaintenance();
 
@@ -72,8 +75,8 @@
 		else $do = $ENV['do'];
 	}
 
-	if ($do === "login" || $do === "fooldal")
-		System::FixPath('/');
+	//if ($do === "login" || $do === "fooldal")
+		//System::FixPath('/');
 
 	# Kiléptetés
 	if ($do === 'logout'){

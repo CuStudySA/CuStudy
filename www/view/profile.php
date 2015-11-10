@@ -1,44 +1,57 @@
 <?php
-
 	$do = !isset($ENV['URL'][0]) ? 'default' : $ENV['URL'][0];
 
 	switch ($do) {
 		case 'connect':
 			if (!isset($ENV['URL'][1])) System::Redirect('/profile');
-			switch($ENV['URL'][1]){
-				case 'google':
-					if (isset($ENV['GET']['error']))
-						System::Redirect('/profile?error=A fiók összekapcsolása nem sikerült, mert távoli szolgáltatónál ismeretlen hiba történt!');
+			$provider = $ENV['URL'][1];
 
-					if (isset($ENV['GET']['code'])){
-						$remUser = ExtConnTools::Request('https://www.googleapis.com/plus/v1/people/me',ExtConnTools::GetAccessToken($ENV['GET']['code'],ABSPATH.'/profile/connect/google'));
-						$data = $db->where('account_id',$remUser['id'])->getOne('ext_connections');
+			if (!in_array($provider,array_keys($ENV['oAuthAPI']))) die();
 
-						if (!empty($data)){
-							if ($data['userid'] == $user['userid']) System::Redirect('/profile?error=A fiók összekapcsolása nem sikerült, mert ez a fiók már össze van kapcsolva az ön CuStudy fiókjával!');
-							else System::Redirect('/profile?error=A fiók összekapcsolása nem sikerült, mert ez a fiók egy másik CuStudy-felhasználóhoz korábban már össze lett kapcsolva!');
-						}
+			$apiName = ExtConnTools::$resolveAPIname[$provider];
+			$api = new $apiName($ENV['oAuthAPI'][$provider]['id'],$ENV['oAuthAPI'][$provider]['secret'],"/profile/connect/{$provider}");
 
-						$data = $db->where('provider','google')->where('userid',$user['id'])->getOne('ext_connections');
-						if (!empty($data)) System::Redirect('/profile?error=A fiók összekapcsolása nem sikerült, mert ez a fiók már össze van kapcsolva a kiválasztott szolgáltató valamely fiókjával!');
+			if (empty($ENV['GET']['code']))
+				$api->getCode();
 
-						$db->insert('ext_connections',array(
-							'userid' => $user['id'],
-							'provider' => 'google',
-							'account_id' => $remUser['id'],
-							'name' => $remUser['displayName'],
-							'email' => $remUser['emails'][0]['value'],
-							'picture' => $remUser['image']['url'],
-						));
+			else {
+				$code = $ENV['GET']['code'];
+				try {
+					$Auth = $api->getTokens($code, 'authorization_code');
+				}
+				catch(oAuthRequestException $e){
+					die(header(ABSPATH."/?errtype=remote&prov={$provider}"));
+				}
+				$aToken = $Auth['access_token'];
+				$remUser = $api->getUserInfo($aToken);
 
-						die(header('Location: /profile'));
-					}
+				$data = $db->where('account_id',$remUser['id'])->where('provider',$provider)->getOne('ext_connections');
 
-					else
-						System::Redirect("https://accounts.google.com/o/oauth2/auth?response_type=code&client_id=".ExtConnTools::CLIENTID."&redirect_uri=".ABSPATH."/profile/connect/google&scope=email");
-				break;
+				if (!empty($data)){
+					if ($data['userid'] == $user['userid']) System::Redirect('/profile?error=A fiók összekapcsolása nem sikerült, mert ez a fiók már össze van kapcsolva az ön CuStudy fiókjával!');
+					else System::Redirect('/profile?error=A fiók összekapcsolása nem sikerült, mert ez a fiók egy másik CuStudy-felhasználóhoz korábban már össze lett kapcsolva!');
+				}
+
+				$data = $db->where('provider',$provider)->where('userid',$user['id'])->getOne('ext_connections');
+				if (!empty($data)) System::Redirect('/profile?error=A fiók összekapcsolása nem sikerült, mert ez a fiók már össze van kapcsolva a kiválasztott szolgáltató valamely fiókjával!');
+
+				$insertData = array();
+				if ($provider == 'google')
+					$insertData = array(
+						'email' => $remUser['emails'][0]['value'],
+						'picture' => $remUser['image']['url'],
+					);
+
+				$db->insert('ext_connections',array_merge(array(
+					'userid' => $user['id'],
+					'provider' => $provider,
+					'account_id' => $remUser['id'],
+					'name' => $remUser[$provider == 'google' ? 'displayName' : 'name'],
+				),$insertData));
+
+				die(header('Location: /profile'));
 			}
-			break;
+		break;
 
 		default:
 			$data = $db->rawQuery('SELECT *
@@ -61,15 +74,8 @@
 			<h1 style='margin-top: 25px !important;'>Összekapcsolt fiókok</h1>
 			<p style='margin-bottom: 0;'>Új fiók összekapcsolása: <select id='connect_s'>
 <?php
-			foreach (array_diff(ExtConnTools::$PROVIDERS,$actprovs) as $entry){
-				switch ($entry){
-					case 'google':
-						$provider = 'Google';
-					break;
-					case 'microsoft':
-						$provider = 'Microsoft';
-					break;
-				} ?>
+			foreach (array_diff(array_keys(ExtConnTools::$apiDisplayName),$actprovs) as $entry){
+				$provider = ExtConnTools::$apiDisplayName[$entry]; ?>
 				<option value='<?=$entry?>'><?=$provider?></option>
 <?php
 			}
@@ -77,18 +83,12 @@
 			</select><a href='#' id='connect' class='btn' style='margin-left: 7px;'>Összekapcsolás</a></p>
 <?php
 			foreach($data as $entry){
-				switch ($entry['provider']){
-					case 'google':
-						$provider = 'Google';
-					break;
-					case 'microsoft':
-						$provider = 'Microsoft';
-					break;
-				} ?>
+				$provider = ExtConnTools::$apiDisplayName[$entry['provider']]; ?>
+
 				<h2><?=$provider?>-fiók</h2>
 				<div class='connected'>
 					<p><b>Kapcsolat állapota: </b>Összekapcsolva, az összekapcsolás<?=!$entry['active'] ? ' nem' : ''?> aktív</p>
-					<p><b>Fiók azonosítója: </b><?=$entry['account_id']?> (<?=$entry['email']?>)</p>
+					<p><b>Fiók azonosítója: </b><?=$entry['account_id']?> (<?=!empty($entry['email']) ? $entry['email'] : $entry['name']?>)</p>
 					<a href="#<?=$entry['id']?>" class="btn disconnect">Fiók leválasztása</a> <a href='#<?=$entry['id']?>' class='btn <?=$entry['active'] ? 'deactivate' : 'activate'?>'>Kapcsolat <?=$entry['active'] ? 'deaktiválása' : 'aktiválása'?></a>
 				</div>
 <?php       }

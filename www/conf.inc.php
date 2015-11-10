@@ -2,16 +2,6 @@
 	# Konstansok, paraméterek betöltése
 	require_once 'constants.inc.php';
 
-	# Jogosultásgi szintek meghatározása
-	$PERM = array(
-		'sysadmin' => 6,
-		'schooladmin' => 5,
-		'admin' => 4,
-		'editor' => 3,
-		'user' => 2,
-		'guest' => 1,
-	);
-
 	# Szoftveradatok definiálása
 	$ENV['SOFTWARE'] = array(
 		'NAME' => 'CuStudy',
@@ -267,6 +257,12 @@
 				'groupThemes' => ['add', 'edit', 'delete'],
 				'users' => ['view', 'add', 'edit', 'delete', 'editSecurity', 'invite'],
 			),
+		),
+		'guest' => array(
+			'pw-reset' => ['view'],
+			'login' => ['view'],
+			'not-found' => ['view'],
+			'googleauth' => ['view'],
 		),
 		'everybody' => array(
 			'not-found' => ['view'],

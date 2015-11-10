@@ -1,11 +1,24 @@
 <?php
-	if (isset($ENV['GET']['error']))
-		die(header("Location: /?errtype=remote&prov=google")); //&errdesc={$ENV['GET']['error']}
 
-	$response = ExtConnTools::Request('https://www.googleapis.com/plus/v1/people/me',ExtConnTools::GetAccessToken($ENV['GET']['code']));
+	$ClassName = "google_oAuth";
+	require_once "resources/php/$ClassName.php";
+	$oAuth = new $ClassName(ExtConnTools::CLIENTID, ExtConnTools::SECRET, '/googleauth');
 
-	if (isset($response['error']))
-		die(header("Location: /?errtype=remote&prov=google")); //&errdesc={$response['error']['message']}
+	if (empty($ENV['GET']['code']))
+		$oAuth->getCode();
+	else {
+		if (empty($ENV['GET']['code']))
+			Message::Missing();
+		$code = $ENV['GET']['code'];
 
-	System::ExternalLogin($response['id']);
+		try {
+		$Auth = $oAuth->getTokens($code, 'authorization_code');
+		} catch(oAuthRequestException $e){
+			echo $e->getMessage();
+			var_dump($http_response_header);
+			die();
+		}
+		$User = $oAuth->getUserInfo($Auth['access_token']);
+	}
 
+	System::ExternalLogin($User['remote_id']);

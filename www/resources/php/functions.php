@@ -455,7 +455,7 @@
 			global $Perm, $ENV;
 
 			if (ROLE == 'guest')
-				return $ENV['permissions'] = array('login' => ['view']);
+				return $ENV['permissions'] = $Perm['guest'];
 
 			$roles = array_keys($Perm['students']);
 			if (!in_array(ROLE,$roles) && ROLE != 'guest') return;
@@ -669,6 +669,11 @@
 			require $ENV['maintenance']['requiredDoc'];
 			die();
 		}
+
+		# Make any absolute URL HTTPS
+		static function MakeHttps($url){
+			return preg_replace('~^(https?:)?//~','https://',$url);
+		}
 	}
 
 	class CSRF {
@@ -707,11 +712,23 @@
 	}
 
 	class ExtConnTools {
-		const CLIENTID = '183120119367-egq0lq9dg49h3gjooitkv53tgblsob0d.apps.googleusercontent.com';
+/*		const CLIENTID = '183120119367-egq0lq9dg49h3gjooitkv53tgblsob0d.apps.googleusercontent.com';
 		const SECRET = 'giQc4gGUK5BvbgtN-DG-hNwQ';
 		const GET_AS_JSON = true;
-		static $PROVIDERS = ['google'];
+		static $PROVIDERS = ['google']; */
 
+		static $resolveAPIname = array(
+			'facebook' => 'FacebookAPI',
+			'google' => 'GoogleAPI',
+			'microsoft' => 'MicrosoftAPI',
+		);
+
+		static $apiDisplayName = array(
+			'facebook' => 'Facebook',
+			'google' => 'Google',
+			'microsoft' => 'Microsoft',
+		);
+/*
 		static function Request($url, $token = null, $postdata = null){
 			$r = curl_init($url);
 			curl_setopt($r, CURLOPT_RETURNTRANSFER, 1);
@@ -730,7 +747,10 @@
 		    return json_decode($response, true);
 		}
 
-		static function GetAccessToken($code, $url = 'https://custudy.tk/googleauth'){
+		static function GetAccessToken($code, $url = null){
+			if (empty($url))
+				$url = ABSPATH.'/googleauth';
+
 			$data = self::Request('https://www.googleapis.com/oauth2/v3/token',null,array(
 				'code' => $code,
 				'client_id' => self::CLIENTID,
@@ -744,7 +764,7 @@
 			}
 
 			return $data['access_token'];
-		}
+		} */
 
 		static function DeactAndAct($connid, $type = 'deactivate'){
 			global $db, $user;
@@ -754,8 +774,7 @@
 			$data = $db->where('id',$connid)->getOne('ext_connections');
 			if (empty($data)) return 2;
 
-			if ($data['userid'] != $user['id'] && !System::PermCheck('admin','admin'))
-				if (System::ClassPermCheck($data['userid'],'users')) return 3;
+			if ($data['userid'] != $user['id']) return 3;
 
 			if ($type == 'deactivate'){
 				if (!$data['active']) return 4;
@@ -778,8 +797,7 @@
 			$data = $db->where('id',$connid)->getOne('ext_connections');
 			if (empty($data)) return 2;
 
-			if ($data['userid'] != $user['id'] && !System::PermCheck('admin','admin'))
-				if (System::ClassPermCheck($data['userid'],'users')) return 3;
+			if ($data['userid'] != $user['id']) return 3;
 
 			$action = $db->where('id',$connid)->delete('ext_connections');
 
@@ -1014,10 +1032,15 @@ STRING
 				'username' => $data['username'],
 				'password' => Password::Kodolas($data['password']),
 				'name' => $data['name'],
-				'classid' => $token_d['classid'],
 				'email' => $token_d['email'],
-				'priv' => 'user',
+				'role' => 'visitor',
 				'active' => 1,
+			));
+
+			# Hozzáadás a csoporthoz
+			$db->insert('class_members',array(
+				'classid' => $token_d['classid'],
+				'userid' => $id,
 			));
 
 			$db->insert('sessions',array(
@@ -1483,7 +1506,7 @@ STRING
 				if (System::InputCheck($value,$type)) return 2;
 			}
 			if (System::OptionCheck($data_a['active'],['0','1'])) return 2;
-			if (System::OptionCheck($data_a['role'],['user','editor','admin'])) return 2;
+			if (System::OptionCheck($data_a['role'],['visitor','editor','admin'])) return 2;
 
 			# Létezik-e már ilyen felhasználó?
 			$data = $db->where('username',$data_a['username'])->getOne('users');
@@ -1563,7 +1586,7 @@ STRING
 				if (System::InputCheck($value,$type)) return 2;
 			}
 			if (System::OptionCheck($datas['active'],['0','1'])) return 2;
-			if (System::OptionCheck($datas['role'],['user','editor','admin'])) return 2;
+			if (System::OptionCheck($datas['role'],['visitor','editor','admin'])) return 2;
 
 			# Jog. ellenörzése
 			$data = $db->rawQuery('SELECT u.*

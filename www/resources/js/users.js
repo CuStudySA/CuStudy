@@ -5,7 +5,7 @@ $(function(){
 							<p>E-mail cím: <input type='text' name='email' placeholder='email@provider.mail' required></p>\
 							<p>Jogosultság: \
 								<select name='role'>\
-									<option value='user' selected>Ált. felhasználó</option>\
+									<option value='visitor' selected>Ált. felhasználó</option>\
 									<option value='editor'>Szerkesztő</option>\
 									<option value='admin'>Csoport adminisztrátor</option>\
 								</select></p>\
