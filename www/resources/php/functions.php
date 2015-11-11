@@ -18,8 +18,6 @@
 				$randomString .= $characters[rand(0, strlen($characters) - 1)];
 			}
 			return $randomString;
-
-			//return substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, $length);
 		}
 		static function GetSession($username){
 			global $_SERVER;
@@ -885,7 +883,7 @@ STRING
 			global $db, $user, $ENV;
 
 			# Jog. ellenörzése
-			if (System::PermCheck('admin')) return 1;
+			if (System::PermCheck('users.invite')) return 1;
 
 			if (System::InputCheck($email,'email')) return 2;
 
@@ -927,7 +925,7 @@ STRING
 
 		static function BatchInvite($emails){
 			# Jog. ellenörzése
-			if (System::PermCheck('admin')) return 1;
+			if (System::PermCheck('users.invite')) return 1;
 
 			$invalidEntrys = [];
 			foreach ($emails as $array){
