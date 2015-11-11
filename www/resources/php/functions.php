@@ -863,9 +863,8 @@
 
 		  <p>A meghívás elfogadásához <a href="https://custudy.tk/invitation/++ID++">kattints ide</a>! A linkre kattintva meg kell adnod néhány adatot magadról, be kell állítanod a jelszavad, és az űrlap elküldése után automatikusan átirányítunk a program főoldalára.</p><p>Ha a fenti gomb valamilyen okból kifolyólag nem működne, másold be az alábbi URL-t a böngésződ címsoráva:<br><a href="https://custudy.tk/invitation/++ID++">https://custudy.tk/invitation/++ID++</a></p><p>Bízunk benne, hogy a CuStudy a Te tetszésedet is elnyeri majd!</p>
 
-		<p>Üdvözlettel,<br><br>
-		<b>Mészáros Bálint</b> és <b>Kiss Antal</b><br>
-		 a BetonSoft igazgatóságának tagjai</p>
+		<p>Üdvözlettel,<br>
+		CuStudy Software Alliance</p>
 STRING;
 
 	static $groupChooser = array(<<<STRING
