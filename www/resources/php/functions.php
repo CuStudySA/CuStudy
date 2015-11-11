@@ -18,8 +18,6 @@
 				$randomString .= $characters[rand(0, strlen($characters) - 1)];
 			}
 			return $randomString;
-
-			//return substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, $length);
 		}
 		static function GetSession($username){
 			global $_SERVER;
@@ -316,7 +314,7 @@
 			if (!$ENV['class']['active']) return true;
 
 			# Iskola ellenörzése
-			$ENV['school'] = $db->where('id',$ENV['class']['id'])->getOne('school');
+			$ENV['school'] = $db->where('id',$ENV['class']['school'])->getOne('school');
 			if (!$ENV['school']['active']) return true;
 
 			return false;
@@ -865,9 +863,8 @@
 
 		  <p>A meghívás elfogadásához <a href="https://custudy.tk/invitation/++ID++">kattints ide</a>! A linkre kattintva meg kell adnod néhány adatot magadról, be kell állítanod a jelszavad, és az űrlap elküldése után automatikusan átirányítunk a program főoldalára.</p><p>Ha a fenti gomb valamilyen okból kifolyólag nem működne, másold be az alábbi URL-t a böngésződ címsoráva:<br><a href="https://custudy.tk/invitation/++ID++">https://custudy.tk/invitation/++ID++</a></p><p>Bízunk benne, hogy a CuStudy a Te tetszésedet is elnyeri majd!</p>
 
-		<p>Üdvözlettel,<br><br>
-		<b>Mészáros Bálint</b> és <b>Kiss Antal</b><br>
-		 a BetonSoft igazgatóságának tagjai</p>
+		<p>Üdvözlettel,<br>
+		CuStudy Software Alliance</p>
 STRING;
 
 	static $groupChooser = array(<<<STRING
@@ -885,7 +882,7 @@ STRING
 			global $db, $user, $ENV;
 
 			# Jog. ellenörzése
-			if (System::PermCheck('admin')) return 1;
+			if (System::PermCheck('users.invite')) return 1;
 
 			if (System::InputCheck($email,'email')) return 2;
 
@@ -927,7 +924,7 @@ STRING
 
 		static function BatchInvite($emails){
 			# Jog. ellenörzése
-			if (System::PermCheck('admin')) return 1;
+			if (System::PermCheck('users.invite')) return 1;
 
 			$invalidEntrys = [];
 			foreach ($emails as $array){
@@ -1090,7 +1087,7 @@ STRING
 		static function GetUsedSpace(){
 			global $db, $user;
 
-			return $db->where('classid', $user['classid'])->getOne('files','SUM(size)')['SUM(size)'];
+			return $db->where('classid', $user['class'][0])->getOne('files','SUM(size)')['SUM(size)'];
 		}
 
 		static function GetFreeSpace(){
