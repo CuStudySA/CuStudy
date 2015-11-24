@@ -1,0 +1,52 @@
+@import "vars";
+
+#filterTitle {
+	margin-bottom: 9px;
+}
+#filterFormContainer {
+	margin-top: 2px;
+
+	.js_filterUsers {
+		//float: right;
+    margin-right: 8px;
+    margin-top: 5px;
+	}
+
+	.filterFormTable {
+		border: 1px solid black;
+		border-collapse: collapse;
+		padding: 5px;
+		width: 99%;
+
+		tr, td {
+			border: 1px solid black;
+			padding: 4px;
+		}
+		> thead {
+			font-weight: bold;
+		}
+		input {
+			width: calc(100% - 9px);
+		}
+		.focim {
+			text-align: center;
+			font-weight: bold;
+		}
+	}
+}
+#resultContainer {
+	.resultTable {
+		border: 1px solid black;
+		border-collapse: collapse;
+		padding: 5px;
+		width: 99%;
+
+		tr, td {
+			border: 1px solid black;
+			padding: 4px;
+		}
+		> thead {
+			font-weight: bold;
+		}
+	}
+}
