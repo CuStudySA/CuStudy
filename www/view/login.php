@@ -4,11 +4,17 @@
 	switch ($case){
 		default: ?>
 			<main>
+				<!-- Amber flag start -->
+				<p>Fejlesztés alatt álló szoftververzió!</p>
+				<!-- Amber flag end -->
 				<div id="main">
 					<div id="wrap">
 						<div id="mid">
 							<div id="inner">
 								<h1>CuStudy</h1>
+								<!-- Amber flag start -->
+								<h3> (Amber)</h3>
+								<!-- Amber flag end -->
 								<form id="loginform">
 
 									<input type='text' name='username' placeholder='Felhasználónév' tabindex=1 autocomplete="off">

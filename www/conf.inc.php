@@ -62,7 +62,7 @@
 
 		'login' => array(
 			'title' => 		'Bejelentkezés',
-			'css' => 		['login.css'],
+			'css' => 		['login.css','amber.css'],
 			'js' => 		['login/login.js'],
 			'minperm' => 	'guest',
 			'maxperm' => 	'guest',

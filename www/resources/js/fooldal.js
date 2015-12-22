@@ -1,4 +1,11 @@
 $(function(){
+	// Amber flag start
+	$.each($('link'),function(i,e){
+		if ($(e).attr('href').indexOf('amber') != -1)
+			$(e).remove();
+	});
+	// Amber flag end
+
 	var $hWContent = $('.hWContent');
 
 	var makeMarkedDone = function(e){

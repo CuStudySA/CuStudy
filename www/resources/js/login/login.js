@@ -132,6 +132,7 @@ $(function(){
 						function loadJS(i){
 							if (typeof load.js[i] === 'undefined')
 								return;
+
 							$.ajax({
 								url: load.js[i],
 								dataType: "script",
@@ -160,7 +161,7 @@ $(function(){
 				}
 				else {
 					$.Dialog.fail(title,data.message);
-					$('#inner').removeClass('animate')
+					$('#inner').removeClass('animate');
 				}
 			}
 		});
