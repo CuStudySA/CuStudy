@@ -5,8 +5,8 @@
 	# Szoftveradatok definiálása
 	$ENV['SOFTWARE'] = array(
 		'NAME' => 'CuStudy',
-		'CODENAME' => 'BlueSky',
-		'VER' => '1.1',
+		'CODENAME' => 'Amber',
+		'VER' => '2.0b',
 		'DEVELOPER' => 'CuStudy Software Alliance',
 		'DEV_STARTED' => '2014',
 		'COMMIT' => LATEST_COMMIT_ID,
@@ -62,7 +62,7 @@
 
 		'login' => array(
 			'title' => 		'Bejelentkezés',
-			'css' => 		['login.css'],
+			'css' => 		['login.css','amber.css'],
 			'js' => 		['login/login.js'],
 			'minperm' => 	'guest',
 			'maxperm' => 	'guest',

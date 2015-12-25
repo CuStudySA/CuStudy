@@ -4,18 +4,30 @@
 	switch ($case){
 		default: ?>
 			<main>
+				<!-- Amber flag start -->
+				<p>Fejlesztés alatt álló szoftververzió!</p>
+				<!-- Amber flag end -->
 				<div id="main">
 					<div id="wrap">
 						<div id="mid">
 							<div id="inner">
 								<h1>CuStudy</h1>
+								<!-- Amber flag start -->
+								<h3> (Amber)</h3>
+								<!-- Amber flag end -->
 								<form id="loginform">
 
 									<input type='text' name='username' placeholder='Felhasználónév' tabindex=1 autocomplete="off">
 									<input type='password' name='password' placeholder='Jelszó' tabindex=2>
 									<p><button class='btn' tabindex=4>Belépés</button> <label><input type="checkbox" name="remember" tabindex=3 checked> Megjegyzés</label></p>
 								</form>
-								<div><a class='js_login_google' href='/login/external/google'><img src="/resources/img/google_login.png"></a></div>
+								<p class="or"><span class="line"></span><span class="text">VAGY</span><span class="line"></span></p>
+								<p>Belépés külső szolgáltatóval:</p>
+								<div id="extlogin-btns">
+									<a class='fb' href='/login/external/facebook'></a>
+									<a class='gp' href='/login/external/google'></a>
+									<a class='ms' href='/login/external/microsoft'></a>
+								</div>
 							</div>
 						</div>
 					</div>
