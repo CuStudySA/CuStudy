@@ -2276,7 +2276,7 @@ STRING;
 
 			$active = $onlyListActive ? '&& (SELECT `id` FROM `hw_markdone` WHERE `homework` = hw.id && `userid` = ?) IS NULL' : '';
 
-			$query = "SELECT hw.id, hw.text as `homework`, hw.week, tt.day, tt.lesson as `lesson_th`, l.name as `lesson`,
+			$query = "SELECT hw.id, hw.text as `homework`, hw.week, tt.day, tt.lesson as `lesson_th`, l.name as `lesson`, hw.year as year,
 							(SELECT `id` FROM `hw_markdone` WHERE `homework` = hw.id && `userid` = ?) as markedDone
 						FROM `timetable` tt
 						LEFT JOIN (`homeworks` hw, `lessons` l)
@@ -2315,6 +2315,11 @@ STRING;
 			while (true){
 				if (empty($timetable[$i])) break;
 				else $array = $timetable[$i];
+
+				if ($array['year'] < date('Y')){
+					$i++;
+					continue;
+				}
 
 				if ($weekNum == $array['week'])
 					$hwTime = strtotime('+ '.($array['day'] - $dayInWeek).' days');
