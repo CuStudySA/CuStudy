@@ -45,16 +45,18 @@ $(function(){
 				}
 			});
 		};
-	$('.backWeek').on('click',function(){
+	var $bWButton = $('.backWeek');
+	$bWButton.on('click',function(){
 		backNextWeek('back');
 	});
 	$('.nextWeek').on('click',function(){
 		backNextWeek('next');
 	});
 
-	$('#startDatePicker').on('change',function(){
-		var $lP = $('#lessonPicker'),
-			$bWButton = $('.backWeek');
+	$('#startDatePicker').on('keydown blur',function(e){
+		if ((e.type === 'keydown' && e.keyCode === 13) || e.type === 'blur')
+			e.preventDefault();
+		else return true;
 
 		$.Dialog.wait(title2);
 
@@ -66,12 +68,11 @@ $(function(){
 				var $data = $(data);
 
 				prevDispDays = dispDays;
-				dispDays = JSON.parse($data.filter('.dispDays').detach().text());
-				var lockBack = JSON.parse($data.filter('.lockBack').detach().text());
+				dispDays = data.dispDays;
 
 				$('.timet').html($data.filter('.timet').html());
 
-				$bWButton.attr('disabled', lockBack);
+				$bWButton.attr('disabled', data.lockBack);
 
 				$.Dialog.close();
 			}

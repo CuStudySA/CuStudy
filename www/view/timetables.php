@@ -23,12 +23,12 @@
 			<a class='btn js_showAllTT typcn typcn-group' href='#'>Teljes nézet</a>
 			<a class='btn typcn typcn-eye' id='js_switchView' style='float: right;'>Kompakt nézet</a>
 			<p class='weekPickerP'>
-				<button class='btn backWeek' disabled><< Vissza az előző napokra</button>
+				<button class='btn backWeek' disabled>&lt;&lt; Vissza az előző napokra</button>
 				<span class='startDate'>
 					Kezdő nap megadása:
 					<input type='date' value='<?=date('Y-m-d')?>' id='startDatePicker'>
 				</span>
-				<button class='btn nextWeek'>Előre a következő napokhoz >></button>
+				<button class='btn nextWeek'>Előre a következő napokhoz &gt;&gt;</button>
 			</p>
 
 			<div id='lessonPicker'><?=RenderTT()?></div>
@@ -67,6 +67,7 @@
 
 <?php		print "<h2>'".strtoupper($week)."' órarend</h2>";
 			echo '<div class="template" id="form-template">'.Timetable::ADD_FORM_HTML.'</div>';
+			// FIXME Paraméter-szám eltérées - a funkció 3 paramétert fogad, de 4-el van meghívva
 			Timetable::Render($week, Timetable::GetTimeTable($week,true), null, true);
 		break;
 	}

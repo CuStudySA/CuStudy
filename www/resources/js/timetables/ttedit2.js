@@ -205,7 +205,7 @@ $(function(){
 
 		if (container.delete.length != 0)
 			$.Dialog.confirm(title,
-				'Arra készülsz, hogy mented az órarend változtatásait, köztük számos bejegyzés törlését. Ezzel a törölt bejegyzésekhez tartozó adatok is elvesznek. Biztos vagy benne, hogy végrehajtod a változtatásokat?',
+				'Arra készülsz, hogy mented az órarend változtatásait, köztük számos bejegyzés törlését.<br>Ezzel a törölt bejegyzésekhez tartozó adatok is elvesznek.<br>Biztos vagy benne, hogy végrehajtod a változtatásokat?',
 				['Változtatások mentése','Visszalépés'],
 
 				function(sure){
@@ -213,7 +213,6 @@ $(function(){
 					e_modify();
 				}
 			);
-		else
-			e_modify();
+		else e_modify();
 	});
 });

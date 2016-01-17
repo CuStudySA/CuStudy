@@ -607,7 +607,7 @@
 
 		    $mailer = Swift_Mailer::newInstance($transport); //Küldő objektum létrehozása
 
-		    $action = $mailer->send($message,$fail); //Levél küldése
+		    $action = $mailer->send($message); //Levél küldése
 
 			// Várakoztatás
 		    if (!self::$mailSended) usleep(100);
@@ -1769,6 +1769,17 @@ HTML;
 			else return 0;
 		}
 
+		static function GetClassGroupIDs($classIndex = 0, $dataType = 'string'){
+			global $db, $user;
+			$userInGroups = $db->where('classid',$user['class'][$classIndex])->where('userid',$user['id'])->get('group_members',null,'groupid');
+			$groups = [0];
+			foreach ($userInGroups as $in)
+				$groups[] = $in['groupid'];
+			switch ($dataType) {
+				case 'string': return implode(',', $groups);
+				case 'array': return $groups;
+			}
+		}
 	}
 
 	class PasswordReset {
@@ -2269,7 +2280,7 @@ STRING;
 			if (empty($dbdata)) return 0x3;
 			else $dbdata = $dbdata[0];
 
-			if (Timetable::GetActualWeek(false,$dateFromUI) != strtoupper($dbdata['week'])) return 0x4;
+			if (Timetable::GetWeekLetter($dateFromUI) != strtoupper($dbdata['week'])) return 0x4;
 
 			// Mellékelt fájl feltöltése
 			$uploadStatus = 0;
@@ -2336,7 +2347,7 @@ STRING;
 				$ids[] = $array['groupid'];
 
 			$weekNum = Timetable::GetWeekNum();
-			$dayInWeek = Timetable::GetDayNumber();
+			$dayInWeek = Timetable::GetDay();
 
 			$active = $onlyListActive ? '&& (SELECT `id` FROM `hw_markdone` WHERE `homework` = hw.id && `userid` = ?) IS NULL' : '';
 
@@ -2390,7 +2401,7 @@ STRING;
 				}
 
 				$array['date'] = self::FormatMonthDay($hwTime);
-				$array['dayString'] = System::$Days[Timetable::GetDayNumber($hwTime)];
+				$array['dayString'] = System::$Days[Timetable::GetDay($hwTime)];
 
 				$homeWorks[$array['date']][] = $array;
 
@@ -2522,9 +2533,8 @@ STRING;
 
 	            $time = strtotime($date);
 
-	            print "<h3>Házi feladatok ".System::Article(System::$Days[Timetable::GetDayNumber($time)])."i napra ({$day})</h3>";
-	        }
-	        ?>
+	            print "<h3>Házi feladatok ".System::Article(System::$Days[Timetable::GetDay($time)])."i napra ({$day})</h3>";
+	        } ?>
 
 			<table class='homeworks'>
 				<tr>
@@ -2769,12 +2779,9 @@ STRING;
 		static function GetNumberOfWeeks(){
 			global $db,$user;
 
-			$data = $db
-				->where('classid', $user['class'][0])
-				->where('week', 'b')
-				->has('timetable');
+			$data = $db->rawQuery('SELECT COUNT(*) as weekcnt FROM (SELECT DISTINCT week FROM timetable WHERE classid = ?) t',array($user['class'][0]));
 
-			return empty($data) ? 1 : 2;
+			return !empty($data[0]['weekcnt']) ? $data[0]['weekcnt'] : 1;
 		}
 
 		static function GetEdgesOfWeek($date){
@@ -2784,63 +2791,51 @@ STRING;
 		    return array(date('Y-m-d', $start),date('Y-m-d', strtotime('next saturday', $start)));
 		}
 
-		static function GetActualWeek($sorting = false, $timestamp = null){
-			global $ENV,$db,$user;
+		static $OneWeekInSeconds = 60 * 60 * 24 * 7;
+		static $weekLetters = 'ABCDEFGHIJKLMOPQRSTUVWXYZ';
+		static function GetWeekLetter($timestamp = null){
+			global $ENV;
+
+			$weeekcnt = self::GetNumberOfWeeks();
+			if ($weeekcnt === 1)
+				return self::$weekLetters[0];
 
 			if (empty($timestamp))
 				$timestamp = time();
 
-			$data = $db->rawQuery('SELECT *
-									FROM `timetable`
-									WHERE `classid` = ? && `week` = ?',array($user['class'][0],'b'));
-			if (empty($data))
-				return $sorting ? 'ASC' : 'A';
+			$today = strtotime('today', $timestamp);
+			$year = date('Y', $timestamp);
+			// Ha még szept.1 előtt vagyunk akkor -1 év
+			if ($today < strtotime("1 sept $year"))
+				$year--;
+			$sept1 = strtotime("1 sept $year");
+			$sept1day = self::GetDay($sept1);
+			// Ha szept. 1 hétfő/kedd/szerda akkor az az első nap
+			if ($sept1day < 4)
+				$firstDay = $sept1;
+			// Ha szept. 1 csüt./péntek/szombat/vas. akkor jövő hétfő az első nap
+			else $firstDay = strtotime('next monday', $sept1);
 
-			$weekNum = date('W',$timestamp);
-
-			$tsyear = date('Y',$timestamp);
-
-			$jan1 = strtotime("1 jan $tsyear");
-			$aug31 = strtotime("1 sept $tsyear");
-
-			$start = strtotime('+7 days',strtotime('this week', $jan1));
-			$end = strtotime('+7 days',strtotime('this week', $aug31));
-
-			$yearPassed = $timestamp >= $start && $timestamp < $end;
-
-			if (!$sorting){
-				if ($ENV['class']['pairweek'] === 'A'){
-					if ($weekNum % 2 == 0)
-						return !$yearPassed ? 'A' : 'B';
-					else
-						return !$yearPassed ? 'B' : 'A';
-				}
-				else {
-					if ($weekNum % 2 == 0)
-						return !$yearPassed ? 'B' : 'A';
-					else
-						return !$yearPassed ? 'A' : 'B';
-				}
-			}
-			else {
-				if ($ENV['class']['pairweek'] === 'A'){
-					if ($weekNum % 2 == 0)
-						return !$yearPassed ? 'ASC' : 'DESC';
-					else
-						return !$yearPassed ? 'DESC' : 'ASC';
-				}
-				else {
-					if ($ENV['class']['pairweek'] === 'A'){
-						if ($weekNum % 2 == 0)
-							return !$yearPassed ? 'DESC' : 'ASC';
-						else
-							return !$yearPassed ? 'ASC' : 'DESC';
-					}
-				}
-			}
+			$weeksPassed = floor(($today - $firstDay) / self::$OneWeekInSeconds);
+			return self::$weekLetters[$weeksPassed % $weeekcnt];
 		}
-
-		static function GetDayNumber($timestamp = null) {
+		static function GetUpcomingWeek($weekLetter){
+			$pos = stripos(self::$weekLetters,$weekLetter); //0
+			$weekcnt = self::GetNumberOfWeeks(); //1
+			if ($pos+1 >= min($weekcnt,strlen(self::$weekLetters)))
+				$pos = 0;
+			else $pos++;
+			return self::$weekLetters[$pos];
+		}
+		/**
+		 * Visszaadja a hét jelenlegi napjának számértékét 1-7 között
+		 * (hétfő = 1, ..., vasárnap = 7)
+		 *
+		 * @param int|null $timestamp Lekérdezéshez használandó időpont
+		 *
+		 * @return int
+		 */
+		static function GetDay($timestamp = null) {
 			$ts = date('w' ,empty($timestamp) ? time() : $timestamp);
 			return $ts == 0 ? 7 : $ts;
 		}
@@ -2932,19 +2927,22 @@ STRING;
 		static $TT_Types = array(
 			'a' => "'A'",
 			'b' => "'B'",
+			//'c' => "'C'",
+			//'d' => "'D'",
+			//'e' => "'E'",
+			//'f' => "'F'",
 		);
 
 		static function MoveNextBack($move,$dispDays,$showAllGroups = true){
 			$numberOfDays = count($dispDays);
 
-			if ($move == 'next') $fromDate = $dispDays[count($dispDays)-1];
-			else $fromDate = strtotime("- {$numberOfDays} days",$dispDays[0]);
+			if ($move == 'next') $fromDate = array_slice($dispDays, -1)[0];
+			else $fromDate = strtotime("- $numberOfDays days",$dispDays[0]);
 
 			$dates = [];
 
 			while(count(array_diff($dates,$dispDays)) != count($dispDays)){
-				$day = Timetable::GetDayNumber($fromDate);
-				$week = Timetable::GetActualWeek(false,$fromDate);
+				$day = Timetable::GetDay($fromDate);
 
 				$TT = Timetable::GetHWTimeTable(date('W',$fromDate),$day,$showAllGroups);
 
@@ -2961,10 +2959,9 @@ STRING;
 			$fDate = strtotime('12 am',$dates[0]);
 			$now = strtotime('12 am');
 
-			if (strtotime('- 1 days',$fDate) == $now) $lockBack = true;
-			else if (Timetable::GetDayNumber() == 6 && strtotime('+ 2 days',$now) == $fDate) $lockBack = true;
-			else if (Timetable::GetDayNumber() == 7 && strtotime('+ 1 days',$now) == $fDate) $lockBack = true;
-			else $lockBack = false;
+			$lockBack = (strtotime('- 1 days',$fDate) == $now)
+				|| (Timetable::GetDay() == 6 && strtotime('+ 2 days',$now) == $fDate)
+				|| (Timetable::GetDay() == 7 && strtotime('+ 1 days',$now) == $fDate);
 
 			?>
 			<span class='dispDays'><?=json_encode($dates)?></span>
@@ -2975,7 +2972,7 @@ STRING;
 			$date = strtotime('- 1 days',strtotime($date));
 
 			$week = date('W',$date);
-			$day = Timetable::GetDayNumber($date);
+			$day = Timetable::GetDay($date);
 
 			$TT = Timetable::GetHWTimeTable($week,$day,$showAllGroups);
 
@@ -2991,8 +2988,8 @@ STRING;
 			$now = strtotime('12 am');
 
 			if ($fDate == $now) $lockBack = true;
-			else if (Timetable::GetDayNumber() == 6 && strtotime('+ 2 days',$now) == $fDate) $lockBack = true;
-			else if (Timetable::GetDayNumber() == 7 && strtotime('+ 1 days',$now) == $fDate) $lockBack = true;
+			else if (Timetable::GetDay() == 6 && strtotime('+ 2 days',$now) == $fDate) $lockBack = true;
+			else if (Timetable::GetDay() == 7 && strtotime('+ 1 days',$now) == $fDate) $lockBack = true;
 			else $lockBack = false;
 
 			?>
@@ -3002,7 +2999,7 @@ STRING;
 
 		static function SwitchView($fromDate,$allgroup = true){
 			$fromDate = strtotime('- 1 days',$fromDate);
-			$day = Timetable::GetDayNumber($fromDate);
+			$day = Timetable::GetDay($fromDate);
 
 			$TT = Timetable::GetHWTimeTable(date('W',$fromDate),$day,$allgroup);
 
@@ -3012,128 +3009,186 @@ STRING;
 			sort($days,SORT_NUMERIC);
 			$days = array_splice($days,0,5);
 
+			ob_start();
 			Timetable::Render(null, $TT, $days);
+			$timetable = ob_get_flush();
 
 			$fDate = strtotime('12 am',$days[0]);
 			$now = strtotime('12 am');
 
 			if ($fDate == $now) $lockBack = true;
-			else if (Timetable::GetDayNumber() == 6 && strtotime('+ 2 days',$now) == $fDate) $lockBack = true;
-			else if (Timetable::GetDayNumber() == 7 && strtotime('+ 1 days',$now) == $fDate) $lockBack = true;
+			else if (Timetable::GetDay() == 6 && strtotime('+ 2 days',$now) == $fDate) $lockBack = true;
+			else if (Timetable::GetDay() == 7 && strtotime('+ 1 days',$now) == $fDate) $lockBack = true;
 			else $lockBack = false;
 
-			?>
-			<span class='dispDays'><?=json_encode($days)?></span>
-			<span class='lockBack'><?=json_encode($lockBack)?></span>
-<?php	}
+			System::Respond(array(
+				'dispDays' => $days,
+				'loackBack' => $lockBack,
+				'timetable' => $timetable,
+			));
+		}
 
+		/**
+		 * Órarend lekérdező funkció
+		 *
+		 * @param int|null $week     Hétszám
+		 * @param int|null $lastDay  A hét utolsó lekérdezendő napja
+		 * @param bool     $allgroup Összes csoport órarendjének lekérése
+		 *
+		 * @return array
+		 */
 		static function GetHWTimeTable($week = null, $lastDay = null, $allgroup = true){
 			global $user, $db;
 
 			$addon = array($user['class'][0]);
+			$ma_éjfél = strtotime('midnight');
+
+			$now = time();
+			$switchOn = strtotime('8 am', $now);
+			$switch = $now > $switchOn ? 0 : -1;
 
 			if (!empty($week) && !empty($lastDay)){
-				$weekday = strtotime('+ '.($week - date('W')).' weeks', strtotime('12 am'));
-				if (Timetable::GetDayNumber() < $lastDay) $weekday = strtotime('+ '.($lastDay - Timetable::GetDayNumber()).' days',$weekday);
-				else $weekday = strtotime('- '.(Timetable::GetDayNumber() - $lastDay).' days',$weekday);
-				$actWeek = strtolower(Timetable::GetActualWeek(false,$weekday));
-				$addon = array_merge($addon,[$actWeek, $lastDay, $actWeek == 'a' ? 'b' : 'a']);
-				$dayInWeek = $lastDay;
-				$hour = $minute = 9;
+				// Jelenlegi dátumhoz hozzáadja a {cél hét - mostani hét} értékét
+				// pl. (10. hét /cél/ - 15. hét /most/) => -5 hét a mostani dátumhoz képest
+				//     (12. hét /cél/ - 10. hét /most/) => +2 hét a mostani dátumhoz képest
+				$weekday = strtotime('+ '.($week - self::GetWeekNum()).' weeks', $ma_éjfél);
+
+				// Ellenörzi, hogy a jelenlegi hét napja korábban van, mint a lekérdezett utolsó nap
+				//   (azaz a lekérdezés a jelenlegi héten belül marad-e)
+				// pl. (hétfő (1) /ma/ < péntek (5) /cél/) => igaz
+				//     (péntek (5) /ma/ < kedd (2) /cél/) => hamis
+				if (Timetable::GetDay() < $lastDay)
+					// Ha a lekérdezés a jelenlegi héten belül marad, hozzáadja a dátumhoz
+					//   a {cél nap - mai nap} értékét
+					// pl. (péntek (5) /cél/ - hétfő (1) /ma/) => +4 nap
+					$weekday = strtotime('+ '.($lastDay - Timetable::GetDay()).' days',$weekday);
+				// Ha a lekérdezés átcsúszik a következő hétre, kivonja a dátumból
+				//   a {mai nap - cél nap} értékét
+				// pl. (péntek (5) /ma/ - kedd (2) /cél/) => -3 nap
+				else $weekday = strtotime('- '.(Timetable::GetDay() - $lastDay).' days',$weekday);
+
+				// Hét betűjelének lekérése
+				$actWeek = strtolower(Timetable::GetWeekLetter($weekday));
+				$addon = array_merge($addon,[
+					$actWeek,
+					$lastDay,
+					self::GetUpcomingWeek($actWeek)
+				]);
+				$dayOfWeek = Timetable::GetDay($lastDay);
+				$switchedDay = $dayOfWeek+$switch;
+				if ($switch === -1 && $dayOfWeek === 1)
+					$switchedDay = 7;
 			}
 			else {
-				$minute = (int)date('i');
-				$hour = (int)date('H');
+				$weekday = $ma_éjfél;
+				$actWeek = strtolower(Timetable::GetWeekLetter($weekday));
 
-				$weekday = time();
-
-				$addon = array_merge($addon,[self::GetActualWeek(),
-							$hour >= 8 && $minute >= 0 ? self::GetDayNumber() : self::GetDayNumber()-1,
-							strtolower(self::GetActualWeek()) == 'a' ? 'b' : 'a']);
-
-				$actWeek = strtolower(Timetable::GetActualWeek());
-				$dayInWeek = Timetable::GetDayNumber();
+				$dayOfWeek = Timetable::GetDay();
+				$switchedDay = $dayOfWeek+$switch;
+				if ($switch === -1 && $dayOfWeek === 1)
+					$switchedDay = 7;
+				$addon = array_merge($addon,[
+					$actWeek,
+					$switchedDay,
+					self::GetUpcomingWeek($actWeek)
+				]);
 			}
 
-			$dualWeek = Timetable::GetNumberOfWeeks() == 1 ? false : true;
+			$userInGroups = $db->where('classid',$user['class'][0])->where('userid',$user['id'])->get('group_members',null,'groupid');
+			$groups = '0';
+			foreach ($userInGroups as $in)
+				$groups .= ','.$in['groupid'];
 
-			$userInGroups = $db->rawQuery('SELECT `groupid`
-											FROM `group_members`
-											WHERE `classid` = ? && `userid` = ?',array($user['class'][0],$user['id']));
-			$groups = array(0);
-			foreach ($userInGroups as $array)
-				$groups[] = $array['groupid'];
+			$onlyGrp = !$allgroup ? "&& tt.groupid IN ($groups)" : '';
 
-			if (!$allgroup)
-				$onlyGrp = '&& tt.groupid IN ('.implode(',',$groups).')';
-			else
-				$onlyGrp = '';
+			$weekcnt = Timetable::GetNumberOfWeeks();
+			switch ($weekcnt){
+				case 1:
+					/*
+					$db->rawQuery("SELECT l.name, l.color, tt.id, tt.lesson, tt.day, tt.week, (SELECT `name` FROM `groups` WHERE `id` = tt.groupid) as group_name
+								FROM timetable tt
+								LEFT JOIN lessons l
+								ON (l.id = tt.lessonid && l.classid = tt.classid)
+								WHERE tt.classid = ? $whereString $onlyGrp
+								ORDER BY tt.week, tt.day, tt.lesson",$addon);
+					*/
+					$ttentries = $db->rawQuery(
+						"SELECT tt.id, tt.lesson, tt.lessonid, tt.day, tt.week, (SELECT name FROM groups WHERE id = tt.groupid) as group_name
+						FROM timetable tt
+						WHERE tt.classid = ? && ((tt.week = ? && tt.day > ?) || tt.week = ?) $onlyGrp
+						ORDER BY tt.week, tt.day, tt.lesson", $addon);
+				break;
+				case 2:
+					/*
+						SELECT l.name, l.color, tt.id, tt.lesson, tt.day, tt.week, (SELECT `name` FROM `groups` WHERE `id` = tt.groupid) as group_name
+						FROM timetable tt
+						LEFT JOIN lessons l
+						ON (l.id = tt.lessonid && l.classid = tt.classid)
+						WHERE tt.classid = ? && tt.day > ? $onlyGrp
+						ORDER BY tt.day, tt.lesson"
 
-			if ($dualWeek){
-				$whereString = "&& ((tt.week = ? && tt.day > ?) || tt.week = ?)";
-				$data = $db->rawQuery("SELECT l.name, l.color, tt.id, tt.lesson, tt.day, tt.week, (SELECT `name` FROM `groups` WHERE `id` = tt.groupid) as group_name
-							FROM timetable tt
-							LEFT JOIN lessons l
-							ON (l.id = tt.lessonid && l.classid = tt.classid)
-							WHERE tt.classid = ? $whereString $onlyGrp
-							ORDER BY tt.week, tt.day, tt.lesson ASC",$addon);
+						array($user['class'][0], $dayOfWeek+$switch)
+					*/
+					$tt_thisWeek = $db->rawQuery(
+						"SELECT tt.id, tt.lesson, tt.lessonid, tt.day, tt.week, (SELECT name FROM groups WHERE id = tt.groupid) as group_name
+						FROM timetable tt
+						WHERE tt.classid = ? && tt.day > ? $onlyGrp
+						ORDER BY tt.day, tt.lesson", array($user['class'][0], $switchedDay));
+					/*
+						SELECT l.name, l.color, tt.id, tt.lesson, tt.day, tt.week, (SELECT `name` FROM `groups` WHERE `id` = tt.groupid) as group_name
+						FROM timetable tt
+						LEFT JOIN lessons l
+						ON (l.id = tt.lessonid && l.classid = tt.classid)
+						WHERE tt.classid = ? && tt.day < ? $onlyGrp
+						ORDER BY tt.day, tt.lesson"
+
+						array($user['class'][0])
+					*/
+					$tt_nextWeek = $db->rawQuery(
+						"SELECT tt.id, tt.lesson, tt.lessonid, tt.day, tt.week, (SELECT name FROM groups WHERE id = tt.groupid) as group_name
+						FROM timetable tt
+						WHERE tt.classid = ? && tt.day < ? $onlyGrp
+						ORDER BY tt.day, tt.lesson", array($user['class'][0], $switchedDay));
+
+					$ttentries = array_merge($tt_thisWeek,$tt_nextWeek);
+				break;
+				default: trigger_error('Nem támogatott hétszám', E_USER_ERROR);
 			}
-			else {
-				$data_onWeek = $db->rawQuery("SELECT l.name, l.color, tt.id, tt.lesson, tt.day, tt.week, (SELECT `name` FROM `groups` WHERE `id` = tt.groupid) as group_name
-											FROM timetable tt
-											LEFT JOIN lessons l
-											ON (l.id = tt.lessonid && l.classid = tt.classid)
-											WHERE tt.classid = ? && tt.day > ? $onlyGrp
-											ORDER BY tt.day, tt.lesson"
-									,array($user['class'][0],$hour >= 8 && $minute >= 0 ? $dayInWeek : $dayInWeek-1));
 
-				$data_nextWeek = $db->rawQuery("SELECT l.name, l.color, tt.id, tt.lesson, tt.day, tt.week, (SELECT `name` FROM `groups` WHERE `id` = tt.groupid) as group_name
-											FROM timetable tt
-											LEFT JOIN lessons l
-											ON (l.id = tt.lessonid && l.classid = tt.classid)
-											WHERE tt.classid = ? $onlyGrp
-											ORDER BY tt.day, tt.lesson"
-									,array($user['class'][0]));
-
-				$data_nW = array();
-				foreach ($data_nextWeek as $array){
-					$nextD = $hour >= 8 && $minute >= 0;
-					$if = $dayInWeek == 1 ? ($nextD ? $dayInWeek : 7) : ($nextD ? $dayInWeek : $dayInWeek - 1);
-
-					if ($array['day'] <= $if)
-						$data_nW[] = $array;
-				}
-
-				$data = array_merge($data_onWeek,$data_nW);
-			}
-
-			$Timetable = array_fill(0,8,array_fill(0,1,array()));
+			$Timetable = array();
 
 			$days = [];
+			$LessonCache = array();
+			foreach ($ttentries as $entry){
+				$lesson = $entry['lesson']-1;
 
-			//var_dump(date('Y-m-d',$weekday));
-			foreach ($data as $class){
-				$lesson = $class['lesson']-1;
-
-				if ($actWeek == $class['week']){
-					if ($class['day'] <= $dayInWeek)
-						if ($dualWeek)
-							$date = strtotime('+ '.(14 + $class['day']).' days',$weekday);
-						else
-							$date = strtotime('+ '.((7 - $dayInWeek) + $class['day']).' days',$weekday);
-					else
-						$date = strtotime('+ '.($class['day'] - $dayInWeek).' days',$weekday);
+				if ($actWeek == $entry['week']){
+					if ($entry['day'] <= $dayOfWeek){
+						// FIXME Így csak mx 2 hetet kezel
+						if ($weekcnt === 2)
+							$date = strtotime('+ '.(14 + $entry['day']).' days', $weekday);
+						else $date = strtotime('+ '.((7 - $dayOfWeek) + $entry['day']).' days', $weekday);
+					}
+					else $date = strtotime('+ '.($entry['day'] - $dayOfWeek).' days',$weekday);
 				}
-				else {
-					$date = strtotime('+ '.(7 - $dayInWeek).' days',$weekday);
+				else $date = strtotime('+ '.(7 - $dayOfWeek + $entry['day']).' days',$weekday);
 
-					$date = strtotime("+ {$class['day']} days", $date);
-				};
+				if (array_search($date,$days) === false)
+					$days[] = $date;
 
-				if (array_search($date,$days) === false) $days[] = $date;
+				$LessonID = $entry['lessonid'];
+				if (!isset($LessonCache[$LessonID]))
+					$LessonCache[$LessonID] = $db->where('id',$LessonID)->getOne('lessons', 'id, name, color');
 
-				if (isset($class['name']))
-					$Timetable[$lesson][$date][] = array($class['name'],'',$class['color'],$class['id'],$allgroup ? $class['group_name'] : '',date('W',$date));
+				if (!empty($LessonCache[$LessonID]))
+					$Timetable[$lesson][$date][] = array(
+						$LessonCache[$LessonID]['name'],
+						'',
+						$LessonCache[$LessonID]['color'],
+						$LessonCache[$LessonID]['id'],
+						$allgroup ? $entry['group_name'] : '',
+						date('W',$date)
+					);
 			}
 			$Timetable['opt'] = $days;
 
@@ -3213,7 +3268,8 @@ STRING;
 				$weeks = [];
 				foreach ($weekdays as $day){
 					$wNum = (int)date('W',$day);
-					if (array_search($wNum,array_keys($weeks)) === false) $weeks[$wNum] = array(1, Timetable::GetActualWeek(false,$day));
+					if (array_search($wNum,array_keys($weeks)) === false)
+						$weeks[$wNum] = array(1, Timetable::GetWeekLetter($day));
 					else $weeks[$wNum][0]++;
 				}
 				ksort($weeks);
@@ -3239,7 +3295,7 @@ STRING;
 <?php                   }
 						else
 							foreach ($weekdays as $day)
-								print "<th class='weekday'>".HomeworkTools::FormatMonthDay($day).' '.System::$Days[Timetable::GetDayNumber($day)]."</th>"; ?>
+								print "<th class='weekday'>".HomeworkTools::FormatMonthDay($day).' '.System::$Days[Timetable::GetDay($day)]."</th>"; ?>
 					</tr>
 				</thead>
 
@@ -3263,7 +3319,6 @@ STRING;
 					<tr class="lesson-field">
 						<th><?=$lesson+1?></th>
 <?php                   for ($day = 0; $day < count($days); $day++){
-							//var_dump($days[$day]);
 							$class = isset($Timetable[$lesson][$weekdays[$day]]) ? $Timetable[$lesson][$weekdays[$day]] : null;
 							self::_RenderClass($class);
 						} ?>
