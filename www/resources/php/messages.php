@@ -330,6 +330,7 @@
 					2 => 'egy fájl mérete nagyobb a megengedettnél',
 					3 => 'az osztály tárhelyén nincs elég szabad hely',
 					4 => 'a kiszolgálón nincs elég hely egy fájl feltöltéséhez',
+					5 => 'egyetlen fájl sem érkezett me ga szerverre',
 				),
 				'messages' => array(
 					0 => 'A fájlok feltöltése sikeresen megtörtént!',

@@ -36,7 +36,7 @@
 		break;
 
 		case 'edit':
-			print "<h1 id=h1cim>".System::Nevelo($ENV['class']['classid'],true)." osztály órarendje</h1>"; ?>
+			print "<h1 id=h1cim>".System::Article($ENV['class']['classid'],true)." osztály órarendje</h1>"; ?>
 
 			<p>Órarend választása: <select id='select_tt'>
 <?php       foreach (Timetable::$TT_Types as $key => $value){
@@ -56,7 +56,7 @@
 			if (!isset($ENV['URL'][1])) System::Redirect('/timetables');
 			$week = $ENV['URL'][1];
 			if ($week != 'a' && $week != 'b') System::Redirect('/timetables');
-			print "<h1 id=h1cim>".System::Nevelo($ENV['class']['classid'],true)." osztály órarendje</h1>"; ?>
+			print "<h1 id=h1cim>".System::Article($ENV['class']['classid'],true)." osztály órarendje</h1>"; ?>
 
 			<p>Órarend választása: <select id='select_tt'>
 <?php       foreach (Timetable::$TT_Types as $key => $value){

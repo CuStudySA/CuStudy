@@ -14,7 +14,7 @@
 									FROM `groups`
 									WHERE `classid` = ?",array($user['class'][0]));
 
-			print "<h1 id=h1cim>Csoportok kezelése</h1><div id='groupContainer'>";
+			echo "<h1 id=h1cim>".System::Article($ENV['class']['classid'], true)." osztály coportjai</h1><div id='groupContainer'>";
 
 			foreach ($themes as $thm){
 				print "<div data-thm='{$thm['id']}'><h2 class='grouptitle' data-thm='{$thm['id']}'>{$thm['name']} csoportok</h2><ul class='groups colorli'>";
