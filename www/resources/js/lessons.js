@@ -52,11 +52,11 @@
 				$(window).trigger('ajaxerror');
 				return false;
 			}
-			options = data.options;
 
-			options.forEach(function(entry){
-				opt_s += entry;
-			});
+			if (data.options)
+				$.each(data.options, function(_, entry){
+					opt_s += entry;
+				});
 		}
 	});
 
@@ -165,6 +165,9 @@
 		e.preventDefault();
 
 		var title = 'Tantárgy hozzáadás';
+
+		if (opt_s.length === 0)
+			return $.Dialog.fail(title, 'Tantárgyak felvétele előtt hozzá kell adnod tanárokat a <a href="/teachers">Tanárok</a> menüpontban!');
 
 		var $dialog = $formTempl.clone();
 		$dialog.find('[name=teacherid]').append(opt_s);
