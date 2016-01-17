@@ -672,6 +672,30 @@
 		static function MakeHttps($url){
 			return preg_replace('~^(https?:)?//~','https://',$url);
 		}
+
+		/**
+		 * NHatározott névelő hozzáadása egy stringhez
+		 *
+		 * @param string $str    Karaktersorozat
+		 * @param bool   $upperc Nagybetűvel kezdődjön-e a névelő
+		 * @param string $btw    Névelő és szó közé beillesztendő szöveg
+		 *
+		 * @return string
+		 */
+		static function Article($str, $upperc = false, $btw = ''){
+			$a = $upperc ? 'A' : 'a';
+			$str = trim($str);
+			if (preg_match('/^(\d+)?/', $str, $num)){
+				$number = intval($num[1], 10);
+				if (
+					($number < 10 && ($number == 1 || $number == 5)) ||
+					($number >= 20 && $number != 100 && strpos('15',strval($number)[0]) !== false)
+				) $a .= 'z';
+			}
+			else if (preg_match('/^[aáoóuúeéiíöőüű]/i',$str))
+				$a .= 'z';
+			return "$a ".($btw ? "$btw " : '').$str;
+		}
 	}
 
 	class CSRF {
@@ -1206,6 +1230,51 @@ STRING
 				'uploader' => empty($uploader) ? 'ismeretlen' : $uploader['name'].' (#'.$uploader['id'].')',
 				'filename' => $data['filename'],
 			);
+		}
+
+		static function RenderList($classid = null, $wrap = true){
+			global $db;
+			$HTML = $wrap ? "<ul class='files flex'>" :'';
+
+			if (empty($classid)){
+				global $user;
+				$classid = $user['class'][0];
+			}
+
+			$data = $db->where('classid', $classid)->orderBy('time')->get('files');
+
+			foreach ($data as $file) {
+				$deleteButton = !System::PermCheck('files.delete')
+					? "<a class='typcn typcn-trash js_delete' href='#{$file['id']}' title='Fájl törlése'></a>"
+					: '';
+				$HTML .= <<<HTML
+				<li>
+					<div class="top">
+						<span class='rovid'>{$file['name']}</span>
+						<span class='nev'>{$file['description']}</span>
+					</div>
+					<div class="bottom">
+						<a class="typcn typcn-info-large js_more_info" href="#{$file['id']}" title="További információk"></a>
+						$deleteButton
+						<a class="typcn typcn-download" href="/files/download/{$file['id']}" title="Fájl letöltése" download></a>
+					</div>
+				</li>
+HTML;
+			}
+			if (!System::PermCheck('files.add')) {
+				$HTML .= <<<HTML
+				<li class='new'>
+					<div class="top">
+						<span class='rovid'>Új dokumentum</span>
+						<span class='nev'>Új dok. feltöltése</span>
+					</div>
+					<div class="bottom">
+						<a class="typcn typcn-upload js_file_add" href="#" title="Fájlfeltöltés"></a>
+					</div>
+				</li>
+HTML;
+			}
+			return $HTML.($wrap?'</ul>':'');
 		}
 	}
 

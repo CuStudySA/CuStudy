@@ -15,7 +15,7 @@
 				var Patterns = <?=json_encode(System::GetHtmlPatterns())?>;
 			</script>
 
-			<h1 id=h1cim>A(z) <?=$ENV['class']['classid']?> felhasználóinak kezelése</h1>
+			<h1 id=h1cim><?=System::Article($ENV['class']['classid'], true)?> osztály felhasználóinak kezelése</h1>
 			<ul class="customers flex">
 <?php		foreach ($data as $subarray){
 				$nev = explode(' ',$subarray['name']);

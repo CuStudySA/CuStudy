@@ -7,10 +7,9 @@ $(function(){
 				<textarea name='fileDesc' placeholder='Dokumentum tartalma, leírása' required></textarea>\
 			</div>\
 		</div>"),
-		$uploadFileForm = $('.uploadFileForm').clone();
-
-	var $fileForm = $('.uploadFileForm'),
-		$formContainer = $('.fileFormContainer'),
+		$fileForm = $('.uploadFileForm'),
+		$uploadFileForm = $fileForm.clone(),
+		$fileList = $('ul.files'),
 		files = [];
 
 	var ifExistInList = function(file){
@@ -77,9 +76,9 @@ $(function(){
 
 		var data = new FormData();
 		var $fileInputs = $('.uploadContainer').find('input[type=file]'),
-			title = 'Fájl(ok) feltöltése';
+			title = 'Feltöltés folyamatban';
 
-		$.Dialog.wait(title,"A fájlok feltöltése folyamatban van... Kérjük, ne zárja be ezt az ablakot!");
+		$.Dialog.wait(title,"Kérjük, ne zárja be ezt az ablakot, a fájlok feltöltése folyamatban van");
 
 		$.each($fileInputs,function(key,value){
 			var input = value.files[0];
@@ -119,10 +118,10 @@ $(function(){
 					return false;
 				}
 				if (data.status){
-					$.Dialog.success(title,data.message);
-					setTimeout(function(){
-						window.location.href = '/files';
-					},2500);
+					$fileList.html(data.filelist);
+					$.Dialog.close();
+					if (typeof data.storage !== 'undefined')
+						updateStorage(data.storage);
 				}
 				else {
 					$('.uploadFileForm').remove();
@@ -144,13 +143,17 @@ $(function(){
 
 	var $UsedSpaceIndicator = $('#storage-use').find('.indicator'),
 		$USIFill = $UsedSpaceIndicator.children('.used');
-	var e_delete = function(e){
+
+	$fileList
+		.on('click','.js_delete',e_delete)
+		.on('click','.js_more_info',e_getFileInfo);
+	function e_delete(e){
 		e.preventDefault();
 
 		var id = $(e.currentTarget).attr('href').substring(1),
 			title = 'Dokumentum törlése';
 
-		$.Dialog.confirm(title,'Arra készül, hogy törli a kiválasztott dokumentumot a szerverről. A művelet nem visszavonható! Folytatja?',['Végleges törlés','Visszalépés'],
+		$.Dialog.confirm(title,'Arra készül, hogy törli a kiválasztott dokumentumot a szerverről. A művelet nem visszavonható! Folytatja?',['Végleges törlés','Mégse'],
 			function(sure){
 				if (!sure) return;
 
@@ -170,33 +173,15 @@ $(function(){
 						if (data.status){
 							$(e.currentTarget).parent().parent().remove();
 							$.Dialog.close();
-
-							if (typeof data.storage !== 'undefined'){
-								var storage = data.storage,
-									usedperc = data.storage['Used%'];
-								if (!isNaN(usedperc) && usedperc > 0){
-									if ($USIFill.length === 0)
-										$USIFill = $.mk('div').appendTo($UsedSpaceIndicator);
-									$USIFill
-										.css('width', usedperc + '%')
-										.attr('class', 'used '+(usedperc > 75 ? 'high' : 'low'));
-								}
-								else $USIFill.fadeOut(500,function(){
-									$USIFill.remove();
-								});
-
-								$UsedSpaceIndicator.prev().text(storage.Used+' ('+usedperc+'%) felhasználva az osztály számára elérhető '+storage.Available+'-ból.')
-							}
+							if (typeof data.storage !== 'undefined')
+								updateStorage(data.storage);
 						}
-
 						else $.Dialog.fail(title,data.message);
 					}
 				});
 			});
-	};
-	$('.js_delete').on('click',e_delete);
-
-	var e_getFileInfo = function(e){
+	}
+	function e_getFileInfo(e){
 		e.preventDefault();
 
 		var id = $(e.currentTarget).attr('href').substring(1),
@@ -221,7 +206,20 @@ $(function(){
 				else $.Dialog.fail(title,data.message);
 			}
 		});
-	};
-	$('.js_more_info').on('click',e_getFileInfo);
+	}
+	function updateStorage(storage){
+		var usedperc = storage['Used%'];
+		if (!isNaN(usedperc) && usedperc > 0){
+			if ($USIFill.length === 0)
+				$USIFill = $.mk('div').appendTo($UsedSpaceIndicator);
+			$USIFill
+				.css('width', usedperc + '%')
+				.attr('class', 'used '+(usedperc > 75 ? 'high' : 'low'));
+		}
+		else $USIFill.fadeOut(500,function(){
+			$USIFill.remove();
+		});
 
+		$UsedSpaceIndicator.prev().text(storage.Used+' ('+usedperc+'%) felhasználva az osztály számára elérhető '+storage.Available+'-ból.')
+	}
 });
