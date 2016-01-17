@@ -36,10 +36,7 @@
 							<a class="typcn typcn-pencil js_user_edit" href="#<?=$subarray['id']?>" title="Adatok módosítása"></a>
 							<a class="typcn typcn-key js_user_editAccessData" href="#<?=$subarray['id']?>" title="Hozzáférési adatok módosítása"></a>
 							<a class="typcn typcn-user-delete js_user_delete" href="#<?=$subarray['id']?>" title="Törlés"></a>
-<?php                   }
-						else { ?>
-							<a class="typcn typcn-times" href="#" title="Nincs engedélyezett művelet!"></a>
-<?php                   }   ?>
+<?php                   } ?>
 					</div>
 				</li>
 <?php		} ?>
