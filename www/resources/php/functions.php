@@ -537,13 +537,8 @@
 
 		// Névelő
 		static function Nevelo($str,$upperc = false,$btw = ''){
-			$match = '/^(a|á|o|ó|u|ú|e|é|i|í|ö|ő|ü|ű|1|5)/i';
-
-			if ($upperc === true || $upperc == 'true' ) $a = "A";
-			else $a = "a";
-
-			if (preg_match($match,preg_replace('/[^\w\d]/i','',trim($str)))) return $a.'z '.($btw ? ' '.$btw : '').$str;
-			else return $a.' '.($btw ? ' '.$btw : '').$str;
+			trigger_error('A System::Nevelo funkció helyett a System::Article funkciót használd', E_USER_DEPRECATED);
+			return System::Article($str, $upperc, $btw);
 		}
 
 		static function Redirect($url, $die = true, $http = 301){
@@ -2527,7 +2522,7 @@ STRING;
 
 	            $time = strtotime($date);
 
-	            print "<h3>Házi feladatok ".System::Nevelo(System::$Days[Timetable::GetDayNumber($time)])."i napra ({$day})</h3>";
+	            print "<h3>Házi feladatok ".System::Article(System::$Days[Timetable::GetDayNumber($time)])."i napra ({$day})</h3>";
 	        }
 	        ?>
 
