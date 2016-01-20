@@ -2680,7 +2680,10 @@ STRING;
 				$end = array(System::$ShortMonths[intval(date('n', $endtime))], date('j', $endtime));
 
 				$sameMonthDay = $start[0] == $end[0] && $start[1] == $end[1];
-				$time = $ev['isallday'] ? '' : date('H:i', $starttime).(!$sameMonthDay?'-tól':'').' ';
+				$mp = date('i',  $starttime);
+				$mpint = intval($mp, 10);
+				$rag = ($mpint !== 10 && in_array($mpint % 10, [0,3,6,8])) ? 'tól': 'től';
+				$time = $ev['isallday'] ? '' : date('H', $starttime).":$mp-$rag ";
 				$append = '';
 				if (!$sameMonthDay)
 					$append .= HomeworkTools::FormatMonthDay($endtime);
@@ -2688,7 +2691,7 @@ STRING;
 					$append .= ' '.date('H:i',$endtime).'-ig';
 				else if (!$sameMonthDay) $append .= '-ig';
 				if (!empty($append))
-					$time .= "$append";
+					$time .= $append;
 				if ($ev['isallday']){
 					$time .= ', egész nap';
 					$time = preg_replace('/^, eg/','Eg',$time);
