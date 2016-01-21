@@ -20,14 +20,14 @@
 		break;
 
 		case 'save':
-			if (isset($ENV['POST']))
-				$action = Timetable::ProgressTable($ENV['POST']);
-			else System::Respond();
+			if (!isset($ENV['POST']))
+				System::Respond();
+			$action = Timetable::ProcessTable($ENV['POST']);
 
-			System::Respond(Message::Respond('timetables.progressTable',$action), $action == 0 ? 1 : 0);
+			System::Respond(Message::Respond('timetables.progressTable',$action), !$action);
 		break;
 
 		case 'showTimetable':
-			Timetable::SwitchView(reset($ENV['POST']['dispDays']),$ENV['URL'][1] === 'all');
+			Timetable::JSTimetable($ENV['POST']['dispDays'][0],$ENV['URL'][1] === 'all');
 		break;
 	}

@@ -1,5 +1,7 @@
-/* JS add-on for BetonHomeWork
- * Copyright(C) 2015. BetonSoft csoport */
+/*
+ * JS add-on for CuStudy
+ * @copyright (C) 2016 CuStudy Software Alliance
+ */
 
 $(function(){
 	var title = "Tanárok és tantárgyak lekérése", $tds = $('table tbody td'),
@@ -8,7 +10,7 @@ $(function(){
 
 	//Órarend-választás <select> tag működése
 	$('#select_tt').change(function(){
-		window.location.href = '/timetables/week/' + $('#select_tt').children().filter(':selected').attr('value');
+		window.location.href = '/timetables/week/' + this.value;
 	});
 
 	if (USRGRP == 'user' || USRGRP == 'editor'){
@@ -20,7 +22,6 @@ $(function(){
 	$.ajax({
 		method: 'POST',
 		url: '/timetables/getoptions',
-		data: pushToken({}),
 		success: function(data){
 			if (typeof data === 'string') return console.log(data) === $(window).trigger('ajaxerror');
 
@@ -72,7 +73,8 @@ $(function(){
 						grpnme = '',
 						grpnmef = $groups.find('option:selected').text();
 					$.each(postDatas.lessons,function(_,lesson){
-						if (ntn == lesson.name) ntc = lesson.color;
+						if (ntn == lesson.name)
+							ntc = lesson.color;
 					});
 
 					if (grpnmef != 'Teljes o.')
@@ -182,37 +184,31 @@ $(function(){
 		$.ajax({
 			method: 'POST',
 			url: '/timetables/save',
-			data: pushToken(container),
+			data: container,
 			success: function(data){
 				if (typeof data === 'string') return console.log(data) === $(window).trigger('ajaxerror');
 
-				if (data.status){
-					$.Dialog.success(title,data.message);
-					setTimeout(function(){
-						location.reload();
-					},2500);
-				}
+				if (!data.status) return $.Dialog.fail(title,data.message);
 
-				else {
-					$.Dialog.fail(title,data.message);
-				}
+				$.Dialog.success(title,data.message);
+				setTimeout(function(){
+					location.reload();
+				},2500);
 			}
 		});
 	};
 
 	$('.sendbtn').on('click',function(){
-		var title = 'Órarend mentése';
+		if (container.delete.length == 0)
+			return e_modify();
+		$.Dialog.confirm('Órarend mentése',
+			'Arra készülsz, hogy mented az órarend változtatásait, köztük számos bejegyzés törlését.<br>Ezzel a törölt bejegyzésekhez tartozó adatok is elvesznek.<br>Biztos vagy benne, hogy végrehajtod a változtatásokat?',
+			['Változtatások mentése','Visszalépés'],
 
-		if (container.delete.length != 0)
-			$.Dialog.confirm(title,
-				'Arra készülsz, hogy mented az órarend változtatásait, köztük számos bejegyzés törlését.<br>Ezzel a törölt bejegyzésekhez tartozó adatok is elvesznek.<br>Biztos vagy benne, hogy végrehajtod a változtatásokat?',
-				['Változtatások mentése','Visszalépés'],
-
-				function(sure){
-					if (!sure) return;
-					e_modify();
-				}
-			);
-		else e_modify();
+			function(sure){
+				if (!sure) return;
+				e_modify();
+			}
+		);
 	});
 });

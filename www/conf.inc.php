@@ -119,7 +119,7 @@
 			'title' => 		'Órarend',
 			'css' => 		['timet.css','timetables.css'],
 			'js' => 		['jquery.powertip.min.js'],
-			'customjs' =>   ['' => 'timetables/ttedit.js', 'edit' => 'timetables/ttedit2.js','week' => 'timetables/ttedit2.js'],
+			'customjs' =>   ['' => 'timetables/tt-view.js', 'edit' => 'timetables/tt-edit.js','week' => 'timetables/tt-edit.js'],
 			'minperm' => 	'user',
 			'maxperm' => 	'admin',
 			'reqdoc' => 	[],

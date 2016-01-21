@@ -5,18 +5,7 @@
 		case 'new':
 			//Timetable előkészítése renderléshez
 			$TT = Timetable::GetHWTimeTable();
-
-			$days = $TT['opt'];
-			unset($TT['opt']);
-
-			sort($days,SORT_NUMERIC);
-			$days = array_splice($days,0,3);
-
-			function RenderTT() { global $TT, $days; return Timetable::Render(null, $TT, $days); } ?>
-
-			<script>
-				var _dispDays = <?=json_encode($days)?>;
-			</script>
+			$days = Timetable::CalcTimetableDays($TT, 3, true); ?>
 
 			<h1>Új házi feladat hozzáadása</h1>
 
@@ -32,7 +21,7 @@
 					<button class='btn nextWeek'>Előre a következő napokhoz >></button>
 				</p>
 
-				<div id='lessonPicker'><?=RenderTT()?></div>
+				<div id='lessonPicker'><?=Timetable::Render(null, $TT, $days)?></div>
 				<p class='step2p'><b>2. lépés:</b> <b>Add meg</b> a feladat <b>szövegét</b>!</p>
 				<p style='margin-top: 0'><textarea class='BBCodeEditor'></textarea></p>
 

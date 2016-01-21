@@ -25,7 +25,6 @@
 		return e.keyCode == Key;
 	};
 
-
 	// Checks if a variable is a function and if yes, runs it
 	// If no, returns default value (undefined or value of def)
 	$.callCallback = function(func, params, def){
@@ -47,7 +46,6 @@
 	// Array.includes (ES7) polyfill
 	if (typeof Array.prototype.includes !== 'function')
 		Array.prototype.includes = function(elem){ return this.indexOf(elem) !== -1 };
-
 
 	function getCookie(name) {
 		var value = "; " + document.cookie;
@@ -100,25 +98,46 @@
 		return data;
 	};
 
-	window.getToken = function(){
-		var token = getCookie('JSSESSID');
-		if (typeof token == 'undefined') return '';
-
-		return token;
+	// Get CSRF token from cookies
+	$.getCSRFToken = function(){
+		var n = document.cookie.match(/JSSESSID=([a-z\d]+)/i);
+		if (n && n.length)
+			return n[1];
+		else throw new Error('Nem található a JSSESSID süti');
 	};
+	$.ajaxPrefilter(function(event, origEvent){
+		if ((origEvent.type||event.type).toUpperCase() !== 'POST')
+			return;
 
+		var t = $.getCSRFToken();
+		if (typeof event.data === "undefined")
+			event.data = "";
+		if (typeof event.data === "string"){
+			var r = event.data.length > 0 ? event.data.split("&") : [];
+			r.push("JSSESSID=" + t);
+			event.data = r.join("&");
+		}
+		else event.data.JSSESSID = t;
+	});
+	$.ajaxSetup({
+		dataType: "json",
+		error: function(){
+			$.Dialog.fail(undefined, "Ismeretlen AJAX hiba");
+		},
+		statusCode: {
+			401: function(){
+				$.Dialog.fail(undefined, "Oldalak közötti kéréshamisítást érzékelt rendszerünk");
+			},
+			404: function(){
+				$.Dialog.fail(undefined, "A kért oldal nem létezik");
+			},
+			500: function(){
+				$.Dialog.fail(false, 'A kérés egy belső szerverhiba miatt nem sikerült.');
+			},
+		},
+	});
 	window.pushToken = function(data){
-		var token = getCookie('JSSESSID');
-		if (typeof data != 'undefined'){
-			if (typeof token == 'undefined') return data;
-
-			data['JSSESSID'] = token;
-
-			return data;
-		}
-		else {
-			if (typeof token == 'undefined') return {};
-			return {'JSSESSID': token};
-		}
+		console.warn('%cA pushToken() funkció feleslegessé vált egy automatikus megoldás miatt, már nem szükséges a használata!\nCsak cseréld le a funkciót az első paraméterére. (pl. pushToken({a: 1}) => {a: 1})','font-weight:bold;font-size:1.2em');
+		return data;
 	};
 })(jQuery);
