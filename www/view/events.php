@@ -1,4 +1,4 @@
-<h1 id=h1cim>A(z) <?=$ENV['class']['classid']?> osztály eseményei</h1>
+<h1 id=h1cim><?=System::Article($ENV['class']['classid'], true)?> osztály eseményei</h1>
 
 <?php
 	$Btns = array();
