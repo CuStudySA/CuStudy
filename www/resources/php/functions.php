@@ -9,7 +9,7 @@
 		}
 		static function Ellenorzes($input,$dbpass){
 			$tmp = explode('$', $dbpass);
-			return (hash('sha256', hash('sha256', $input) . $tmp[2]) == $tmp[3]);
+			return hash_equals(hash('sha256', hash('sha256', $input) . $tmp[2]), $tmp[3]);
 		}
 		static function Generalas($length = 10) {
 			$characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
