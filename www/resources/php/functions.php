@@ -1326,7 +1326,9 @@ HTML;
 
 			$workWith = $sizes[0];
 			if ($sizes[1] !== $sizes[0]){
-				$sizesBytes = array_map(array(FileTools, 'SizeInBytes'), $sizes);
+				$sizesBytes = array();
+				foreach ($sizes as $s)
+					$sizesBytes[] = FileTools::SizeInBytes($s);
 				if ($sizesBytes[1] > $sizesBytes[0])
 					$workWith = $sizes[1];
 			}
