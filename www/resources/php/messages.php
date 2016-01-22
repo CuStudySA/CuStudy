@@ -5,6 +5,7 @@
 				'errors' => array(
 					1 => 'valamelyik megadott adat formátuma hibás',
 					2 => 'a felhasználó nem létezik, esetleg hibás a jelszó',
+					3 => 'túl sokszor adtál meg hibás jelszót rövid időn belül. Várj 1-2 percet, és próbálkozz újra',
 					4 => 'a felhasználó állapota tiltott',
 					5 => 'az osztály vagy iskola állapota tiltott',
 				),
