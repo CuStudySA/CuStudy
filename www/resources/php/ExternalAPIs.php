@@ -17,7 +17,7 @@
 			return array(
 				'account_id' => $result['id'],
 				'name' => isset($result['nickname']) ? $result['nickname'] : $result['name']['familyName'].' '.$result['name']['givenName'],
-				'picture' => System::MakeHttps(str_replace('?sz=50','?sz=64',$result['image']['url'])),
+				'picture' => System::MakeHttps(str_replace('?sz=50','?sz=80',$result['image']['url'])),
 				'email' => $result['emails'][0]['value'],
 			);
 		}
@@ -37,7 +37,7 @@
 			return array(
 				'account_id' => $result['id'],
 				'name' => $result['name'],
-				'picture' => "https://graph.facebook.com/v2.5/{$result['id']}/picture?with=64&height=64",
+				'picture' => "https://graph.facebook.com/v2.5/{$result['id']}/picture?width=80&height=80",
 			);
 		}
 	}

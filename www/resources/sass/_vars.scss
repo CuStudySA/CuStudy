@@ -48,12 +48,13 @@ $ColorPalette: #66CCFF, #669CFF, #7D66FF, #C966FF, #FF66BA, #FF7066, #FFA466;
 
 // Szolgáltatói gombok
 $providerCount: 4; // Facebook, Google+, Microsoft, DeviantArt
+//noinspection CssOptimizeSimilarProperties
 @mixin extconn-button($size:20px){
 	width: $size;
 	height: $size;
-	background: url('../img/login.svg') no-repeat;
+	background-image: url('../img/login.svg');
+	background-repeat:  no-repeat;
 	background-size: $size*$providerCount $size;
-	border-bottom: 0 !important;
 
 	@content;
 

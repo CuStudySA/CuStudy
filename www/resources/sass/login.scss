@@ -182,6 +182,7 @@ body.sidebar-slide > main {
 			display: inline-block;
 			margin: 5px;
 			transition: transform .2s;
+			border-bottom: 0 !important;
 			&:hover { transform: scale(1.3) }
 		}
 	}

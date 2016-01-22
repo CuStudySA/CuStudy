@@ -81,6 +81,7 @@
 				$statusText = ($entry['active'] ? '' : 'in').'aktív';
 				$actBtnClass = ($entry['active'] ? 'de' : '').'activate';
 				$actBtnText = ($entry['active'] ? 'Dea' : 'A').'ktiválás';
+				$picture = $entry['picture'];
 				/* ?>
 
 				<h2><?=$provider?>-fiók</h2>
@@ -93,7 +94,10 @@
 				echo <<<HTML
 <div class="conn-wrap">
 	<div class="conn" data-id="{$entry['id']}">
-		<div class="icon $provClass" title="$provider"></div>
+		<div class="icon">
+			<img src="$picture">
+			<div class="logo $provClass" title="$provider"></div>
+		</div>
 		<div class="text">
 			<span class="n">$username</span>
 			<span class="status">Összekapcsolás $statusText<br></span>
