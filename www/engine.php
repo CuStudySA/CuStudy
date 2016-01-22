@@ -134,8 +134,8 @@
 
 		# CSRF-elleni védelem
 		if (!isset($skipCSRF)){
-			if (empty($ENV['POST']['JSSESSID'])) System::Respond();
-			if (!CSRF::Check($ENV['POST']['JSSESSID'])) System::Respond();
+			if (empty($ENV['POST']['JSSESSID'])) System::Respond('A kérésből hiányzik a CSRF token');
+			if (!CSRF::Check($ENV['POST']['JSSESSID'])) System::Respond('CSRF támadás érzékelve');
 
 			unset($ENV['POST']['JSSESSID']);
 

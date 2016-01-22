@@ -770,6 +770,12 @@
 			'microsoft' => 'Microsoft',
 		);
 
+		static $apiClassName = array(
+			'facebook' => 'fb',
+			'google' => 'gp',
+			'microsoft' => 'ms',
+		);
+
 		static function DeactAndAct($connid, $type = 'deactivate'){
 			global $db, $user;
 
