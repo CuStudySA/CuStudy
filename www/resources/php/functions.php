@@ -1139,7 +1139,6 @@ STRING
 
 	class FileTools {
 		const CLASS_SPACE = 268435456;
-		const CLASS_MAX_FILESIZE = 36700160;
 
 		static function GetUsedSpace(){
 			global $db, $user;
@@ -1186,9 +1185,6 @@ STRING
 		static function UploadFile($file){
 			// Sikerült-e a fájlfeltöltés?
 			if ($file['error'] != 0) return 1;
-			
-			// Méret ellenörzése
-			if ($file['size'] > self::CLASS_MAX_FILESIZE) return 2;
 			
 			// Van-e hely a tárhelyen?
 			if ($file['size'] > self::GetFreeSpace()) return 3;

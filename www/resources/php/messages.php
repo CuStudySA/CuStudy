@@ -327,8 +327,7 @@
 		'files' => array(
 			'uploadFiles' => array(
 				'errors' => array(
-					1 => 'egy fájl egy hiba miatt nem töltődött fel a szerverre',
-					2 => 'egy fájl mérete nagyobb a megengedettnél',
+					1 => 'az egyik fájl egy hiba miatt nem töltődött fel a szerverre',
 					3 => 'az osztály tárhelyén nincs elég szabad hely',
 					4 => 'a kiszolgálón nincs elég hely egy fájl feltöltéséhez',
 					5 => 'egyetlen fájl sem érkezett me ga szerverre',
