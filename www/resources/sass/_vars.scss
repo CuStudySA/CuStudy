@@ -1,13 +1,13 @@
-// Oldal-szintû színkódok
+// Oldal-szintÅ± szÃ­nkÃ³dok
 $LightBG: #CBD7F1;
 $Link: #171D2D;
 $LinkLight: #326DEC;
 $LinkHover: desaturate(lighten($Link, 13), 7);
 
-// Mobil-Asztali kinézet töréspont
+// Mobil-Asztali kinÃ©zet tÃ¶rÃ©spont
 $Breakpoint: 650px;
 
-// Dialógusablak szinek
+// DialÃ³gusablak szinek
 $NBlue: #07f;
 $NBlueBG: #def;
 $NDarkBlue: #03d;
@@ -36,7 +36,7 @@ $NYellowBG: #ffd;
 	&:after { clear: both }
 }
 
-// Színes csempék
+// SzÃ­nes csempÃ©k
 $Grey: rgba(0, 0, 0, .4);
 $ColorPalette: #66CCFF, #669CFF, #7D66FF, #C966FF, #FF66BA, #FF7066, #FFA466;
 %color-palette {
@@ -44,4 +44,20 @@ $ColorPalette: #66CCFF, #669CFF, #7D66FF, #C966FF, #FF66BA, #FF7066, #FFA466;
 	@for $i from 0 through $cpl {
 		&:nth-child(#{$cpl}n+#{$i}) { background-color: nth($ColorPalette, $i+1) }
 	}
+}
+
+// SzolgÃ¡ltatÃ³i gombok
+$providerCount: 3; // Facebook, Google+, Microsoft
+@mixin extconn-button($size:20px){
+	width: $size;
+	height: $size;
+	background: url('../img/login.svg') no-repeat;
+	background-size: $size*$providerCount $size;
+	border-bottom: 0 !important;
+
+	@content;
+
+	&.fb { background-position:        0 0 }
+	&.gp { background-position:   -$size 0 }
+	&.ms { background-position: -$size*2 0 }
 }

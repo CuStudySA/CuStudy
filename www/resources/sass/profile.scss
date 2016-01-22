@@ -1,16 +1,36 @@
-h2 {
-	&:first-of-type { margin-top: 4px }
-	&:first-of-type, &:not(:first-of-type) {
-		margin-bottom: 0;
-	}
-}
-.connected p {
-	&:first-of-type {
-		margin-bottom: 6px;
-		margin-top: 7px;
-	}
-	&:last-of-type {
-		margin-bottom: 10px;
-		margin-top: 1px;
+@import "vars";
+
+#extconn-list {
+	display: flex;
+	flex: 1 1 auto;
+	flex-flow: row wrap;
+
+	.conn-wrap {
+		display: block;
+
+		.conn {
+			display: flex;
+			flex: 1 1 auto;
+			flex-flow: row wrap;
+			border: 1px solid #adadad;
+			background: #fff;
+			margin: 0 7px 7px 0;
+			padding: 7px;
+
+			.icon {
+				display: block;
+				margin-right: 7px;
+				@include extconn-button(80px);
+			}
+			.text {
+				display: block;
+
+				> * { display: block }
+				.n {
+					font-weight: bold;
+					font-size: 1.2em;
+				}
+			}
+		}
 	}
 }

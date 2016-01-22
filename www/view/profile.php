@@ -54,9 +54,7 @@
 		break;
 
 		default:
-			$data = $db->rawQuery('SELECT *
-									FROM `ext_connections`
-									WHERE `userid` = ?',array($user['id']));
+			$data = $db->where('userid', $user['id'])->get('ext_connections');
 			$actprovs = [];
 			foreach ($data as $entry)
 				$actprovs[] = $entry['provider']; ?>
@@ -72,18 +70,27 @@
 				<p><button class="btn">Adatok mentése</button></p>
 			</form>
 			<h1 style='margin-top: 25px !important;'>Összekapcsolt fiókok</h1>
-			<p style='margin-bottom: 0;'>Új fiók összekapcsolása: <select id='connect_s'>
-<?php
-			foreach (array_diff(array_keys(ExtConnTools::$apiDisplayName),$actprovs) as $entry){
-				$provider = ExtConnTools::$apiDisplayName[$entry]; ?>
-				<option value='<?=$entry?>'><?=$provider?></option>
-<?php
+			<p>Új fiók összekapcsolása: <select id='connect_s'><?php
+
+			$diff = array_diff(array_keys(ExtConnTools::$apiDisplayName),$actprovs);
+			if (!count($diff))
+				echo "<option value=''>(nincs elérhető szolg.)</option>";
+			else foreach ($diff as $entry){
+				$provider = ExtConnTools::$apiDisplayName[$entry];
+				echo "<option value='$entry'>$provider</option>";
 			}
-?>
-			</select><a href='#' id='connect' class='btn' style='margin-left: 7px;'>Összekapcsolás</a></p>
-<?php
+
+			?></select>&nbsp;<button id='connect' class='btn'<?=!count($diff)?' disabled':''?>>Összekapcsolás</button></p>
+			<div id="extconn-list"><?php
 			foreach($data as $entry){
-				$provider = ExtConnTools::$apiDisplayName[$entry['provider']]; ?>
+				$provider = ExtConnTools::$apiDisplayName[$entry['provider']];
+				$provClass = ExtConnTools::$apiClassName[$entry['provider']];
+				$username = !empty($entry['email']) ? $entry['email'] : $entry['name'];
+				$statusClass = 'typcn-'.(!$entry['active'] ? 'tick' : 'power');
+				$statusText = ($entry['active'] ? '' : 'in').'aktív';
+				$actBtnClass = ($entry['active'] ? 'de' : '').'activate';
+				$actBtnText = ($entry['active'] ? 'Dea' : 'A').'ktiválás';
+				/* ?>
 
 				<h2><?=$provider?>-fiók</h2>
 				<div class='connected'>
@@ -91,5 +98,21 @@
 					<p><b>Fiók azonosítója: </b><?=$entry['account_id']?> (<?=!empty($entry['email']) ? $entry['email'] : $entry['name']?>)</p>
 					<a href="#<?=$entry['id']?>" class="btn disconnect">Fiók leválasztása</a> <a href='#<?=$entry['id']?>' class='btn <?=$entry['active'] ? 'deactivate' : 'activate'?>'>Kapcsolat <?=$entry['active'] ? 'deaktiválása' : 'aktiválása'?></a>
 				</div>
-<?php       }
+<?php       */
+				echo <<<HTML
+<div class="conn-wrap">
+	<div class="conn" data-id="{$entry['id']}">
+		<div class="icon $provClass" title="$provider"></div>
+		<div class="text">
+			<span class="n">$username</span>
+			<span class="status">Összekapcsolás $statusText<br></span>
+			<span class="actions">
+				<button class='btn $actBtnClass typcn $statusClass'>$actBtnText</button>
+				<button class='btn disconnect typcn typcn-media-eject'>Leválasztás</button>
+			</span>
+		</div>
+	</div>
+</div>
+HTML;
+            }
 	}
