@@ -23,11 +23,10 @@
 								</form>
 								<p class="or"><span class="line"></span><span class="text">VAGY</span><span class="line"></span></p>
 								<p>Belépés külső szolgáltatóval:</p>
-								<div id="extlogin-btns">
-									<a class='fb' href='/login/external/facebook'></a>
-									<a class='gp' href='/login/external/google'></a>
-									<a class='ms' href='/login/external/microsoft'></a>
-								</div>
+								<div id="extlogin-btns"><?php
+			foreach (ExtConnTools::$apiShortName as $name => $class)
+				echo "<a class='$class' href='/login/external/$name'></a>";
+								?></div>
 							</div>
 						</div>
 					</div>

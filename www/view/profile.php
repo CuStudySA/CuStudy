@@ -25,7 +25,7 @@
 				$aToken = $Auth['access_token'];
 				$remUser = $api->getUserInfo($aToken);
 
-				$data = $db->where('account_id',$remUser['id'])->where('provider',$provider)->getOne('ext_connections');
+				$data = $db->where('account_id',$remUser['account_id'])->where('provider',$provider)->getOne('ext_connections');
 
 				if (!empty($data)){
 					if ($data['userid'] == $user['userid']) System::Redirect('/profile?error=A fiók összekapcsolása nem sikerült, mert ez a fiók már össze van kapcsolva az ön CuStudy fiókjával!');
@@ -35,19 +35,10 @@
 				$data = $db->where('provider',$provider)->where('userid',$user['id'])->getOne('ext_connections');
 				if (!empty($data)) System::Redirect('/profile?error=A fiók összekapcsolása nem sikerült, mert ez a fiók már össze van kapcsolva a kiválasztott szolgáltató valamely fiókjával!');
 
-				$insertData = array();
-				if ($provider == 'google')
-					$insertData = array(
-						'email' => $remUser['emails'][0]['value'],
-						'picture' => $remUser['image']['url'],
-					);
-
 				$db->insert('ext_connections',array_merge(array(
 					'userid' => $user['id'],
 					'provider' => $provider,
-					'account_id' => $remUser['id'],
-					'name' => $remUser[$provider == 'google' ? 'displayName' : 'name'],
-				),$insertData));
+				),$remUser));
 
 				die(header('Location: /profile'));
 			}
@@ -84,7 +75,7 @@
 			<div id="extconn-list"><?php
 			foreach($data as $entry){
 				$provider = ExtConnTools::$apiDisplayName[$entry['provider']];
-				$provClass = ExtConnTools::$apiClassName[$entry['provider']];
+				$provClass = ExtConnTools::$apiShortName[$entry['provider']];
 				$username = !empty($entry['email']) ? $entry['email'] : $entry['name'];
 				$statusClass = 'typcn-'.(!$entry['active'] ? 'tick' : 'power');
 				$statusText = ($entry['active'] ? '' : 'in').'aktív';

@@ -762,18 +762,21 @@
 			'facebook' => 'FacebookAPI',
 			'google' => 'GoogleAPI',
 			'microsoft' => 'MicrosoftAPI',
+			'deviantart' => 'DeviantArtAPI',
 		);
 
 		static $apiDisplayName = array(
 			'facebook' => 'Facebook',
 			'google' => 'Google',
 			'microsoft' => 'Microsoft',
+			'deviantart' => 'DeviantArt',
 		);
 
-		static $apiClassName = array(
+		static $apiShortName = array(
 			'facebook' => 'fb',
 			'google' => 'gp',
 			'microsoft' => 'ms',
+			'deviantart' => 'da',
 		);
 
 		static function DeactAndAct($connid, $type = 'deactivate'){
