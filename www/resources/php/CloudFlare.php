@@ -30,7 +30,7 @@
 		 *
 		 * @return array List of IP ranges
 		 */
-		private function _getCFIpRanges(){
+		private static function _getCFIpRanges(){
 			$cachefile = '../cf-ips.txt';
 			if (!file_exists($cachefile) || filemtime($cachefile) > 60*60*5){
 				$data = file_get_contents('https://www.cloudflare.com/ips-v4');
@@ -49,7 +49,7 @@
 		 *
 		 * @return bool True if IP is part of the network
 		 */
-		private function _cidr_match($IP, $CIDR){
+		private static function _cidr_match($IP, $CIDR){
 		    list ($net, $mask) = explode("/", $CIDR);
 
 		    $ip_net = ip2long ($net);
