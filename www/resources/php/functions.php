@@ -41,6 +41,12 @@
 				'username' => 'Begépelt felhasználónév',
 				'user' => 'Belépett felhasználó',
 			),
+
+			'failed_login' => array(
+				'userid' => 'Felhasználó azonosító',
+				'ip' => 'IP cím',
+				'at' => 'Próbálkozás időbélyege',
+			),
 		);
 
 		private function _getHeader(){
@@ -386,16 +392,35 @@
 
 		// Bejelentkezés
 		static private function _login($username,$password){
-			global $db;
+			global $db, $ENV;
 
 			# Formátum ellenörzése
 			if (self::InputCheck($username,'username')) return 1;
 
 			$data = $db->where('username',$username)->getOne('users');
 			if (empty($data)) return 2;
-
-			if (!Password::Ellenorzes($password,$data['password'])) return 2;
 			if (!$data['active']) return 4;
+
+			$IP = $ENV['SERVER']['REMOTE_ADDR'];
+			$failedLogins = $db->rawQuery(
+				'SELECT COUNT(*) as cnt FROM log_failed_login
+				WHERE userid = ? && ip = ? && corrected IS NULL && at > NOW() - INTERVAL 2 MINUTE',array($data['id'],$IP));
+			if (!empty($failedLogins[0]['cnt']) && $failedLogins[0]['cnt'] > 5)
+				return 3;
+
+			if (!Password::Ellenorzes($password,$data['password'])){
+				Logging::Insert(array(
+					'action' => 'failed_login',
+					'db' => 'failed_login',
+					'userid' => $data['id'],
+					'ip' => $IP,
+				));
+				return 2;
+			}
+			else $db->where('userid', $data['id'])
+					->where('ip', $IP)
+					->where('corrected IS NULL')
+					->update('log_failed_login', array('corrected' => date('c')));
 
 			if (self::UserIsStudent($data['role']))
 				if (self::UserActParent(self::GetUserClasses($data['id'])[0])) return 5;
@@ -407,8 +432,7 @@
 			$envInfos = self::GetBrowserEnvInfo();
 			if (!is_array($envInfos)) return 'guest';
 
-			$db->rawQuery("DELETE FROM `sessions`
-						WHERE `userid` = ?",array($data['id']));
+			self::_clearSessions($data);
 
 			$db->insert('sessions',array(
 				'session' => md5($session),
@@ -436,17 +460,22 @@
 
 		// Kiléptetés
 		static function Logout(){
-			global $db, $user;
+			global $user;
 
 			# Felh. bejelentkézésnek ellenörzése
 			if (empty($user)) return 1;
 
-			$db->rawQuery("DELETE FROM `sessions`
-						WHERE `userid` = ?",array($user['id']));
+			self::_clearSessions($user);
 
 			Cookie::delete('PHPSESSID');
 
 			return 0;
+		}
+
+		// Munkamenetek törlése
+		static private function _clearSessions($user){
+			global $db;
+			$db->where('userid', $user['id'])->delete('sessions');
 		}
 
 		static function CompilePerms(){
