@@ -33,7 +33,7 @@
 
 	# CloudFlare IP cím visszafejtés
 	if (isset($_SERVER['HTTP_CF_CONNECTING_IP'])){
-		require 'includes/CloudFlare.php';
+		require 'resources/php/CloudFlare.php';
 		if (CloudFlare::CheckUserIP())
 			$_SERVER['REMOTE_ADDR'] = $_SERVER['HTTP_CF_CONNECTING_IP'];
 	}
