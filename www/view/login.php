@@ -11,12 +11,12 @@
 					<div id="wrap">
 						<div id="mid">
 							<div id="inner">
+								<img src="/resources/img/logo-login.png" class="logo">
 								<h1>CuStudy</h1>
 								<!-- Amber flag start -->
 								<h3> (Amber)</h3>
 								<!-- Amber flag end -->
 								<form id="loginform">
-
 									<input type='text' name='username' placeholder='Felhasználónév' tabindex=1 autocomplete="off">
 									<input type='password' name='password' placeholder='Jelszó' tabindex=2>
 									<p><button class='btn' tabindex=4>Belépés</button> <label><input type="checkbox" name="remember" tabindex=3 checked> Megjegyzés</label></p>
