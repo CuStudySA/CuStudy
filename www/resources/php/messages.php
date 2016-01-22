@@ -73,7 +73,7 @@
 					4 => 'az összekapcsolás státusza már deaktív'
 				),
 				'messages' => array(
-					0 => 'A távoli szolgátatóval történő összekacsolás deaktiválása megtörtént! Az oldal frissül, várjon...',
+					0 => 'A távoli szolgátatóval történő összekacsolás deaktiválása megtörtént',
 					1 => 'A távoli szolgátatóval történő összekacsolás deaktiválás sikertelen volt, mert @msg! (Hibakód: @code)',
 				),
 			),
@@ -85,7 +85,7 @@
 					4 => 'az összekapcsolás státusza már aktív'
 				),
 				'messages' => array(
-					0 => 'A távoli szolgátatóval történő összekacsolás aktiválása megtörtént! Az oldal frissül, várjon...',
+					0 => 'A távoli szolgátatóval történő összekacsolás aktiválása megtörtént',
 					1 => 'A távoli szolgátatóval történő összekacsolás aktiválása sikertelen volt, mert @msg! (Hibakód: @code)',
 				),
 			),
@@ -96,7 +96,7 @@
 					3 => 'nincs jogosultsága a művelethez',
 				),
 				'messages' => array(
-					0 => 'A távoli szolgátató fiókjának leválasztása sikeresen megtörtént! Az oldal frissül, várjon...',
+					0 => 'A távoli szolgátató fiókjának leválasztása sikeresen megtörtént',
 					1 => 'A távoli szolgátató fiókjának leválasztása sikertelen volt, mert @msg! (Hibakód: @code)',
 				),
 			),
