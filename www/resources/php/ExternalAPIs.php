@@ -14,7 +14,12 @@
 			if (empty($result))
 				return null;
 
-			return $result;
+			return array(
+				'account_id' => $result['id'],
+				'name' => isset($result['nickname']) ? $result['nickname'] : $result['name']['familyName'].' '.$result['name']['givenName'],
+				'picture' => System::MakeHttps(str_replace('?sz=50','?sz=95',$result['image']['url'])),
+				'email' => $result['emails'][0]['value'],
+			);
 		}
 	}
 
@@ -29,7 +34,11 @@
 			if (empty($result))
 				return null;
 
-			return $result;
+			return array(
+				'account_id' => $result['id'],
+				'name' => $result['name'],
+				'picture' => "https://graph.facebook.com/v2.5/{$result['id']}/picture?width=95&height=95",
+			);
 		}
 	}
 
@@ -46,6 +55,30 @@
 			if (empty($result))
 				return null;
 
-			return $result;
+			return array(
+				'account_id' => $result['id'],
+				'name' => $result['name'],
+				'picture' => "https://apis.live.net/v5.0/{$result['id']}/picture"
+			);
+		}
+	}
+
+	class DeviantArtAPI extends oAuthProvider {
+		protected
+			$_user_authorize_uri = 'https://www.deviantart.com/oauth2/authorize',
+			$_token_request_uri = 'https://www.deviantart.com/oauth2/token',
+			$_token_type = 'Bearer',
+			$_auth_scope = 'user';
+
+		public function getUserInfo($access_token){
+			$result = parent::_sendRequest("https://www.deviantart.com/api/v1/oauth2/user/whoami", $access_token);
+			if (empty($result))
+				return null;
+
+			return array(
+				'account_id' => $result['userid'],
+				'name' => $result['username'],
+				'picture' => System::MakeHttps($result['usericon']),
+			);
 		}
 	}
