@@ -1305,6 +1305,34 @@ HTML;
 			}
 			return $HTML.($wrap?'</ul>':'');
 		}
+
+		static private function SizeInBytes($size){
+			$unit = substr($size, -1);
+			$value = intval(substr($size, 0, -1), 10);
+			switch(strtoupper($unit)){
+				case 'G':
+					$value *= 1024;
+				case 'M':
+					$value *= 1024;
+				case 'K':
+					$value *= 1024;
+				break;
+			}
+		return $value;
+		}
+
+		static function GetMaxUploadSize(){
+			$sizes = array(ini_get('post_max_size'), ini_get('upload_max_filesize'));
+
+			$workWith = $sizes[0];
+			if ($sizes[1] !== $sizes[0]){
+				$sizesBytes = array_map(array(FileTools, 'SizeInBytes'), $sizes);
+				if ($sizesBytes[1] > $sizesBytes[0])
+					$workWith = $sizes[1];
+			}
+
+			return preg_replace('/^(\d+)([GMk])$/', '$1 $2B', $workWith);
+		}
 	}
 
 	class AdminManTools {

@@ -220,6 +220,8 @@ $(function(){
 			$USIFill.remove();
 		});
 
-		$UsedSpaceIndicator.prev().text(storage.Used+' ('+usedperc+'%) felhasználva az osztály számára elérhető '+storage.Available+'-ból.')
+		$UsedSpaceIndicator.prev().html(function(){
+			return this.innerHTML.replace(/^.*<br>/,storage.Used+' ('+usedperc+'%) felhasználva az osztály számára elérhető '+storage.Available+'-ból.<br>');
+		});
 	}
 });
