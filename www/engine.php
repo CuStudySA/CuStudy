@@ -34,6 +34,13 @@
 	# Scipt futattásának kezdeti idejének lekérése
 	$ENV['EXECTIME'] = array('start' => microtime(true));
 
+	# CloudFlare IP cím visszafejtés
+	if (isset($_SERVER['HTTP_CF_CONNECTING_IP'])){
+		require 'includes/CloudFlare.php';
+		if (CloudFlare::CheckUserIP())
+			$_SERVER['REMOTE_ADDR'] = $_SERVER['HTTP_CF_CONNECTING_IP'];
+	}
+
 	# POST és/vagy GET adatok ill. tevékenység lekérése
 	if (!empty($_GET['do'])){
 		$ENV['do'] = $_GET['do'];
@@ -130,8 +137,8 @@
 
 		# CSRF-elleni védelem
 		if (!isset($skipCSRF)){
-			if (empty($ENV['POST']['JSSESSID'])) System::Respond();
-			if (!CSRF::Check($ENV['POST']['JSSESSID'])) System::Respond();
+			if (empty($ENV['POST']['JSSESSID'])) System::Respond('A kérésből hiányzik a CSRF token');
+			if (!CSRF::Check($ENV['POST']['JSSESSID'])) System::Respond('CSRF támadás érzékelve');
 
 			unset($ENV['POST']['JSSESSID']);
 

@@ -35,10 +35,13 @@ class oAuthProvider {
 	/**
 	 * Makes authenticated requests to the DeviantArt API
 	 *
-	 * @param string $url
-	 * @param null|array $postdata
+	 * @param string      $url
 	 * @param null|string $token
-	 * @param bool
+	 * @param null|array $postdata
+	 * @param bool       $msApi
+	 *
+	 * @throws oAuthRequestException
+	 *
 	 * @return array
 	 */
 	protected function _sendRequest($url, $token, $postdata = null, $msApi = false){
@@ -49,20 +52,25 @@ class oAuthProvider {
 			"User-Agent: CuStudy @ ".ABSPATH,
 			'Content-Transfer-Encoding: binary',
 		);
-		if (!$msApi) $requestHeader[] = 'Content-Type: application/x-www-form-urlencoded';
-
-		if (!empty($token) && !$msApi)
-			$requestHeaders[] = "Authorization: {$this->_token_type} $token";
+		if (!$msApi)
+			$requestHeader[] = 'Content-Type: application/x-www-form-urlencoded';
 
 		$requestURI = $url;
-		if ($msApi) $requestURI .= '?' . http_build_query(array('access_token' => $token));
+		if (!empty($token)){
+			if (!$msApi)
+				$requestHeaders[] = "Authorization: {$this->_token_type} $token";
+			else  $requestURI .= '?access_token='.urlencode($token);
+		}
 
 		$r = curl_init($requestURI);
 		$curl_opt = array(
 			CURLOPT_RETURNTRANSFER => 1,
 			CURLOPT_HEADER => 1,
 			CURLOPT_BINARYTRANSFER => 1,
+			CURLOPT_FOLLOWLOCATION => 1,
 		);
+		if ($msApi && in_array($_SERVER['REMOTE_ADDR'],array('::1','127.0.0.1')))
+			$curl_opt[CURLOPT_SSL_VERIFYPEER] = 0;
 
 		if (isset($postdata)){
 			$query = array();
@@ -94,7 +102,13 @@ class oAuthProvider {
 
 		if (preg_match('/Content-Encoding:\s?gzip/',$responseHeaders)) $response = gzdecode($response);
 		if ($responseCode < 200 || $responseCode >= 300)
-			throw new oAuthRequestException(rtrim("cURL fail for URL \"$requestURI\" (HTTP $responseCode); $curlError",' ;'), $responseCode, array('response' => $response, 'requestURI' => $requestURI, 'requestHeaders' => $requestHeaders));
+			throw new oAuthRequestException(rtrim("cURL fail for URL \"$requestURI\" (HTTP $responseCode); $curlError",' ;'), $responseCode, array(
+				'response' => $response,
+				'responseCode' => $responseCode,
+				'curlError' => $curlError,
+				'requestURI' => $requestURI,
+				'requestHeaders' => $requestHeaders,
+			));
 
 		return json_decode($response, true);
 	}

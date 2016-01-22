@@ -5,6 +5,7 @@
 				'errors' => array(
 					1 => 'valamelyik megadott adat formátuma hibás',
 					2 => 'a felhasználó nem létezik, esetleg hibás a jelszó',
+					3 => 'túl sokszor adtál meg hibás jelszót rövid időn belül. Várj 1-2 percet, és próbálkozz újra',
 					4 => 'a felhasználó állapota tiltott',
 					5 => 'az osztály vagy iskola állapota tiltott',
 				),
@@ -72,7 +73,7 @@
 					4 => 'az összekapcsolás státusza már deaktív'
 				),
 				'messages' => array(
-					0 => 'A távoli szolgátatóval történő összekacsolás deaktiválása megtörtént! Az oldal frissül, várjon...',
+					0 => 'A távoli szolgátatóval történő összekacsolás deaktiválása megtörtént',
 					1 => 'A távoli szolgátatóval történő összekacsolás deaktiválás sikertelen volt, mert @msg! (Hibakód: @code)',
 				),
 			),
@@ -84,7 +85,7 @@
 					4 => 'az összekapcsolás státusza már aktív'
 				),
 				'messages' => array(
-					0 => 'A távoli szolgátatóval történő összekacsolás aktiválása megtörtént! Az oldal frissül, várjon...',
+					0 => 'A távoli szolgátatóval történő összekacsolás aktiválása megtörtént',
 					1 => 'A távoli szolgátatóval történő összekacsolás aktiválása sikertelen volt, mert @msg! (Hibakód: @code)',
 				),
 			),
@@ -95,7 +96,7 @@
 					3 => 'nincs jogosultsága a művelethez',
 				),
 				'messages' => array(
-					0 => 'A távoli szolgátató fiókjának leválasztása sikeresen megtörtént! Az oldal frissül, várjon...',
+					0 => 'A távoli szolgátató fiókjának leválasztása sikeresen megtörtént',
 					1 => 'A távoli szolgátató fiókjának leválasztása sikertelen volt, mert @msg! (Hibakód: @code)',
 				),
 			),

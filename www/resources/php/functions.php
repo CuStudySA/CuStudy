@@ -9,7 +9,7 @@
 		}
 		static function Ellenorzes($input,$dbpass){
 			$tmp = explode('$', $dbpass);
-			return (hash('sha256', hash('sha256', $input) . $tmp[2]) == $tmp[3]);
+			return hash_equals(hash('sha256', hash('sha256', $input) . $tmp[2]), $tmp[3]);
 		}
 		static function Generalas($length = 10) {
 			$characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -40,6 +40,12 @@
 			'login' => array(
 				'username' => 'Begépelt felhasználónév',
 				'user' => 'Belépett felhasználó',
+			),
+
+			'failed_login' => array(
+				'userid' => 'Felhasználó azonosító',
+				'ip' => 'IP cím',
+				'at' => 'Próbálkozás időbélyege',
 			),
 		);
 
@@ -386,16 +392,35 @@
 
 		// Bejelentkezés
 		static private function _login($username,$password){
-			global $db;
+			global $db, $ENV;
 
 			# Formátum ellenörzése
 			if (self::InputCheck($username,'username')) return 1;
 
 			$data = $db->where('username',$username)->getOne('users');
 			if (empty($data)) return 2;
-
-			if (!Password::Ellenorzes($password,$data['password'])) return 2;
 			if (!$data['active']) return 4;
+
+			$IP = $ENV['SERVER']['REMOTE_ADDR'];
+			$failedLogins = $db->rawQuery(
+				'SELECT COUNT(*) as cnt FROM log_failed_login
+				WHERE userid = ? && ip = ? && corrected IS NULL && at > NOW() - INTERVAL 2 MINUTE',array($data['id'],$IP));
+			if (!empty($failedLogins[0]['cnt']) && $failedLogins[0]['cnt'] > 5)
+				return 3;
+
+			if (!Password::Ellenorzes($password,$data['password'])){
+				Logging::Insert(array(
+					'action' => 'failed_login',
+					'db' => 'failed_login',
+					'userid' => $data['id'],
+					'ip' => $IP,
+				));
+				return 2;
+			}
+			else $db->where('userid', $data['id'])
+					->where('ip', $IP)
+					->where('corrected IS NULL')
+					->update('log_failed_login', array('corrected' => date('c')));
 
 			if (self::UserIsStudent($data['role']))
 				if (self::UserActParent(self::GetUserClasses($data['id'])[0])) return 5;
@@ -407,8 +432,7 @@
 			$envInfos = self::GetBrowserEnvInfo();
 			if (!is_array($envInfos)) return 'guest';
 
-			$db->rawQuery("DELETE FROM `sessions`
-						WHERE `userid` = ?",array($data['id']));
+			self::_clearSessions($data);
 
 			$db->insert('sessions',array(
 				'session' => md5($session),
@@ -436,17 +460,22 @@
 
 		// Kiléptetés
 		static function Logout(){
-			global $db, $user;
+			global $user;
 
 			# Felh. bejelentkézésnek ellenörzése
 			if (empty($user)) return 1;
 
-			$db->rawQuery("DELETE FROM `sessions`
-						WHERE `userid` = ?",array($user['id']));
+			self::_clearSessions($user);
 
 			Cookie::delete('PHPSESSID');
 
 			return 0;
+		}
+
+		// Munkamenetek törlése
+		static private function _clearSessions($user){
+			global $db;
+			$db->where('userid', $user['id'])->delete('sessions');
 		}
 
 		static function CompilePerms(){
@@ -733,12 +762,21 @@
 			'facebook' => 'FacebookAPI',
 			'google' => 'GoogleAPI',
 			'microsoft' => 'MicrosoftAPI',
+			'deviantart' => 'DeviantArtAPI',
 		);
 
 		static $apiDisplayName = array(
 			'facebook' => 'Facebook',
 			'google' => 'Google',
 			'microsoft' => 'Microsoft',
+			'deviantart' => 'DeviantArt',
+		);
+
+		static $apiShortName = array(
+			'facebook' => 'fb',
+			'google' => 'gp',
+			'microsoft' => 'ms',
+			'deviantart' => 'da',
 		);
 
 		static function DeactAndAct($connid, $type = 'deactivate'){
@@ -2351,7 +2389,7 @@ STRING;
 
 			$active = $onlyListActive ? '&& (SELECT `id` FROM `hw_markdone` WHERE `homework` = hw.id && `userid` = ?) IS NULL' : '';
 
-			$query = "SELECT hw.id, hw.text as `homework`, hw.week, tt.day, tt.lesson as `lesson_th`, l.name as `lesson`,
+			$query = "SELECT hw.id, hw.text as `homework`, hw.week, tt.day, tt.lesson as `lesson_th`, l.name as `lesson`, hw.year as year,
 							(SELECT `id` FROM `hw_markdone` WHERE `homework` = hw.id && `userid` = ?) as markedDone
 						FROM `timetable` tt
 						LEFT JOIN (`homeworks` hw, `lessons` l)
@@ -2390,6 +2428,11 @@ STRING;
 			while (true){
 				if (empty($timetable[$i])) break;
 				else $array = $timetable[$i];
+
+				if ($array['year'] < date('Y')){
+					$i++;
+					continue;
+				}
 
 				if ($weekNum == $array['week'])
 					$hwTime = strtotime('+ '.($array['day'] - $dayInWeek).' days');
@@ -2749,7 +2792,10 @@ STRING;
 				$end = array(System::$ShortMonths[intval(date('n', $endtime))], date('j', $endtime));
 
 				$sameMonthDay = $start[0] == $end[0] && $start[1] == $end[1];
-				$time = $ev['isallday'] ? '' : date('H:i', $starttime).(!$sameMonthDay?'-tól':'').' ';
+				$mp = date('i',  $starttime);
+				$mpint = intval($mp, 10);
+				$rag = ($mpint !== 10 && in_array($mpint % 10, [0,3,6,8])) ? 'tól': 'től';
+				$time = $ev['isallday'] ? '' : date('H', $starttime).":$mp-$rag ";
 				$append = '';
 				if (!$sameMonthDay)
 					$append .= HomeworkTools::FormatMonthDay($endtime);
@@ -2757,7 +2803,7 @@ STRING;
 					$append .= ' '.date('H:i',$endtime).'-ig';
 				else if (!$sameMonthDay) $append .= '-ig';
 				if (!empty($append))
-					$time .= "$append";
+					$time .= $append;
 				if ($ev['isallday']){
 					$time .= ', egész nap';
 					$time = preg_replace('/^, eg/','Eg',$time);
