@@ -77,7 +77,7 @@
 				</div>
 				<label>
 					<span><strong>Jelenlegi jelszó</strong> <em>(kötelező megadni)</em></span>
-					<input type='password' name='oldpassword' placeholder='Jelenlegi jelszó' pattern='^[\w\d]{6,20}$'>
+					<input type='password' name='oldpassword' placeholder='Jelenlegi jelszó' required pattern='^[\w\d]{6,20}$'>
 				</label>
 				<button class="btn">Adatok mentése</button>
 			</form>
