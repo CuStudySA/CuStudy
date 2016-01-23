@@ -48,6 +48,7 @@ class oAuthProvider {
 		global $http_response_header;
 
 		$requestHeaders = array(
+			"Accept: application/json",
 			"Accept-Encoding: gzip",
 			"User-Agent: CuStudy @ ".ABSPATH,
 			'Content-Transfer-Encoding: binary',
@@ -138,6 +139,8 @@ class oAuthProvider {
 	 *
 	 * @param string $code Code obtained from the oAuth Provider
 	 * @param string|null $type The type of the supplied code
+	 *
+	 * @throws oAuthRequestException
 	 *
 	 * @return array
 	 */

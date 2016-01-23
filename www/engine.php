@@ -82,7 +82,7 @@
 		else $do = $ENV['do'];
 	}
 
-	if ($do === "login" || $do === "fooldal")
+	if (($do === "login" || $do === "fooldal") && empty($ENV['URL']))
 		System::FixPath('/');
 
 	# Kiléptetés

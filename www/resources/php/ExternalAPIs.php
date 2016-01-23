@@ -82,3 +82,28 @@
 			);
 		}
 	}
+
+	class GitHubAPI extends oAuthProvider {
+		protected
+			$_user_authorize_uri = 'https://github.com/login/oauth/authorize',
+			$_token_request_uri = 'https://github.com/login/oauth/access_token',
+			$_token_type = 'Bearer',
+			$_auth_scope = 'user:email';
+
+		public function getUserInfo($access_token){
+			$result = parent::_sendRequest("https://api.github.com/user", $access_token);
+			if (empty($result))
+				return null;
+
+			return array(
+				'account_id' => $result['id'],
+				'name' => $result['login'],
+				'email' => $result['email'],
+				'picture' => $result['avatar_url'],
+			);
+		}
+
+		protected function _formatTokenArray($token_array){
+			return array('access_token' => $token_array['access_token']);
+		}
+	}

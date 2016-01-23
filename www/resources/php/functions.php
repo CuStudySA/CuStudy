@@ -575,12 +575,12 @@
 			if ($die) die();
 		}
 
-		static function ExternalLogin($userID, $provider = 'google'){
+		static function ExternalLogin($userID, $provider){
 			global $db;
 
-			$data = $db->where('account_id',$userID)->where('provider',$provider)->getOne('ext_connections');
+			$data = $db->where('account_id', $userID)->where('provider',$provider)->getOne('ext_connections');
 
-			if (empty($data)) System::Redirect("/?errtype=local&prov={$provider}&err=nem található a távoli fiókhoz kacsolt felhasználó");
+			if (empty($data)) System::Redirect("/?errtype=local&prov={$provider}&err=nem található a távoli fiókhoz kacsolt felhasználó<br><code>".$db->getLastQuery()."</code>");
 			if (!$data['active']) System::Redirect("/?errtype=local&prov={$provider}&err=inaktív az összekapcsolás");
 
 			$user = $db->where('id',$data['userid'])->getOne('users');
@@ -594,8 +594,7 @@
 			$envInfos = self::GetBrowserEnvInfo();
 			if (!is_array($envInfos)) System::Redirect('/');
 
-			$db->rawQuery("DELETE FROM `sessions`
-						WHERE `userid` = ?",array($user['id']));
+			self::_clearSessions($user);
 
 			$db->insert('sessions',array(
 				'session' => md5($session),
@@ -606,7 +605,7 @@
 
 			Cookie::set('PHPSESSID',$session,null);
 
-			System::Redirect('/');
+			System::Redirect('/#');
 		}
 
 		static $mailSended = false;
@@ -763,6 +762,7 @@
 			'google' => 'GoogleAPI',
 			'microsoft' => 'MicrosoftAPI',
 			'deviantart' => 'DeviantArtAPI',
+			'github' => 'GitHubAPI',
 		);
 
 		static $apiDisplayName = array(
@@ -770,6 +770,7 @@
 			'google' => 'Google',
 			'microsoft' => 'Microsoft',
 			'deviantart' => 'DeviantArt',
+			'github' => 'GitHub',
 		);
 
 		static $apiShortName = array(
@@ -777,6 +778,7 @@
 			'google' => 'gp',
 			'microsoft' => 'ms',
 			'deviantart' => 'da',
+			'github' => 'gh',
 		);
 
 		static function DeactAndAct($connid, $type = 'deactivate'){

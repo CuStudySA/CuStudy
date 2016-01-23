@@ -45,10 +45,10 @@
 		break;
 
 		default:
-			$data = $db->where('userid', $user['id'])->get('ext_connections');
-			$actprovs = [];
-			foreach ($data as $entry)
-				$actprovs[] = $entry['provider']; ?>
+			$ActiveProviders = $db->where('userid', $user['id'])->orderBy('provider','ASC')->get('ext_connections');
+			$ActiveProviderNames = [];
+			foreach ($ActiveProviders as $entry)
+				$ActiveProviderNames[] = $entry['provider']; ?>
 
 			<h1>Profilom szerkesztése</h1>
 			<form id='dataform'>
@@ -82,7 +82,8 @@
 				<button class="btn">Adatok mentése</button>
 			</form>
 			<h1 style='margin-top: 25px !important;'>Összekapcsolt fiókok</h1>
-<?php       $diff = array_diff(array_keys(ExtConnTools::$apiDisplayName),$actprovs);
+<?php       $diff = array_diff(array_keys(ExtConnTools::$apiDisplayName),$ActiveProviderNames);
+			sort($diff, SORT_NATURAL);
 			$newConnVisible = count($diff); ?>
 			<div id="extconn-list">
 				<div class="conn-wrap"<?=!$newConnVisible?' style="display:none"':''?>>
@@ -100,7 +101,7 @@
 						</div>
 					</div>
 				</div><?php
-			foreach($data as $entry){
+			foreach($ActiveProviders as $entry){
 				$provider = ExtConnTools::$apiDisplayName[$entry['provider']];
 				$provClass = ExtConnTools::$apiShortName[$entry['provider']];
 				$username = !empty($entry['email']) ? $entry['email'] : $entry['name'];
