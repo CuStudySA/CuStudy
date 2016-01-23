@@ -882,10 +882,11 @@
 			if ($json)
 				System::Respond();
 			else {
-				if (USRGRP == 'guest')
-					die(header('Location: /login'));
-				else
-					die(header('Location: /not-found'));
+				if (ROLE == 'guest'){
+					global $ENV;
+					System::Redirect('/login?r='.urlencode($ENV['SERVER']['REQUEST_URI']));
+				}
+				else System::Redirect('/not-found');
 			}
 		}
 
@@ -894,7 +895,7 @@
 			global $ENV;
 
 			if ($ENV['do'] != 'not-found')
-				die(header('Location: /not-found?path='.$path));
+				System::Redirect("/not-found?path=$path");
 		}
 
 		static $DB_FAIL = "Hiba történt az adatbázisba mentés során";

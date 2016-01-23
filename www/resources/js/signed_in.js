@@ -10,6 +10,8 @@ $(function(){
 		$.Dialog.confirm(title,'Biztosan ki szeretnél jelentkezni?',['Kijelentkezek','Belépve maradok'],function(sure){
 			if (!sure) return;
 
+			$.Dialog.wait(title);
+
 			$.ajax({
 				method: "POST",
 				url: "/logout",

@@ -16,9 +16,15 @@
 								<!-- Amber flag start -->
 								<h3> (Amber)</h3>
 								<!-- Amber flag end -->
+<?php       if (!empty($ENV['GET']['r'])){ ?>
+								<p class="redirect">A kért oldal megtekintéséhez be kell jelentkezned!</p>
+<?php       } ?>
 								<form id="loginform">
 									<input type='text' name='username' placeholder='Felhasználónév' tabindex=1 autocomplete="off">
 									<input type='password' name='password' placeholder='Jelszó' tabindex=2>
+<?php       if (!empty($ENV['GET']['r'])){ ?>
+									<input type='hidden' name='r' value='<?=$ENV['GET']['r']?>'>
+<?php       } ?>
 									<p><button class='btn' tabindex=4>Belépés</button> <label><input type="checkbox" name="remember" tabindex=3 checked> Megjegyzés</label></p>
 								</form>
 								<p class="or"><span class="line"></span><span class="text">VAGY</span><span class="line"></span></p>
