@@ -67,7 +67,9 @@ $(function(){
 			.height($inner.height()+1)
 			.addClass('animate');
 
-		$('#links').detach();
+		var $links = $('#links'),
+			$linkLocation = $links.parent();
+		$links.detach();
 
 		var $form = $(this), title = "Bejelentkezés";
 
@@ -97,76 +99,76 @@ $(function(){
 						url: (formData.r||'')+'?via-js',
 						dataType: 'json',
 						success: function(data){
-							setTimeout(function(){
-								var $body = $(document.body),
-									$head = $(document.head),
-									load = {css: [], js: []};
+							var $body = $(document.body),
+								$head = $(document.head),
+								load = {css: [], js: []};
 
-								$.each(data.css,function(_,el){
-									var a = document.createElement('a');
-									a.href = el;
-									if ($head.children('style[data-href="'+a.pathname+'"]').length === 0)
-										load.css.push(a.pathname);
+							$.each(data.css,function(_,el){
+								var a = document.createElement('a');
+								a.href = el;
+								if ($head.children('style[data-href="'+a.pathname+'"]').length === 0)
+									load.css.push(a.pathname);
+							});
+
+							$.each(data.js, function(_,el){
+								var a = document.createElement('a');
+								a.href = el;
+								if ($body.children('script[src="'+a.pathname+'"]').length === 0)
+									load.js.push(a.pathname);
+							});
+
+							function done(){
+								$body.prepend(data.sidebar);
+								$body.addClass('sidebar-slide');
+								$('title').text(data.title);
+								if (formData.r) history.replaceState({},'',formData.r);
+								$('main').children(':not(#main)').remove()
+									.end().prepend(data.main);
+								// Amber flag start
+								$('link[href*=amber]').remove();
+								// Amber flag end
+								var $main = $('#main').addClass('loaded');
+								setTimeout(function(){ $main.remove() }, 400);
+								loadJS(0);
+							}
+
+							function loadJS(i){
+								if (typeof load.js[i] === 'undefined')
+									return;
+
+								$.ajax({
+									url: load.js[i],
+									dataType: "script",
+									success: function(){
+										//JS auto. lefut
+										loadJS(i+1);
+									},
+									error: function(){ throw new Error('JS #'+i+' - '+load.js[i]) }
 								});
+							}
 
-								$.each(data.js, function(_,el){
-									var a = document.createElement('a');
-									a.href = el;
-									if ($body.children('script[src="'+a.pathname+'"]').length === 0)
-										load.js.push(a.pathname);
+							(function loadCSS(i){
+								if (typeof load.css[i] === 'undefined')
+									return done();
+								$.ajax({
+									url: load.css[i],
+									success: function(data){
+										if (typeof data !== 'string')
+											return formData.r ? window.location.href = r : window.location.reload();
+										data = data.replace(/url\((['"])?\.\.\//g,'url($1/resources/');
+										$head.append($(document.createElement('style')).text(data));
+										loadCSS(i+1);
+									},
+									error: function(){ throw new Error('CSS #'+i+' - '+load.css[i]) }
 								});
-
-								function done(){
-									$body.prepend(data.sidebar);
-									$body.addClass('sidebar-slide');
-									$('title').text(data.title);
-									if (formData.r) history.replaceState({},'',formData.r);
-									$('main').children(':not(#main)').remove()
-										.end().prepend(data.main);
-									// Amber flag start
-									$('link[href*=amber]').remove();
-									// Amber flag end
-									$('#main').fadeOut(500,function(){ $(this).remove() });
-									loadJS(0);
-								}
-
-								function loadJS(i){
-									if (typeof load.js[i] === 'undefined')
-										return;
-
-									$.ajax({
-										url: load.js[i],
-										dataType: "script",
-										success: function(){
-											//JS auto. lefut
-											loadJS(i+1);
-										},
-										error: function(){ throw new Error('JS #'+i+' - '+load.js[i]) }
-									});
-								}
-
-								(function loadCSS(i){
-									if (typeof load.css[i] === 'undefined')
-										return done();
-									$.ajax({
-										url: load.css[i],
-										success: function(data){
-											if (typeof data !== 'string')
-												return formData.r ? window.location.href = r : window.location.reload();
-											data = data.replace(/url\((['"])?\.\.\//g,'url($1/resources/');
-											$head.append($(document.createElement('style')).text(data));
-											loadCSS(i+1);
-										},
-										error: function(){ throw new Error('CSS #'+i+' - '+load.css[i]) }
-									});
-								})(0);
-							},500)
+							})(0);
 						}
 					});
 				}
 				else {
 					$.Dialog.fail(title,data.message);
 					$('#inner').removeClass('animate');
+					$links.appendTo($linkLocation);
 				}
 			}
 		});

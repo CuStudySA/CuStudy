@@ -1,5 +1,6 @@
 @import "vars";
 
+$LoaderHide: 1s;
 #main {
 	position: absolute;
 	top: 0;
@@ -11,11 +12,17 @@
 	overflow-y: auto !important;
 	text-shadow: 0 2px 2px rgba(0,0,0,.2);
 
-	cursor:default;
-
-	-webkit-user-select:none;
-	-moz-user-select:none;
+	cursor: default;
 	user-select:none;
+
+	&.loaded {
+		opacity: 0;
+		transform: scale(0);
+
+		transition-property: opacity, transform;
+		transition-duration: $LoaderHide;
+		transition-timing-function: cubic-bezier(0.165, 0.84, 0.44, 1);
+	}
 }
 #wrap {
 	text-align: center;
@@ -46,32 +53,42 @@
 	border: 5px solid rgba(255,255,255,.35);
 	box-sizing: border-box;
 
+	// Animation times
+	$ContentFadeOut: .1s;
+	$FormShrink: .3s;
+
 	&.animate {
-		animation: shrinkNcolor .5s, preload .3s steps(10) infinite;
-		animation-delay: .25s, .75s;
-		animation-fill-mode: forwards;
+		border: 10px solid #fff;
+		background: #fff url('../img/preloader.svg') no-repeat 9999px;
 		background-size: 350px 35px;
-		background: url('../img/preloader.png') no-repeat 3200px;
+		transition-property: background-color, border;
+		transition-duration: $FormShrink;
+		transition-delay: $ContentFadeOut;
+
+		animation:
+			shrinkNcolor $FormShrink $ContentFadeOut                cubic-bezier(0.165, 0.84, 0.44, 1),
+			preload      .2s         #{$FormShrink+$ContentFadeOut} steps(10) infinite;
+		animation-fill-mode: forwards;
 
 		&:before, &:after {
 			z-index: 2;
 			border-color: transparent;
+
+			transition: border-color $FormShrink $ContentFadeOut;
 		}
 		> * {
-			animation: fade .25s;
+			animation: fade $ContentFadeOut;
 			animation-fill-mode: forwards;
-		}
-		@keyframes fade {
-			to { opacity: 0 }
+			@keyframes fade {
+				to { opacity: 0 }
+			}
 		}
 	}
 	@keyframes shrinkNcolor {
 		to {
-			width: 40px;
-			height: 40px;
-			background-color: #fff;
+			width: 55px;
+			height: 55px;
 			box-shadow: 0 0 0 transparent;
-			border: 10px solid #fff;
 		}
 	}
 	@keyframes preload {
@@ -91,9 +108,6 @@
 		height: 0;
 		border-style: solid;
 		z-index: -1;
-
-		transition: border-color 1s;
-		transition-delay: .25s;
 	}
 	&:before {
 		top: 0;
@@ -137,18 +151,20 @@
 }
 
 /* Animation after login */
-body.sidebar-slide > #sidebar {
-	animation: slidein 1s;
-	animation-fill-mode: forwards;
+body.sidebar-slide {
+	> #sidebar, > main {
+		animation-duration: .7s;
+		animation-fill-mode: forwards;
+		animation-delay: $LoaderHide/2;
+	}
+	> #sidebar {
+		left: -25%;
+		animation-name: slidein;
+	}
+	> main { animation-name: shrink }
 }
 @keyframes slidein {
-	from {
-		left: -25%;
-	}
-}
-body.sidebar-slide > main {
-	animation: shrink 1s;
-	animation-fill-mode: forwards;
+	to { left: 0 }
 }
 @keyframes shrink {
 	to {
