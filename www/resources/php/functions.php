@@ -831,6 +831,48 @@
 
 			return !$action ? 4 : 0;
 		}
+
+		static function GetAvailProviders(){
+			global $user, $db;
+			return $db->where('userid', $user['id'])->orderBy('provider','ASC')->get('ext_connections');
+		}
+
+		static function GetConnWrap($entry, $wrap = true){
+			global $user;
+
+			$provider = self::$apiDisplayName[$entry['provider']];
+			$provClass = self::$apiShortName[$entry['provider']];
+			$username = !empty($entry['email']) ? $entry['email'] : $entry['name'];
+			$statusClass = 'typcn-'.(!$entry['active'] ? 'tick' : 'power');
+			$statusText = ($entry['active'] ? 'A' : 'Ina').'ktív';
+			$currentPicProvider = $user['avatar_provider'] === $entry['provider'];
+			$picMakeDisable = $currentPicProvider ? 'disabled' : '';
+			$statusText .= $currentPicProvider ? ', profilkép' : '';
+			$actBtnText = ($entry['active'] ? 'Dea' : 'A').'ktiválás';
+			$picture = $entry['picture'];
+
+			$return = <<<HTML
+<div class="conn">
+	<div class="icon">
+		<img src="$picture">
+		<div class="logo $provClass" title="$provider"></div>
+	</div>
+	<div class="text">
+		<span class="n">$username</span>
+		<strong class="status">$statusText</strong>
+		<span class="actions">
+			<button class='btn makepicture typcn typcn-image' $picMakeDisable>Profilkép</button>
+			<button class='btn activeToggle typcn $statusClass'>$actBtnText</button>
+			<button class='btn disconnect typcn typcn-media-eject'>Leválasztás</button>
+		</span>
+	</div>
+</div>
+HTML;
+
+			if ($wrap)
+				$return = "<div class='conn-wrap' data-id='{$entry['id']}' data-prov='{$entry['provider']}'>$return</div>";
+			return $return;
+		}
 	}
 
 	class Message {
@@ -1845,10 +1887,50 @@ HTML;
 
 			$action = $db->where('id',$user['id'])->update('users',$data);
 
-			if (!$action) return 3;
-			else return 0;
+			return $action ? 0 : 3;
 		}
 
+		static function SetAvatarProvider($provider){
+			global $user,$db;
+
+			if (empty($provider))
+				$provider = null;
+			else {
+				if (empty(ExtConnTools::$apiDisplayName[$provider]))
+					return 1;
+
+				$Linked = $db->where('userid',$user['id'])->where('provider', $provider)->has('ext_connections');
+				if (!$Linked)
+					return 2;
+			}
+
+			$action = $db->where('id',$user['id'])->update('users',array( 'avatar_provider' => $provider ));
+			$user['avatar_provider'] = $provider;
+
+			return $action ? 0 : 3;
+		}
+
+		static function GetAvatarURL(&$user, $providerOverride = null){
+			global $db;
+
+			if (isset($user['picture']) && !isset($providerOverride))
+				return $user['picture'];
+
+			$defaultAvatar = str_replace('.lc','.hu',ABSPATH).'/resources/img/user.png';
+			$provider = isset($providerOverride) ? $providerOverride : $user['avatar_provider'];
+			if ($provider !== 'gravatar'){
+				$url = $db->where('userid', $user['id'])->where('provider', $provider)->getOne('ext_connections','picture');
+				if (!empty($url))
+					$url = $url['picture'];
+			}
+			if (empty($url))
+				$url = 'https://www.gravatar.com/avatar/'.md5($user['email']).'?s=70&r=g&d='.urlencode($defaultAvatar);
+
+			if (!isset($providerOverride))
+				$user['picture'] = $url;
+
+			return $url;
+		}
 	}
 
 	class PasswordReset {

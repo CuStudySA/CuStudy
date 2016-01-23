@@ -47,7 +47,8 @@ $ColorPalette: #66CCFF, #669CFF, #7D66FF, #C966FF, #FF66BA, #FF7066, #FFA466;
 }
 
 // Szolgáltatói gombok
-$providers: ('fb', 'gp', 'ms', 'da', 'gh'); // Facebook, Google+, Microsoft, DeviantArt, GitHub
+$providers: ('fb', 'gp', 'ms', 'da', 'gh', 'gr');
+// Facebook, Google+, Microsoft, DeviantArt, GitHub, Gravatar
 $providerCount: length($providers);
 //noinspection CssOptimizeSimilarProperties
 @mixin extconn-button($size:20px){

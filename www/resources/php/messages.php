@@ -110,6 +110,17 @@
 					1 => 'A felhasználói adatok frissítése sikertelen volt, mert @msg! (Hibakód: @code)',
 				),
 			),
+			'setavatarprovider' => array(
+				'errors' => array(
+					1 => 'a megadott szolgáltató nem létezik',
+					2 => 'ezzel a szolgáltatóval nincs összekötve a profilod',
+					3 => 'probléma történt az adatbázisba mentés során'
+				),
+				'messages' => array(
+					0 => 'A profilkép szolgáltató sikeresen módosítva',
+					1 => 'A profilkép szolgáltató módosítása sikertelen volt, mert @msg! (Hibakód: @code)',
+				),
+			)
 		),
 
 		'lessons' => array(
