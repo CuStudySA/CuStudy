@@ -72,7 +72,7 @@
 
 		'not-found' => array(
 			'title' => 		'404',
-			'css' => 		[],
+			'css' => 		['404.css'],
 			'js' => 		[],
 			'minperm' => 	'guest',
 			'maxperm' => 	'',
