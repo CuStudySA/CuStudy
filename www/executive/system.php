@@ -17,9 +17,7 @@
 							 	 	  <td>ID</td>
 							 	 	  <td>Név</td>
 							 	 	  <td>E-mail cím</td>
-							 	 	  <td>Jogosultság</td>
-							 	 	  <td>Osztály</td>
-							 	 	  <td>Iskola</td>
+							 	 	  <td>Globális jogosultság</td>
 							 	 	  <td>Felh. kezelése</td>
 							 	 	</tr>
 				                  </thead>
@@ -29,7 +27,7 @@
 				    foreach ($data as $entry){
 				        $html .= '<tr>';
 
-				        $toPrint = ['id','name','email','role','classname','schoolname'];
+				        $toPrint = ['id','name','email','role'];
 				        foreach ($toPrint as $label){
 				            if ($label == 'role'){
 				                $role = UserTools::$roleLabels[$entry[$label]];

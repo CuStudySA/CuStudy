@@ -4,6 +4,7 @@ $(function(){
 		if ($(e).attr('href').indexOf('amber') != -1)
 			$(e).remove();
 	});
+	$('main > p').remove();
 	// Amber flag end
 
 	var $hWContent = $('.hWContent');

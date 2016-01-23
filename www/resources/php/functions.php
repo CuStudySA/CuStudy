@@ -43,6 +43,16 @@
 			),
 		);
 
+		static $ActionLabels = array(
+			'login' => 'Bejelentkezés',
+			'lesson_add' => 'Új tantárgy felvétele',
+			'lesson_edit' => 'Tantárgy szerkesztése',
+			'lesson_del' => 'Tantárgy törlése',
+			'user_add' => 'Új felhasználó felvétele',
+			'user_edit' => 'Felhasználó szerkesztése',
+			'user_del' => 'Felhasználó törlése',
+		);
+
 		private function _getHeader(){
 			global $ENV;
 
@@ -357,31 +367,40 @@
 			global $db, $user, $ENV;
 
 			if (!Cookie::exists('PHPSESSID')) return 'guest';
-			$session = Cookie::get('PHPSESSID');
+			$sessionKey = Cookie::get('PHPSESSID');
 
-			if (empty($session)) return 'guest';
-			else $session = md5($session);
+			if (empty($sessionKey)) return 'guest';
+			else $sessionKey = md5($sessionKey);
 
 			$envInfos = self::GetBrowserEnvInfo();
 			if (!is_array($envInfos)) return 'guest';
 
-			$query = $db->rawQuery("SELECT *
+			$session = $ENV['session'] = $db->rawQuery("SELECT *
 						FROM `sessions`
 						WHERE `session` = ? && `ip` = ? && `useragent` = ?
-						LIMIT 1",array($session,$envInfos['ip'],$envInfos['useragent']));
+						LIMIT 1",array($sessionKey,$envInfos['ip'],$envInfos['useragent']));
 
-			if (empty($query)) return 'guest';
-			else $userId = $query[0]['userid'];
+			if (empty($session)) return 'guest';
+			else $userId = $session[0]['userid'];
+
+			$session = $session[0];
 
 			$user = $db->where('id',$userId)->getOne('users');
 			if (empty($user)) return 'guest';
+			
+			# Felhasználó szerepkörének megállapítása
+			if ($session['activeSession'] == 0){
+				if ($user['role'] == 'none') return 'guest';
+				else return $user['role'];
+			}
 
-			# Osztálytagságok megállapítása
-			self::GetUserClasses($user['id']);
+			$classMemShip = $db->where('id',$session['activeSession'])->getOne('class_members');
 
-			if (self::UserActParent($user['class'][0])) return 'guest';
+			if (empty($classMemShip)) return 'guest';
+			if (self::UserActParent($classMemShip['classid'])) return 'guest';
 
-			return $user['role'];
+			$user['class'][0] = $classMemShip['classid'];
+			return $classMemShip['role'];
 		}
 
 		// Bejelentkezés
@@ -396,9 +415,6 @@
 
 			if (!Password::Ellenorzes($password,$data['password'])) return 2;
 			if (!$data['active']) return 4;
-
-			if (self::UserIsStudent($data['role']))
-				if (self::UserActParent(self::GetUserClasses($data['id'])[0])) return 5;
 
 			# Session generálása és süti beállítása
 			$session = Password::GetSession($username);
@@ -415,6 +431,7 @@
 				'userid' => $data['id'],
 				'ip' => $envInfos['ip'],
 				'useragent' => $envInfos['useragent'],
+				'activeSession' => $data['defaultSession'],
 			));
 
 			return [$data['id']];
@@ -474,6 +491,64 @@
 			}
 			else
 				$ENV['permissions'] = array_merge_recursive($ENV['permissions'],$Perm[ROLE]);
+		}
+
+		static function GetAvailableRoles($userid = null){
+			global $db,$user,$ENV;
+
+			if (empty($userid))
+				$User = $user;
+
+			else {
+				$User = $db->where('id',$userid)->getOne('users');
+				if (empty($User)) return [];
+			}
+
+			$classMem = $db->where('userid',$User['id'])->get('class_members');
+
+			$roles = [];
+			foreach ($classMem as $entry){
+				$Class = $db->where('id',$entry['classid'])->getOne('class');
+				if (empty($Class)) continue;
+
+				$School = $db->where('id',$Class['school'])->getOne('school');
+
+				$roles[] = array(
+					'entryId' => $entry['id'],
+					'intezmeny' => "{$School['name']} {$Class['classid']} osztálya",
+					'szerep' => UserTools::$roleLabels[$entry['role']],
+					'active' => $entry['id'] == $ENV['session'][0]['activeSession'] ? 1 : 0,
+				);
+			}
+
+			if ($User['role'] != 'none')
+				$roles[] = array(
+					'intezmeny' => "CuStudy",
+					'szerep' => "Globális rendszeradminisztrátor",
+					'entryId' => 0,
+					'active' => $ENV['session'][0]['activeSession'] == 0 ? 1 : 0,
+				);
+
+			return $roles;
+		}
+
+		static function SetAvailableRoles($roleId){
+			global $user, $db, $ENV;
+
+			if ($roleId != 0){
+				$data = $db->where('id',$roleId)->where('userid',$user['id'])->getOne('class_members');
+				if (empty($data)) return 1;
+			}
+			else if ($user['role'] == 'none') return 1;
+
+			if ($ENV['session'][0]['activeSession'] == $roleId) return 3;
+
+			$action = $db->where('id',$ENV['session'][0]['id'])->update('sessions',array(
+				'activeSession' => $roleId,
+			));
+
+			if ($action) return 0;
+			else return 2;
 		}
 
 		// Jogosultság ellenörző
@@ -1465,6 +1540,7 @@ STRING
 			'editor' => 'Szerkesztő',
 			'admin' => 'Csop. adminisztrátor',
 			'systemadmin' => 'Rendszer adminisztrátor',
+			'none' => 'Nincs jogosultság',
 		);
 
 // Felh. hozzáadása

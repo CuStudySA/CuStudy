@@ -2,6 +2,10 @@
 
 #filterTitle {
 	margin-bottom: 9px;
+
+	.userName {
+		font-weight: normal !important;
+	}
 }
 #filterFormContainer {
 	margin-top: 2px;
@@ -46,6 +50,21 @@
 			padding: 4px;
 		}
 		> thead {
+			font-weight: bold;
+		}
+	}
+}
+.dataTitle {
+	margin-bottom: 0;
+}
+.dataList {
+	margin-top: 7px;
+	list-style-type: circle;
+
+	.entry {
+		line-height: 1.6em;
+
+		span {
 			font-weight: bold;
 		}
 	}
