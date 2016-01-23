@@ -24,7 +24,7 @@
 				<li data-id='<?=$subarray['id']?>'>
 					<div class="top clearfix">
 						<div class="left">
-							<span class="typcn typcn-user"></span>
+							<img class="picture" src="<?=UserTools::GetAvatarURL($subarray)?>">
 							<span class="id">#<?=$subarray['id']?></span>
 						</div>
 						<div class="right">
@@ -43,15 +43,14 @@
 				<li class='new'>
 					<div class="top clearfix">
 						<div class="left">
-							<span class="typcn typcn-user"></span>
-							<span class="id">*</span>
+							<span class="typcn typcn-starburst"></span>
 						</div>
 						<div class="right">
-							<span class="vnev">Új</span> <span class="knev">felhasz.</span>
+							<span class="vnev">Felhasználó</span> <span class="knev">hozzáadás</span>
 						</div>
 					</div>
 					<div class="bottom">
-						<a class="typcn typcn-group js_invite" href="#" title="Felhasználók meghívása"></a>
+						<a class="typcn typcn-mail js_invite" href="#" title="Felhasználók meghívása"></a>
 						<a class="typcn typcn-user-add js_user_add" href="/users/add" title="Új felh. hozzáadása"></a>
 					</div>
 				</li>
