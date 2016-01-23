@@ -1,16 +1,92 @@
-h2 {
-	&:first-of-type { margin-top: 4px }
-	&:first-of-type, &:not(:first-of-type) {
-		margin-bottom: 0;
+@import "vars";
+
+#dataform {
+	width: 100%;
+	max-width: 360px;
+
+	label {
+		display: block;
+		width: auto;
+
+		&:not(:last-child) {
+			margin-bottom: 7px;
+		}
+
+		> * { display: block }
+		> span {
+			margin-bottom: 5px;
+
+			em {
+				font-size: .9em;
+			}
+		}
+	}
+
+	.pwmod {
+		display: inline-block;
+		border: 1px solid;
+		padding: 10px;
+		margin-bottom: 7px;
+		background: rgba(0,0,0,.1);
+
+		strong {
+			display: block;
+			font-size: 1.1em;
+			margin-bottom: 10px;
+		}
 	}
 }
-.connected p {
-	&:first-of-type {
-		margin-bottom: 6px;
-		margin-top: 7px;
-	}
-	&:last-of-type {
-		margin-bottom: 10px;
-		margin-top: 1px;
+
+#extconn-list {
+	display: flex;
+	flex: 1 1 auto;
+	flex-flow: row wrap;
+	margin-top: 10px;
+
+	.conn-wrap {
+		display: block;
+
+		.conn {
+			display: flex;
+			flex: 1 1 auto;
+			flex-flow: row wrap;
+			border: 1px solid #adadad;
+			background: #fff;
+			margin: 0 7px 7px 0;
+			padding: 7px;
+
+			.icon {
+				display: block;
+				position: relative;
+				margin-right: 7px;
+				width: 95px;
+				height: 95px;
+
+				> img {
+					width: 100%;
+					height: 100%;
+				}
+				> .logo {
+					position: absolute;
+					top: 0;
+					right: 0;
+					border: 3px solid #fff;
+					border-right-width: 0;
+					background-color: #fff;
+					border-bottom-left-radius: 5px;
+					@include extconn-button(24px);
+				}
+			}
+			.text {
+				display: block;
+
+				> * { display: block }
+				.n {
+					font-weight: bold;
+					font-size: 1.2em;
+				}
+				.status { margin: 6px 0 }
+			}
+		}
 	}
 }

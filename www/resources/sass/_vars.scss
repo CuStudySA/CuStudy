@@ -1,13 +1,13 @@
-// Oldal-szintû színkódok
+// Oldal-szintÅ± szÃ­nkÃ³dok
 $LightBG: #CBD7F1;
 $Link: #171D2D;
 $LinkLight: #326DEC;
 $LinkHover: desaturate(lighten($Link, 13), 7);
 
-// Mobil-Asztali kinézet töréspont
+// Mobil-Asztali kinÃ©zet tÃ¶rÃ©spont
 $Breakpoint: 650px;
 
-// Dialógusablak szinek
+// DialÃ³gusablak szinek
 $NBlue: #07f;
 $NBlueBG: #def;
 $NDarkBlue: #03d;
@@ -36,12 +36,33 @@ $NYellowBG: #ffd;
 	&:after { clear: both }
 }
 
-// Színes csempék
+// SzÃ­nes csempÃ©k
 $Grey: rgba(0, 0, 0, .4);
 $ColorPalette: #66CCFF, #669CFF, #7D66FF, #C966FF, #FF66BA, #FF7066, #FFA466;
 %color-palette {
 	$cpl: length($ColorPalette)-1;
 	@for $i from 0 through $cpl {
 		&:nth-child(#{$cpl}n+#{$i}) { background-color: nth($ColorPalette, $i+1) }
+	}
+}
+
+// SzolgÃ¡ltatÃ³i gombok
+$providers: ('fb', 'gp', 'ms', 'da', 'gh', 'gr');
+// Facebook, Google+, Microsoft, DeviantArt, GitHub, Gravatar
+$providerCount: length($providers);
+//noinspection CssOptimizeSimilarProperties
+@mixin extconn-button($size:20px){
+	width: $size;
+	height: $size;
+	background-image: url('../img/login.svg');
+	background-repeat:  no-repeat;
+	background-size: $size*$providerCount $size;
+
+	@content;
+
+	$i: 0;
+	@each $name in $providers {
+		&.#{$name} { background-position: -$size*$i }
+		$i: $i + 1;
 	}
 }

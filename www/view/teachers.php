@@ -13,7 +13,7 @@
 				var Patterns = <?=json_encode(System::GetHtmlPatterns())?>;
 			</script>
 
-			<h1 id="h1cim">A(z) <?=$ENV['class']['classid']?> osztály tanárai</h1>
+			<h1 id="h1cim"><?=System::Article($ENV['class']['classid'], true)?> osztály tanárai</h1>
 			<ul class='teachers flex'>
 <?php foreach ($data as $subarray){  ?>
 			<li data-id='<?=$subarray['id']?>'>

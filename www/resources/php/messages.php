@@ -5,6 +5,7 @@
 				'errors' => array(
 					1 => 'valamelyik megadott adat formátuma hibás',
 					2 => 'a felhasználó nem létezik, esetleg hibás a jelszó',
+					3 => 'túl sokszor adtál meg hibás jelszót rövid időn belül. Várj 1-2 percet, és próbálkozz újra',
 					4 => 'a felhasználó állapota tiltott',
 					5 => 'az osztály vagy iskola állapota tiltott',
 				),
@@ -72,7 +73,7 @@
 					4 => 'az összekapcsolás státusza már deaktív'
 				),
 				'messages' => array(
-					0 => 'A távoli szolgátatóval történő összekacsolás deaktiválása megtörtént! Az oldal frissül, várjon...',
+					0 => 'A távoli szolgátatóval történő összekacsolás deaktiválása megtörtént',
 					1 => 'A távoli szolgátatóval történő összekacsolás deaktiválás sikertelen volt, mert @msg! (Hibakód: @code)',
 				),
 			),
@@ -84,7 +85,7 @@
 					4 => 'az összekapcsolás státusza már aktív'
 				),
 				'messages' => array(
-					0 => 'A távoli szolgátatóval történő összekacsolás aktiválása megtörtént! Az oldal frissül, várjon...',
+					0 => 'A távoli szolgátatóval történő összekacsolás aktiválása megtörtént',
 					1 => 'A távoli szolgátatóval történő összekacsolás aktiválása sikertelen volt, mert @msg! (Hibakód: @code)',
 				),
 			),
@@ -95,7 +96,7 @@
 					3 => 'nincs jogosultsága a művelethez',
 				),
 				'messages' => array(
-					0 => 'A távoli szolgátató fiókjának leválasztása sikeresen megtörtént! Az oldal frissül, várjon...',
+					0 => 'A távoli szolgátató fiókjának leválasztása sikeresen megtörtént',
 					1 => 'A távoli szolgátató fiókjának leválasztása sikertelen volt, mert @msg! (Hibakód: @code)',
 				),
 			),
@@ -109,6 +110,17 @@
 					1 => 'A felhasználói adatok frissítése sikertelen volt, mert @msg! (Hibakód: @code)',
 				),
 			),
+			'setavatarprovider' => array(
+				'errors' => array(
+					1 => 'a megadott szolgáltató nem létezik',
+					2 => 'ezzel a szolgáltatóval nincs összekötve a profilod',
+					3 => 'probléma történt az adatbázisba mentés során'
+				),
+				'messages' => array(
+					0 => 'A profilkép szolgáltató sikeresen módosítva',
+					1 => 'A profilkép szolgáltató módosítása sikertelen volt, mert @msg! (Hibakód: @code)',
+				),
+			)
 		),
 
 		'lessons' => array(
@@ -326,10 +338,10 @@
 		'files' => array(
 			'uploadFiles' => array(
 				'errors' => array(
-					1 => 'egy fájl egy hiba miatt nem töltődött fel a szerverre',
-					2 => 'egy fájl mérete nagyobb a megengedettnél',
+					1 => 'az egyik fájl egy hiba miatt nem töltődött fel a szerverre',
 					3 => 'az osztály tárhelyén nincs elég szabad hely',
 					4 => 'a kiszolgálón nincs elég hely egy fájl feltöltéséhez',
+					5 => 'egyetlen fájl sem érkezett me ga szerverre',
 				),
 				'messages' => array(
 					0 => 'A fájlok feltöltése sikeresen megtörtént!',

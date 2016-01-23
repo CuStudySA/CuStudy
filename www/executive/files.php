@@ -27,38 +27,44 @@
 		break;
 
 		case 'uploadFiles':
-			if (System::PermCheck('files.add')) System::Respond();
+			if (System::PermCheck('files.add'))
+				System::Respond();
 
-			if (!empty($_FILES)){
-				$infos = [];
+			if (empty($_FILES))
+				System::Respond(Message::Respond('files.uploadFiles', 5));
 
-				foreach ($ENV['POST'] as $key => $value){
-					if (empty($value) || $value == 'null') continue;
-					$keys = explode('_',$key);
-					if (empty($keys[1])) continue;
-					$infos[(int)$keys[0]][$keys[1]] = $value;
-				}
+			$infos = [];
 
-				foreach ($_FILES as $key => $file){
-					$action = FileTools::UploadFile($file);
-
-					if (is_int($action))
-						System::Respond(Message::Respond('files.uploadFiles',$action));
-
-					$db->insert('files',array(
-						'name' => !empty($infos[$key]['title']) ? $infos[$key]['title'] : 'Feltöltött dokumentum',
-						'description' => !empty($infos[$key]['desc']) ? $infos[$key]['desc'] : 'Egy feltöltött dokumentum leírása',
-						'lessonid' => 0,
-						'classid' => $user['class'][0],
-						'uploader' => $user['id'],
-						'size' => $file['size'],
-						'filename' => $file['name'],
-						'tempname' => $action[0],
-					));
-				}
+			foreach ($ENV['POST'] as $key => $value){
+				if (empty($value) || $value == 'null') continue;
+				$keys = explode('_',$key);
+				if (empty($keys[1])) continue;
+				$infos[(int)$keys[0]][$keys[1]] = $value;
 			}
 
-			System::Respond(Message::Respond('files.uploadFiles',0),1);
+			$classid = $user['class'][0];
+			foreach ($_FILES as $key => $file){
+				$action = FileTools::UploadFile($file);
+
+				if (is_int($action))
+					System::Respond(Message::Respond('files.uploadFiles',$action));
+
+				$db->insert('files',array(
+					'name' => !empty($infos[$key]['title']) ? $infos[$key]['title'] : 'Feltöltött dokumentum',
+					'description' => !empty($infos[$key]['desc']) ? $infos[$key]['desc'] : 'Egy feltöltött dokumentum leírása',
+					'lessonid' => 0,
+					'classid' => $classid,
+					'uploader' => $user['id'],
+					'size' => $file['size'],
+					'filename' => $file['name'],
+					'tempname' => $action[0],
+				));
+			}
+
+			System::Respond(array(
+				'filelist' => FileTools::RenderList($classid, false),
+				'storage' => FileTools::GetSpaceUsage(),
+			));
 		break;
 
 		case 'delete':

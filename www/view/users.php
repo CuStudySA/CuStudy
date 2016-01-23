@@ -15,7 +15,7 @@
 				var Patterns = <?=json_encode(System::GetHtmlPatterns())?>;
 			</script>
 
-			<h1 id=h1cim>A(z) <?=$ENV['class']['classid']?> felhasználóinak kezelése</h1>
+			<h1 id=h1cim><?=System::Article($ENV['class']['classid'], true)?> osztály felhasználóinak kezelése</h1>
 			<ul class="customers flex">
 <?php		foreach ($data as $subarray){
 				$nev = explode(' ',$subarray['name']);
@@ -24,7 +24,7 @@
 				<li data-id='<?=$subarray['id']?>'>
 					<div class="top clearfix">
 						<div class="left">
-							<span class="typcn typcn-user"></span>
+							<img class="picture" src="<?=UserTools::GetAvatarURL($subarray)?>">
 							<span class="id">#<?=$subarray['id']?></span>
 						</div>
 						<div class="right">
@@ -36,25 +36,21 @@
 							<a class="typcn typcn-pencil js_user_edit" href="#<?=$subarray['id']?>" title="Adatok módosítása"></a>
 							<a class="typcn typcn-key js_user_editAccessData" href="#<?=$subarray['id']?>" title="Hozzáférési adatok módosítása"></a>
 							<a class="typcn typcn-user-delete js_user_delete" href="#<?=$subarray['id']?>" title="Törlés"></a>
-<?php                   }
-						else { ?>
-							<a class="typcn typcn-times" href="#" title="Nincs engedélyezett művelet!"></a>
-<?php                   }   ?>
+<?php                   } ?>
 					</div>
 				</li>
 <?php		} ?>
 				<li class='new'>
 					<div class="top clearfix">
 						<div class="left">
-							<span class="typcn typcn-user"></span>
-							<span class="id">*</span>
+							<span class="typcn typcn-starburst"></span>
 						</div>
 						<div class="right">
-							<span class="vnev">Új</span> <span class="knev">felhasz.</span>
+							<span class="vnev">Felhasználó</span> <span class="knev">hozzáadás</span>
 						</div>
 					</div>
 					<div class="bottom">
-						<a class="typcn typcn-group js_invite" href="#" title="Felhasználók meghívása"></a>
+						<a class="typcn typcn-mail js_invite" href="#" title="Felhasználók meghívása"></a>
 						<a class="typcn typcn-user-add js_user_add" href="/users/add" title="Új felh. hozzáadása"></a>
 					</div>
 				</li>

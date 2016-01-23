@@ -9,7 +9,7 @@
 		}
 		static function Ellenorzes($input,$dbpass){
 			$tmp = explode('$', $dbpass);
-			return (hash('sha256', hash('sha256', $input) . $tmp[2]) == $tmp[3]);
+			return hash_equals(hash('sha256', hash('sha256', $input) . $tmp[2]), $tmp[3]);
 		}
 		static function Generalas($length = 10) {
 			$characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -40,6 +40,12 @@
 			'login' => array(
 				'username' => 'Begépelt felhasználónév',
 				'user' => 'Belépett felhasználó',
+			),
+
+			'failed_login' => array(
+				'userid' => 'Felhasználó azonosító',
+				'ip' => 'IP cím',
+				'at' => 'Próbálkozás időbélyege',
 			),
 		);
 
@@ -72,7 +78,7 @@
 			);                              */
 
 			global $user,$db;
-
+			
 			if (!isset($data['user'])) $data['user'] = $user['id'];
 
 			return $db->insert('log_central',array_merge($data,$this->_getHeader()));
@@ -349,22 +355,22 @@
 			return $return;
 		}
 
-		static function GetUserClasses($userid){
-			global $user, $db;
+		static function GetUserClasses(&$user){
+			global $db;
 
-			$data = $db->where('userid',$userid)->get('class_members');
+			$data = $db->where('userid', $user['id'])->get('class_members');
 			$classes = array();
 			foreach ($data as $array)
 				$classes[] = $array['classid'];
 
-			if (!empty($user)) $user['class'] = $classes;
+			$user['class'] = $classes;
 
 			return $classes;
 		}
 
 		//Cookie ellenőrzés & '$user' generálása
 		static function CheckLogin() {
-			global $db, $user, $ENV;
+			global $db, $ENV;
 
 			if (!Cookie::exists('PHPSESSID')) return 'guest';
 			$sessionKey = Cookie::get('PHPSESSID');
@@ -387,11 +393,11 @@
 
 			$user = $db->where('id',$userId)->getOne('users');
 			if (empty($user)) return 'guest';
-			
+
 			# Felhasználó szerepkörének megállapítása
 			if ($session['activeSession'] == 0){
 				if ($user['role'] == 'none') return 'guest';
-				else return $user['role'];
+				else return array($user['role'],$user);
 			}
 
 			$classMemShip = $db->where('id',$session['activeSession'])->getOne('class_members');
@@ -400,12 +406,12 @@
 			if (self::UserActParent($classMemShip['classid'])) return 'guest';
 
 			$user['class'][0] = $classMemShip['classid'];
-			return $classMemShip['role'];
+			return array($classMemShip['role'],$user);
 		}
 
 		// Bejelentkezés
 		static private function _login($username,$password){
-			global $db;
+			global $db, $ENV;
 
 			# Formátum ellenörzése
 			if (self::InputCheck($username,'username')) return 1;
@@ -413,8 +419,29 @@
 			$data = $db->where('username',$username)->getOne('users');
 			if (empty($data)) return 2;
 
-			if (!Password::Ellenorzes($password,$data['password'])) return 2;
 			if (!$data['active']) return 4;
+
+			$IP = $ENV['SERVER']['REMOTE_ADDR'];
+			$failedLogins = $db->rawQuery(
+				'SELECT COUNT(*) as cnt FROM log_failed_login
+				WHERE userid = ? && ip = ? && corrected IS NULL && at > NOW() - INTERVAL 2 MINUTE',array($data['id'],$IP));
+			if (!empty($failedLogins[0]['cnt']) && $failedLogins[0]['cnt'] > 5)
+				return 3;
+
+			if (!Password::Ellenorzes($password,$data['password'])){
+				Logging::Insert(array(
+					'action' => 'failed_login',
+					'db' => 'failed_login',
+					'userid' => $data['id'],
+					'ip' => $IP,
+					'user' => 0,
+				));
+				return 2;
+			}
+			else $db->where('userid', $data['id'])
+					->where('ip', $IP)
+					->where('corrected IS NULL')
+					->update('log_failed_login', array('corrected' => date('c')));
 
 			# Session generálása és süti beállítása
 			$session = Password::GetSession($username);
@@ -423,8 +450,7 @@
 			$envInfos = self::GetBrowserEnvInfo();
 			if (!is_array($envInfos)) return 'guest';
 
-			$db->rawQuery("DELETE FROM `sessions`
-						WHERE `userid` = ?",array($data['id']));
+			self::_clearSessions($data);
 
 			$db->insert('sessions',array(
 				'session' => md5($session),
@@ -453,17 +479,22 @@
 
 		// Kiléptetés
 		static function Logout(){
-			global $db, $user;
+			global $user;
 
 			# Felh. bejelentkézésnek ellenörzése
 			if (empty($user)) return 1;
 
-			$db->rawQuery("DELETE FROM `sessions`
-						WHERE `userid` = ?",array($user['id']));
+			self::_clearSessions($user);
 
 			Cookie::delete('PHPSESSID');
 
 			return 0;
+		}
+
+		// Munkamenetek törlése
+		static private function _clearSessions($user){
+			global $db;
+			$db->where('userid', $user['id'])->delete('sessions');
 		}
 
 		static function CompilePerms(){
@@ -619,13 +650,8 @@
 
 		// Névelő
 		static function Nevelo($str,$upperc = false,$btw = ''){
-			$match = '/^(a|á|o|ó|u|ú|e|é|i|í|ö|ő|ü|ű|1|5)/i';
-
-			if ($upperc === true || $upperc == 'true' ) $a = "A";
-			else $a = "a";
-
-			if (preg_match($match,preg_replace('/[^\w\d]/i','',trim($str)))) return $a.'z '.($btw ? ' '.$btw : '').$str;
-			else return $a.' '.($btw ? ' '.$btw : '').$str;
+			trigger_error('A System::Nevelo funkció helyett a System::Article funkciót használd', E_USER_DEPRECATED);
+			return System::Article($str, $upperc, $btw);
 		}
 
 		static function Redirect($url, $die = true, $http = 301){
@@ -633,27 +659,32 @@
 			if ($die) die();
 		}
 
-		static function ExternalLogin($userID, $provider = 'google'){
+		static function ExternalLogin($userData, $provider){
 			global $db;
 
-			$data = $db->where('account_id',$userID)->where('provider',$provider)->getOne('ext_connections');
+			$data = $db->where('account_id', $userData['account_id'])->where('provider',$provider)->getOne('ext_connections');
 
-			if (empty($data)) System::Redirect("/?errtype=local&prov={$provider}&err=nem található a távoli fiókhoz kacsolt felhasználó");
+			if (empty($data)) System::Redirect("/?errtype=local&prov={$provider}&err=nem található a távoli fiókhoz kacsolt felhasználó<br><code>".$db->getLastQuery()."</code>");
 			if (!$data['active']) System::Redirect("/?errtype=local&prov={$provider}&err=inaktív az összekapcsolás");
 
 			$user = $db->where('id',$data['userid'])->getOne('users');
 			if (empty($user)) System::Redirect("/?errtype=local&prov={$provider}&err=az összekapcsolás létezik, de nem található a helyi felhasználó");
 
 			if (self::UserIsStudent($user['role']))
-				if (self::UserActParent(self::GetUserClasses($user['id'])[0]))
+				if (self::UserActParent(self::GetUserClasses($user)[0]))
 					System::Redirect("/?errtype=local&prov={$provider}&err=az osztály vagy iskola nem aktív a rendszerben");
+
+			$db->where('id', $data['id'])->update('ext_connections',array(
+				'name' => isset($userData['name']) ? $userData['name'] : '',
+				'email' => isset($userData['email']) ? $userData['email'] : '',
+				'picture' => isset($userData['picture']) ? $userData['picture'] : '',
+			));
 
 			$session = Password::GetSession($user['username']);
 			$envInfos = self::GetBrowserEnvInfo();
 			if (!is_array($envInfos)) System::Redirect('/');
 
-			$db->rawQuery("DELETE FROM `sessions`
-						WHERE `userid` = ?",array($user['id']));
+			self::_clearSessions($user);
 
 			$db->insert('sessions',array(
 				'session' => md5($session),
@@ -664,7 +695,7 @@
 
 			Cookie::set('PHPSESSID',$session,null);
 
-			System::Redirect('/');
+			System::Redirect('/#');
 		}
 
 		static $mailSended = false;
@@ -754,6 +785,30 @@
 		static function MakeHttps($url){
 			return preg_replace('~^(https?:)?//~','https://',$url);
 		}
+
+		/**
+		 * NHatározott névelő hozzáadása egy stringhez
+		 *
+		 * @param string $str    Karaktersorozat
+		 * @param bool   $upperc Nagybetűvel kezdődjön-e a névelő
+		 * @param string $btw    Névelő és szó közé beillesztendő szöveg
+		 *
+		 * @return string
+		 */
+		static function Article($str, $upperc = false, $btw = ''){
+			$a = $upperc ? 'A' : 'a';
+			$str = trim($str);
+			if (preg_match('/^(\d+)?/', $str, $num)){
+				$number = intval($num[1], 10);
+				if (
+					($number < 10 && ($number == 1 || $number == 5)) ||
+					($number >= 20 && $number != 100 && strpos('15',strval($number)[0]) !== false)
+				) $a .= 'z';
+			}
+			else if (preg_match('/^[aáoóuúeéiíöőüű]/i',$str))
+				$a .= 'z';
+			return "$a ".($btw ? "$btw " : '').$str;
+		}
 	}
 
 	class CSRF {
@@ -796,12 +851,24 @@
 			'facebook' => 'FacebookAPI',
 			'google' => 'GoogleAPI',
 			'microsoft' => 'MicrosoftAPI',
+			'deviantart' => 'DeviantArtAPI',
+			'github' => 'GitHubAPI',
 		);
 
 		static $apiDisplayName = array(
 			'facebook' => 'Facebook',
 			'google' => 'Google',
 			'microsoft' => 'Microsoft',
+			'deviantart' => 'DeviantArt',
+			'github' => 'GitHub',
+		);
+
+		static $apiShortName = array(
+			'facebook' => 'fb',
+			'google' => 'gp',
+			'microsoft' => 'ms',
+			'deviantart' => 'da',
+			'github' => 'gh',
 		);
 
 		static function DeactAndAct($connid, $type = 'deactivate'){
@@ -840,6 +907,48 @@
 			$action = $db->where('id',$connid)->delete('ext_connections');
 
 			return !$action ? 4 : 0;
+		}
+
+		static function GetAvailProviders(){
+			global $user, $db;
+			return $db->where('userid', $user['id'])->orderBy('provider','ASC')->get('ext_connections');
+		}
+
+		static function GetConnWrap($entry, $wrap = true){
+			global $user;
+
+			$provider = self::$apiDisplayName[$entry['provider']];
+			$provClass = self::$apiShortName[$entry['provider']];
+			$username = !empty($entry['email']) ? $entry['email'] : $entry['name'];
+			$statusClass = 'typcn-'.(!$entry['active'] ? 'tick' : 'power');
+			$statusText = ($entry['active'] ? 'A' : 'Ina').'ktív';
+			$currentPicProvider = $user['avatar_provider'] === $entry['provider'];
+			$picMakeDisable = $currentPicProvider ? 'disabled' : '';
+			$statusText .= $currentPicProvider ? ', profilkép' : '';
+			$actBtnText = ($entry['active'] ? 'Dea' : 'A').'ktiválás';
+			$picture = $entry['picture'];
+
+			$return = <<<HTML
+<div class="conn">
+	<div class="icon">
+		<img src="$picture">
+		<div class="logo $provClass" title="$provider"></div>
+	</div>
+	<div class="text">
+		<span class="n">$username</span>
+		<strong class="status">$statusText</strong>
+		<span class="actions">
+			<button class='btn makepicture typcn typcn-image' $picMakeDisable>Profilkép</button>
+			<button class='btn activeToggle typcn $statusClass'>$actBtnText</button>
+			<button class='btn disconnect typcn typcn-media-eject'>Leválasztás</button>
+		</span>
+	</div>
+</div>
+HTML;
+
+			if ($wrap)
+				$return = "<div class='conn-wrap' data-id='{$entry['id']}' data-prov='{$entry['provider']}'>$return</div>";
+			return $return;
 		}
 	}
 
@@ -907,10 +1016,11 @@
 			if ($json)
 				System::Respond();
 			else {
-				if (USRGRP == 'guest')
-					die(header('Location: /login'));
-				else
-					die(header('Location: /not-found'));
+				if (ROLE == 'guest'){
+					global $ENV;
+					System::Redirect('/login?r='.urlencode($ENV['SERVER']['REQUEST_URI']));
+				}
+				else System::Redirect('/not-found');
 			}
 		}
 
@@ -919,7 +1029,7 @@
 			global $ENV;
 
 			if ($ENV['do'] != 'not-found')
-				die(header('Location: /not-found?path='.$path));
+				System::Redirect("/not-found?path=$path");
 		}
 
 		static $DB_FAIL = "Hiba történt az adatbázisba mentés során";
@@ -1164,7 +1274,6 @@ STRING
 
 	class FileTools {
 		const CLASS_SPACE = 268435456;
-		const CLASS_MAX_FILESIZE = 36700160;
 
 		static function GetUsedSpace(){
 			global $db, $user;
@@ -1211,9 +1320,6 @@ STRING
 		static function UploadFile($file){
 			// Sikerült-e a fájlfeltöltés?
 			if ($file['error'] != 0) return 1;
-			
-			// Méret ellenörzése
-			if ($file['size'] > self::CLASS_MAX_FILESIZE) return 2;
 			
 			// Van-e hely a tárhelyen?
 			if ($file['size'] > self::GetFreeSpace()) return 3;
@@ -1288,6 +1394,81 @@ STRING
 				'uploader' => empty($uploader) ? 'ismeretlen' : $uploader['name'].' (#'.$uploader['id'].')',
 				'filename' => $data['filename'],
 			);
+		}
+
+		static function RenderList($classid = null, $wrap = true){
+			global $db;
+			$HTML = $wrap ? "<ul class='files flex'>" :'';
+
+			if (empty($classid)){
+				global $user;
+				$classid = $user['class'][0];
+			}
+
+			$data = $db->where('classid', $classid)->orderBy('time')->get('files');
+
+			foreach ($data as $file) {
+				$deleteButton = !System::PermCheck('files.delete')
+					? "<a class='typcn typcn-trash js_delete' href='#{$file['id']}' title='Fájl törlése'></a>"
+					: '';
+				$HTML .= <<<HTML
+				<li>
+					<div class="top">
+						<span class='rovid'>{$file['name']}</span>
+						<span class='nev'>{$file['description']}</span>
+					</div>
+					<div class="bottom">
+						<a class="typcn typcn-info-large js_more_info" href="#{$file['id']}" title="További információk"></a>
+						$deleteButton
+						<a class="typcn typcn-download" href="/files/download/{$file['id']}" title="Fájl letöltése" download></a>
+					</div>
+				</li>
+HTML;
+			}
+			if (!System::PermCheck('files.add')) {
+				$HTML .= <<<HTML
+				<li class='new'>
+					<div class="top">
+						<span class='rovid'>Új dokumentum</span>
+						<span class='nev'>Új dok. feltöltése</span>
+					</div>
+					<div class="bottom">
+						<a class="typcn typcn-upload js_file_add" href="#" title="Fájlfeltöltés"></a>
+					</div>
+				</li>
+HTML;
+			}
+			return $HTML.($wrap?'</ul>':'');
+		}
+
+		static private function SizeInBytes($size){
+			$unit = substr($size, -1);
+			$value = intval(substr($size, 0, -1), 10);
+			switch(strtoupper($unit)){
+				case 'G':
+					$value *= 1024;
+				case 'M':
+					$value *= 1024;
+				case 'K':
+					$value *= 1024;
+				break;
+			}
+		return $value;
+		}
+
+		static function GetMaxUploadSize(){
+			$sizes = array(ini_get('post_max_size'), ini_get('upload_max_filesize'));
+
+			$workWith = $sizes[0];
+			if ($sizes[1] !== $sizes[0]){
+				$sizesBytes = array();
+				foreach ($sizes as $s)
+					$sizesBytes[] = FileTools::SizeInBytes($s);
+				if ($sizesBytes[1] > $sizesBytes[0])
+					$workWith = $sizes[1];
+			}
+
+			return preg_replace('/^(\d+)([GMk])$/', '$1 $2B', $workWith);
 		}
 	}
 
@@ -1791,10 +1972,50 @@ STRING
 
 			$action = $db->where('id',$user['id'])->update('users',$data);
 
-			if (!$action) return 3;
-			else return 0;
+			return $action ? 0 : 3;
 		}
 
+		static function SetAvatarProvider($provider){
+			global $user,$db;
+
+			if (empty($provider))
+				$provider = null;
+			else {
+				if (empty(ExtConnTools::$apiDisplayName[$provider]))
+					return 1;
+
+				$Linked = $db->where('userid',$user['id'])->where('provider', $provider)->has('ext_connections');
+				if (!$Linked)
+					return 2;
+			}
+
+			$action = $db->where('id',$user['id'])->update('users',array( 'avatar_provider' => $provider ));
+			$user['avatar_provider'] = $provider;
+
+			return $action ? 0 : 3;
+		}
+
+		static function GetAvatarURL(&$user, $providerOverride = null){
+			global $db;
+
+			if (isset($user['picture']) && !isset($providerOverride))
+				return $user['picture'];
+
+			$defaultAvatar = str_replace('.lc','.hu',ABSPATH).'/resources/img/user.png';
+			$provider = isset($providerOverride) ? $providerOverride : $user['avatar_provider'];
+			if ($provider !== 'gravatar'){
+				$url = $db->where('userid', $user['id'])->where('provider', $provider)->getOne('ext_connections','picture');
+				if (!empty($url))
+					$url = $url['picture'];
+			}
+			if (empty($url))
+				$url = 'https://www.gravatar.com/avatar/'.md5($user['email']).'?s=70&r=g&d='.urlencode($defaultAvatar);
+
+			if (!isset($providerOverride))
+				$user['picture'] = $url;
+
+			return $url;
+		}
 	}
 
 	class PasswordReset {
@@ -2433,7 +2654,7 @@ STRING;
 
 			$active = $onlyListActive ? '&& (SELECT `id` FROM `hw_markdone` WHERE `homework` = hw.id && `userid` = ?) IS NULL' : '';
 
-			$query = "SELECT hw.id, hw.text as `homework`, hw.week, tt.day, tt.lesson as `lesson_th`, l.name as `lesson`,
+			$query = "SELECT hw.id, hw.text as `homework`, hw.week, tt.day, tt.lesson as `lesson_th`, l.name as `lesson`, hw.year as year,
 							(SELECT `id` FROM `hw_markdone` WHERE `homework` = hw.id && `userid` = ?) as markedDone
 						FROM `timetable` tt
 						LEFT JOIN (`homeworks` hw, `lessons` l)
@@ -2472,6 +2693,11 @@ STRING;
 			while (true){
 				if (empty($timetable[$i])) break;
 				else $array = $timetable[$i];
+
+				if ($array['year'] < date('Y')){
+					$i++;
+					continue;
+				}
 
 				if ($weekNum == $array['week'])
 					$hwTime = strtotime('+ '.($array['day'] - $dayInWeek).' days');
@@ -2615,7 +2841,7 @@ STRING;
 
 	            $time = strtotime($date);
 
-	            print "<h3>Házi feladatok ".System::Nevelo(System::$Days[Timetable::GetDayNumber($time)])."i napra ({$day})</h3>";
+	            print "<h3>Házi feladatok ".System::Article(System::$Days[Timetable::GetDayNumber($time)])."i napra ({$day})</h3>";
 	        }
 	        ?>
 
@@ -2832,7 +3058,10 @@ STRING;
 				$end = array(System::$ShortMonths[intval(date('n', $endtime))], date('j', $endtime));
 
 				$sameMonthDay = $start[0] == $end[0] && $start[1] == $end[1];
-				$time = $ev['isallday'] ? '' : date('H:i', $starttime).(!$sameMonthDay?'-tól':'').' ';
+				$mp = date('i',  $starttime);
+				$mpint = intval($mp, 10);
+				$rag = ($mpint !== 10 && in_array($mpint % 10, [0,3,6,8])) ? 'tól': 'től';
+				$time = $ev['isallday'] ? '' : date('H', $starttime).":$mp-$rag ";
 				$append = '';
 				if (!$sameMonthDay)
 					$append .= HomeworkTools::FormatMonthDay($endtime);
@@ -2840,7 +3069,7 @@ STRING;
 					$append .= ' '.date('H:i',$endtime).'-ig';
 				else if (!$sameMonthDay) $append .= '-ig';
 				if (!empty($append))
-					$time .= "$append";
+					$time .= $append;
 				if ($ev['isallday']){
 					$time .= ', egész nap';
 					$time = preg_replace('/^, eg/','Eg',$time);

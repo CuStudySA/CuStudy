@@ -67,14 +67,12 @@ $(function(){
 			.height($inner.height()+1)
 			.addClass('animate');
 
-		$('#links').detach();
+		var $links = $('#links'),
+			$linkLocation = $links.parent();
+		$links.detach();
 
 		var $form = $(this), title = "Bejelentkezés";
 
-		/* var tempdata = $form.serializeArray(), data = {};
-		$.each(tempdata,function(i,el){
-			data[el.name] = el.value;
-		}); */
 		var isIE = navigator.userAgent.toLowerCase().indexOf('trident') !== -1 || navigator.userAgent.toLowerCase().indexOf('msie') !== -1,
 			formData = $form.serializeForm();
 
@@ -96,72 +94,81 @@ $(function(){
 						catch(e){}
 					}
 
-					if (isIE) return window.location.reload();
-					$.get('?no-header-js',function(data){ setTimeout(function(){
-						var $data = $(data),
-							$scripts = $data.filter('script[src]'),
-							$styles = $data.filter('link[rel=stylesheet]'),
-							$body = $(document.body), $head = $(document.head),
-							load = {css: [], js: []};
+					if (isIE) return formData.r ? window.location.href = r : window.location.reload();
+					$.ajax({
+						url: (formData.r||'')+'?via-js',
+						dataType: 'json',
+						success: function(data){
+							var $body = $(document.body),
+								$head = $(document.head),
+								load = {css: [], js: []};
 
-						$styles.each(function(){
-							var a = document.createElement('a');
-							a.href = this.href;
-							if ($head.children('style[data-href="'+a.pathname+'"]').length === 0)
-								load.css.push(a.pathname);
-						});
-
-						$scripts.each(function(){
-							var a = document.createElement('a');
-							a.href = this.src;
-							if ($body.children('script[src="'+a.pathname+'"]').length === 0)
-								load.js.push(a.pathname);
-						});
-
-						function done(){
-							$data.filter('#sidebar').prependTo($body);
-							$body.addClass('sidebar-slide');
-							$('title').text($data.filter('title').text());
-							$('main').prepend($data.filter('main').html());
-							$('#main').fadeOut(500,function(){
-								$(this).remove();
+							$.each(data.css,function(_,el){
+								var a = document.createElement('a');
+								a.href = el;
+								if ($head.children('style[data-href="'+a.pathname+'"]').length === 0)
+									load.css.push(a.pathname);
 							});
-							loadJS(0);
+
+							$.each(data.js, function(_,el){
+								var a = document.createElement('a');
+								a.href = el;
+								if ($body.children('script[src="'+a.pathname+'"]').length === 0)
+									load.js.push(a.pathname);
+							});
+
+							function done(){
+								$body.prepend(data.sidebar);
+								$body.addClass('sidebar-slide');
+								$('title').text(data.title);
+								if (formData.r) history.replaceState({},'',formData.r);
+								$('main').children(':not(#main)').remove()
+									.end().prepend(data.main);
+								// Amber flag start
+								$('link[href*=amber]').remove();
+								// Amber flag end
+								var $main = $('#main').addClass('loaded');
+								setTimeout(function(){ $main.remove() }, 400);
+								loadJS(0);
+							}
+
+							function loadJS(i){
+								if (typeof load.js[i] === 'undefined')
+									return;
+
+								$.ajax({
+									url: load.js[i],
+									dataType: "script",
+									success: function(){
+										//JS auto. lefut
+										loadJS(i+1);
+									},
+									error: function(){ throw new Error('JS #'+i+' - '+load.js[i]) }
+								});
+							}
+
+							(function loadCSS(i){
+								if (typeof load.css[i] === 'undefined')
+									return done();
+								$.ajax({
+									url: load.css[i],
+									success: function(data){
+										if (typeof data !== 'string')
+											return formData.r ? window.location.href = r : window.location.reload();
+										data = data.replace(/url\((['"])?\.\.\//g,'url($1/resources/');
+										$head.append($(document.createElement('style')).text(data));
+										loadCSS(i+1);
+									},
+									error: function(){ throw new Error('CSS #'+i+' - '+load.css[i]) }
+								});
+							})(0);
 						}
-
-						function loadJS(i){
-							if (typeof load.js[i] === 'undefined')
-								return;
-
-							$.ajax({
-								url: load.js[i],
-								dataType: "script",
-								success: function(){
-									//JS auto. lefut
-									loadJS(i+1);
-								},
-								error: function(){ throw new Error('JS #'+i+' - '+load.js[i]) }
-							});
-						}
-
-						(function loadCSS(i){
-							if (typeof load.css[i] === 'undefined')
-								return done();
-							$.ajax({
-								url: load.css[i],
-								success: function(data){
-									if (typeof data !== 'string') return window.location.reload();
-									$head.append($(document.createElement('style')).text(data));
-									loadCSS(i+1);
-								},
-								error: function(){ throw new Error('CSS #'+i+' - '+load.css[i]) }
-							});
-						})(0);
-					},500) });
+					});
 				}
 				else {
 					$.Dialog.fail(title,data.message);
 					$('#inner').removeClass('animate');
+					$links.appendTo($linkLocation);
 				}
 			}
 		});

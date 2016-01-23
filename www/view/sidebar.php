@@ -1,11 +1,7 @@
-<?php
-	define('ABSPATH_',str_replace('.lc','.tk',ABSPATH));
-?>
-
 <div id="sidebar">
 	<div class="userdata clearfix">
 		<div class="avatar">
-			<img src="https://www.gravatar.com/avatar/<?=md5($user['email'])?>?s=70&r=g&d=<?=urlencode(ABSPATH_.'/resources/img/user.png')?>">
+			<img src="<?=UserTools::GetAvatarUrl($user)?>">
 		</div>
 		<h2 class="name"><?=$user['name']?></h2>
 		<span class="email"><?=$user['email']?></span>
