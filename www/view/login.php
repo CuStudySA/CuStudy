@@ -67,7 +67,7 @@
 				$aToken = $Auth['access_token'];
 				$remoteUser = $api->getUserInfo($aToken);
 
-				System::ExternalLogin($remoteUser['account_id'],$provider);
+				System::ExternalLogin($remoteUser,$provider);
 			}
 		break;
 	}

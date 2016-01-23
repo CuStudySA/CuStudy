@@ -575,10 +575,10 @@
 			if ($die) die();
 		}
 
-		static function ExternalLogin($userID, $provider){
+		static function ExternalLogin($userData, $provider){
 			global $db;
 
-			$data = $db->where('account_id', $userID)->where('provider',$provider)->getOne('ext_connections');
+			$data = $db->where('account_id', $userData['account_id'])->where('provider',$provider)->getOne('ext_connections');
 
 			if (empty($data)) System::Redirect("/?errtype=local&prov={$provider}&err=nem található a távoli fiókhoz kacsolt felhasználó<br><code>".$db->getLastQuery()."</code>");
 			if (!$data['active']) System::Redirect("/?errtype=local&prov={$provider}&err=inaktív az összekapcsolás");
@@ -589,6 +589,12 @@
 			if (self::UserIsStudent($user['role']))
 				if (self::UserActParent(self::GetUserClasses($user['id'])[0]))
 					System::Redirect("/?errtype=local&prov={$provider}&err=az osztály vagy iskola nem aktív a rendszerben");
+
+			$db->where('id', $data['id'])->update('ext_connections',array(
+				'name' => isset($userData['name']) ? $userData['name'] : '',
+				'email' => isset($userData['email']) ? $userData['email'] : '',
+				'picture' => isset($userData['picture']) ? $userData['picture'] : '',
+			));
 
 			$session = Password::GetSession($user['username']);
 			$envInfos = self::GetBrowserEnvInfo();
