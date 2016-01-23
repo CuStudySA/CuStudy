@@ -59,7 +59,12 @@
 	unset($_GET,$_POST);
 
 	# Jogosultsági szintek beállítása
-	define('ROLE',System::CheckLogin());
+	$user = System::CheckLogin();
+	if (is_string($user)){
+		define('ROLE', $user);
+		unset($user);
+	}
+	else define('ROLE', $user['role']);
 
 	# Rendszerbeállítások lekérése
 	GlobalSettings::Load();

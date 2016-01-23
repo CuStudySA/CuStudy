@@ -345,49 +345,56 @@
 			return $return;
 		}
 
-		static function GetUserClasses($userid){
-			global $user, $db;
+		static function GetUserClasses(&$user){
+			global $db;
 
-			$data = $db->where('userid',$userid)->get('class_members');
+			$data = $db->where('userid', $user['id'])->get('class_members');
 			$classes = array();
 			foreach ($data as $array)
 				$classes[] = $array['classid'];
 
-			if (!empty($user)) $user['class'] = $classes;
+			$user['class'] = $classes;
 
 			return $classes;
 		}
 
-		//Cookie ellenőrzés & '$user' generálása
-		static function CheckLogin() {
-			global $db, $user, $ENV;
+		// Session Cookie ellenőrzés
+		static function CheckLogin(){
+			global $db;
 
-			if (!Cookie::exists('PHPSESSID')) return 'guest';
+			if (!Cookie::exists('PHPSESSID'))
+				return 'guest';
 			$session = Cookie::get('PHPSESSID');
 
-			if (empty($session)) return 'guest';
-			else $session = md5($session);
+			if (empty($session))
+				return 'guest';
+			$session = md5($session);
 
 			$envInfos = self::GetBrowserEnvInfo();
-			if (!is_array($envInfos)) return 'guest';
+			if (!is_array($envInfos))
+				return 'guest';
 
-			$query = $db->rawQuery("SELECT *
-						FROM `sessions`
-						WHERE `session` = ? && `ip` = ? && `useragent` = ?
-						LIMIT 1",array($session,$envInfos['ip'],$envInfos['useragent']));
+			$query = $db
+				->where('session', $session)
+				->where('ip', $envInfos['ip'])
+				->where('useragent', $envInfos['useragent'])
+				->getOne('sessions','userid');
 
-			if (empty($query)) return 'guest';
-			else $userId = $query[0]['userid'];
+			if (empty($query))
+				return 'guest';
+			$userId = $query['userid'];
 
 			$user = $db->where('id',$userId)->getOne('users');
-			if (empty($user)) return 'guest';
+			if (empty($user))
+				return 'guest';
 
 			# Osztálytagságok megállapítása
-			self::GetUserClasses($user['id']);
+			self::GetUserClasses($user);
 
-			if (self::UserActParent($user['class'][0])) return 'guest';
+			if (self::UserActParent($user['class'][0]))
+				return 'guest';
 
-			return $user['role'];
+			return $user;
 		}
 
 		// Bejelentkezés
@@ -423,7 +430,7 @@
 					->update('log_failed_login', array('corrected' => date('c')));
 
 			if (self::UserIsStudent($data['role']))
-				if (self::UserActParent(self::GetUserClasses($data['id'])[0])) return 5;
+				if (self::UserActParent(self::GetUserClasses($data)[0])) return 5;
 
 			# Session generálása és süti beállítása
 			$session = Password::GetSession($username);
@@ -587,7 +594,7 @@
 			if (empty($user)) System::Redirect("/?errtype=local&prov={$provider}&err=az összekapcsolás létezik, de nem található a helyi felhasználó");
 
 			if (self::UserIsStudent($user['role']))
-				if (self::UserActParent(self::GetUserClasses($user['id'])[0]))
+				if (self::UserActParent(self::GetUserClasses($user)[0]))
 					System::Redirect("/?errtype=local&prov={$provider}&err=az osztály vagy iskola nem aktív a rendszerben");
 
 			$db->where('id', $data['id'])->update('ext_connections',array(
