@@ -152,6 +152,7 @@ $(function(){
 									return done();
 								$.ajax({
 									url: load.css[i],
+									dataType: "text",
 									success: function(data){
 										if (typeof data !== 'string')
 											return formData.r ? window.location.href = r : window.location.reload();
