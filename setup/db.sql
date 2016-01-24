@@ -1,12 +1,3 @@
--- phpMyAdmin SQL Dump
--- version 4.5.3.1
--- http://www.phpmyadmin.net
---
--- Gép: 127.0.0.1
--- Létrehozás ideje: 2016. Jan 23. 21:03
--- Kiszolgáló verziója: 5.6.21
--- PHP verzió: 5.6.3
-
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
 
@@ -17,10 +8,10 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Adatbázis: `betonhomework`
+-- Adatbázis: `custudy`
 --
-CREATE DATABASE IF NOT EXISTS `betonhomework` DEFAULT CHARACTER SET utf8 COLLATE utf8_hungarian_ci;
-USE `betonhomework`;
+CREATE DATABASE IF NOT EXISTS `custudy` DEFAULT CHARACTER SET utf8 COLLATE utf8_hungarian_ci;
+USE `custudy`;
 
 -- --------------------------------------------------------
 
@@ -45,7 +36,8 @@ CREATE TABLE `class` (
 CREATE TABLE `class_members` (
   `id` int(11) NOT NULL,
   `userid` int(11) NOT NULL,
-  `classid` int(11) NOT NULL
+  `classid` int(11) NOT NULL,
+  `role` enum('visitor','editor','admin','teacher') COLLATE utf8_hungarian_ci NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
 -- --------------------------------------------------------
@@ -406,7 +398,8 @@ CREATE TABLE `sessions` (
   `userid` int(11) NOT NULL,
   `ip` tinytext COLLATE utf8_hungarian_ci NOT NULL,
   `useragent` tinytext COLLATE utf8_hungarian_ci NOT NULL,
-  `time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+  `time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `activeSession` int(11) NOT NULL DEFAULT '0'
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
 -- --------------------------------------------------------
@@ -453,8 +446,9 @@ CREATE TABLE `users` (
   `name` tinytext COLLATE utf8_hungarian_ci NOT NULL,
   `active` int(11) NOT NULL DEFAULT '1',
   `email` tinytext COLLATE utf8_hungarian_ci NOT NULL,
-  `avatar_provider` varchar(12) COLLATE utf8_hungarian_ci DEFAULT NULL,
-  `role` tinytext COLLATE utf8_hungarian_ci NOT NULL
+  `role` enum('systemadmin','none','admin') COLLATE utf8_hungarian_ci NOT NULL,
+  `defaultSession` int(11) NOT NULL DEFAULT '0',
+  `avatar_provider` varchar(12) COLLATE utf8_hungarian_ci DEFAULT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
 --
@@ -645,6 +639,11 @@ ALTER TABLE `users`
 ALTER TABLE `class`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
+-- AUTO_INCREMENT a táblához `class_members`
+--
+ALTER TABLE `class_members`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
 -- AUTO_INCREMENT a táblához `events`
 --
 ALTER TABLE `events`
@@ -779,6 +778,7 @@ ALTER TABLE `timetable`
 --
 ALTER TABLE `users`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

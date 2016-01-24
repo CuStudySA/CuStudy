@@ -23,7 +23,8 @@
 	} ?>
 
 	<script src='<?=$rootdoc?>resources/js/jquery.min.js'></script>
-<?	# Beépülő modulok betöltése
+<?php
+	# Beépülő modulok betöltése
 	if (!empty($pages[$do]['addons'])){
 		foreach ($pages[$do]['addons'] as $addonName){
 			if (empty($addons[$addonName]['js'])) continue;
@@ -32,4 +33,5 @@
 		}
 	} ?>
 </head>
-<body><script>var _USRGRP="<?=ROLE?>"</script>
+<body>
+	<script>var _USRGRP="<?=ROLE?>"</script>

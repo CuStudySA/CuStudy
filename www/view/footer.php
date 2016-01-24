@@ -32,6 +32,6 @@
 	if (!empty($ENV['EE_MESSAGE'])) { ?>
 
 	<!-- <?=$ENV['EE_MESSAGE']?> -->
-<?  } ?>
+<?php  } ?>
 </body>
 </html>

@@ -401,4 +401,16 @@
 				),
 			),
 		),
+		'roles' => array(
+			'set' => array(
+				'errors' => array(
+					1 => 'nincs engedélye a kiválasztott szerepkör használatához',
+					3 => 'a megadott szerepkör már aktív a munkameneten',
+				),
+				'messages' => array(
+					1 => 'Nem sikerült az új szerepkörre történő váltás, mert @msg! (Hibakód: @code)',
+					0 => 'A szerepkör-váltás megtörtént, most átirányítjuk...',
+				),
+			),
+		),
 	);
