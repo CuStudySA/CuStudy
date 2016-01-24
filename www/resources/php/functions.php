@@ -3099,8 +3099,8 @@ STRING;
 		    return array(date('Y-m-d', $start),date('Y-m-d', strtotime('next saturday', $start)));
 		}
 
-		const OneDayInSeconds = 60 * 60 * 24;
-		const OneWeekInSeconds = 60 * 60 * 24 * 7;
+		const OneDayInSeconds = 86400;
+		const OneWeekInSeconds = 604800;
 		static $weekLetters = 'ABCDEFGHIJKLMOPQRSTUVWXYZ';
 		static function GetWeekLetter($timestamp = null){
 			$weeekcnt = self::GetNumberOfWeeks();
