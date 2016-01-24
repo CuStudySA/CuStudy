@@ -3282,19 +3282,22 @@ STRING;
 				$currentDate = $dispDays[0];
 				while (abs($foundWeekdays) < $targetWeekdays){
 					$currentDate += self::OneDayInSeconds*$mult;
-					if (self::GetDay($currentDate) < 6)
+					$day = self::GetDay($currentDate);
+					if ($day < 6)
 						$foundWeekdays += $mult;
 					$moved += $mult;
 				}
 
 				$date = $startDate + (self::OneDayInSeconds*$moved);
 			}
+
 			if (self::GetDay($date) >= 5)
-				$date = strtotime('next monday', $date)-self::OneDayInSeconds;
+				$date = strtotime('next monday', $date);
+
 			if ($date < $today)
 				$date = $today;
 
-			$week = date('W', $date);
+			$week = (int)date('W', $date);
 			$day = Timetable::GetDay($date);
 
 			$TT = Timetable::GetHWTimeTable($week,$day,$allgroups);
@@ -3329,6 +3332,8 @@ STRING;
 
 			$addon = array($user['class'][0]);
 			$ma_éjfél = strtotime('midnight');
+			$currWeek = (int)date('W', $ma_éjfél);
+			$currDay = Timetable::GetDay($ma_éjfél);
 
 			$now = time();
 			$switchOn = strtotime('8 am', $now);
@@ -3338,21 +3343,23 @@ STRING;
 				// Jelenlegi dátumhoz hozzáadja a {cél hét - mostani hét} értékét
 				// pl. (10. hét /cél/ - 15. hét /most/) => -5 hét a mostani dátumhoz képest
 				//     (12. hét /cél/ - 10. hét /most/) => +2 hét a mostani dátumhoz képest
-				$weekday = strtotime('+ '.($week - date('W')).' weeks', $ma_éjfél);
+				$weekday = strtotime('+ '.($week - $currWeek).' weeks', $ma_éjfél);
 
 				// Ellenörzi, hogy a jelenlegi hét napja korábban van, mint a lekérdezett utolsó nap
 				//   (azaz a lekérdezés a jelenlegi héten belül marad-e)
 				// pl. (hétfő (1) /ma/ < péntek (5) /cél/) => igaz
 				//     (péntek (5) /ma/ < kedd (2) /cél/) => hamis
-				if (Timetable::GetDay() < $lastDay)
+				if ($currDay < $lastDay)
 					// Ha a lekérdezés a jelenlegi héten belül marad, hozzáadja a dátumhoz
 					//   a {cél nap - mai nap} értékét
 					// pl. (péntek (5) /cél/ - hétfő (1) /ma/) => +4 nap
-					$weekday = strtotime('+ '.($lastDay - Timetable::GetDay()).' days',$weekday);
+					$weekday = strtotime('+ '.($lastDay - $currDay).' days',$weekday);
 				// Ha a lekérdezés átcsúszik a következő hétre, kivonja a dátumból
 				//   a {mai nap - cél nap} értékét
 				// pl. (péntek (5) /ma/ - kedd (2) /cél/) => -3 nap
-				else $weekday = strtotime('- '.(Timetable::GetDay() - $lastDay).' days',$weekday);
+				else $weekday = strtotime('- '.($currDay - $lastDay).' days',$weekday);
+
+				//var_dump(date("Y-m-d H:i:s D (W. \\hé\\t)", $weekday));
 
 				// Hét betűjelének lekérése
 				$actWeek = strtolower(Timetable::GetWeekLetter($weekday));
@@ -3381,11 +3388,7 @@ STRING;
 				]);
 			}
 
-			$userInGroups = $db->where('classid',$user['class'][0])->where('userid',$user['id'])->get('group_members',null,'groupid');
-			$groups = '0';
-			foreach ($userInGroups as $in)
-				$groups .= ','.$in['groupid'];
-
+			$groups = UserTools::GetClassGroupIDs();
 			$onlyGrp = !$allgroup ? "&& tt.groupid IN ($groups)" : '';
 
 			$weekcnt = Timetable::GetNumberOfWeeks();
