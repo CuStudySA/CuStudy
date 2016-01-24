@@ -1,6 +1,7 @@
 <?php
+
 	class LessonTools {
-		// Tantárgy hozzáadása
+// Tantárgy hozzáadása
 		private static function _add($data_a){
 			global $db,$ENV;
 
@@ -14,14 +15,14 @@
 				switch ($key){
 					case 'name':
 						$type = 'lesson';
-						break;
+					break;
 					case 'teacherid':
 						$type = 'numeric';
-						break;
+					break;
 					default:
 						unset($data_a[$key]);
 						continue 2;
-						break;
+					break;
 				}
 				if (System::InputCheck($value,$type)) return 2;
 			}
@@ -49,9 +50,9 @@
 
 			return $action;
 		}
-		// Tantárgy hozzáadása vége
+// Tantárgy hozzáadása vége
 
-		// Tantárgy szerkesztése
+// Tantárgy szerkesztése
 		private static function _edit($data_a){
 			global $db;
 
@@ -62,17 +63,17 @@
 				switch ($key){
 					case 'name':
 						$type = 'lesson';
-						break;
+					break;
 					case 'teacherid':
 						$type = 'numeric';
-						break;
+					break;
 					case 'id':
 						$type = 'numeric';
-						break;
+					break;
 					default:
 						unset($data_a[$key]);
 						continue;
-						break;
+					break;
 				}
 				if (System::InputCheck($value,$type)) return 2;
 			}
@@ -107,9 +108,9 @@
 
 			return $action;
 		}
-		// Tantárgy szerkesztése vége
+// Tantárgy szerkesztése vége
 
-		// Tantárgy törlése
+// Tantárgy törlése
 		private static function _delete($id){
 			global $db;
 
@@ -151,4 +152,5 @@
 			return $action;
 		}
 	}
-	// Tantárgy törlése vége
+// Tantárgy törlése vége
+

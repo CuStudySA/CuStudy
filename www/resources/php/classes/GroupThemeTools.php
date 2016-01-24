@@ -15,7 +15,7 @@
 				switch ($key){
 					case 'name':
 						$type = 'text';
-						break;
+					break;
 				}
 				if (System::InputCheck($value,$type)) return 2;
 			}
@@ -41,7 +41,7 @@
 				switch ($key){
 					case 'name':
 						$type = 'text';
-						break;
+					break;
 					case 'id':
 						continue 2;
 				}
@@ -73,3 +73,4 @@
 			else return 2;
 		}
 	}
+

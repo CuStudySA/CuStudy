@@ -16,7 +16,7 @@
 
 				return str_replace('@code',$code,str_replace('@msg',$errorMsg,self::$Messages[$class][$action]['messages'][1]));
 			}
-
+			
 			else
 				return isset(self::$Messages[$class][$action]['messages'][0]) ? self::$Messages[$class][$action]['messages'][0] : 'A művelet sikerült!';
 		}
@@ -82,3 +82,4 @@
 
 		static $DB_FAIL = "Hiba történt az adatbázisba mentés során";
 	}
+

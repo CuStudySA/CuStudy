@@ -25,3 +25,4 @@
 			return sha1($username.microtime().$_SERVER['REMOTE_ADDR']);
 		}
 	}
+

@@ -7,10 +7,10 @@
 			# Admin. jogkör ellenörzése
 			if (System::PermCheck('schooladmin')) return 2;
 
-			/*			array(
-							'classid' => 10.B
-							'school' => 1
-						);						*/
+/*			array(
+				'classid' => 10.B
+				'school' => 1
+			);						*/
 
 			# Formátum ellenörzése
 			if (!System::ValuesExists($dataf,['classid','school'])) return 2;
@@ -42,13 +42,13 @@
 					return !$db->where('classid',$classid)->update('class',array(
 						'active' => 1,
 					));
-					break;
+				break;
 
 				case 'inactivate':
 					return !$db->where('classid',$classid)->update('class',array(
 						'active' => 0,
 					));
-					break;
+				break;
 
 				case 'getstatus':
 					$data = $db->where('classid',$classid)->getOne('class');
@@ -57,7 +57,8 @@
 					if (empty($data)) return 2;
 
 					return $data['active'];
-					break;
+				break;
 			}
 		}
 	}
+

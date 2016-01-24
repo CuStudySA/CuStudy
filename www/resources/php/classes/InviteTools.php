@@ -24,16 +24,16 @@
 		CuStudy Software Alliance</p>
 STRING;
 
-		static $groupChooser = array(<<<STRING
+	static $groupChooser = array(<<<STRING
 		<p>Most kérünk, hogy válaszd ki az osztálybeli csoportjaidat! Ez nem kötelező lépés...</p>
 		<form id='groupDataForm'>
 STRING
-		                             ,
-		                             <<<STRING
-									 		<p><button class='btn'>Csoportadatok mentése és tovább a CuStudy-ra</button></p>
+,
+<<<STRING
+		<p><button class='btn'>Csoportadatok mentése és tovább a CuStudy-ra</button></p>
 		</form>
 STRING
-		);
+);
 
 		static function Invite($email,$name){
 			global $db, $user, $ENV;
@@ -95,12 +95,12 @@ STRING
 		}
 
 		static function Registration($data){
-			/*          array(
-							'token' (string)
-							'username' (string)
-							'password' (string)
-							'name' (string)
-						) */
+/*          array(
+				'token' (string)
+				'username' (string)
+				'password' (string)
+				'name' (string)
+			) */
 
 			global $db;
 
@@ -111,16 +111,16 @@ STRING
 					case 'username':
 					case 'password':
 						$type = $key;
-						break;
+					break;
 
 					case 'name':
 						$type = 'name';
-						break;
+					break;
 
 					default:
 						unset($data[$key]);
 						continue 2;
-						break;
+					break;
 				}
 				if (System::InputCheck($value,$type)) return 3;
 			}
@@ -236,3 +236,4 @@ STRING
 			return 0;
 		}
 	}
+

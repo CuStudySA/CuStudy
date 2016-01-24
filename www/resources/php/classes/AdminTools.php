@@ -66,3 +66,4 @@
 			if (System::PermCheck('system.view')) return 1;
 		}
 	}
+

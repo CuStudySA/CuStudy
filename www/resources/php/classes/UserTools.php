@@ -1,4 +1,5 @@
 <?php
+
 	class UserTools {
 		static $roleLabels = array(
 			'visitor' => 'Ált. felhasználó',
@@ -8,7 +9,7 @@
 			'none' => 'Nincs jogosultság',
 		);
 
-		// Felh. hozzáadása
+// Felh. hozzáadása
 		private static function _addUser($data_a){
 			global $db, $user;
 
@@ -23,13 +24,13 @@
 				switch ($key){
 					case 'name':
 						$type = 'name';
-						break;
+					break;
 					case 'active':
 						$type = 'numeric';
-						break;
+					break;
 					default:
 						$type = $key;
-						break;
+					break;
 				}
 
 				if (System::InputCheck($value,$type)) return 2;
@@ -66,13 +67,13 @@
 
 		static function AddUser($data_a){
 			global $user;
-			/*			array(
-							'username',
-							'name',
-							'priv',
-							'email',
-							'active',
-						);					*/
+/*			array(
+				'username',
+				'name',
+				'priv',
+				'email',
+				'active',
+			);					*/
 			$action = self::_addUser($data_a);
 
 			$data_a = System::TrashForeignValues(['username','name','role','email','active'],$data_a);
@@ -89,9 +90,9 @@
 
 			return $action;
 		}
-		// Felh. hozzáadás vége
+// Felh. hozzáadás vége
 
-		// Felh. adatainak módosítása
+// Felh. adatainak módosítása
 		private static function _modifyUser($id,$datas){
 			global $db, $user;
 
@@ -105,16 +106,16 @@
 				switch ($key){
 					case 'name':
 						$type = 'name';
-						break;
+					break;
 					case 'id':
 						$type = 'numeric';
-						break;
+					break;
 					case 'active':
 						$type = 'numeric';
-						break;
+					break;
 					default:
 						$type = $key;
-						break;
+					break;
 				}
 
 				if (System::InputCheck($value,$type)) return 2;
@@ -174,9 +175,9 @@
 
 			return $action;
 		}
-		// Felh. adatainak módosítása vége
+// Felh. adatainak módosítása vége
 
-		// Felh. törlése
+// Felh. törlése
 		private static function _deleteUser($id){
 			global $db, $user;
 
@@ -218,14 +219,14 @@
 
 			return $action;
 		}
-		// Felh. törlése vége
+// Felh. törlése vége
 
 		static function EditAccessData($id,$data){
 			/* @param $id
 			 * @param $data = array('newpassword','vernewpasswd')
 			 */
 
-			global $db,$user;
+            global $db,$user;
 
 			# Jog. ellenörzése
 			if (System::PermCheck('users.editSecurity')) return 1;
@@ -247,13 +248,13 @@
 		}
 
 		static function EditMyProfile($data){
-			/*          array(
-							(req)'name',
-							(req)'email',
-							(opt)'oldpassword',
-							(opt)'password',
-							(opt)'verpasswd'
-						)                       */
+/*          array(
+				(req)'name',
+				(req)'email',
+				(opt)'oldpassword',
+				(opt)'password',
+				(opt)'verpasswd'
+			)                       */
 
 			global $db,$user;
 
@@ -318,3 +319,4 @@
 			return $url;
 		}
 	}
+

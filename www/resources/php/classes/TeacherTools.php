@@ -17,10 +17,10 @@
 				switch ($key){
 					case 'short':
 						$type = 'shortn_teacher';
-						break;
+					break;
 					default:
 						$type = $key;
-						break;
+					break;
 				}
 				if (System::InputCheck($value,$type)) return 2;
 			}
@@ -52,16 +52,16 @@
 				switch ($key){
 					case 'short':
 						$type = 'shortn_teacher';
-						break;
+					break;
 					case 'id':
 						$type = 'numeric';
-						break;
+					break;
 					case 'name':
 						$type = 'name';
-						break;
+					break;
 					default:
 						return 2;
-						break;
+					break;
 				}
 				if (System::InputCheck($value,$type)) return 2;
 			}
@@ -95,3 +95,4 @@
 			else return 2;
 		}
 	}
+

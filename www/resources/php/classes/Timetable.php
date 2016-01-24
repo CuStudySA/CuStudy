@@ -19,9 +19,9 @@
 
 		static function GetEdgesOfWeek($date){
 			$ts = strtotime($date);
-			$start = (date('w', $ts) == 0) ? $ts : strtotime('last sunday', $ts);
+		    $start = (date('w', $ts) == 0) ? $ts : strtotime('last sunday', $ts);
 
-			return array(date('Y-m-d', $start),date('Y-m-d', strtotime('next saturday', $start)));
+		    return array(date('Y-m-d', $start),date('Y-m-d', strtotime('next saturday', $start)));
 		}
 
 		static function GetActualWeek($sorting = false, $timestamp = null){
@@ -534,3 +534,4 @@ STRING;
 			echo "$echo</td>";
 		}
 	}
+

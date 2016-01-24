@@ -10,8 +10,8 @@
 			foreach ($data as $event){
 				if (!(strtotime('12 am',strtotime($start)) < strtotime('12 am',strtotime($event['end']))
 					&& strtotime('12 am',strtotime($event['start'])) < strtotime('12 am',strtotime($end))))
-					continue;
-
+						continue;
+				
 				$output[] = array(
 					'id' => $event['id'],
 					'title' => $event['title'],
@@ -46,16 +46,16 @@
 				switch ($key){
 					case 'isFullDay':
 						$type = 'numeric';
-						break;
+					break;
 					case 'title':
 						$type = 'text';
-						break;
+					break;
 					case 'description':
 						$type = 'text';
-						break;
+					break;
 					default:
 						continue 2;
-						break;
+					break;
 				}
 				if (System::InputCheck($value,$type)) return 2;
 			}
@@ -110,16 +110,16 @@
 				switch ($key){
 					case 'isFullDay':
 						$type = 'numeric';
-						break;
+					break;
 					case 'title':
 						$type = 'text';
-						break;
+					break;
 					case 'description':
 						$type = 'text';
-						break;
+					break;
 					default:
 						continue 2;
-						break;
+					break;
 				}
 				if (System::InputCheck($value,$type)) return 2;
 			}
@@ -193,3 +193,4 @@
 			echo $HTML.'</ul>';
 		}
 	}
+

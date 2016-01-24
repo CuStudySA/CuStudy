@@ -18,3 +18,4 @@
 			return !empty(self::$Settings[$key]) ? self::$Settings[$key] : null;
 		}
 	}
+

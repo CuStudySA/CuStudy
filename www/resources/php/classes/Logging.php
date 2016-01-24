@@ -45,12 +45,12 @@
 		}
 
 		private function _insertCentral($data){
-			/*          array(
-							(req)'action' => 'login',
-							(opt)'user' => 0,
-							(opt)'errorcode' => 0,
-							(opt)'sublogid' => 0,
-						);                              */
+/*          array(
+				(req)'action' => 'login',
+				(opt)'user' => 0,
+				(opt)'errorcode' => 0,
+				(opt)'sublogid' => 0,
+			);                              */
 
 			global $user,$db;
 
@@ -60,10 +60,10 @@
 		}
 
 		private function _insertSubLog($data = null){
-			/*          array(
-							(req)'db' => 'login',
-							(opt) ...
-						);                              */
+/*          array(
+				(req)'db' => 'login',
+				(opt) ...
+			);                              */
 			global $db;
 
 			if (empty($data)) return true;
@@ -97,7 +97,7 @@
 							FROM `log_login` INNER JOIN log_central
 							ON log_central.sublogid = log_login.id
 							WHERE log_login.id = '.$centraldata['sublogid'];
-					break;
+				break;
 
 				default:
 					return false;
@@ -118,12 +118,12 @@
 		}
 
 		static function Insert($data_p){
-			/*          array(
-							(req)'action' => 'login',
-							(opt)'db' => 'login',
-							(opt)'user' => 0,
-							(opt)'errorcode' => 0,
-						);                              */
+/*          array(
+				(req)'action' => 'login',
+				(opt)'db' => 'login',
+				(opt)'user' => 0,
+				(opt)'errorcode' => 0,
+			);                              */
 
 			$logclass = new Logging();
 
@@ -160,13 +160,13 @@
 				case 'admin':
 					if ($dataid['user'] === 0) return 2;
 					if ($userdataid['classid'] != $user['class'][0]) return 3;
-					break;
+				break;
 
 				case 'schooladmin':
 					if ($dataid['user'] === 0) return 2;
 					$classdata = $db->where('id',$userdataid['classid'])->getOne('class');
 					if ($ENV['school']['id'] != $classdata['id']) return 3;
-					break;
+				break;
 
 				case 'sysadmin': break;
 
@@ -181,3 +181,4 @@
 			return $action['details'] !== false ? $action : 6;
 		}
 	}
+

@@ -48,17 +48,17 @@
 		static function UploadFile($file){
 			// Sikerült-e a fájlfeltöltés?
 			if ($file['error'] != 0) return 1;
-
+			
 			// Van-e hely a tárhelyen?
 			if ($file['size'] > self::GetFreeSpace()) return 3;
-
+			
 			// Van-e hely a szerveren?
 			if ($file['size'] > disk_free_space('/')) return 4;
-
+			
 			// Hely meghatározása
 			$fileName = Password::Generalas();
 			$path = "usr_uploads/{$fileName}";
-
+			
 			// Mozgatás a végleges helyre
 			if (move_uploaded_file($file['tmp_name'],$path)) return [$fileName];
 			else return 5;
@@ -179,7 +179,7 @@ HTML;
 					$value *= 1024;
 				case 'K':
 					$value *= 1024;
-					break;
+				break;
 			}
 			return $value;
 		}
@@ -199,3 +199,4 @@ HTML;
 			return preg_replace('/^(\d+)([GMk])$/', '$1 $2B', $workWith);
 		}
 	}
+

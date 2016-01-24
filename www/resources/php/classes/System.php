@@ -24,20 +24,20 @@
 		);
 
 		static $Days = array(null,
-             'Hétfő',
-             'Kedd',
-             'Szerda',
-             'Csütörtök',
-             'Péntek',
-             'Szombat',
-             'Vasárnap',
+			'Hétfő',
+			'Kedd',
+			'Szerda',
+			'Csütörtök',
+			'Péntek',
+			'Szombat',
+			'Vasárnap',
 		);
 
 		static $ShortMonths = array(null,
-            'Jan',  'Febr', 'Márc',
-            'Ápr',  'Máj',  'Jún',
-            'Júl',  'Aug',  'Szep',
-            'Okt',  'Nov',  'Dec'
+			'Jan',  'Febr', 'Márc',
+			'Ápr',  'Máj',  'Jún',
+			'Júl',  'Aug',  'Szep',
+			'Okt',  'Nov',  'Dec'
 		);
 
 		static /** @noinspection HtmlDeprecatedTag */
@@ -48,37 +48,37 @@
 			switch ($type){
 				case 'username':
 					$preg = '/^[a-zA-Z\d]{3,15}$/';
-					break;
+				break;
 				case 'password':
 					$preg = '/^[\w\d]{6,20}$/';
-					break;
+				break;
 				case 'email':
 					$preg = '/^[a-zA-Z0-9.-_]+(\+[a-zA-Z0-9]+)?@[a-z0-9]+\.[a-z]{2,4}$/';
-					break;
+				break;
 				case 'name':
 					$preg = '/^[A-ZÁÉÍÓÖŐÚÜŰ][a-záéíóöőúüű.]+[ ][A-ZÁÉÍÓÖŐÚÜŰ][a-záéíóöőúüű]+[ a-zA-ZáéíóöőúüűÁÉÍÓÖŐÚÜŰ]*$/u';
-					break;
+				break;
 				case 'class':
 					$preg = '/^\d{1,2}\.?[A-Za-z]*$/';
-					break;
+				break;
 				case 'numeric':
 					$preg = '/^\d+$/';
-					break;
+				break;
 				case 'text':
 					$preg = '/^[0-9A-ZÁÉÍÓÖŐÚÜŰa-záéíóöőúüű.-?,!()"" ]{2,}$/';
-					break;
+				break;
 				case 'suburl':
 					$preg = '/^[a-zA-Z0-9\/]{1,}$/';
-					break;
+				break;
 				case 'shortn_teacher':
 					$preg = '/^[A-ZÖÜÓÚŐÉÁŰa-zéáűőúöüó.]{2,}$/';
-					break;
+				break;
 				case 'lesson':
 					$preg = '/^[A-Za-zöüóőúéáűÖÜÓŐÚÉÁŰ.() ]{4,15}$/';
-					break;
+				break;
 				case 'attack':
 					$preg = '/^[$<%>=\/\\:{}\[\]*+]+$/';
-					break;
+				break;
 			}
 			return !preg_match($preg,$text);
 		}
@@ -232,9 +232,9 @@
 				return 2;
 			}
 			else $db->where('userid', $data['id'])
-				->where('ip', $IP)
-				->where('corrected IS NULL')
-				->update('log_failed_login', array('corrected' => date('c')));
+					->where('ip', $IP)
+					->where('corrected IS NULL')
+					->update('log_failed_login', array('corrected' => date('c')));
 
 			# Session generálása és süti beállítása
 			$session = Password::GetSession($username);
@@ -428,7 +428,7 @@
 
 		// Asszociatív tömb-e?
 		static function IsAssoc($array) {
-			return $array !== array_values($array);
+            return $array !== array_values($array);
 		}
 
 		// Idegen értékek törlése a tömbből
@@ -493,14 +493,14 @@
 
 		static $mailSended = false;
 		static function SendMail($mail){
-			/*          array(
-							'title' (string)
-							'to' => array(
-								'name' (string)
-								'address' (string)
-							)
-							'body' (string)
-						) */
+/*          array(
+				'title' (string)
+				'to' => array(
+					'name' (string)
+					'address' (string)
+				)
+				'body' (string)
+			) */
 
 			if (!class_exists('Swift_Message'))
 				trigger_error('Nincs betöltve a swiftMailer addon', E_USER_ERROR);
@@ -512,17 +512,17 @@
 			$message->setTo(array($mail['to']['address'] => $mail['to']['name'])); //Címzett e-mail és címzett
 
 			$transport = Swift_SmtpTransport::newInstance(MAIL_HOST, MAIL_PORT, 'ssl') //Kapcsolódási objektum létrehozása
-			->setUsername(MAIL_USRNAME) //SMTP felhasználónév
-			->setPassword(MAIL_PWD) //SMTP jelszó
-			->setSourceIp('0.0.0.0'); //IPv4 kényszerítése
+		     ->setUsername(MAIL_USRNAME) //SMTP felhasználónév
+		     ->setPassword(MAIL_PWD) //SMTP jelszó
+		     ->setSourceIp('0.0.0.0'); //IPv4 kényszerítése
 
-			$mailer = Swift_Mailer::newInstance($transport); //Küldő objektum létrehozása
+		    $mailer = Swift_Mailer::newInstance($transport); //Küldő objektum létrehozása
 
-			$action = $mailer->send($message,$fail); //Levél küldése
+		    $action = $mailer->send($message); //Levél küldése
 
 			// Várakoztatás
-			if (!self::$mailSended) usleep(100);
-			self::$mailSended = true;
+		    if (!self::$mailSended) usleep(100);
+		    self::$mailSended = true;
 
 			return $action ? 0 : 1;
 		}
@@ -603,3 +603,4 @@
 			return "$a ".($btw ? "$btw " : '').$str;
 		}
 	}
+

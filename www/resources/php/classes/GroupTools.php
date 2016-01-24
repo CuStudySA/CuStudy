@@ -12,13 +12,13 @@
 				switch($key){
 					case 'name':
 						$type = 'text';
-						break;
+					break;
 					case 'theme':
 						$type = 'numeric';
-						break;
+					break;
 					default:
 						continue 2;
-						break;
+					break;
 				}
 				if (System::InputCheck($value,$type)) return 2;
 			}
@@ -70,13 +70,13 @@
 				switch($key){
 					case 'name':
 						$type = 'text';
-						break;
+					break;
 					case 'theme':
 						$type = 'numeric';
-						break;
+					break;
 					default:
 						continue 2;
-						break;
+					break;
 				}
 				if (System::InputCheck($value,$type)) return 2;
 			}
@@ -166,3 +166,4 @@
 			return $action ? 0 : 4;
 		}
 	}
+
