@@ -672,6 +672,30 @@
 		static function MakeHttps($url){
 			return preg_replace('~^(https?:)?//~','https://',$url);
 		}
+
+		/**
+		 * NHatározott névelő hozzáadása egy stringhez
+		 *
+		 * @param string $str    Karaktersorozat
+		 * @param bool   $upperc Nagybetűvel kezdődjön-e a névelő
+		 * @param string $btw    Névelő és szó közé beillesztendő szöveg
+		 *
+		 * @return string
+		 */
+		static function Article($str, $upperc = false, $btw = ''){
+			$a = $upperc ? 'A' : 'a';
+			$str = trim($str);
+			if (preg_match('/^(\d+)?/', $str, $num)){
+				$number = intval($num[1], 10);
+				if (
+					($number < 10 && ($number == 1 || $number == 5)) ||
+					($number >= 20 && $number != 100 && strpos('15',strval($number)[0]) !== false)
+				) $a .= 'z';
+			}
+			else if (preg_match('/^[aáoóuúeéiíöőüű]/i',$str))
+				$a .= 'z';
+			return "$a ".($btw ? "$btw " : '').$str;
+		}
 	}
 
 	class CSRF {
