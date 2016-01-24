@@ -257,7 +257,7 @@
 				}
 				if (!empty($addons[$addonName]['js'])){
 					foreach ($addons[$addonName]['js'] as $js)
-						$respond['js'][] = "{$rootdoc}resources/addons/$css";
+						$respond['js'][] = "{$rootdoc}resources/addons/$js";
 				}
 			}
 		}

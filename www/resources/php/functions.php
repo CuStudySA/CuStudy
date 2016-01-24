@@ -78,7 +78,7 @@
 			);                              */
 
 			global $user,$db;
-			
+
 			if (!isset($data['user'])) $data['user'] = $user['id'];
 
 			return $db->insert('log_central',array_merge($data,$this->_getHeader()));
@@ -381,10 +381,10 @@
 			$envInfos = self::GetBrowserEnvInfo();
 			if (!is_array($envInfos)) return 'guest';
 
-			$session = $ENV['session'] = $db->rawQuery("SELECT *
-						FROM `sessions`
-						WHERE `session` = ? && `ip` = ? && `useragent` = ?
-						LIMIT 1",array($sessionKey,$envInfos['ip'],$envInfos['useragent']));
+			$session = $ENV['session'] = $db->where('session', $sessionKey)
+				->where('ip', $envInfos['ip'])
+				->where('useragent', $envInfos['useragent'])
+				->get('sessions');
 
 			if (empty($session)) return 'guest';
 			else $userId = $session[0]['userid'];
@@ -1719,7 +1719,7 @@ HTML;
 		static $roleLabels = array(
 			'visitor' => 'Ált. felhasználó',
 			'editor' => 'Szerkesztő',
-			'admin' => 'Csop. adminisztrátor',
+			'admin' => 'Csoport adminisztrátor',
 			'systemadmin' => 'Rendszer adminisztrátor',
 			'none' => 'Nincs jogosultság',
 		);

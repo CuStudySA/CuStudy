@@ -2,6 +2,7 @@
 	<div class="userdata clearfix">
 		<div class="avatar">
 			<img src="<?=UserTools::GetAvatarUrl($user)?>">
+			<a class="typcn typcn-cog sessionswitch"></a>
 		</div>
 		<h2 class="name"><?=$user['name']?></h2>
 		<span class="email"><?=$user['email']?></span>
