@@ -135,7 +135,7 @@
 		if ((origEvent.type||event.type).toUpperCase() !== 'POST')
 			return;
 
-		var t = $.getCSRFToken();
+		var t = getToken();
 		if (typeof event.data === "undefined")
 			event.data = "";
 		if (typeof event.data === "string"){
