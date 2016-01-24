@@ -2,21 +2,34 @@
 	<div class="userdata clearfix">
 		<div class="avatar">
 			<img src="<?=UserTools::GetAvatarUrl($user)?>">
+			<a class="typcn typcn-cog sessionswitch"></a>
 		</div>
 		<h2 class="name"><?=$user['name']?></h2>
 		<span class="email"><?=$user['email']?></span>
 	</div>
 	<nav class="options"><?php
+
 $Actions = array(
 	array('home','','Főoldal'),
-	array('calendar','timetables','Órarend'),
-	array('globe','homeworks','Házi feladatok'),
-	array('flash','events','Események'),
-	array('document','files','Dokumentumok'),
-	array('user','profile','Profilom'),
-	array('contacts','teachers','Tanárok'),
-	array('th-menu','lessons','Tantárgyak'),
 );
+
+if (in_array(ROLE,array_keys($Perm['students']))){
+	$Actions = array_merge($Actions,array(
+		array('calendar','timetables','Órarend'),
+		array('globe','homeworks','Házi feladatok'),
+		array('flash','events','Események'),
+		array('document','files','Dokumentumok'),
+		array('user','profile','Profilom'),
+		array('contacts','teachers','Tanárok'),
+		array('th-menu','lessons','Tantárgyak'),
+	));
+}
+
+if (in_array(ROLE,array_keys($Perm))){
+	$Actions = array_merge($Actions,array(
+		array('group','system/users','Felhasználókezelő eszközök'),
+	));
+}
 
 if (ROLE == 'admin')
 	$Actions = array_merge($Actions,array(

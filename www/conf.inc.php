@@ -218,6 +218,16 @@
 			'file' => 		'events',
 			'addons' =>     ['fullCalendar','dateRangePicker'],
 		),
+
+		'system' => array(
+			'title' => 		'Globális rendszerkezelés',
+			'css' => 		['system.users.css'],
+			'js' => 		['system.users.js'],
+			'customjs' =>   [],
+			'reqdoc' => 	[],
+			'file' => 		'system',
+			'addons' =>     [],
+		),
 	);
 
 	$Perm = array(
@@ -251,6 +261,9 @@
 			'pw-reset' => ['view'],
 			'login' => ['view'],
 			'not-found' => ['view'],
+		),
+		'systemadmin' => array(
+			'system' => ['view'],
 		),
 		'everybody' => array(
 			'not-found' => ['view'],

@@ -63,11 +63,12 @@
 
 	# Jogosultsági szintek beállítása
 	$user = System::CheckLogin();
-	if (is_string($user)){
-		define('ROLE', $user);
-		unset($user);
+
+	if (!is_array($user)) define('ROLE',$user);
+	else {
+		define('ROLE',$user[0]);
+		$user = $user[1];
 	}
-	else define('ROLE', $user['role']);
 
 	# Rendszerbeállítások lekérése
 	GlobalSettings::Load();
@@ -259,7 +260,7 @@
 				}
 				if (!empty($addons[$addonName]['js'])){
 					foreach ($addons[$addonName]['js'] as $js)
-						$respond['js'][] = "{$rootdoc}resources/addons/$css";
+						$respond['js'][] = "{$rootdoc}resources/addons/$js";
 				}
 			}
 		}

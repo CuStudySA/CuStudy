@@ -49,6 +49,16 @@
 			),
 		);
 
+		static $ActionLabels = array(
+			'login' => 'Bejelentkezés',
+			'lesson_add' => 'Új tantárgy felvétele',
+			'lesson_edit' => 'Tantárgy szerkesztése',
+			'lesson_del' => 'Tantárgy törlése',
+			'user_add' => 'Új felhasználó felvétele',
+			'user_edit' => 'Felhasználó szerkesztése',
+			'user_del' => 'Felhasználó törlése',
+		);
+
 		private function _getHeader(){
 			global $ENV;
 
@@ -358,43 +368,45 @@
 			return $classes;
 		}
 
-		// Session Cookie ellenőrzés
-		static function CheckLogin(){
-			global $db;
+		//Cookie ellenőrzés & '$user' generálása
+		static function CheckLogin() {
+			global $db, $ENV;
 
-			if (!Cookie::exists('PHPSESSID'))
-				return 'guest';
-			$session = Cookie::get('PHPSESSID');
+			if (!Cookie::exists('PHPSESSID')) return 'guest';
+			$sessionKey = Cookie::get('PHPSESSID');
 
-			if (empty($session))
-				return 'guest';
-			$session = md5($session);
+			if (empty($sessionKey)) return 'guest';
+			else $sessionKey = md5($sessionKey);
 
 			$envInfos = self::GetBrowserEnvInfo();
-			if (!is_array($envInfos))
-				return 'guest';
+			if (!is_array($envInfos)) return 'guest';
 
-			$query = $db
-				->where('session', $session)
+			$session = $ENV['session'] = $db->where('session', $sessionKey)
 				->where('ip', $envInfos['ip'])
 				->where('useragent', $envInfos['useragent'])
-				->getOne('sessions','userid');
+				->get('sessions');
 
-			if (empty($query))
-				return 'guest';
-			$userId = $query['userid'];
+			if (empty($session)) return 'guest';
+			else $userId = $session[0]['userid'];
+
+			$session = $session[0];
 
 			$user = $db->where('id',$userId)->getOne('users');
-			if (empty($user))
-				return 'guest';
+			if (empty($user)) return 'guest';
 
-			# Osztálytagságok megállapítása
-			self::GetUserClasses($user);
+			# Felhasználó szerepkörének megállapítása
+			if ($session['activeSession'] == 0){
+				if ($user['role'] == 'none') return 'guest';
+				else return array($user['role'],$user);
+			}
 
-			if (self::UserActParent($user['class'][0]))
-				return 'guest';
+			$classMemShip = $db->where('id',$session['activeSession'])->getOne('class_members');
 
-			return $user;
+			if (empty($classMemShip)) return 'guest';
+			if (self::UserActParent($classMemShip['classid'])) return 'guest';
+
+			$user['class'][0] = $classMemShip['classid'];
+			return array($classMemShip['role'],$user);
 		}
 
 		// Bejelentkezés
@@ -406,6 +418,7 @@
 
 			$data = $db->where('username',$username)->getOne('users');
 			if (empty($data)) return 2;
+
 			if (!$data['active']) return 4;
 
 			$IP = $ENV['SERVER']['REMOTE_ADDR'];
@@ -421,6 +434,7 @@
 					'db' => 'failed_login',
 					'userid' => $data['id'],
 					'ip' => $IP,
+					'user' => 0,
 				));
 				return 2;
 			}
@@ -428,9 +442,6 @@
 					->where('ip', $IP)
 					->where('corrected IS NULL')
 					->update('log_failed_login', array('corrected' => date('c')));
-
-			if (self::UserIsStudent($data['role']))
-				if (self::UserActParent(self::GetUserClasses($data)[0])) return 5;
 
 			# Session generálása és süti beállítása
 			$session = Password::GetSession($username);
@@ -446,6 +457,7 @@
 				'userid' => $data['id'],
 				'ip' => $envInfos['ip'],
 				'useragent' => $envInfos['useragent'],
+				'activeSession' => $data['defaultSession'],
 			));
 
 			return [$data['id']];
@@ -491,6 +503,13 @@
 			if (ROLE == 'guest')
 				return $ENV['permissions'] = $Perm['guest'];
 
+			if (in_array(ROLE,array_keys($Perm))){
+				$ENV['permissions'] = $Perm[ROLE];
+				$ENV['permissions'] = array_merge_recursive($ENV['permissions'],$Perm['everybody']);
+
+				return;
+			}
+
 			$roles = array_keys($Perm['students']);
 			if (!in_array(ROLE,$roles) && ROLE != 'guest') return;
 
@@ -503,6 +522,64 @@
 			}
 			else
 				$ENV['permissions'] = array_merge_recursive($ENV['permissions'],$Perm[ROLE]);
+		}
+
+		static function GetAvailableRoles($userid = null){
+			global $db,$user,$ENV;
+
+			if (empty($userid))
+				$User = $user;
+
+			else {
+				$User = $db->where('id',$userid)->getOne('users');
+				if (empty($User)) return [];
+			}
+
+			$classMem = $db->where('userid',$User['id'])->get('class_members');
+
+			$roles = [];
+			foreach ($classMem as $entry){
+				$Class = $db->where('id',$entry['classid'])->getOne('class');
+				if (empty($Class)) continue;
+
+				$School = $db->where('id',$Class['school'])->getOne('school');
+
+				$roles[] = array(
+					'entryId' => $entry['id'],
+					'intezmeny' => "{$School['name']} {$Class['classid']} osztálya",
+					'szerep' => UserTools::$roleLabels[$entry['role']],
+					'active' => $entry['id'] == $ENV['session'][0]['activeSession'] ? 1 : 0,
+				);
+			}
+
+			if ($User['role'] != 'none')
+				$roles[] = array(
+					'intezmeny' => "CuStudy",
+					'szerep' => "Globális rendszeradminisztrátor",
+					'entryId' => 0,
+					'active' => $ENV['session'][0]['activeSession'] == 0 ? 1 : 0,
+				);
+
+			return $roles;
+		}
+
+		static function SetAvailableRoles($roleId){
+			global $user, $db, $ENV;
+
+			if ($roleId != 0){
+				$data = $db->where('id',$roleId)->where('userid',$user['id'])->getOne('class_members');
+				if (empty($data)) return 1;
+			}
+			else if ($user['role'] == 'none') return 1;
+
+			if ($ENV['session'][0]['activeSession'] == $roleId) return 3;
+
+			$action = $db->where('id',$ENV['session'][0]['id'])->update('sessions',array(
+				'activeSession' => $roleId,
+			));
+
+			if ($action) return 0;
+			else return 2;
 		}
 
 		// Jogosultság ellenörző
@@ -1639,6 +1716,14 @@ HTML;
 	}
 
 	class UserTools {
+		static $roleLabels = array(
+			'visitor' => 'Ált. felhasználó',
+			'editor' => 'Szerkesztő',
+			'admin' => 'Csoport adminisztrátor',
+			'systemadmin' => 'Rendszer adminisztrátor',
+			'none' => 'Nincs jogosultság',
+		);
+
 // Felh. hozzáadása
 		private static function _addUser($data_a){
 			global $db, $user;
@@ -2278,6 +2363,73 @@ STRING;
 
 			if ($action) return 0;
 			else return 2;
+		}
+	}
+
+	class AdminTools {
+		static function FilterUsers($form){
+			global $db;
+
+			# Jog. ellenörzése
+			if (System::PermCheck('system.view')) return 1;
+
+			$query = 'SELECT u.*, c.classid as classname, c.id as classid, s.name as schoolname
+						FROM `users` u
+						LEFT JOIN (`class` c, `school` s, `class_members` cm)
+						ON (cm.userid = u.id && cm.classid = c.id && c.school = s.id)
+						WHERE ';
+
+			$whereIsUsed = false;
+			foreach ($form as $key => $value){
+				if (empty($value)) continue;
+
+				if (substr($key,0,1) == 'u') $query .= str_replace('_','.',$key)." REGEXP '^{$value}$' && ";
+				else {
+					$cn = substr($key,0,1);
+					if (is_numeric($value)) $cn .= '.id';
+					else $cn .= '.'.($cn == 'c' ? 'classid' : 'name');
+					$query .= "{$cn} REGEXP '^{$value}$' && ";
+				}
+				$whereIsUsed = true;
+			}
+
+			if ($whereIsUsed)
+				$query = substr($query,0,strlen($query)-4);
+			else
+				$query = substr($query,0,strlen($query)-6);
+
+			$data = $db->rawQuery($query);
+			$return = array();
+
+			foreach ($data as $array){
+				if (!isset($return[$array['id']]))
+					$return[$array['id']] = $array;
+				else {
+					if (is_array($return[$array['id']]['classid']))
+						$return[$array['id']]['classid'][] = $array['classid'];
+					else
+						$return[$array['id']]['classid'] = array($return[$array['id']]['classid'],$array['classid']);
+
+					if (is_array($return[$array['id']]['classname']))
+						$return[$array['id']]['classname'][] = $array['classname'];
+					else
+						$return[$array['id']]['classname'] = array($return[$array['id']]['classname'],$array['classname']);
+
+					if (is_array($return[$array['id']]['schoolname']))
+						$return[$array['id']]['schoolname'][] = $array['schoolname'];
+					else
+						$return[$array['id']]['schoolname'] = array($return[$array['id']]['schoolname'],$array['schoolname']);
+				}
+			}
+
+			return $return;
+		}
+
+		static function UserLookup($id){
+			global $db;
+
+			# Jog. ellenörzése
+			if (System::PermCheck('system.view')) return 1;
 		}
 	}
 
