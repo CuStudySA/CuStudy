@@ -2827,7 +2827,7 @@ STRING;
 	        $homeWorks = HomeworkTools::GetHomeworks(1,true);
 
 	        if (empty($homeWorks))
-	            print "<h3>Elkészítésre váró házi feladatok</h3>";
+	            print "<h3>Elkészítésre váró házi feladatok</h3><p>Nincs megjeleníthető házi feladat.</p>";
 	        else {
 	            $day = array_keys($homeWorks)[0];
 	            if ((int)substr($day,0,2) == 1 && (int)date('m') == 12) $year = (int)date('y') + 1;
@@ -2841,19 +2841,13 @@ STRING;
 
 	            $time = strtotime($date);
 
-	            print "<h3>Házi feladatok ".System::Article(System::$Days[Timetable::GetDayNumber($time)])."i napra ({$day})</h3>";
-	        }
-	        ?>
 
-			<table class='homeworks'>
-				<tr>
-<?php
-					if (!empty($homeWorks)){
-						$day = array_keys($homeWorks)[0];
-
-						print "<td>";
-
-						foreach($homeWorks[$day] as $key => $array){
+				print "<h3>Házi feladatok ".System::Article(System::$Days[Timetable::GetDayNumber($time)])."i napra ({$day})</h3>";
+		        $day = array_keys($homeWorks)[0]; ?>
+				<table class='homeworks'>
+					<tr>
+						<td>
+<?php					foreach($homeWorks[$day] as $key => $array){
 							if ($key % 2 == 1) continue; ?>
 					        <div class='hw'>
 					            <span class='lesson-name'><?=$array['lesson']?></span><span class='lesson-number'><?=$array['lesson_th']?>. óra</span>
@@ -2861,26 +2855,22 @@ STRING;
 
 								<a class="typcn typcn-tick js_makeMarkedDone" title='Késznek jelölés' href='#<?=$array['id']?>'></a>
 					        </div>
-<?php   	            }
-
-						print "</td><td>";
-
-						foreach($homeWorks[$day] as $key => $array){
-							if ($key % 2 == 0) continue; ?>
+<?php   	            } ?>
+						</td>
+						<td>
+<?php           foreach($homeWorks[$day] as $key => $array){
+					if ($key % 2 == 0) continue; ?>
 					        <div class='hw'>
 					            <span class='lesson-name'><?=$array['lesson']?></span><span class='lesson-number'><?=$array['lesson_th']?>. óra</span>
 					            <div class='hw-text'><?=$array['homework']?></div>
 
 					            <a class="typcn typcn-tick js_makeMarkedDone" title='Késznek jelölés' href='#<?=$array['id']?>'></a>
 					        </div>
-<?php               	}
-
-						print "</td>"; ?>
-				<tr>
-			</table>
-<?php               }
-
-					else print "<p>Nincs megjeleníthető házi feladat.</p>";
+<?php               } ?>
+						</td>
+					<tr>
+				</table>
+<?php       }
 		}
 	}
 

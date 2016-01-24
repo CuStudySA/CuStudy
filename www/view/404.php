@@ -1,9 +1,19 @@
-<?=!in_array('sidebar',$doc_list) ? '<main>' : ''?>
 <?php
+	if (ROLE !== 'guest')
+		echo "</main>";
 	if (isset($ENV['GET']['path'])) $reqfile = $ENV['GET']['path'];
 	else if (!empty($ENV['do'])) $reqfile = '/'.$ENV['do'];
 	else $reqfile = '(ismeretlen)'; ?>
 
-<h1>404 - Az oldal nem található</h1>
-<p>A kersett oldalt nem sikerült betölteni, mert a kívánt erőforrás/oldal nem található!</p>
-<p><b>Kért oldal: </b><?=$reqfile?></p>
+<div id="wrap">
+	<div id="mid">
+		<div id="inner">
+			<h1>404</h1>
+			<p>A keresett oldal nem található.<br><strong>Elérési útvonal: </strong><?=$reqfile?></p>
+			<p>
+				<a href="/" class="btn typcn typcn-home">Vissza a főodalra</a>
+				<a href="mailto:mbalint987@pageloop.tk?subject=CuStudy%20Hibabejelentés" class="btn typcn typcn-mail">Hibabejelentés</a>
+			</p>
+		</div>
+	</div>
+</div>
