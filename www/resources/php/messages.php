@@ -110,6 +110,17 @@
 					1 => 'A felhasználói adatok frissítése sikertelen volt, mert @msg! (Hibakód: @code)',
 				),
 			),
+			'setavatarprovider' => array(
+				'errors' => array(
+					1 => 'a megadott szolgáltató nem létezik',
+					2 => 'ezzel a szolgáltatóval nincs összekötve a profilod',
+					3 => 'probléma történt az adatbázisba mentés során'
+				),
+				'messages' => array(
+					0 => 'A profilkép szolgáltató sikeresen módosítva',
+					1 => 'A profilkép szolgáltató módosítása sikertelen volt, mert @msg! (Hibakód: @code)',
+				),
+			)
 		),
 
 		'lessons' => array(
@@ -327,8 +338,7 @@
 		'files' => array(
 			'uploadFiles' => array(
 				'errors' => array(
-					1 => 'egy fájl egy hiba miatt nem töltődött fel a szerverre',
-					2 => 'egy fájl mérete nagyobb a megengedettnél',
+					1 => 'az egyik fájl egy hiba miatt nem töltődött fel a szerverre',
 					3 => 'az osztály tárhelyén nincs elég szabad hely',
 					4 => 'a kiszolgálón nincs elég hely egy fájl feltöltéséhez',
 					5 => 'egyetlen fájl sem érkezett me ga szerverre',

@@ -46,57 +46,18 @@ $connBtn.on('click',function(e){
 	});
 });
 
-$('.disconnect').on('click',function(e){
-	e.preventDefault();
+(function rebind(){
+	'use setrict';
 
-	var title = 'Fiókok leválasztása',
-		$thisConn = $(this).closest('.conn-wrap'),
-		$provIcon = $thisConn.find('.logo'),
-		provDispName = $provIcon.attr('title'),
-		provShortName = $thisConn.attr('data-prov');
-	$.Dialog.confirm(title,'A kiválasztott szolgáltatóhoz kapcsolódó fiókot leválasztja a CuStudy fiókjáról, így az nem lesz látható a listában és nem lehet bejelentkezéshez használni. A művelet nem visszavonható! Folytatja?',['Leválasztás','Mégse'],
-	function(sure){
-		if (!sure) return;
+	$('.disconnect').off('click').on('click',function(e){
+		e.preventDefault();
 
-		$.Dialog.wait(title);
-
-		$.ajax({
-			method: 'POST',
-			url: '/profile/unlink',
-			data: pushToken({ id: $thisConn.attr('data-id') }),
-			success: function(data){
-				if (typeof data === 'string'){
-					console.log(data);
-					$(window).trigger('ajaxerror');
-					return false;
-				}
-
-				if (!data.status) return $.Dialog.fail(title,data.message);
-				$.Dialog.close();
-
-				$thisConn.remove();
-				$connSel
-					.append($.mk('option').attr('value', provShortName).text(provDispName))
-					.closest('.conn-wrap').show();
-				$connBtn.attr('disabled', false);
-			}
-		});
-	});
-});
-
-$('.activeToggle').on('click',function(e){
-	e.preventDefault();
-
-	var whatDo = (this.className.indexOf('typcn-tick') !== -1 ? '' : 'de')+'activate',
-		whatDoReadable = $.capitalize(whatDo.replace(/ate$/,'').replace('c','k')+'álás'),
-		title = 'Fiókkapcsolat '+whatDoReadable.toLowerCase()+'a',
-		text = whatDo === 'deactivate'
-			? 'A kiválaszott szolgáltatóval annak újra aktiválásáig nem tud majd bejelentkezni. Folytatja?'
-			: 'A kiválaszott szolgáltató aktiválásával újra be tud majd jelentkezni vele. Folytatja?',
-		$button = $(this),
-		$thisConn = $(this).closest('.conn-wrap');
-
-	$.Dialog.confirm(title,text,[whatDoReadable,'Mégse'],
+		var title = 'Fiókok leválasztása',
+			$thisConn = $(this).closest('.conn-wrap'),
+			$provIcon = $thisConn.find('.logo'),
+			provDispName = $provIcon.attr('title'),
+			provShortName = $thisConn.attr('data-prov');
+		$.Dialog.confirm(title,'A kiválasztott szolgáltatóhoz kapcsolódó fiókot leválasztja a CuStudy fiókjáról, így az nem lesz látható a listában és nem lehet bejelentkezéshez használni. A művelet nem visszavonható! Folytatja?',['Leválasztás','Mégse'],
 		function(sure){
 			if (!sure) return;
 
@@ -104,7 +65,7 @@ $('.activeToggle').on('click',function(e){
 
 			$.ajax({
 				method: 'POST',
-				url: '/profile/'+whatDo,
+				url: '/profile/unlink',
 				data: pushToken({ id: $thisConn.attr('data-id') }),
 				success: function(data){
 					if (typeof data === 'string'){
@@ -116,9 +77,93 @@ $('.activeToggle').on('click',function(e){
 					if (!data.status) return $.Dialog.fail(title,data.message);
 					$.Dialog.close();
 
-					$button.toggleClass('typcn-power typcn-tick').toggleHtml(['Aktiválás','Deaktiválás']);
-					$button.parent().prev().toggleHtml(['Összekapcsolás aktív','Összekapcsolás inaktív'])
+					$thisConn.remove();
+					$connSel
+						.append($.mk('option').attr('value', provShortName).text(provDispName))
+						.closest('.conn-wrap').show();
+					$connBtn.attr('disabled', false);
 				}
 			});
 		});
-});
+	});
+
+	$('.activeToggle').off('click').on('click',function(e){
+		e.preventDefault();
+
+		var whatDo = (this.className.indexOf('typcn-tick') !== -1 ? '' : 'de')+'activate',
+			whatDoReadable = $.capitalize(whatDo.replace(/ate$/,'').replace('c','k')+'álás'),
+			title = 'Fiókkapcsolat '+whatDoReadable.toLowerCase()+'a',
+			text = whatDo === 'deactivate'
+				? 'A kiválaszott szolgáltatóval annak újra aktiválásáig nem tud majd bejelentkezni. Folytatja?'
+				: 'A kiválaszott szolgáltató aktiválásával újra be tud majd jelentkezni vele. Folytatja?',
+			$button = $(this),
+			$thisConn = $(this).closest('.conn-wrap');
+
+		$.Dialog.confirm(title,text,[whatDoReadable,'Mégse'],
+			function(sure){
+				if (!sure) return;
+
+				$.Dialog.wait(title);
+
+				$.ajax({
+					method: 'POST',
+					url: '/profile/'+whatDo,
+					data: pushToken({ id: $thisConn.attr('data-id') }),
+					success: function(data){
+						if (typeof data === 'string'){
+							console.log(data);
+							$(window).trigger('ajaxerror');
+							return false;
+						}
+
+						if (!data.status) return $.Dialog.fail(title,data.message);
+						$.Dialog.close();
+
+						$button.toggleClass('typcn-power typcn-tick').toggleHtml(['Aktiválás','Deaktiválás']);
+						$button.parent().prev().html(function(){
+							return this.innerHTML.replace(/^(Ina|A)/,function(m){
+								return m === 'A' ? 'Ina' : 'A';
+							});
+						});
+					}
+				});
+			});
+	});
+
+	$('.makepicture').off('click').on('click',function(e){
+		e.preventDefault();
+
+		var title = 'Profilkép szolgáltató megváltoztatása',
+			$connWrap = $(this).closest('.conn-wrap'),
+			providerDisk = $connWrap.find('.logo').attr('title'),
+			provider = $connWrap.attr('data-prov');
+		$.Dialog.confirm(title, 'A profilkép szolgáltató módosításával megváltoztathatod, hogy melyik kép jelenjen meg az oldalon a neved mellett.<br>Átváltasz a(z) '+providerDisk+' szolgáltatónál használt profilképre?', ['Váltás','Maradjon a régi'], function(sure){
+			if (!sure) return;
+
+			$.Dialog.wait(title);
+
+			$.post('/profile/setavatarprovider',pushToken({ provider: provider }),function(data){
+				if (typeof data === 'string'){
+					console.log(data);
+					$(window).trigger('ajaxerror');
+					return false;
+				}
+
+				if (!data.status) return $.Dialog.fail(title,data.message);
+
+				var isGravatar = typeof provider === 'undefined',
+					$connParent = $connWrap.parent(),
+					$gravatarConn = $connParent.children().last();
+				$connParent.children('[data-id]').remove();
+				$(data.connwraps).insertBefore($gravatarConn);
+				rebind();
+
+				$gravatarConn
+					.find('.status').text(isGravatar ? 'Jelenlegi profilkép' : 'Nincs használatban')
+					.next().children('.makepicture').attr('disabled', isGravatar);
+				$('#sidebar').find('.avatar img').attr('src', data.picture);
+				$.Dialog.close();
+			});
+		});
+	});
+})();

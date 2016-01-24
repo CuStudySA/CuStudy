@@ -7,9 +7,9 @@
 		$Storage = FileTools::GetSpaceUsage(); ?>
 <div id="storage-use">
 <h2>Rendelkezésre álló tárhely</h2>
-<p><?=$Storage['Used']?> (<?=$Storage['Used%']?>%) felhasználva az osztály számára elérhető <?=$Storage['Available']?>-ból.</p>
+<p><?=$Storage['Used']?> (<?=$Storage['Used%']?>%) felhasználva az osztály számára elérhető <?=$Storage['Available']?>-ból.<br>Fájlonkénti maximális méret: <?=FileTools::GetMaxUploadSize()?></p>
 <div class="indicator"><?php
-	if (!is_string($Storage['Used%']) && $Storage['Used%'] > 0) {
+	if (!is_string($Storage['Used%']) && $Storage['Used%'] > 0){
 		$class = 'used '.($Storage['Used%'] > 75 ? 'high' : 'low');
 		echo "<div class='$class' style='width:{$Storage['Used%']}%'></div>";
 	}

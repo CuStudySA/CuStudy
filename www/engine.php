@@ -36,7 +36,7 @@
 
 	# CloudFlare IP cím visszafejtés
 	if (isset($_SERVER['HTTP_CF_CONNECTING_IP'])){
-		require 'includes/CloudFlare.php';
+		require 'resources/php/CloudFlare.php';
 		if (CloudFlare::CheckUserIP())
 			$_SERVER['REMOTE_ADDR'] = $_SERVER['HTTP_CF_CONNECTING_IP'];
 	}
@@ -62,7 +62,12 @@
 	unset($_GET,$_POST);
 
 	# Jogosultsági szintek beállítása
-	define('ROLE',System::CheckLogin());
+	$user = System::CheckLogin();
+	if (is_string($user)){
+		define('ROLE', $user);
+		unset($user);
+	}
+	else define('ROLE', $user['role']);
 
 	# Rendszerbeállítások lekérése
 	GlobalSettings::Load();
@@ -85,8 +90,8 @@
 		else $do = $ENV['do'];
 	}
 
-	//if ($do === "login" || $do === "fooldal")
-		//System::FixPath('/');
+	if (($do === "login" || $do === "fooldal") && empty($ENV['URL']))
+		System::FixPath('/');
 
 	# Kiléptetés
 	if ($do === 'logout'){
@@ -214,13 +219,7 @@
 	if (isset($pages[$do]['http_code'])) Message::StatusCode($pages[$do]['http_code']);
 	
 	# Hozzáférési jogosultság ellenörzése
-	if (System::PermCheck("{$do}.view")) Message::AccessDenied();
-	
-	# Szükséges dokumentumok listájának előkészítése
-	$doc_list = ['header','footer'];
-
-	if (ROLE !== 'guest') array_splice($doc_list,1,0,['sidebar']);
-	array_splice($doc_list,-1,0,[$pages[$do]['file']]);
+	if (System::PermCheck("$do.view")) Message::AccessDenied();
 
 	# Szükséges oldalak betöltése
 	if (!empty($pages[$do]['addons'])){
@@ -230,5 +229,53 @@
 				require "resources/addons/$php";
 		}
 	}
-	foreach ($doc_list as $doc)
-		require "view/$doc.php";
+
+	if (!($ENV['SERVER']['REQUEST_METHOD'] === 'GET' && isset($ENV['GET']['via-js']))){
+		# Szükséges dokumentumok listájának előkészítése
+		$doc_list = ['header'];
+		if (ROLE !== 'guest')
+			$doc_list[] = 'sidebar';
+		$doc_list[] = $pages[$do]['file'];
+		$doc_list[] = 'footer';
+
+		foreach ($doc_list as $doc)
+			require "view/$doc.php";
+	}
+	else {
+		$respond = array(
+			'title' => "{$pages[$do]['title']} - CuStudy",
+			'css' => array(),
+			'js' => array(),
+		);
+
+		foreach ($css_list as $value)
+			$respond['css'][] = "{$rootdoc}resources/css/$value";
+
+		if (!empty($pages[$do]['addons'])){
+			foreach ($pages[$do]['addons'] as $addonName){
+				if (!empty($addons[$addonName]['css'])){
+					foreach ($addons[$addonName]['css'] as $css)
+						$respond['css'][] = "{$rootdoc}resources/addons/$css";
+				}
+				if (!empty($addons[$addonName]['js'])){
+					foreach ($addons[$addonName]['js'] as $js)
+						$respond['js'][] = "{$rootdoc}resources/addons/$css";
+				}
+			}
+		}
+
+		foreach ($js_list as $value)
+			$respond['js'][] = "{$rootdoc}resources/js/$value";
+
+		ob_start();
+		require "view/{$pages[$do]['file']}.php";
+		$respond['main'] = ob_get_clean();
+
+		if (ROLE !== 'guest'){
+			ob_start();
+			require "view/sidebar.php";
+			$respond['sidebar'] = ob_get_clean();
+		}
+
+		System::Respond($respond);
+	}

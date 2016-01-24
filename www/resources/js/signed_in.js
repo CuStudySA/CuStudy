@@ -1,4 +1,8 @@
 $(function(){
+	var extConnHash = /(^|#)(?:_(?:=_)?)?$/;
+	if (extConnHash.test(window.location.hash))
+		window.history.replaceState({},'',window.location.href.replace(extConnHash,''));
+
 	$('#sidebar').find('.avatar').children('img').on('error',function(){
 		this.src = '/resources/img/user.svg';
 	});
@@ -9,6 +13,8 @@ $(function(){
 		var title = 'Kilépés a rendszerből';
 		$.Dialog.confirm(title,'Biztosan ki szeretnél jelentkezni?',['Kijelentkezek','Belépve maradok'],function(sure){
 			if (!sure) return;
+
+			$.Dialog.wait(title);
 
 			$.ajax({
 				method: "POST",

@@ -146,6 +146,11 @@ main {
 	width: 100%;
 	position: absolute;
 
+	#sidebar ~ & {
+		background: url('../img/logo-very-faded.svg') no-repeat center;
+		background-size: 500px 500px;
+	}
+
 	body:not(.sidebar-slide) #sidebar + & {
 		margin-left: 25%;
 		width: 75%;

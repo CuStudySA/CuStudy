@@ -345,49 +345,56 @@
 			return $return;
 		}
 
-		static function GetUserClasses($userid){
-			global $user, $db;
+		static function GetUserClasses(&$user){
+			global $db;
 
-			$data = $db->where('userid',$userid)->get('class_members');
+			$data = $db->where('userid', $user['id'])->get('class_members');
 			$classes = array();
 			foreach ($data as $array)
 				$classes[] = $array['classid'];
 
-			if (!empty($user)) $user['class'] = $classes;
+			$user['class'] = $classes;
 
 			return $classes;
 		}
 
-		//Cookie ellenőrzés & '$user' generálása
-		static function CheckLogin() {
-			global $db, $user, $ENV;
+		// Session Cookie ellenőrzés
+		static function CheckLogin(){
+			global $db;
 
-			if (!Cookie::exists('PHPSESSID')) return 'guest';
+			if (!Cookie::exists('PHPSESSID'))
+				return 'guest';
 			$session = Cookie::get('PHPSESSID');
 
-			if (empty($session)) return 'guest';
-			else $session = md5($session);
+			if (empty($session))
+				return 'guest';
+			$session = md5($session);
 
 			$envInfos = self::GetBrowserEnvInfo();
-			if (!is_array($envInfos)) return 'guest';
+			if (!is_array($envInfos))
+				return 'guest';
 
-			$query = $db->rawQuery("SELECT *
-						FROM `sessions`
-						WHERE `session` = ? && `ip` = ? && `useragent` = ?
-						LIMIT 1",array($session,$envInfos['ip'],$envInfos['useragent']));
+			$query = $db
+				->where('session', $session)
+				->where('ip', $envInfos['ip'])
+				->where('useragent', $envInfos['useragent'])
+				->getOne('sessions','userid');
 
-			if (empty($query)) return 'guest';
-			else $userId = $query[0]['userid'];
+			if (empty($query))
+				return 'guest';
+			$userId = $query['userid'];
 
 			$user = $db->where('id',$userId)->getOne('users');
-			if (empty($user)) return 'guest';
+			if (empty($user))
+				return 'guest';
 
 			# Osztálytagságok megállapítása
-			self::GetUserClasses($user['id']);
+			self::GetUserClasses($user);
 
-			if (self::UserActParent($user['class'][0])) return 'guest';
+			if (self::UserActParent($user['class'][0]))
+				return 'guest';
 
-			return $user['role'];
+			return $user;
 		}
 
 		// Bejelentkezés
@@ -423,7 +430,7 @@
 					->update('log_failed_login', array('corrected' => date('c')));
 
 			if (self::UserIsStudent($data['role']))
-				if (self::UserActParent(self::GetUserClasses($data['id'])[0])) return 5;
+				if (self::UserActParent(self::GetUserClasses($data)[0])) return 5;
 
 			# Session generálása és süti beállítása
 			$session = Password::GetSession($username);
@@ -575,27 +582,32 @@
 			if ($die) die();
 		}
 
-		static function ExternalLogin($userID, $provider = 'google'){
+		static function ExternalLogin($userData, $provider){
 			global $db;
 
-			$data = $db->where('account_id',$userID)->where('provider',$provider)->getOne('ext_connections');
+			$data = $db->where('account_id', $userData['account_id'])->where('provider',$provider)->getOne('ext_connections');
 
-			if (empty($data)) System::Redirect("/?errtype=local&prov={$provider}&err=nem található a távoli fiókhoz kacsolt felhasználó");
+			if (empty($data)) System::Redirect("/?errtype=local&prov={$provider}&err=nem található a távoli fiókhoz kacsolt felhasználó<br><code>".$db->getLastQuery()."</code>");
 			if (!$data['active']) System::Redirect("/?errtype=local&prov={$provider}&err=inaktív az összekapcsolás");
 
 			$user = $db->where('id',$data['userid'])->getOne('users');
 			if (empty($user)) System::Redirect("/?errtype=local&prov={$provider}&err=az összekapcsolás létezik, de nem található a helyi felhasználó");
 
 			if (self::UserIsStudent($user['role']))
-				if (self::UserActParent(self::GetUserClasses($user['id'])[0]))
+				if (self::UserActParent(self::GetUserClasses($user)[0]))
 					System::Redirect("/?errtype=local&prov={$provider}&err=az osztály vagy iskola nem aktív a rendszerben");
+
+			$db->where('id', $data['id'])->update('ext_connections',array(
+				'name' => isset($userData['name']) ? $userData['name'] : '',
+				'email' => isset($userData['email']) ? $userData['email'] : '',
+				'picture' => isset($userData['picture']) ? $userData['picture'] : '',
+			));
 
 			$session = Password::GetSession($user['username']);
 			$envInfos = self::GetBrowserEnvInfo();
 			if (!is_array($envInfos)) System::Redirect('/');
 
-			$db->rawQuery("DELETE FROM `sessions`
-						WHERE `userid` = ?",array($user['id']));
+			self::_clearSessions($user);
 
 			$db->insert('sessions',array(
 				'session' => md5($session),
@@ -606,7 +618,7 @@
 
 			Cookie::set('PHPSESSID',$session,null);
 
-			System::Redirect('/');
+			System::Redirect('/#');
 		}
 
 		static $mailSended = false;
@@ -763,6 +775,7 @@
 			'google' => 'GoogleAPI',
 			'microsoft' => 'MicrosoftAPI',
 			'deviantart' => 'DeviantArtAPI',
+			'github' => 'GitHubAPI',
 		);
 
 		static $apiDisplayName = array(
@@ -770,6 +783,7 @@
 			'google' => 'Google',
 			'microsoft' => 'Microsoft',
 			'deviantart' => 'DeviantArt',
+			'github' => 'GitHub',
 		);
 
 		static $apiShortName = array(
@@ -777,6 +791,7 @@
 			'google' => 'gp',
 			'microsoft' => 'ms',
 			'deviantart' => 'da',
+			'github' => 'gh',
 		);
 
 		static function DeactAndAct($connid, $type = 'deactivate'){
@@ -815,6 +830,48 @@
 			$action = $db->where('id',$connid)->delete('ext_connections');
 
 			return !$action ? 4 : 0;
+		}
+
+		static function GetAvailProviders(){
+			global $user, $db;
+			return $db->where('userid', $user['id'])->orderBy('provider','ASC')->get('ext_connections');
+		}
+
+		static function GetConnWrap($entry, $wrap = true){
+			global $user;
+
+			$provider = self::$apiDisplayName[$entry['provider']];
+			$provClass = self::$apiShortName[$entry['provider']];
+			$username = !empty($entry['email']) ? $entry['email'] : $entry['name'];
+			$statusClass = 'typcn-'.(!$entry['active'] ? 'tick' : 'power');
+			$statusText = ($entry['active'] ? 'A' : 'Ina').'ktív';
+			$currentPicProvider = $user['avatar_provider'] === $entry['provider'];
+			$picMakeDisable = $currentPicProvider ? 'disabled' : '';
+			$statusText .= $currentPicProvider ? ', profilkép' : '';
+			$actBtnText = ($entry['active'] ? 'Dea' : 'A').'ktiválás';
+			$picture = $entry['picture'];
+
+			$return = <<<HTML
+<div class="conn">
+	<div class="icon">
+		<img src="$picture">
+		<div class="logo $provClass" title="$provider"></div>
+	</div>
+	<div class="text">
+		<span class="n">$username</span>
+		<strong class="status">$statusText</strong>
+		<span class="actions">
+			<button class='btn makepicture typcn typcn-image' $picMakeDisable>Profilkép</button>
+			<button class='btn activeToggle typcn $statusClass'>$actBtnText</button>
+			<button class='btn disconnect typcn typcn-media-eject'>Leválasztás</button>
+		</span>
+	</div>
+</div>
+HTML;
+
+			if ($wrap)
+				$return = "<div class='conn-wrap' data-id='{$entry['id']}' data-prov='{$entry['provider']}'>$return</div>";
+			return $return;
 		}
 	}
 
@@ -882,10 +939,11 @@
 			if ($json)
 				System::Respond();
 			else {
-				if (USRGRP == 'guest')
-					die(header('Location: /login'));
-				else
-					die(header('Location: /not-found'));
+				if (ROLE == 'guest'){
+					global $ENV;
+					System::Redirect('/login?r='.urlencode($ENV['SERVER']['REQUEST_URI']));
+				}
+				else System::Redirect('/not-found');
 			}
 		}
 
@@ -894,7 +952,7 @@
 			global $ENV;
 
 			if ($ENV['do'] != 'not-found')
-				die(header('Location: /not-found?path='.$path));
+				System::Redirect("/not-found?path=$path");
 		}
 
 		static $DB_FAIL = "Hiba történt az adatbázisba mentés során";
@@ -1139,7 +1197,6 @@ STRING
 
 	class FileTools {
 		const CLASS_SPACE = 268435456;
-		const CLASS_MAX_FILESIZE = 36700160;
 
 		static function GetUsedSpace(){
 			global $db, $user;
@@ -1186,9 +1243,6 @@ STRING
 		static function UploadFile($file){
 			// Sikerült-e a fájlfeltöltés?
 			if ($file['error'] != 0) return 1;
-			
-			// Méret ellenörzése
-			if ($file['size'] > self::CLASS_MAX_FILESIZE) return 2;
 			
 			// Van-e hely a tárhelyen?
 			if ($file['size'] > self::GetFreeSpace()) return 3;
@@ -1308,6 +1362,36 @@ HTML;
 HTML;
 			}
 			return $HTML.($wrap?'</ul>':'');
+		}
+
+		static private function SizeInBytes($size){
+			$unit = substr($size, -1);
+			$value = intval(substr($size, 0, -1), 10);
+			switch(strtoupper($unit)){
+				case 'G':
+					$value *= 1024;
+				case 'M':
+					$value *= 1024;
+				case 'K':
+					$value *= 1024;
+				break;
+			}
+		return $value;
+		}
+
+		static function GetMaxUploadSize(){
+			$sizes = array(ini_get('post_max_size'), ini_get('upload_max_filesize'));
+
+			$workWith = $sizes[0];
+			if ($sizes[1] !== $sizes[0]){
+				$sizesBytes = array();
+				foreach ($sizes as $s)
+					$sizesBytes[] = FileTools::SizeInBytes($s);
+				if ($sizesBytes[1] > $sizesBytes[0])
+					$workWith = $sizes[1];
+			}
+
+			return preg_replace('/^(\d+)([GMk])$/', '$1 $2B', $workWith);
 		}
 	}
 
@@ -1803,20 +1887,49 @@ HTML;
 
 			$action = $db->where('id',$user['id'])->update('users',$data);
 
-			if (!$action) return 3;
-			else return 0;
+			return $action ? 0 : 3;
 		}
 
-		static function GetClassGroupIDs($classIndex = 0, $dataType = 'string'){
-			global $db, $user;
-			$userInGroups = $db->where('classid',$user['class'][$classIndex])->where('userid',$user['id'])->get('group_members',null,'groupid');
-			$groups = [0];
-			foreach ($userInGroups as $in)
-				$groups[] = $in['groupid'];
-			switch ($dataType) {
-				case 'string': return implode(',', $groups);
-				case 'array': return $groups;
+		static function SetAvatarProvider($provider){
+			global $user,$db;
+
+			if (empty($provider))
+				$provider = null;
+			else {
+				if (empty(ExtConnTools::$apiDisplayName[$provider]))
+					return 1;
+
+				$Linked = $db->where('userid',$user['id'])->where('provider', $provider)->has('ext_connections');
+				if (!$Linked)
+					return 2;
 			}
+
+			$action = $db->where('id',$user['id'])->update('users',array( 'avatar_provider' => $provider ));
+			$user['avatar_provider'] = $provider;
+
+			return $action ? 0 : 3;
+		}
+
+		static function GetAvatarURL(&$user, $providerOverride = null){
+			global $db;
+
+			if (isset($user['picture']) && !isset($providerOverride))
+				return $user['picture'];
+
+			$defaultAvatar = str_replace('.lc','.hu',ABSPATH).'/resources/img/user.png';
+			$provider = isset($providerOverride) ? $providerOverride : $user['avatar_provider'];
+			if ($provider !== 'gravatar'){
+				$url = $db->where('userid', $user['id'])->where('provider', $provider)->getOne('ext_connections','picture');
+				if (!empty($url))
+					$url = $url['picture'];
+			}
+			if (empty($url))
+				$url = 'https://www.gravatar.com/avatar/'.md5($user['email']).'?s=70&r=g&d='.urlencode($defaultAvatar);
+
+			if (!isset($providerOverride))
+				$user['picture'] = $url;
+
+			return $url;
 		}
 	}
 
@@ -2562,7 +2675,7 @@ STRING;
 	        $homeWorks = HomeworkTools::GetHomeworks(1,true);
 
 	        if (empty($homeWorks))
-	            print "<h3>Elkészítésre váró házi feladatok</h3>";
+	            print "<h3>Elkészítésre váró házi feladatok</h3><p>Nincs megjeleníthető házi feladat.</p>";
 	        else {
 	            $day = array_keys($homeWorks)[0];
 	            if ((int)substr($day,0,2) == 1 && (int)date('m') == 12) $year = (int)date('y') + 1;
@@ -2576,18 +2689,12 @@ STRING;
 
 	            $time = strtotime($date);
 
-	            print "<h3>Házi feladatok ".System::Article(System::$Days[Timetable::GetDay($time)])."i napra ({$day})</h3>";
-	        } ?>
-
-			<table class='homeworks'>
-				<tr>
-<?php
-					if (!empty($homeWorks)){
-						$day = array_keys($homeWorks)[0];
-
-						print "<td>";
-
-						foreach($homeWorks[$day] as $key => $array){
+				print "<h3>Házi feladatok ".System::Article(System::$Days[Timetable::GetDay($time)])."i napra ({$day})</h3>";
+		        $day = array_keys($homeWorks)[0]; ?>
+				<table class='homeworks'>
+					<tr>
+						<td>
+<?php					foreach($homeWorks[$day] as $key => $array){
 							if ($key % 2 == 1) continue; ?>
 					        <div class='hw'>
 					            <span class='lesson-name'><?=$array['lesson']?></span><span class='lesson-number'><?=$array['lesson_th']?>. óra</span>
@@ -2595,26 +2702,22 @@ STRING;
 
 								<a class="typcn typcn-tick js_makeMarkedDone" title='Késznek jelölés' href='#<?=$array['id']?>'></a>
 					        </div>
-<?php   	            }
-
-						print "</td><td>";
-
-						foreach($homeWorks[$day] as $key => $array){
-							if ($key % 2 == 0) continue; ?>
+<?php   	            } ?>
+						</td>
+						<td>
+<?php           foreach($homeWorks[$day] as $key => $array){
+					if ($key % 2 == 0) continue; ?>
 					        <div class='hw'>
 					            <span class='lesson-name'><?=$array['lesson']?></span><span class='lesson-number'><?=$array['lesson_th']?>. óra</span>
 					            <div class='hw-text'><?=$array['homework']?></div>
 
 					            <a class="typcn typcn-tick js_makeMarkedDone" title='Késznek jelölés' href='#<?=$array['id']?>'></a>
 					        </div>
-<?php               	}
-
-						print "</td>"; ?>
-				<tr>
-			</table>
-<?php               }
-
-					else print "<p>Nincs megjeleníthető házi feladat.</p>";
+<?php               } ?>
+						</td>
+					<tr>
+				</table>
+<?php       }
 		}
 	}
 

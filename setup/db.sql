@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Gép: 127.0.0.1
--- Létrehozás ideje: 2016. Jan 22. 15:09
+-- Létrehozás ideje: 2016. Jan 23. 21:03
 -- Kiszolgáló verziója: 5.6.21
 -- PHP verzió: 5.6.3
 
@@ -453,6 +453,7 @@ CREATE TABLE `users` (
   `name` tinytext COLLATE utf8_hungarian_ci NOT NULL,
   `active` int(11) NOT NULL DEFAULT '1',
   `email` tinytext COLLATE utf8_hungarian_ci NOT NULL,
+  `avatar_provider` varchar(12) COLLATE utf8_hungarian_ci DEFAULT NULL,
   `role` tinytext COLLATE utf8_hungarian_ci NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 

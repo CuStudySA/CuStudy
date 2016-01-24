@@ -40,15 +40,19 @@
 				position: relative;
 
 				.typcn {
-					font-size: 50px;
-					line-height: 40px;
+					font-size: 55px;
+					line-height: 50px;
 					height: inherit;
+				}
+				.picture {
 					display: block;
+					height: inherit;
 				}
 				.id {
 					position: absolute;
 					right: 0;
 					bottom: 0;
+					font-size: .7em;
 					text-shadow:
 						0 0 5px rgba(0, 0, 0, .5),
 						0 0 5px rgba(0, 0, 0, .5),

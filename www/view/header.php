@@ -20,12 +20,10 @@
 			foreach ($addons[$addonName]['css'] as $css)
 				echo "<link rel='stylesheet' href='{$rootdoc}resources/addons/$css'>\n";
 		}
-	}
+	} ?>
 
-	if (!isset($_REQUEST['no-header-js']))
-		echo "<script src='{$rootdoc}resources/js/jquery.min.js'></script>\n";
-
-	# Beépülő modulok betöltése
+	<script src='<?=$rootdoc?>resources/js/jquery.min.js'></script>
+<?	# Beépülő modulok betöltése
 	if (!empty($pages[$do]['addons'])){
 		foreach ($pages[$do]['addons'] as $addonName){
 			if (empty($addons[$addonName]['js'])) continue;

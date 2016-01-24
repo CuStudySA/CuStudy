@@ -45,10 +45,10 @@
 		break;
 
 		default:
-			$data = $db->where('userid', $user['id'])->get('ext_connections');
-			$actprovs = [];
-			foreach ($data as $entry)
-				$actprovs[] = $entry['provider']; ?>
+			$AvailProviders = ExtConnTools::GetAvailProviders();
+			$AvailProviderNames = [];
+			foreach ($AvailProviders as $entry)
+				$AvailProviderNames[] = $entry['provider']; ?>
 
 			<h1>Profilom szerkesztése</h1>
 			<form id='dataform'>
@@ -77,12 +77,13 @@
 				</div>
 				<label>
 					<span><strong>Jelenlegi jelszó</strong> <em>(kötelező megadni)</em></span>
-					<input type='password' name='oldpassword' placeholder='Jelenlegi jelszó' pattern='^[\w\d]{6,20}$'>
+					<input type='password' name='oldpassword' placeholder='Jelenlegi jelszó' required pattern='^[\w\d]{6,20}$'>
 				</label>
 				<button class="btn">Adatok mentése</button>
 			</form>
 			<h1 style='margin-top: 25px !important;'>Összekapcsolt fiókok</h1>
-<?php       $diff = array_diff(array_keys(ExtConnTools::$apiDisplayName),$actprovs);
+<?php       $diff = array_diff(array_keys(ExtConnTools::$apiDisplayName),$AvailProviderNames);
+			sort($diff, SORT_NATURAL);
 			$newConnVisible = count($diff); ?>
 			<div id="extconn-list">
 				<div class="conn-wrap"<?=!$newConnVisible?' style="display:none"':''?>>
@@ -99,33 +100,23 @@
 							</span>
 						</div>
 					</div>
-				</div><?php
-			foreach($data as $entry){
-				$provider = ExtConnTools::$apiDisplayName[$entry['provider']];
-				$provClass = ExtConnTools::$apiShortName[$entry['provider']];
-				$username = !empty($entry['email']) ? $entry['email'] : $entry['name'];
-				$statusClass = 'typcn-'.(!$entry['active'] ? 'tick' : 'power');
-				$statusText = ($entry['active'] ? '' : 'in').'aktív';
-				$actBtnText = ($entry['active'] ? 'Dea' : 'A').'ktiválás';
-				$picture = $entry['picture'];
-
-				echo <<<HTML
-<div class="conn-wrap" data-id="{$entry['id']}" data-prov="{$entry['provider']}">
-	<div class="conn">
-		<div class="icon">
-			<img src="$picture">
-			<div class="logo $provClass" title="$provider"></div>
-		</div>
-		<div class="text">
-			<span class="n">$username</span>
-			<span class="status">Összekapcsolás $statusText</span>
-			<span class="actions">
-				<button class='btn activeToggle typcn $statusClass'>$actBtnText</button>
-				<button class='btn disconnect typcn typcn-media-eject'>Leválasztás</button>
-			</span>
-		</div>
-	</div>
-</div>
-HTML;
-            }
-	}
+				</div>
+<?php		foreach($AvailProviders as $entry)
+				echo ExtConnTools::GetConnWrap($entry); ?>
+				<div class="conn-wrap">
+					<div class="conn">
+						<div class="icon">
+							<img src="<?=UserTools::GetAvatarURL($user, 'gravatar')?>">
+							<div class="logo gr" title="Gravatar"></div>
+						</div>
+						<div class="text">
+							<span class="n"><?=$user['email']?></span>
+							<strong class="status"><?=($isGravatar = empty($user['avatar_provider'])) ? 'Jelenlegi profilkép' : 'Nincs használatban'?></strong>
+							<span class="actions">
+								<button class='btn makepicture typcn typcn-image'<?=$isGravatar?' disabled':''?>>Profilkép</button>
+								<a class='btn typcn typcn-camera' href="https://gravatar.com/emails" target="_blank">Kép cseréje</a>
+							</span>
+						</div>
+					</div>
+				</div>
+<?  }
