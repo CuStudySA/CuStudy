@@ -10,8 +10,8 @@ SET time_zone = "+00:00";
 --
 -- Adatbázis: `custudy`
 --
-CREATE DATABASE IF NOT EXISTS `betonhomework` DEFAULT CHARACTER SET utf8 COLLATE utf8_hungarian_ci;
-USE `betonhomework`;
+CREATE DATABASE IF NOT EXISTS `custudy` DEFAULT CHARACTER SET utf8 COLLATE utf8_hungarian_ci;
+USE `custudy`;
 
 -- --------------------------------------------------------
 
@@ -448,7 +448,7 @@ CREATE TABLE `users` (
   `email` tinytext COLLATE utf8_hungarian_ci NOT NULL,
   `role` enum('systemadmin','none','admin') COLLATE utf8_hungarian_ci NOT NULL,
   `defaultSession` int(11) NOT NULL DEFAULT '0',
-  `avatar_provider` varchar(12) COLLATE utf8_hungarian_ci DEFAULT NULL,
+  `avatar_provider` varchar(12) COLLATE utf8_hungarian_ci DEFAULT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
 --
@@ -637,7 +637,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT a táblához `class`
 --
 ALTER TABLE `class`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT a táblához `class_members`
 --
