@@ -132,8 +132,8 @@
 			foreach ($grpmember as $array)
 				$ids[] = $array['groupid'];
 
-			$weekNum = date('W');
-			$dayInWeek = Timetable::GetDay();
+			$weekNum = Timetable::GetWeekNum();
+			$dayInWeek = Timetable::GetDayNumber();
 
 			$active = $onlyListActive ? '&& (SELECT `id` FROM `hw_markdone` WHERE `homework` = hw.id && `userid` = ?) IS NULL' : '';
 

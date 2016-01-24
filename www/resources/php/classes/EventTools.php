@@ -4,11 +4,7 @@
 		static function GetEvents($start, $end){
 			global $db, $user;
 
-			$data = $db->rawQuery('SELECT *
-									FROM `events`
-									WHERE `classid` = ?',
-
-									array($user['class'][0]));
+			$data = $db->where('classid', $user['class'][0])->get('events');
 
 			$output = [];
 			foreach ($data as $event){
