@@ -164,6 +164,9 @@ $(function(){
 							$elem.find('.js_thm_edit').on('click', e_thm_edit);
 							$elem.find('.js_thm_del').on('click', e_thm_del);
 
+							// Nincs csop.kat. üzenet eltávolítása
+							$('.missingThemes').hide();
+
 							// Csop.kat. hozzáadása a felülethez
 							var $templ = $listTempl.clone();
 							$templ.find('.grouptitle').text(newName + ' csoportok').attr('data-thm',data2.id);
@@ -201,6 +204,10 @@ $(function(){
 					if (data.status){
 						$(e.currentTarget).parent().parent().remove();
 						$('div[data-thm=' + id + ']').remove();
+
+							// Nincs csop.kat. üzenet hozzáadása
+							if ($('#groupContainer').children().length == 0)
+								$('.missingThemes').show();
 
 						$.Dialog.close();
 					}
