@@ -324,7 +324,6 @@
 
 	            $time = strtotime($date);
 
-
 				print "<h3>Házi feladatok ".System::Article(System::$Days[Timetable::GetDayNumber($time)])."i napra ({$day})</h3>";
 		        $day = array_keys($homeWorks)[0]; ?>
 				<table class='homeworks'>

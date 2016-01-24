@@ -518,7 +518,7 @@
 
 		    $mailer = Swift_Mailer::newInstance($transport); //Küldő objektum létrehozása
 
-		    $action = $mailer->send($message,$fail); //Levél küldése
+		    $action = $mailer->send($message); //Levél küldése
 
 			// Várakoztatás
 		    if (!self::$mailSended) usleep(100);
