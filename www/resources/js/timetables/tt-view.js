@@ -17,6 +17,7 @@ $(function(){
 		$nWButton = $('.nextWeek'),
 		$timetable = $('.timet'),
 		$datePick = $('#startDatePicker'),
+		currDate = $datePick.val(),
 		stepWeek = function(button){
 			if (button == 'back' && $bWButton.is(':disabled'))
 				return $.Dialog.fail(title2,'A jelenlegi héttől nem lehetséges visszább léptetni!');
@@ -49,14 +50,14 @@ $(function(){
 	$bWButton.on('click',function(){ stepWeek('back') });
 	$nWButton.on('click',function(){ stepWeek('next') });
 
-	$datePick.on('keydown blur',function(e){
-		if ((e.type === 'keydown' && e.keyCode === 13) || e.type === 'blur')
-			e.preventDefault();
-		else return true;
-
-		$.Dialog.wait(title2);
+	$datePick.on('change',function(e){
+		e.preventDefault();
 
 		var date = $(this).val();
+		if (date === currDate)
+			return true;
+		$.Dialog.wait(title2);
+
 		if (isNaN(Date.parse(date)))
 			return $.Dialog.fail('Léptetés', 'Érvénytelen dátum!');
 
@@ -73,7 +74,8 @@ $(function(){
 				dispDays = data.dispDays;
 				$timetable.html(data.timetable);
 				$bWButton.attr('disabled', data.lockBack);
-				$datePick.val(new Date(dispDays[0]).toISOString().substring(0,10))
+				currDate = new Date(dispDays[0]).toISOString().substring(0,10);
+				$datePick.val(currDate);
 
 				$.Dialog.close();
 			}
