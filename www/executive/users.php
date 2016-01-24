@@ -26,12 +26,14 @@
 			if (empty($data)) System::Respond();
 			else $data = $data[0];
 
+			$classMem = $db->where('userid',$ENV['POST']['id'])->where('classid',$user['class'][0])->getOne('class_members');
+
 			$json = array(
 				'username' => $data['username'],
 				'name' => $data['name'],
-				'role' => $data['role'],
 				'email' => $data['email'],
 				'active' => $data['active'],
+				'role' => $classMem['role'],
 			);
 
 			System::Respond('', 1, $json);

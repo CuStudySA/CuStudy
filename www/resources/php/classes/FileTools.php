@@ -181,7 +181,7 @@ HTML;
 					$value *= 1024;
 				break;
 			}
-		return $value;
+			return $value;
 		}
 
 		static function GetMaxUploadSize(){

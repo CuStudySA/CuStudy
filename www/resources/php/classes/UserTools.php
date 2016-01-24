@@ -38,6 +38,10 @@
 			if (System::OptionCheck($data_a['active'],['0','1'])) return 2;
 			if (System::OptionCheck($data_a['role'],['visitor','editor','admin'])) return 2;
 
+			# Szerepkörök előkészítése
+			$role = $data_a['role'];
+			unset($data_a['role']);
+
 			# Létezik-e már ilyen felhasználó?
 			$data = $db->where('username',$data_a['username'])->getOne('users');
 			if (!empty($data)) return 4;
@@ -55,6 +59,7 @@
 			$db->insert('class_members',array(
 				'classid' => $user['class'][0],
 				'userid' => $id,
+				'role' => $role,
 			));
 
 			return [$id];
@@ -129,9 +134,19 @@
 			# Létezik-e már ilyen felhasználó?
 			$userdata = $db->where('id',$id)->getOne('users');
 
-			if($datas['email'] != $userdata['email']){
+			if ($datas['email'] != $userdata['email']){
 				$data = $db->where('email',$datas['email'])->getOne('users');
 				if (!empty($data)) return 6;
+			}
+
+			# Szerepkörök előkészítése
+			if (!empty($datas['role'])){
+				$role = $datas['role'];
+				unset($datas['role']);
+
+				$db->where('userid',$id)->where('classid',$user['class'][0])->update('class_members',array(
+					'role' => $role,
+				));
 			}
 
 			if (!empty($datas['username'])) unset($datas['username']);
@@ -164,9 +179,11 @@
 
 // Felh. törlése
 		private static function _deleteUser($id){
-			global $db;
+			global $db, $user;
 
 			$action = $db->where('id',$id)->delete('users');
+
+			$db->where('userid',$id)->where('classid',$user['class'][0])->delete('class_members');
 
 			if ($action) return 0;
 			else return 2;
