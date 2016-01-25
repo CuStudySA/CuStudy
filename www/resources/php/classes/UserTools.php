@@ -56,10 +56,16 @@
 			if ($id === false) return 7;
 
 			# Hozzáadás a csoporthoz
-			$db->insert('class_members',array(
+			$action = $db->insert('class_members',array(
 				'classid' => $user['class'][0],
 				'userid' => $id,
 				'role' => $role,
+			));
+			if ($action === false) return 8;
+
+			# Alapértelmezett szerepkör beállítása
+			$db->where('id',$id)->update('users',array(
+				'defaultSession' => $action,
 			));
 
 			return [$id];
