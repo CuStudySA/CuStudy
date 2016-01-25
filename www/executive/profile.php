@@ -43,3 +43,20 @@
 			}
 		break;
 	}
+
+	if (isset($ENV['URL'][0]) ? $ENV['URL'][0] : '' == 'roles'){
+		$case = isset($ENV['URL'][1]) ? $ENV['URL'][1] : '';
+
+		switch ($case){
+			case 'eject':
+				if (!(isset($ENV['POST']['id']) && isset($ENV['POST']['password'])))
+					System::Respond();
+
+				$action = System::EjectRole($ENV['POST']['id'],$ENV['POST']['password']);
+
+				System::Respond(Message::Respond('roles.eject',is_bool($action) ? 0 : $action), is_bool($action) ? 1 : 0, !is_bool($action) ? array() : array(
+					'reload' => $action ? 1 : 0,
+				));
+			break;
+		}
+	}

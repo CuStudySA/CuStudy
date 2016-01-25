@@ -412,5 +412,18 @@
 					0 => 'A szerepkör-váltás megtörtént, most átirányítjuk...',
 				),
 			),
+			'eject' => array(
+				'errors' => array(
+					1 => 'a globális szerepkör nem leválasztható',
+					2 => 'a szerepkör nem található',
+					3 => 'kísérlet történt az alapértelmezett szerepkör leválasztására',
+					4 => 'az utolsó szerepkör nem leválasztható',
+					5 => 'a megadott jelszó nem egyezik a felhasználó jelszavával',
+				),
+				'messages' => array(
+					1 => 'Nem sikerült leválasztani a szerepkört, mert @msg! (Hibakód: @code)',
+					0 => 'A szerepkör leválasztása sikeresen megtörtént!',
+				),
+			),
 		),
 	);

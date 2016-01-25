@@ -51,7 +51,7 @@
 					</div>
 					<div class="bottom">
 						<a class="typcn typcn-mail js_invite" href="#" title="Felhasználók meghívása"></a>
-						<a class="typcn typcn-user-add js_user_add" href="/users/add" title="Új felh. hozzáadása"></a>
+<!--					<a class="typcn typcn-user-add js_user_add" href="/users/add" title="Új felh. hozzáadása"></a> -->
 					</div>
 				</li>
 			</ul>

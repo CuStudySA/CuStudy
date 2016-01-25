@@ -339,7 +339,8 @@
 
 				$roles[] = array(
 					'entryId' => $entry['id'],
-					'intezmeny' => "{$School['name']} {$Class['classid']} osztálya",
+					'intezmeny' => $School['name'],
+					'osztaly' => $Class['classid'],
 					'szerep' => UserTools::$roleLabels[$entry['role']],
 					'active' => $entry['id'] == $ENV['session'][0]['activeSession'] ? 1 : 0,
 				);
@@ -348,6 +349,7 @@
 			if ($User['role'] != 'none')
 				$roles[] = array(
 					'intezmeny' => "CuStudy",
+					'osztaly' => 0,
 					'szerep' => "Globális rendszeradminisztrátor",
 					'entryId' => 0,
 					'active' => $ENV['session'][0]['activeSession'] == 0 ? 1 : 0,
@@ -373,6 +375,40 @@
 
 			if ($action) return 0;
 			else return 2;
+		}
+
+		static function EjectRole($roleId, $password){
+			global $db, $user, $ENV;
+
+			if ($roleId == 0) return 1;
+
+			$roles = self::GetAvailableRoles();
+			$founded = false;
+			foreach ($roles as $role)
+				if ($role['entryId'] == $roleId)
+					$founded = true;
+
+			if (!$founded) return 2;
+			if ($user['defaultSession'] == $roleId) return 3;
+
+			if (count($roles) == 1)
+				return 4;
+
+			if (!Password::Ellenorzes($password,$user['password']))
+				return 5;
+
+			$action = $db->where('id',$roleId)->delete('class_members');
+			if (!$action) return 6;
+
+			if ($ENV['session'][0]['activeSession'] == $roleId){
+				$db->where('id',$ENV['session'][0]['id'])->update('sessions',array(
+					'activeSession' => $user['defaultSession'],
+				));
+
+				return true;
+			}
+			else
+				return false;
 		}
 
 		// Jogosultság ellenörző
