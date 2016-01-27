@@ -58,5 +58,14 @@
 					'reload' => $action ? 1 : 0,
 				));
 			break;
+
+			case 'changeDefault':
+				if (!(isset($ENV['POST']['id'])))
+					System::Respond();
+
+				$action = System::ChangeDefaultRole($ENV['POST']['id']);
+
+				System::Respond(Message::Respond('roles.changeDefault',$action),$action == 0 ? 1 : 0);
+			break;
 		}
 	}

@@ -411,6 +411,25 @@
 				return false;
 		}
 
+		static function ChangeDefaultRole($roleId){
+			global $db, $user, $ENV;
+
+			$roles = self::GetAvailableRoles();
+			$founded = false;
+			foreach ($roles as $role)
+				if ($role['entryId'] == $roleId)
+					$founded = true;
+
+			if (!$founded) return 1;
+
+			$action = $db->where('id',$user['id'])->update('users',array(
+				'defaultSession' => $roleId,
+			));
+
+			if ($action) return 0;
+			else return 2;
+		}
+
 		// Jogosultság ellenörző
 		static function PermCheck($action, $id = null, $selector = 'id'){
 			global $ENV, $user, $permKeyDB, $db;

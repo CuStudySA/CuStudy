@@ -144,7 +144,7 @@
 								<span class="n"><?=$role['intezmeny']?></span>
 								<strong class="status"><?=$role['szerep']?></strong>
 								<span class="actions">
-									<button class='btn js_changeDefault typcn typcn-tick' data-id='<?=$role['entryId']?>'>Alapértelmezetté tétel</button>
+									<button class='btn js_changeDefault typcn typcn-tick' data-id='<?=$role['entryId']?>' <?=$isDefault ? 'disabled' : ''?>>Alapértelmezetté tétel</button>
 								</span>
 <?php                       } ?>
 						</div>

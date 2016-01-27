@@ -425,5 +425,14 @@
 					0 => 'A szerepkör leválasztása sikeresen megtörtént!',
 				),
 			),
+			'changeDefault' => array(
+				'errors' => array(
+					1 => 'a szerepkör nem található',
+				),
+				'messages' => array(
+					1 => 'Nem sikerült megváltoztatni az alapértelmezett szerepkört, mert @msg! (Hibakód: @code)',
+					0 => 'Az alapértelmezett szerepkör beállítása sikeresen megtörtént!',
+				),
+			),
 		),
 	);
