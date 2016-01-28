@@ -646,7 +646,7 @@
 		static function Article($str, $upperc = false, $btw = ''){
 			$a = $upperc ? 'A' : 'a';
 			$str = trim($str);
-			if (preg_match('/^(\d+)?/', $str, $num)){
+			if (preg_match('/^(\d+)/', $str, $num)){
 				$number = intval($num[1], 10);
 				if (
 					($number < 10 && ($number == 1 || $number == 5)) ||

@@ -192,7 +192,7 @@ HTML;
 				$sizesBytes = array();
 				foreach ($sizes as $s)
 					$sizesBytes[] = FileTools::SizeInBytes($s);
-				if ($sizesBytes[1] > $sizesBytes[0])
+				if ($sizesBytes[1] < $sizesBytes[0])
 					$workWith = $sizes[1];
 			}
 
