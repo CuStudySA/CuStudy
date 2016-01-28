@@ -507,6 +507,7 @@
 			if ($die) die();
 		}
 
+		// Belépés külső szolgáltató segítségével
 		static function ExternalLogin($userData, $provider){
 			global $db;
 
@@ -518,9 +519,11 @@
 			$user = $db->where('id',$data['userid'])->getOne('users');
 			if (empty($user)) System::Redirect("/?errtype=local&prov={$provider}&err=az összekapcsolás létezik, de nem található a helyi felhasználó");
 
-			if (self::UserIsStudent($user['role']))
-				if (self::UserActParent(self::GetUserClasses($user)[0]))
+			if ($user['defaultSession'] != 0){
+				$conn = $db->where('id',$user['defaultSession'])->getOne('class_members');
+				if (System::UserActParent($conn['classid']))
 					System::Redirect("/?errtype=local&prov={$provider}&err=az osztály vagy iskola nem aktív a rendszerben");
+			}
 
 			$db->where('id', $data['id'])->update('ext_connections',array(
 				'name' => isset($userData['name']) ? $userData['name'] : '',
@@ -539,6 +542,7 @@
 				'userid' => $user['id'],
 				'ip' => $envInfos['ip'],
 				'useragent' => $envInfos['useragent'],
+				'activeSession' => $user['defaultSession'],
 			));
 
 			Cookie::set('PHPSESSID',$session,null);
