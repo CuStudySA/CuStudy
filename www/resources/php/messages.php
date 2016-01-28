@@ -120,7 +120,19 @@
 					0 => 'A profilkép szolgáltató sikeresen módosítva',
 					1 => 'A profilkép szolgáltató módosítása sikertelen volt, mert @msg! (Hibakód: @code)',
 				),
-			)
+			),
+			'login' => array(
+				'errors' => array(
+					1 => 'nem található a távoli fiókhoz kapcsolt felhasználó',
+					2 => 'inaktív az összekapcsolás',
+					3 => 'az összekapcsolás létezik, de nem található a helyi felhasználó',
+					4 => 'az osztály vagy iskola nem aktív a rendszerben',
+					5 => 'nem sikerült kiolvasni a munkamenet indításához szükséges adatokat',
+				),
+				'messages' => array(
+					1 => 'Nem sikerült bejelentkezni a(z) @provider szolgáltató segítségével, mert @msg! (Hibakód: @code)',
+				),
+			),
 		),
 
 		'lessons' => array(

@@ -513,16 +513,16 @@
 
 			$data = $db->where('account_id', $userData['account_id'])->where('provider',$provider)->getOne('ext_connections');
 
-			if (empty($data)) System::Redirect("/?errtype=local&prov={$provider}&err=nem található a távoli fiókhoz kacsolt felhasználó<br><code>".$db->getLastQuery()."</code>");
-			if (!$data['active']) System::Redirect("/?errtype=local&prov={$provider}&err=inaktív az összekapcsolás");
+			if (empty($data)) return 1;
+			if (!$data['active']) return 2;
 
 			$user = $db->where('id',$data['userid'])->getOne('users');
-			if (empty($user)) System::Redirect("/?errtype=local&prov={$provider}&err=az összekapcsolás létezik, de nem található a helyi felhasználó");
+			if (empty($user)) return 3;
 
 			if ($user['defaultSession'] != 0){
 				$conn = $db->where('id',$user['defaultSession'])->getOne('class_members');
 				if (System::UserActParent($conn['classid']))
-					System::Redirect("/?errtype=local&prov={$provider}&err=az osztály vagy iskola nem aktív a rendszerben");
+					return 4;
 			}
 
 			$db->where('id', $data['id'])->update('ext_connections',array(
@@ -533,7 +533,7 @@
 
 			$session = Password::GetSession($user['username']);
 			$envInfos = self::GetBrowserEnvInfo();
-			if (!is_array($envInfos)) System::Redirect('/');
+			if (!is_array($envInfos)) return 5;
 
 			self::_clearSessions($user);
 
@@ -547,7 +547,7 @@
 
 			Cookie::set('PHPSESSID',$session,null);
 
-			System::Redirect('/#');
+			return 0;
 		}
 
 		static $mailSended = false;

@@ -14,27 +14,35 @@ $(function(){
 	    });
 	    return result;
 	}
+
+	function urldecode(str) {
+		return decodeURIComponent((str+'').replace(/\+/g, '%20'));
+	}
+
 	function capitalizeFirstLetter(string) {
         return string.charAt(0).toUpperCase() + string.substring(1);
 	}
 
-	var errortype = parse('errtype');
+	var error = urldecode(parse('error'));
+	if (error != 'Not found')
+		$.Dialog.fail('Bejelentkezés távoli szolgáltatóval',error);
 
-	if (errortype != 'Not found'){
-		var capitalizedProv = '',
-			errmessage = parse('err'),
-			prov = parse('prov');
-
-		if (errmessage == 'Not found')
-			errmessage = 'a távoli szolgáltatónál ismeretlen hiba történt';
-
-		if (prov == 'Not found' || prov == '')
-			capitalizedProv = 'távoli';
-		else
-			capitalizedProv = capitalizeFirstLetter(prov);
-
-		$.Dialog.fail('Sikertelen bejelentkezés távoli szolgáltató segítségével','Nem sikerült bejelentkezni a(z) ' + capitalizedProv + ' szolgáltató segítségével, mert ' + errmessage + '!');
-	}
+	// <!-- Végleges eltávolításra jelölve -->
+	//if (errortype != 'Not found'){
+	//	var capitalizedProv = '',
+	//		errmessage = parse('err'),
+	//		prov = parse('prov');
+//
+	//	if (errmessage == 'Not found')
+	//		errmessage = 'a távoli szolgáltatónál ismeretlen hiba történt';
+//
+	//	if (prov == 'Not found' || prov == '')
+	//		capitalizedProv = 'távoli';
+	//	else
+	//		capitalizedProv = capitalizeFirstLetter(prov);
+//
+	//	$.Dialog.fail('Sikertelen bejelentkezés távoli szolgáltató segítségével','Nem sikerült bejelentkezni a(z) ' + capitalizedProv + ' szolgáltató segítségével, mert ' + errmessage + '!');
+	//}
 
 	var $tabItems = $('[tabindex]');
 	$tabItems.sort(function(a,b){ return a.tabIndex - b.tabIndex }).last().on('keydown',function(e){
