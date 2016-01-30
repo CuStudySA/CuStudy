@@ -7,7 +7,7 @@
 	switch ($case){
 		default:
 			// Órarend előkészítése
-			$TT = Timetable::GetHWTimeTable(null,null,false);
+			$TT = Timetable::GetTimetable(null,null,false);
 			$days = Timetable::CalcTimetableDays($TT, 5, true);
 
 			$table = Timetable::Render(null, $TT, $days);  ?>
@@ -43,7 +43,7 @@
 
 <?php		echo '<div class="template" id="form-template">'.Timetable::ADD_FORM_HTML.'</div>';
 
-			Timetable::Render('a', Timetable::GetTimeTable('a'), null, true);
+			echo Timetable::Render('a', Timetable::GetTimetableForWeek('a'), null, true);
 		break;
 
 		case 'week':
@@ -62,6 +62,6 @@
 <?php		print "<h2>'".strtoupper($week)."' órarend</h2>";
 			echo '<div class="template" id="form-template">'.Timetable::ADD_FORM_HTML.'</div>';
 			// FIXME Paraméter-szám eltérées - a funkció 3 paramétert fogad, de 4-el van meghívva
-			Timetable::Render($week, Timetable::GetTimeTable($week), null, true);
+			echo Timetable::Render($week, Timetable::GetTimetableForWeek($week), null, true);
 		break;
 	}

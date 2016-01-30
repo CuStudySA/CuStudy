@@ -4,7 +4,7 @@
 	switch($action){
 		case 'new':
 			//Timetable előkészítése renderléshez
-			$TT = Timetable::GetHWTimeTable();
+			$TT = Timetable::GetTimetable();
 			$days = Timetable::CalcTimetableDays($TT, 3, true); ?>
 
 			<h1>Új házi feladat hozzáadása</h1>
