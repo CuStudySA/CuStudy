@@ -30,22 +30,11 @@
 
 			$json = array(
 				'username' => $data['username'],
-				'name' => $data['name'],
 				'email' => $data['email'],
-				'active' => $data['active'],
 				'role' => $classMem['role'],
 			);
 
 			System::Respond('', 1, $json);
-		break;
-
-		case 'add':
-			if (isset($ENV['POST']['username']))
-				$action = UserTools::AddUser($ENV['POST']);
-
-			else System::Respond();
-
-			System::Respond(Message::Respond('users.add',is_array($action) ? 0 : $action), is_array($action) ? 1 : 0, is_array($action) ? ['id' => $action[0]] : array());
 		break;
 
 		case 'edit':
@@ -58,23 +47,13 @@
 			System::Respond(Message::Respond('users.edit',$action), $action == 0 ? 1 : 0);
 		break;
 
-		case 'delete':
-			if (isset($ENV['POST']['id'])){
-				if ($user['id'] == $ENV['POST']['id']) System::Respond();
-				$action = UserTools::DeleteUser($ENV['POST']['id']);
-			}
+		case 'eject':
+			if (isset($ENV['POST']['id']))
+				$action = UserTools::EjectUser($ENV['POST']['id']);
+
 			else System::Respond();
 
-			System::Respond(Message::Respond('users.delete',$action), $action == 0 ? 1 : 0);
-		break;
-
-		case 'editAccessData':
-			if (!empty($ENV['POST']['id']) && !empty($ENV['POST'])){
-				if ($user['id'] == $ENV['POST']['id']) System::Respond();
-				$action = UserTools::EditAccessData($ENV['POST']['id'],$ENV['POST']);
-			}
-
-			System::Respond(Message::Respond('users.editAccessData',$action), $action == 0 ? 1 : 0);
+			System::Respond(Message::Respond('users.eject',$action), $action == 0 ? 1 : 0);
 		break;
 
 		default:

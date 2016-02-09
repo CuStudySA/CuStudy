@@ -271,15 +271,20 @@
 		}
 
 		// Kiléptetés
-		static function Logout(){
+		static function Logout($User = null){
 			global $user;
 
-			# Felh. bejelentkézésnek ellenörzése
-			if (empty($user)) return 1;
+			if (empty($User)){
+				# Felh. bejelentkézésnek ellenörzése
+				if (empty($user) || !is_array($user)) return 1;
 
-			self::_clearSessions($user);
+				$User = $user;
+			}
 
-			Cookie::delete('PHPSESSID');
+			self::_clearSessions($User);
+
+			if (!empty($User))
+				Cookie::delete('PHPSESSID');
 
 			return 0;
 		}

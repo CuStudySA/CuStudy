@@ -1,48 +1,6 @@
 $(function(){
 	// Hibák kiíratása
-	function parse(val) {
-	    var result = "Not found",
-	        tmp = [];
-	    location.search
-	    //.replace ( "?", "" )
-	    // this is better, there might be a question mark inside
-	    .substr(1)
-	        .split("&")
-	        .forEach(function (item) {
-	        tmp = item.split("=");
-	        if (tmp[0] === val) result = decodeURIComponent(tmp[1]);
-	    });
-	    return result;
-	}
-
-	function urldecode(str) {
-		return decodeURIComponent((str+'').replace(/\+/g, '%20'));
-	}
-
-	function capitalizeFirstLetter(string) {
-        return string.charAt(0).toUpperCase() + string.substring(1);
-	}
-
-	var error = urldecode(parse('error'));
-	if (error != 'Not found')
-		$.Dialog.fail('Bejelentkezés távoli szolgáltatóval',error);
-
-	// <!-- Végleges eltávolításra jelölve -->
-	//if (errortype != 'Not found'){
-	//	var capitalizedProv = '',
-	//		errmessage = parse('err'),
-	//		prov = parse('prov');
-//
-	//	if (errmessage == 'Not found')
-	//		errmessage = 'a távoli szolgáltatónál ismeretlen hiba történt';
-//
-	//	if (prov == 'Not found' || prov == '')
-	//		capitalizedProv = 'távoli';
-	//	else
-	//		capitalizedProv = capitalizeFirstLetter(prov);
-//
-	//	$.Dialog.fail('Sikertelen bejelentkezés távoli szolgáltató segítségével','Nem sikerült bejelentkezni a(z) ' + capitalizedProv + ' szolgáltató segítségével, mert ' + errmessage + '!');
-	//}
+	displayError('Bejelentkezés távoli szolgáltatóval');
 
 	var $tabItems = $('[tabindex]');
 	$tabItems.sort(function(a,b){ return a.tabIndex - b.tabIndex }).last().on('keydown',function(e){

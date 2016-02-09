@@ -1,4 +1,31 @@
 (function($){
+	// Hibák kiíratása
+	window.displayError = function(title, selector){
+		if (typeof(selector) === 'undefined') selector = 'error';
+		function parse(val) {
+		    var result = "Not found",
+		        tmp = [];
+		    location.search
+		    //.replace ( "?", "" )
+		    // this is better, there might be a question mark inside
+		    .substr(1)
+		        .split("&")
+		        .forEach(function (item) {
+		        tmp = item.split("=");
+		        if (tmp[0] === val) result = decodeURIComponent(tmp[1]);
+		    });
+		    return result;
+		}
+
+		function urldecode(str) {
+			return decodeURIComponent((str+'').replace(/\+/g, '%20'));
+		}
+
+		var error = urldecode(parse(selector));
+		if (error != 'Not found')
+			$.Dialog.fail(title,error);
+	};
+
 	// Gyakori elemek globalizálása
 	$.extend(window, {
 		$w: $(window),
@@ -149,3 +176,7 @@
 		}
 	};
 })(jQuery);
+
+$(function(){
+	displayError('Meghívás','invitationErr');
+});

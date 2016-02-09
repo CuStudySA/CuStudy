@@ -62,6 +62,14 @@
 					1 => 'A felhasználó hozzáférési adatainak módosítása sikertelen volt, mert @msg! (Hibakód: @code)',
 				),
 			),
+			'eject' => array(
+				'errors' => array(
+					1 => 'nincs jogosultsága a művelethez',
+				),
+				'messages' => array(
+					1 => 'A felhasználó törlése az osztályból sikertelen volt, mert @msg! (Hibakód: @code)',
+				),
+			),
 		),
 
 		'extConnTools' => array(
@@ -174,8 +182,19 @@
 					2 => 'egyes felhasználóknak nem sikerült elküldeni a meghívó e-mailt',
 				),
 				'messages' => array(
-					0 => 'A felhasználók meghívása sikeresen befejeződött. A meghívók megérkezése azonban akár 12 órát is igénybe vehet!',
+					0 => 'A felhasználók meghívása sikeresen befejeződött. Az új felhasználók esetén a meghívó megérkezése azonban akár 12 órát is igénybe vehet!',
 					1 => 'Az összes felhasználó meghívása nem sikerült, mert @msg! (Hibakód: @code)',
+				),
+			),
+			'view' => array(
+				'errors' => array(
+					1 => 'nincs jogosultsága a művelethez',
+					2 => 'nincs megadva a meghívó azonosítója',
+					3 => 'a meghívó azonosítója nem található a rendszerben',
+					4 => 'a meghívó inaktív, így nem felhasználható (lehet, hogy már felhasználták)',
+				),
+				'messages' => array(
+					1 => 'Nem lehet regisztrálni meghívó segítségével a rendszerbe, mert @msg! (Hibakód: @code)',
 				),
 			),
 		),
