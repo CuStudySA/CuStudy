@@ -168,7 +168,7 @@ STRING;
 			//'f' => "'F'",
 		);
 
-		static function CalcTimetableDays(&$TT, $count, $output = false){
+		static function CalcDays(&$TT, $count, $output = false){
 			$days = $TT['opt'];
 			unset($TT['opt']);
 			sort($days,SORT_NUMERIC);
@@ -182,14 +182,21 @@ STRING;
 			return $days;
 		}
 
-		// TODO léptetés fixálása
-		static function JSTimetable($dispDays, $allgroups = true, $move = null){
+		/**
+		 * Régi nevén JSTimetable, léptatéskor fut le
+		 *
+		 * @param string|array $dispDays Megjelenítendő dátum (string)/dátumok (tömb)
+		 * @param bool $allgroups Minden csoport adatainak lekérdezése
+		 * @param int|string $move Elmozdulás mennyisége napokban VAGY 'next'/'back' következő/előző hét
+		 */
+		static function Step($dispDays, $allgroups = true, $move = null){
 			if (is_array($dispDays))
 				$dispDays = array_map('strtotime', $dispDays);
 			else $dispDays = strtotime($dispDays);
 
-			$today = strtotime('today');
 			$date = is_array($dispDays) ? $dispDays[0] : $dispDays;
+
+			$targetWeekdays = null;
 			if (is_string($move)){
 				$mult = $move === 'next' ? 1 : -1;
 				$targetWeekdays = count($dispDays);
@@ -207,14 +214,15 @@ STRING;
 				$date += self::OneDayInSeconds * $moved;
 			}
 
+			$today = strtotime('today');
 			if ($date < $today)
 				$date = $today;
 
 			$week = (int)date('W', $date);
 			$day = Timetable::GetDay($date);
 
-			$TT = Timetable::GetTimetable($week,$day,$allgroups);
-			$days = self::CalcTimetableDays($TT, is_numeric($move) ? (int)$move : 5);
+			$TT = Timetable::Get($week,$day,$allgroups, is_string($move) ? $targetWeekdays : (is_numeric($move) ? (int)$move : 5));
+			$days = Timetable::CalcDays($TT, is_numeric($move) ? (int)$move : 5);
 
 			$timetable = Timetable::Render(null, $TT, $days, false);
 
@@ -237,45 +245,45 @@ STRING;
 		 * @param int|null $week        Hétszám
 		 * @param int|null $lastWeekDay A hét utolsó lekérdezendő napja
 		 * @param bool     $allgroup    Összes csoport órarendjének lekérése
+		 * @param int|null $maxDays     Maximum hny napot adjon vissza a függvén (null = nincs korlát)
 		 *
 		 * @return array
 		 */
-		static function GetTimetable($week = null, $lastWeekDay = null, $allgroup = true){
+		static function Get($week = null, $lastWeekDay = null, $allgroup = true, $maxDays = null){
 			global $user, $db;
 
 			$now = time();
 			$currDate = strtotime('today', $now);
 			$switchOn = strtotime('8 am', $now);
 
-			if (!empty($week) && !empty($lastWeekDay)){
-				// Megfelelő hétre ugrás
-				$weeksPassed = (int)$week;
-				$weeksPassedSeconds = self::OneWeekInSeconds * $weeksPassed;
-				$thisYear = strtotime("first monday 1 jan", $currDate);
-				$lastWeekdayDate = strtotime('this monday', $thisYear + $weeksPassedSeconds);
-				// Megfelelő napra ugrás
-				if ($lastWeekDay > 1)
-					$lastWeekdayDate += $lastWeekDay * self::OneDayInSeconds; //+ ($lastWeekDay > 5 ? 8-$lastWeekDay : 0);
-				$firstWeekdayDate = $lastWeekdayDate - self::OneWeekInSeconds;
+			// Hiányzó értékek esetén jelenlegi dátum használata
+			if (empty($week) && empty($lastWeekDay)){
+				$week = (int)date('W');
+				$lastWeekDay = (int)self::GetDay()+1;
+			}
 
-				// Hét betűjelének lekérése
-				$currWeekLetter = strtolower(Timetable::GetWeekLetter($firstWeekdayDate));
-				$lastWeekDay = Timetable::GetDay($lastWeekdayDate);
-			}
-			else {
-				$firstWeekdayDate = strtotime('today', $currDate);
-				$lastWeekdayDate = $firstWeekdayDate + self::OneWeekInSeconds;
-				$currWeekLetter = strtolower(Timetable::GetWeekLetter($firstWeekdayDate));
-				$lastWeekDay = Timetable::GetDay($lastWeekdayDate);
-			}
+			// Megfelelő hétre ugrás
+			$weeksPassed = (int)$week;
+			$weeksPassedSeconds = self::OneWeekInSeconds * $weeksPassed;
+			$thisYear = strtotime("first monday 1 jan", $currDate);
+			$lastWeekdayDate = strtotime('this monday', $thisYear + $weeksPassedSeconds);
+			// Megfelelő napra ugrás
+			if ($lastWeekDay > 1)
+				$lastWeekdayDate += ($lastWeekDay-1 + ($lastWeekDay-1 > 5 ? 8-$lastWeekDay : 0)) * self::OneDayInSeconds;
+			$firstWeekdayDate = $lastWeekdayDate - self::OneWeekInSeconds;
+
+			// Hét betűjele
+			$currWeekLetter = strtolower(Timetable::GetWeekLetter($firstWeekdayDate));
+
+			// Első lekérdezendő nap a héten
 			$firstWeekday = self::GetDay($firstWeekdayDate);
-			$nextWeekLetter = self::GetUpcomingWeek($currWeekLetter);
+			$switch = $currDate === $firstWeekdayDate && $now < $switchOn ? -1 : 0;
+			if ($switch)
+				$firstWeekday = $firstWeekday == 1 ? 5 : $firstWeekday+$switch;
+
+			// Csoport azonosítók
 			$groups = UserTools::GetClassGroupIDs();
 			$onlyGrp = !$allgroup ? "&& groupid IN ($groups)" : '';
-
-			$switch = $currDate === $firstWeekdayDate && $now < $switchOn ? -1 : 0;
-			if ($switch === -1)
-				$lastWeekDay =  $lastWeekDay == 1 ? 7 : $lastWeekDay+$switch;
 
 			if ($firstWeekday === 1){
 				$ttentries = $db->rawQuery(
@@ -291,6 +299,9 @@ STRING;
 					ORDER BY week, day, lesson",array($user['class'][0], $currWeekLetter));
 			}
 			else {
+				// Következő hét betűjele
+				$nextWeekLetter = self::GetUpcomingWeek($currWeekLetter);
+
 				$tt_thisWeek = $db->rawQuery(
 					"SELECT
 						id, lesson, lessonid, day, week,
@@ -300,8 +311,8 @@ STRING;
 							ELSE NULL
 						END) as group_name
 					FROM timetable
-					WHERE classid = ? && day > ? && week = ? $onlyGrp
-					ORDER BY day, lesson", array($user['class'][0], $lastWeekDay, $currWeekLetter));
+					WHERE classid = ? && day >= ? && week = ? $onlyGrp
+					ORDER BY day, lesson", array($user['class'][0], $firstWeekday, $currWeekLetter));
 				$tt_nextWeek = $db->rawQuery(
 					"SELECT
 						id, lesson, lessonid, day, week,
@@ -311,8 +322,8 @@ STRING;
 							ELSE NULL
 						END) as group_name
 					FROM timetable
-					WHERE classid = ? && day <= ? && week = ? $onlyGrp
-					ORDER BY day, lesson", array($user['class'][0], $lastWeekDay, $nextWeekLetter));
+					WHERE classid = ? && day < ? && week = ? $onlyGrp
+					ORDER BY day, lesson", array($user['class'][0], $firstWeekday, $nextWeekLetter));
 
 				$ttentries = array_merge($tt_thisWeek,$tt_nextWeek);
 			}
@@ -340,6 +351,7 @@ STRING;
 						'name' => $LessonCache[$LessonID]['name'],
 						'bgcolor' => $LessonCache[$LessonID]['color'],
 						'lid' => $LessonCache[$LessonID]['id'],
+						'ttid' => $entry['id'],
 						'group' => $allgroup ? $entry['group_name'] : '',
 						'week' => $entry['week']
 					);
@@ -351,12 +363,17 @@ STRING;
 					$Timetable[$k] = array_merge($move, $lesson);
 				}
 			}
+			if (is_int($maxDays)){
+				foreach ($Timetable as $k => $lesson)
+					$Timetable[$k] = array_splice($lesson, 0, $maxDays);
+			}
 			$targetWeekdays = count($reqDays);
 
 			$days = [];
 			$loopDate = $firstWeekdayDate;
 			$foundWeekdays = 0;
-			while (count($days) < $targetWeekdays){
+			$loopTarget = is_int($maxDays) ? min($maxDays, $targetWeekdays) : $targetWeekdays;
+			while (count($days) < $loopTarget){
 				$day = self::GetDay($loopDate);
 				if ($day < 6){
 					$days[] = $loopDate;
@@ -370,33 +387,31 @@ STRING;
 		}
 
 		// Órarend lekérése
-		static function GetTimetableForWeek($week, $allgroups = true){
+		static function GetForWeek($week, $allgroups = true){
 			global $user, $db;
 
 			# Formátum ellenörzése
 			if (!self::ValidateWeek($week))
 				throw new Exception('Érvénytelen hét');
 
-			$groupdata = $db->rawQuery(
-				"SELECT DISTINCT g.id
-				FROM group_members gm
-				LEFT JOIN groups g ON gm.groupid = g.name
-				WHERE gm.userid = ? && gm.classid = ?", array($user['id'], $user['class'][0]));
-
-			# Ha minden csoport adatait szeretnénk lekérni...
-			if ($allgroups){
-				$groupsstr = '0';
-				foreach ($groupdata as $subgd)
-					$groupsstr .= ','.$subgd['id'];
-			}
-
 			$groups = $db->where('classid', $user['class'][0])->get('groups','id,name');
 			$grp_list = array(0 => '');
 			foreach ($groups as $subg)
 				$grp_list[$subg['id']] = $subg['name'];
 
-			if ($allgroups)
+			# Ha minden csoport adatait szeretnénk lekérni...
+			if ($allgroups){
+				$groupdata = $db->rawQuery(
+					"SELECT DISTINCT g.id
+					FROM group_members gm
+					LEFT JOIN groups g ON gm.groupid = g.name
+					WHERE gm.userid = ? && gm.classid = ?", array($user['id'], $user['class'][0]));
+				$groupsstr = '0';
+				foreach ($groupdata as $subgd)
+					$groupsstr .= ','.$subgd['id'];
 				$db->where("groupid IN ($groupsstr)");
+			}
+
 			# Lekérés végrehajtása
 			$ttentries = $db
 				->where('classid', $user['class'][0])
@@ -426,7 +441,8 @@ STRING;
 					$Timetable[$lesson][$day][] = array(
 						'name' => $LessonCache[$LessonID]['name'],
 						'bgcolor' => $LessonCache[$LessonID]['color'],
-						'lid' => $entry['id'],
+						'ttid' => $entry['id'],
+						'lid' => $LessonCache[$LessonID]['id'],
 						'group' => $grp_list[$entry['groupid']]
 					);
 			}
@@ -436,16 +452,16 @@ STRING;
 
 		const MANAGE = true;
 		//Órarend kirenderelése
-		static function Render($week, $Timetable, $weekdays = null, $wrap = true){
+		static function Render($week, $Timetable, $weekdays = null, $wrap = true, $dataAttributes = false){
 			if (empty($weekdays) && empty($week)) return;
 			if (!empty($weekdays)){
 				// Hetek kirenderelésének előkészítése
 				$weeks = [];
 				foreach ($weekdays as $day){
 					$wNum = (int)date('W',$day);
-					if (array_search($wNum,array_keys($weeks)) === false)
-						$weeks[$wNum] = array(1, Timetable::GetWeekLetter($day));
-					else $weeks[$wNum][0]++;
+					if (!isset($weeks[$wNum]))
+						$weeks[$wNum] = array(0, Timetable::GetWeekLetter($day));
+					$weeks[$wNum][0]++;
 				}
 				ksort($weeks);
 			}
@@ -474,8 +490,13 @@ STRING;
 
 			foreach ($Timetable as $lessoncount => $lesson){
 				$TR = '<tr class="lesson-field"><th>'.($lessoncount+1).'</th>';
-				foreach ($lesson as $weekday)
-						$TR .= self::_RenderClass($weekday);
+				$i = 0;
+				foreach ($lesson as $weekday){
+					$td = self::_RenderClass($weekday);
+					if ($dataAttributes)
+						$td = str_replace('<td>','<td data-week="'.date('Y\WW',$weekdays[$i++]).'">',$td);
+					$TR .= $td;
+				}
 				$HTML .= "$TR</tr>";
 			}
 
@@ -496,9 +517,13 @@ STRING;
 					if (!empty($c['group']))
 						$name .= " ({$c['group']})";
 
-					$week = isset($c['week']) ? "data-week='{$c['week']}'" : '';
-					$deleteIcon = "<span class='del typcn typcn-times' data-id='{$c['lid']}'></span>";
-					$HTML .= "<span class='lesson' $week style='background: {$c['bgcolor']}'>$name$deleteIcon</span>";
+					$ids = '';
+					if (!empty($c['ttid']))
+						$ids .= " data-ttid='{$c['ttid']}'";
+					if (!empty($c['lid']))
+						$ids .= " data-lid='{$c['lid']}'";
+					$deleteIcon = "<span class='del typcn typcn-times' $ids></span>";
+					$HTML .= "<span class='lesson' style='background: {$c['bgcolor']}'>$name$deleteIcon</span>";
 				}
 			}
 			else $HTML = '<td class="empty">';

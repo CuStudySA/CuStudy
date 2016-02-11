@@ -28,6 +28,6 @@
 		break;
 
 		case 'showTimetable':
-			Timetable::JSTimetable($ENV['POST']['dispDays'][0],$ENV['URL'][1] === 'all');
+			Timetable::Step($ENV['POST']['dispDays'][0], $ENV['URL'][1] === 'all');
 		break;
 	}

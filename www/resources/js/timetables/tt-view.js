@@ -16,6 +16,7 @@ $(function(){
 		$bWButton = $('.backWeek'),
 		$nWButton = $('.nextWeek'),
 		$timetable = $('.timet'),
+		sdrq,
 		$datePick = $('#startDatePicker'),
 		currDate = $datePick.val(),
 		stepWeek = function(button){
@@ -56,12 +57,17 @@ $(function(){
 		var date = $(this).val();
 		if (date === currDate)
 			return true;
-		$.Dialog.wait(title2);
-
 		if (isNaN(Date.parse(date)))
 			return $.Dialog.fail('Léptetés', 'Érvénytelen dátum!');
 
-		$.ajax({
+		if (typeof sdrq !== 'undefined'){
+			sdrq.abort();
+			sdrq = undefined;
+		}
+		if (!$.Dialog.open || $.Dialog.open.type !== 'wait')
+			$.Dialog.wait(title2);
+
+		sdrq = $.ajax({
 			method: "POST",
 			url: '/homeworks/getTimetable/date',
 			data: {
@@ -78,6 +84,7 @@ $(function(){
 				$datePick.val(currDate);
 
 				$.Dialog.close();
+				sdrq = undefined;
 			}
 		});
 	});

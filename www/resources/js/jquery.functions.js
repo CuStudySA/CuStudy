@@ -152,8 +152,9 @@
 		this.html(contentArray[$.rangeLimit(contentArray.indexOf(this.html())+1, true, contentArray.length-1)]);
 	};
 
+	var CSRF_COOKIE_NAME = 'JSSESSID';
 	window.getToken = function(){
-		var token = getCookie('JSSESSID');
+		var token = getCookie(CSRF_COOKIE_NAME);
 		if (typeof token == 'undefined') return '';
 
 		return token;
@@ -167,14 +168,18 @@
 			event.data = "";
 		if (typeof event.data === "string"){
 			var r = event.data.length > 0 ? event.data.split("&") : [];
-			r.push("JSSESSID=" + t);
+			r.push(CSRF_COOKIE_NAME + '=' + t);
 			event.data = r.join("&");
 		}
-		else event.data.JSSESSID = t;
+		else if (event.data instanceof FormData)
+			event.data.append(CSRF_COOKIE_NAME, t);
+		else event.data[CSRF_COOKIE_NAME] = t;
 	});
 	$.ajaxSetup({
 		dataType: "json",
-		error: function(){
+		error: function(_,name){
+			if (name === 'abort')
+				return;
 			$.Dialog.fail(undefined, "Ismeretlen AJAX hiba");
 		},
 		statusCode: {

@@ -46,7 +46,7 @@
 		break;
 
 		case 'getDoneHomeworks':
-			HomeworkTools::RenderHomeworks(3,false);
+			HomeworkTools::RenderHomeworks(3);
 		break;
 
 		case 'getNotDoneHomeworks':
@@ -73,6 +73,6 @@
 			}
 
 			/** @noinspection PhpUndefinedVariableInspection */
-			Timetable::JSTimetable($date, $showAllGroups, $move);
+			Timetable::Step($date, $showAllGroups, $move);
 		break;
 	}

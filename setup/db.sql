@@ -154,8 +154,8 @@ CREATE TABLE `homeworks` (
   `lesson` int(11) NOT NULL,
   `text` tinytext COLLATE utf8_hungarian_ci NOT NULL,
   `author` int(11) NOT NULL,
-  `week` int(11) NOT NULL,
-  `year` int(11) NOT NULL DEFAULT '2016',
+  `week` tinyint(2) NOT NULL,
+  `year` smallint(4) NOT NULL,
   `classid` int(11) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
@@ -778,7 +778,6 @@ ALTER TABLE `timetable`
 --
 ALTER TABLE `users`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

@@ -276,6 +276,7 @@
 					0x2 => 'valamelyik megadott adat formátuma hibás',
 					0x3 => 'az órarend-bejegyzés nem található',
 					0x4 => 'a meadott órarend-bejegyzés a kapott hét sorszámával nem összeegyeztethető',
+					0x5 => 'ehhez az órához már hozzá van adva egy házi feladat',
 				),
 				'messages' => array(
 					0 => 'A házi feladat hozzáadása sikeresen befejezeődött!',
