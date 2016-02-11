@@ -5,9 +5,22 @@
 		case 'invite':
 			if (empty($ENV['POST']['invitations'])) System::Respond();
 
-			$action = InviteTools::BatchInvite($ENV['POST']['invitations']);
+			$data = InviteTools::BatchInvite($ENV['POST']['invitations']);
 
-			System::Respond(Message::Respond('invitation.batchInvite',$action), $action == 0 ? 1 : 0);
+			if (!empty($data['invalidEntrys'])){
+				$text = "<p>A meghívás befejeződött, de néhány meghívót nem sikerült elküldeni:\
+							<ul>";
+
+				foreach ($data['invalidEntrys'] as $array){
+					$text .= "<li>{$array['name']} / {$array['email']} (hibakód: {$array['error']})</li>";
+				}
+
+				$text .= "</ul>";
+			}
+			else
+				$text = "A felhasználók meghívása befejeződött, de a meghívók megérkezéséig néhány óra eltelhet!";
+
+			System::Respond($text,!empty($data['invalidEntrys']) ? 0 : 1,array('enrolledUsers' => $data['enrolledUsers']));
 		break;
 
 		case 'getPatterns':

@@ -11,6 +11,22 @@ $(function(){
 						<input type='hidden' name='id' value=''>\
 				</form>");
 
+	var $tileTempl = $("<li>\
+							<div class='top clearfix'>\
+								<div class='left'>\
+									<span class='typcn typcn-user'></span>\
+									<span class='id'></span>\
+								</div>\
+								<div class='right'>\
+									<span class='vnev'></span> <span class='knev'></span>\
+								</div>\
+							</div>\
+							<div class='bottom'>\
+								<a class='typcn typcn-pencil js_user_edit' href='' title='Módosítás'></a>\
+								<a class='typcn typcn-media-eject js_user_eject' href='' title='Felhasználó osztálybeli szerepkörének törlése'></a>\
+							</div>\
+						</li>");
+
 	/////\\\\\ Nincs használatban! /////\\\\\
 	// Patternek hozzácsatolása az űrlapelemekhez
 	//if (typeof Patterns != undefined){
@@ -99,7 +115,8 @@ $(function(){
 			adding = true;
 
 			var $ul = $('.l_l_utag'),
-				title = 'Felhasználók meghívása';
+				title = 'Felhasználók meghívása',
+				$elemlista = $('.customers');
 
 			//Meghívottak listájának előkészítése
 			$.each($ul.children(),function(i,entry){
@@ -125,10 +142,34 @@ $(function(){
 					}
 
 					if (data.status){
-						$.Dialog.success(title,data.message,true);
-
 						$clonedAddForm.remove();
 						$clonedAddForm = undefined;
+
+						for (var i = 0; i < data.enrolledUsers.length; i++){
+							var item = data.enrolledUsers[i];
+
+							var $elem = $tileTempl.clone(),
+								tagoltNev = item.name.split(' ');
+
+							$elem.find('.vnev').text(tagoltNev.slice(0,1).toString());
+							$elem.find('.knev').text(tagoltNev.slice(1).join(' '));
+							$elem.attr('data-id',item.id);
+							$elem.find('.id').text('#' + item.id);
+							$elem.find('.js_user_edit').attr('href','#' + item.id);
+							$elem.find('.js_user_eject').attr('href','#' + item.id);
+
+							$elemlista.append($elem);
+
+							var $newLessonTile = $('.new').detach();
+
+							$elemlista.sortChildren('.vnev',false);
+							$elemlista.append($newLessonTile);
+
+							$elem.find('.js_user_edit').on('click', e_user_edit);
+							$elem.find('.js_user_eject').on('click', e_user_eject);
+						}
+
+						$.Dialog.success(title,data.message,true);
 					}
 					else $.Dialog.fail(title,data.message);
 				},

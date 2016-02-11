@@ -62,7 +62,7 @@ STRING
 					'role' => UserTools::$roleLabels['visitor']." a(z) {$ENV['school']['name']} iskola {$ENV['class']['classid']} osztályában",
 				));
 
-				return 0;
+				return $data;
 			}
 
 			$invId = Password::Generalas(12);
@@ -93,15 +93,25 @@ STRING
 			# Jog. ellenörzése
 			if (System::PermCheck('users.invite')) return 1;
 
-			$invalidEntrys = [];
+			$invalidEntrys = $enrolledUsers = [];
 			foreach ($emails as $array){
 				$action = self::Invite($array['email'],$array['name']);
 
-				if ($action != 0) $invalidEntrys[] = array_merge(array('error' => $action),$array);
+				if (is_int($action)){
+					if ($action != 0)
+						$invalidEntrys[] = array_merge(array('error' => $action),$array);
+				}
+				else
+					$enrolledUsers[] = array(
+						'id' => $action['id'],
+						'name' => $action['name'],
+					);
 			}
 
-			if (empty($invalidEntrys)) return 0;
-			else return 2;
+			return array(
+				'invalidEntrys' => $invalidEntrys,
+				'enrolledUsers' => $enrolledUsers,
+			);
 		}
 
 		static function Registration($data){
