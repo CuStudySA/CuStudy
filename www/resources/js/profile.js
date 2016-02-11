@@ -166,4 +166,96 @@ $connBtn.on('click',function(e){
 			});
 		});
 	});
+
+	// Szerepkörök
+	var e_changeDefault = function(e){
+		e.preventDefault();
+
+		var id = $(e.currentTarget).attr('data-id'),
+			title = 'Szerepkör alapértelmezetté tétele';
+
+		if (typeof id === 'undefined')
+			throw new Error('Nincs megadva "data-id" paraméter!');
+
+		$.Dialog.wait();
+
+		$.ajax({
+			method: 'POST',
+			url: '/profile/roles/changeDefault',
+			data: pushToken({'id': id}),
+			success: function(data){
+				if (typeof data === 'string'){
+					console.log(data);
+					$(window).trigger('ajaxerror');
+					return false;
+				}
+
+				if (data.status){
+					$('.js_changeDefault').prop('disabled',false);
+					$(e.currentTarget).prop('disabled',true);
+
+					$.Dialog.close();
+				}
+				else $.Dialog.fail(title,data.message);
+			}
+		});
+	};
+	$('.js_changeDefault').on('click',e_changeDefault);
+
+	var e_eject = function(e){
+		e.preventDefault();
+
+		var title = 'Szerepkör leválasztása';
+
+		if ($(e.currentTarget).parent().find('.js_changeDefault').prop('disabled'))
+			return $.Dialog.fail(title,'Az alapértelemeztt szerepkör leválasztása nem lehetséges! A leválasztás előtt jelöljön ki egy másik szerepkört alapértelmezettként!');
+
+		var id = $(e.currentTarget).attr('data-id'),
+			$dialog = $("<p>Arra készül, hogy leválasztja a kiválasztott szerepkört a fiókjáról. Ez azt jelenti, hogy egy osztálybeli szerepkör leválasztása esetén nem lesz képes a továbbiakban hozzáférni az osztályhoz!<br>\
+						Ez a művelet nem visszavonható, így kérem, erősítse meg szándékát a jelszava begépelésével!</p>\
+						<form id='js_form'>\
+							<p><strong>Jelenlegi jelszava:</strong> <input type='password' name='password' required placeholder='Jelenlegi jelszava\
+							'></p>\
+							<input type='hidden' name='id'>\
+						</form>");
+
+		if (typeof id === 'undefined')
+			throw new Error('Nincs megadva "data-id" paraméter!');
+
+		$dialog.find('input[type=hidden]').attr('value',id);
+
+		$.Dialog.request(title,$dialog,'js_form','Leválasztás',function(){
+			var $urlap = $('#js_form');
+
+			$urlap.on('submit',function(ev){
+				ev.preventDefault();
+
+				$.Dialog.wait();
+
+				$.ajax({
+					method: 'POST',
+					url: '/profile/roles/eject',
+					data: $urlap.serializeForm(),
+					success: function(data){
+						if (typeof data === 'string'){
+							console.log(data);
+							$(window).trigger('ajaxerror');
+							return false;
+						}
+
+						if (data.status){
+							if (data.reload == 1)
+								return window.location.reload();
+
+							$('.conn-wrap[data-id=' + id +']').remove();
+
+							$.Dialog.close();
+						}
+						else $.Dialog.fail(title,data.message);
+					}
+				});
+			});
+		});
+	};
+	$('.js_eject').on('click',e_eject);
 })();

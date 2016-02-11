@@ -32,7 +32,7 @@
 		'jbbcode' => array(
 			'php' => ['jbbcode/Parser.php','jbbcode/_BlueSkyCodeDefSet.php'],
 		),
-		'swiftMailer' => array(
+		 'swiftMailer' => array(
 			'php' => ['swiftMailer/swift_required.php'],
 		),
 		'fullCalendar' => array(
@@ -45,9 +45,10 @@
 		),
 	);
 
-	# Menüpontok beállítása, JS és CSS fájlok tömbjeinek kezdeti értékadása
+	# Menüpontok beállítása, JS, CSS és addonok tömbjeinek kezdeti értékadása
 	$css = ['theme.css','dialog_old.css'];
 	$js = ['jquery.functions.js','dialog_old.js'];
+	$addon = ['swiftMailer'];
 
 	$pages = array(
 		'fooldal' => array(
@@ -90,7 +91,7 @@
 			'maxperm' => 	'admin',
 			'reqdoc' => 	[],
 			'file' => 		'users',
-			'addons' =>     ['swiftMailer'],
+			'addons' =>     [],
 		),
 
 		/*'logs' => array(
@@ -157,7 +158,7 @@
 			'maxperm' => 	'guest',
 			'reqdoc' => 	[],
 			'file' => 		'pw-reset',
-			'addons' =>     ['swiftMailer'],
+			'addons' =>     [],
 		),
 
 		'profile' => array(
@@ -185,7 +186,7 @@
 
 		'invitation' => array(
 			'title' => 		'Meghívás',
-			'css' => 		['login.css','invitation.css'],
+			'css' => 		['login.css'],
 			'js' => 		['invitation.js'],
 			'customjs' =>   [],
 			'minperm' => 	'guest',
@@ -254,13 +255,14 @@
 				'lessons' => ['add','edit','delete'],
 				'groups' => ['view', 'add', 'edit', 'delete', 'list'],
 				'groupThemes' => ['add', 'edit', 'delete'],
-				'users' => ['view', 'add', 'edit', 'delete', 'editSecurity', 'invite'],
+				'users' => ['view', 'edit', 'invite', 'eject'],
 			),
 		),
 		'guest' => array(
 			'pw-reset' => ['view'],
 			'login' => ['view'],
 			'not-found' => ['view'],
+			'invitation' => ['view'],
 		),
 		'systemadmin' => array(
 			'system' => ['view'],
@@ -269,6 +271,7 @@
 			'not-found' => ['view'],
 			'fooldal' => ['view'],
 			'profile' => ['view'],
+			'invitation' => ['view'],
 		),
 	);
 

@@ -33,9 +33,8 @@
 					</div>
 					<div class="bottom">
 <?php                   if ($subarray['id'] != $user['id']){ ?>
-							<a class="typcn typcn-pencil js_user_edit" href="#<?=$subarray['id']?>" title="Adatok módosítása"></a>
-							<a class="typcn typcn-key js_user_editAccessData" href="#<?=$subarray['id']?>" title="Hozzáférési adatok módosítása"></a>
-							<a class="typcn typcn-user-delete js_user_delete" href="#<?=$subarray['id']?>" title="Törlés"></a>
+							<a class="typcn typcn-edit js_user_edit" href="#<?=$subarray['id']?>" title="Adatok módosítása"></a>
+							<a class="typcn typcn-media-eject js_user_eject" href="#<?=$subarray['id']?>" title="Felhasználó osztálybeli szerepkörének törlése"></a>
 <?php                   } ?>
 					</div>
 				</li>
@@ -51,12 +50,13 @@
 					</div>
 					<div class="bottom">
 						<a class="typcn typcn-mail js_invite" href="#" title="Felhasználók meghívása"></a>
-						<a class="typcn typcn-user-add js_user_add" href="/users/add" title="Új felh. hozzáadása"></a>
 					</div>
 				</li>
 			</ul>
 			<div class='invite_form' style='display: none;'>
 				<h3>Felhasználók meghívása</h3>
+
+				<p>A meghívás módja megváltozott! A már létező felhasználók esetében <strong>csak egy új szerepkör kerül hozzáadásra a fiókhoz</strong>, és nem hozunk létre új fiókot!</p>
 
 				<div class="lesson_list">
 					<p class="l_l_addedtext">Meghívásra jelölt felhasználók:</p>
@@ -66,8 +66,12 @@
 				</div>
 
 				<div class='add_lesson'>
-					<p>Felhasználó neve: <input type='text' name='name' pattern='^[A-ZÁÉÍÓÖŐÚÜŰ][a-záéíóöőúüű]+[ ][A-ZÁÉÍÓÖŐÚÜŰ][a-záéíóöőúüű]+[ a-zA-ZáéíóöőúüűÁÉÍÓÖŐÚÜŰ]*$' autocomplete="off" required></p>
-					<p>Felhasználó e-mail címe: <input type='text' name='email' pattern='^[a-zA-Z0-9.-_]+(\+[a-zA-Z0-9])?@[a-z0-9]+\.[a-z]{2,4}$' autocomplete="off" required></p>
+					<p title="A rendszer ezt az értéket csak akkor veszi figyelmebe, ha a felhasználó még nem létezik a CuStudy rendszerben!">
+						Felhasználó neve: <input type='text' name='name' pattern='^[A-ZÁÉÍÓÖŐÚÜŰ][a-záéíóöőúüű]+[ ][A-ZÁÉÍÓÖŐÚÜŰ][a-záéíóöőúüű]+[ a-zA-ZáéíóöőúüűÁÉÍÓÖŐÚÜŰ]*$' autocomplete="off" required>
+					</p>
+					<p title="Új felhasználó esetén ide küldjük ki a meghívót, meglévő felhasználót pedig ezen cím alapján azonosítjuk!">
+						Felhasználó e-mail címe: <input type='text' name='email' pattern='^[a-zA-Z0-9.-_]+(\+[a-zA-Z0-9])?@[a-z0-9]+\.[a-z]{2,4}$' autocomplete="off" required>
+					</p>
 					<a href='#' class='btn addlesson'>Hozzáadás</a>
 				</div>
 				<button class='btn a_t_f_sendButton'>Felhasználók meghívása</button>

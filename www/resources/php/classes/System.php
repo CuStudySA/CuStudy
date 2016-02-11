@@ -271,15 +271,20 @@
 		}
 
 		// Kiléptetés
-		static function Logout(){
+		static function Logout($User = null){
 			global $user;
 
-			# Felh. bejelentkézésnek ellenörzése
-			if (empty($user)) return 1;
+			if (empty($User)){
+				# Felh. bejelentkézésnek ellenörzése
+				if (empty($user) || !is_array($user)) return 1;
 
-			self::_clearSessions($user);
+				$User = $user;
+			}
 
-			Cookie::delete('PHPSESSID');
+			self::_clearSessions($User);
+
+			if (!empty($User))
+				Cookie::delete('PHPSESSID');
 
 			return 0;
 		}
@@ -339,7 +344,8 @@
 
 				$roles[] = array(
 					'entryId' => $entry['id'],
-					'intezmeny' => "{$School['name']} {$Class['classid']} osztálya",
+					'intezmeny' => $School['name'],
+					'osztaly' => $Class['classid'],
 					'szerep' => UserTools::$roleLabels[$entry['role']],
 					'active' => $entry['id'] == $ENV['session'][0]['activeSession'] ? 1 : 0,
 				);
@@ -348,6 +354,7 @@
 			if ($User['role'] != 'none')
 				$roles[] = array(
 					'intezmeny' => "CuStudy",
+					'osztaly' => 0,
 					'szerep' => "Globális rendszeradminisztrátor",
 					'entryId' => 0,
 					'active' => $ENV['session'][0]['activeSession'] == 0 ? 1 : 0,
@@ -369,6 +376,59 @@
 
 			$action = $db->where('id',$ENV['session'][0]['id'])->update('sessions',array(
 				'activeSession' => $roleId,
+			));
+
+			if ($action) return 0;
+			else return 2;
+		}
+
+		static function EjectRole($roleId, $password){
+			global $db, $user, $ENV;
+
+			if ($roleId == 0) return 1;
+
+			$roles = self::GetAvailableRoles();
+			$founded = false;
+			foreach ($roles as $role)
+				if ($role['entryId'] == $roleId)
+					$founded = true;
+
+			if (!$founded) return 2;
+			if ($user['defaultSession'] == $roleId) return 3;
+
+			if (count($roles) == 1)
+				return 4;
+
+			if (!Password::Ellenorzes($password,$user['password']))
+				return 5;
+
+			$action = $db->where('id',$roleId)->delete('class_members');
+			if (!$action) return 6;
+
+			if ($ENV['session'][0]['activeSession'] == $roleId){
+				$db->where('id',$ENV['session'][0]['id'])->update('sessions',array(
+					'activeSession' => $user['defaultSession'],
+				));
+
+				return true;
+			}
+			else
+				return false;
+		}
+
+		static function ChangeDefaultRole($roleId){
+			global $db, $user, $ENV;
+
+			$roles = self::GetAvailableRoles();
+			$founded = false;
+			foreach ($roles as $role)
+				if ($role['entryId'] == $roleId)
+					$founded = true;
+
+			if (!$founded) return 1;
+
+			$action = $db->where('id',$user['id'])->update('users',array(
+				'defaultSession' => $roleId,
 			));
 
 			if ($action) return 0;
@@ -452,20 +512,23 @@
 			if ($die) die();
 		}
 
+		// Belépés külső szolgáltató segítségével
 		static function ExternalLogin($userData, $provider){
 			global $db;
 
 			$data = $db->where('account_id', $userData['account_id'])->where('provider',$provider)->getOne('ext_connections');
 
-			if (empty($data)) System::Redirect("/?errtype=local&prov={$provider}&err=nem található a távoli fiókhoz kacsolt felhasználó<br><code>".$db->getLastQuery()."</code>");
-			if (!$data['active']) System::Redirect("/?errtype=local&prov={$provider}&err=inaktív az összekapcsolás");
+			if (empty($data)) return 1;
+			if (!$data['active']) return 2;
 
 			$user = $db->where('id',$data['userid'])->getOne('users');
-			if (empty($user)) System::Redirect("/?errtype=local&prov={$provider}&err=az összekapcsolás létezik, de nem található a helyi felhasználó");
+			if (empty($user)) return 3;
 
-			if (self::UserIsStudent($user['role']))
-				if (self::UserActParent(self::GetUserClasses($user)[0]))
-					System::Redirect("/?errtype=local&prov={$provider}&err=az osztály vagy iskola nem aktív a rendszerben");
+			if ($user['defaultSession'] != 0){
+				$conn = $db->where('id',$user['defaultSession'])->getOne('class_members');
+				if (System::UserActParent($conn['classid']))
+					return 4;
+			}
 
 			$db->where('id', $data['id'])->update('ext_connections',array(
 				'name' => isset($userData['name']) ? $userData['name'] : '',
@@ -475,7 +538,7 @@
 
 			$session = Password::GetSession($user['username']);
 			$envInfos = self::GetBrowserEnvInfo();
-			if (!is_array($envInfos)) System::Redirect('/');
+			if (!is_array($envInfos)) return 5;
 
 			self::_clearSessions($user);
 
@@ -484,11 +547,12 @@
 				'userid' => $user['id'],
 				'ip' => $envInfos['ip'],
 				'useragent' => $envInfos['useragent'],
+				'activeSession' => $user['defaultSession'],
 			));
 
 			Cookie::set('PHPSESSID',$session,null);
 
-			System::Redirect('/#');
+			return 0;
 		}
 
 		static $mailSended = false;
@@ -591,7 +655,7 @@
 		static function Article($str, $upperc = false, $btw = ''){
 			$a = $upperc ? 'A' : 'a';
 			$str = trim($str);
-			if (preg_match('/^(\d+)?/', $str, $num)){
+			if (preg_match('/^(\d+)/', $str, $num)){
 				$number = intval($num[1], 10);
 				if (
 					($number < 10 && ($number == 1 || $number == 5)) ||

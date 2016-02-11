@@ -1,21 +1,15 @@
 $(function(){
 	var $formTempl = $("<form id='js_form'>\
-							<p>Felhasználónév: <input type='text' name='username' placeholder='Felhasználónév' required></p>\
-							<p>Teljes név: <input type='text' name='name' placeholder='Vezetéknév Utónév' required></p>\
-							<p>E-mail cím: <input type='text' name='email' placeholder='email@provider.mail' required></p>\
-							<p>Jogosultság: \
-								<select name='role'>\
-									<option value='visitor' selected>Ált. felhasználó</option>\
-									<option value='editor'>Szerkesztő</option>\
-									<option value='admin'>Csoport adminisztrátor</option>\
-								</select></p>\
-							<p>Aktív legyen?\
-								<select name='active'>\
-									<option value='1' selected>Igen</option>\
-									<option value='0'>Nem</option>\
-								</select></p>\
-							<input type='hidden' name='id' value=''>\
-					</form>");
+						<p>Felhasználónév: <input type='text' name='username' placeholder='Felhasználónév' required disabled></p>\
+						<p>E-mail cím: <input type='text' name='email' placeholder='email@provider.mail' required disabled></p>\
+						<p>Jogosultság: \
+							<select name='role'>\
+								<option value='visitor' selected>Ált. felhasználó</option>\
+								<option value='editor'>Szerkesztő</option>\
+								<option value='admin'>Csoport adminisztrátor</option>\
+							</select></p>\
+						<input type='hidden' name='id' value=''>\
+				</form>");
 
 	var $tileTempl = $("<li>\
 							<div class='top clearfix'>\
@@ -29,49 +23,22 @@ $(function(){
 							</div>\
 							<div class='bottom'>\
 								<a class='typcn typcn-pencil js_user_edit' href='' title='Módosítás'></a>\
-								<a class='typcn typcn-key js_user_editAccessData' href='' title='Hozzáférési adatok módosítása'></a>\
-								<a class='typcn typcn-user-delete js_user_delete' href='' title='Törlés'></a>\
+								<a class='typcn typcn-media-eject js_user_eject' href='' title='Felhasználó osztálybeli szerepkörének törlése'></a>\
 							</div>\
 						</li>");
 
-	var $accessFormTempl = $("<form id='js_form'>\
-								<p>Új jelszó: <input type='password' name='newpassword' placeholder='Jelszó' required></p>\
-								<p>Jelszó megerősítése: <input type='password' name='vernewpasswd' placeholder='Jelszó megerősítése' required></p>\
-								<input type='hidden' name='id' value=''>\
-							</form>");
-
-	/*$.ajax({
-		method: "POST",
-		url: "/users/getPatterns",
-		success: function(data){
-			if (typeof data === 'string'){
-				console.log(data);
-				$(window).trigger('ajaxerror');
-				return false;
-			}
-
-			$.each(data,function(key,value){
-				if (key != 'message' && key != 'status')
-					$formTempl.find('[name=' + key + ']').attr('pattern',value);
-			});
-		}
-	});*/
-
+	/////\\\\\ Nincs használatban! /////\\\\\
 	// Patternek hozzácsatolása az űrlapelemekhez
-	if (typeof Patterns != undefined){
-		$.each(Patterns,function(key,value){
-			if (key != 'message' && key != 'status'){
-				var $patternInput = $formTempl.find('[name=' + key + ']');
-				var $accessPatternInput = $accessFormTempl.find('[name=' + key + ']');
-
-				if ($patternInput.length)
-					$patternInput.attr('pattern',value);
-
-				if ($accessPatternInput.length)
-					$accessPatternInput.attr('pattern',value);
-			}
-		});
-	}
+	//if (typeof Patterns != undefined){
+	//	$.each(Patterns,function(key,value){
+	//		if (key != 'message' && key != 'status'){
+	//			var $patternInput = $formTempl.find('[name=' + key + ']');
+	//
+	//			if ($patternInput.length)
+	//				$patternInput.attr('pattern',value);
+	//		}
+	//	});
+	//}
 
 	var $addForm = $('.invite_form').detach().css('display','block'),
 					$clonedAddForm;
@@ -148,7 +115,8 @@ $(function(){
 			adding = true;
 
 			var $ul = $('.l_l_utag'),
-				title = 'Felhasználók meghívása';
+				title = 'Felhasználók meghívása',
+				$elemlista = $('.customers');
 
 			//Meghívottak listájának előkészítése
 			$.each($ul.children(),function(i,entry){
@@ -174,12 +142,34 @@ $(function(){
 					}
 
 					if (data.status){
-						$.Dialog.success(title,data.message,true);
-
 						$clonedAddForm.remove();
 						$clonedAddForm = undefined;
 
-						$.Dialog.close();
+						for (var i = 0; i < data.enrolledUsers.length; i++){
+							var item = data.enrolledUsers[i];
+
+							var $elem = $tileTempl.clone(),
+								tagoltNev = item.name.split(' ');
+
+							$elem.find('.vnev').text(tagoltNev.slice(0,1).toString());
+							$elem.find('.knev').text(tagoltNev.slice(1).join(' '));
+							$elem.attr('data-id',item.id);
+							$elem.find('.id').text('#' + item.id);
+							$elem.find('.js_user_edit').attr('href','#' + item.id);
+							$elem.find('.js_user_eject').attr('href','#' + item.id);
+
+							$elemlista.append($elem);
+
+							var $newLessonTile = $('.new').detach();
+
+							$elemlista.sortChildren('.vnev',false);
+							$elemlista.append($newLessonTile);
+
+							$elem.find('.js_user_edit').on('click', e_user_edit);
+							$elem.find('.js_user_eject').on('click', e_user_eject);
+						}
+
+						$.Dialog.success(title,data.message,true);
 					}
 					else $.Dialog.fail(title,data.message);
 				},
@@ -190,44 +180,6 @@ $(function(){
 		});
 	};
 	$('.js_invite').on('click',e_invite);
-
-	var e_user_editAccessData = function(e){
-		e.preventDefault();
-
-		var title = 'Felhasználó szerkesztése',
-			id = $(e.currentTarget).attr('href').substring(1);
-
-		var $dialog = $accessFormTempl.clone();
-
-		$dialog.find('[name=id]').attr('value',id);
-
-		$.Dialog.request(title,$dialog.prop('outerHTML'),'js_form','Mentés',function(){
-			var $urlap = $('#js_form');
-
-			$urlap.on('submit',function(e){
-				e.preventDefault();
-
-				$.Dialog.wait(title);
-
-				$.ajax({
-					method: "POST",
-					url: "/users/editAccessData",
-					data: $urlap.serializeForm(),
-					success: function(data2){
-						if (typeof data2 === 'string'){
-							console.log(data2);
-							$(window).trigger('ajaxerror');
-							return false;
-						}
-						if (data2.status)
-							$.Dialog.close();
-
-						else $.Dialog.fail(title,data2.message);
-					}
-				});
-			});
-		});
-	};
 
 	var e_user_edit = function(e){
 		e.preventDefault();
@@ -248,11 +200,9 @@ $(function(){
 
 				var $dialog = $formTempl.clone();
 
-				$dialog.find('[name=username]').attr('value',data.username).attr('disabled','true');
-				$dialog.find('[name=name]').attr('value',data.name);
+				$dialog.find('[name=username]').attr('value',data.username);
 				$dialog.find('[name=email]').attr('value',data.email);
 				$dialog.find('[name=role]').children('option[value=' + data.role + ']').attr('selected', true);
-				$dialog.find('[name=active]').children('option[value=' + data.active + ']').attr('selected', true);
 				$dialog.find('[name=id]').attr('value',id);
 
 				$.Dialog.request(title,$dialog.prop('outerHTML'),'js_form','Mentés',function(){
@@ -273,23 +223,8 @@ $(function(){
 									$(window).trigger('ajaxerror');
 									return false;
 								}
-								if (data2.status){
-									var $elemlista = $('ul'),
-										$elem = $elemlista.children('[data-id=' + id + ']'),
-										$urlapelemek = $urlap.children();
-
-									var tagoltNev = $urlapelemek.find('[name=name]').val().split(' ');
-
-									$elem.find('.vnev').text(tagoltNev.slice(0,1).toString());
-									$elem.find('.knev').text(tagoltNev.slice(1).join(' '));
-
-									var $newLessonTile = $('.new').detach();
-
-									$elemlista.sortChildren('.vnev',false);
-									$elemlista.append($newLessonTile);
-
+								if (data2.status)
 									$.Dialog.close();
-								}
 
 								else $.Dialog.fail(title,data2.message);
 							}
@@ -299,82 +234,20 @@ $(function(){
 			}
 		});
 	};
+	$('.js_user_edit').on('click', e_user_edit);
 
-	var e_user_add = function(e){
+	var e_user_eject = function(e){
 		e.preventDefault();
 
-		var title = 'Felhasználó hozzáadás',
-			$dialog = $formTempl.clone();
-
-		$dialog.find('[name=id]').remove();
-
-		$.Dialog.request(title,$dialog.prop('outerHTML'),'js_form','Mentés',function(){
-			var $urlap = $('#js_form');
-
-			$urlap.on('submit',function(e){
-				e.preventDefault();
-
-				$.Dialog.wait(title);
-
-				$.ajax({
-					method: "POST",
-					url: "/users/add",
-					data: $urlap.serializeForm(),
-					success: function(data2){
-						if (typeof data2 === 'string'){
-							console.log(data2);
-							$(window).trigger('ajaxerror');
-							return false;
-						}
-						if (data2.status){
-							var $elem = $tileTempl.clone(),
-								$urlapelemek = $urlap.children();
-
-							var tagoltNev = $urlapelemek.find('[name=name]').val().split(' ');
-
-							$elem.find('.vnev').text(tagoltNev.slice(0,1).toString());
-							$elem.find('.knev').text(tagoltNev.slice(1).join(' '));
-							$elem.find('.id').text('#' + data2.id);
-							$elem.find('.js_user_edit').attr('href','#' + data2.id);
-							$elem.find('.js_user_delete').attr('href','#' + data2.id);
-							$elem.find('.js_user_editAccessData').attr('href','#' + data2.id);
-							$elem.attr('data-id',data2.id);
-
-							var $elemlista = $('ul');
-							$elemlista.append($elem);
-
-							var $newLessonTile = $('.new').detach();
-
-							$elemlista.sortChildren('.vnev',false);
-							$elemlista.append($newLessonTile);
-
-							$elem.find('.js_user_edit').on('click', e_user_edit);
-							$elem.find('.js_user_delete').on('click', e_user_delete);
-							$elem.find('.js_user_editAccessData').on('click', e_user_editAccessData);
-
-							$.Dialog.close();
-						}
-
-						else $.Dialog.fail(title,data2.message);
-					}
-				});
-			});
-		});
-	};
-
-	var e_user_delete = function(e){
-		e.preventDefault();
-
-		var title = 'Felhasználó törlése';
-		$.Dialog.confirm(title,'Biztosan törölni szeretnéd a felhasználót? A művelet nem visszavonható!',['Felh. törlése','Visszalépés'],function(sure){
+		var title = 'Felhasználó szerepkörének leválasztása';
+		$.Dialog.confirm(title,'Arra készülsz, hogy törlöd a kiválasztott felhasználó osztáybeli szerepkörét, azaz törlöd a felhasználót az osztályból! Biztosan folytatod?',['Felhasználó törlése az osztályból','Visszalépés'],function(sure){
 			if (!sure) return;
-			$.Dialog.wait();
-
 			var id = $(e.currentTarget).attr('href').substring(1);
+			$.Dialog.wait(title);
 
 			$.ajax({
 				method: "POST",
-				url: "/users/delete",
+				url: "/users/eject",
 				data: pushToken({'id':id}),
 				success: function(data){
 					if (data.status){
@@ -386,9 +259,5 @@ $(function(){
 			})
 		});
 	};
-
-	$('.js_user_edit').on('click', e_user_edit);
-	$('.js_user_add').on('click', e_user_add);
-	$('.js_user_delete').on('click', e_user_delete);
-	$('.js_user_editAccessData').on('click', e_user_editAccessData);
+	$('.js_user_eject').on('click', e_user_eject);
 });

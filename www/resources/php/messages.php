@@ -62,6 +62,14 @@
 					1 => 'A felhasználó hozzáférési adatainak módosítása sikertelen volt, mert @msg! (Hibakód: @code)',
 				),
 			),
+			'eject' => array(
+				'errors' => array(
+					1 => 'nincs jogosultsága a művelethez',
+				),
+				'messages' => array(
+					1 => 'A felhasználó törlése az osztályból sikertelen volt, mert @msg! (Hibakód: @code)',
+				),
+			),
 		),
 
 		'extConnTools' => array(
@@ -120,7 +128,19 @@
 					0 => 'A profilkép szolgáltató sikeresen módosítva',
 					1 => 'A profilkép szolgáltató módosítása sikertelen volt, mert @msg! (Hibakód: @code)',
 				),
-			)
+			),
+			'login' => array(
+				'errors' => array(
+					1 => 'nem található a távoli fiókhoz kapcsolt felhasználó',
+					2 => 'inaktív az összekapcsolás',
+					3 => 'az összekapcsolás létezik, de nem található a helyi felhasználó',
+					4 => 'az osztály vagy iskola nem aktív a rendszerben',
+					5 => 'nem sikerült kiolvasni a munkamenet indításához szükséges adatokat',
+				),
+				'messages' => array(
+					1 => 'Nem sikerült bejelentkezni a(z) @provider szolgáltató segítségével, mert @msg! (Hibakód: @code)',
+				),
+			),
 		),
 
 		'lessons' => array(
@@ -162,8 +182,19 @@
 					2 => 'egyes felhasználóknak nem sikerült elküldeni a meghívó e-mailt',
 				),
 				'messages' => array(
-					0 => 'A felhasználók meghívása sikeresen befejeződött. A meghívók megérkezése azonban akár 12 órát is igénybe vehet!',
+					0 => 'A felhasználók meghívása sikeresen befejeződött. Az új felhasználók esetén a meghívó megérkezése azonban akár 12 órát is igénybe vehet!',
 					1 => 'Az összes felhasználó meghívása nem sikerült, mert @msg! (Hibakód: @code)',
+				),
+			),
+			'view' => array(
+				'errors' => array(
+					1 => 'nincs jogosultsága a művelethez',
+					2 => 'nincs megadva a meghívó azonosítója',
+					3 => 'a meghívó azonosítója nem található a rendszerben',
+					4 => 'a meghívó inaktív, így nem felhasználható (lehet, hogy már felhasználták)',
+				),
+				'messages' => array(
+					1 => 'Nem lehet regisztrálni meghívó segítségével a rendszerbe, mert @msg! (Hibakód: @code)',
 				),
 			),
 		),
@@ -410,6 +441,28 @@
 				'messages' => array(
 					1 => 'Nem sikerült az új szerepkörre történő váltás, mert @msg! (Hibakód: @code)',
 					0 => 'A szerepkör-váltás megtörtént, most átirányítjuk...',
+				),
+			),
+			'eject' => array(
+				'errors' => array(
+					1 => 'a globális szerepkör nem leválasztható',
+					2 => 'a szerepkör nem található',
+					3 => 'kísérlet történt az alapértelmezett szerepkör leválasztására',
+					4 => 'az utolsó szerepkör nem leválasztható',
+					5 => 'a megadott jelszó nem egyezik a felhasználó jelszavával',
+				),
+				'messages' => array(
+					1 => 'Nem sikerült leválasztani a szerepkört, mert @msg! (Hibakód: @code)',
+					0 => 'A szerepkör leválasztása sikeresen megtörtént!',
+				),
+			),
+			'changeDefault' => array(
+				'errors' => array(
+					1 => 'a szerepkör nem található',
+				),
+				'messages' => array(
+					1 => 'Nem sikerült megváltoztatni az alapértelmezett szerepkört, mert @msg! (Hibakód: @code)',
+					0 => 'Az alapértelmezett szerepkör beállítása sikeresen megtörtént!',
 				),
 			),
 		),
