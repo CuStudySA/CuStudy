@@ -61,13 +61,17 @@
 					$Auth = $api->getTokens($code, 'authorization_code');
 				}
 				catch(oAuthRequestException $e){
-					die(header(ABSPATH."/?errtype=remote&prov={$provider}"));
+					System::Redirect(ABSPATH.'/?error='.urlencode(str_replace('@provider',ucfirst($provider),Message::Respond('extConnTools.login',6))));
+					die(); //PhpStorm miatt
 				}
 
 				$aToken = $Auth['access_token'];
 				$remoteUser = $api->getUserInfo($aToken);
 
-				System::ExternalLogin($remoteUser,$provider);
+				$action = System::ExternalLogin($remoteUser,$provider);
+
+				if ($action === 0) System::Redirect('/#');
+				else System::Redirect(ABSPATH.'/?error='.urlencode(str_replace('@provider',ucfirst($provider),Message::Respond('extConnTools.login',$action))));
 			}
 		break;
 	}

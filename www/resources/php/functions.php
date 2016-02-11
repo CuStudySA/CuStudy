@@ -21,3 +21,5 @@
 	require "classes/HomeworkTools.php";
 	require "classes/EventTools.php";
 	require "classes/Timetable.php";
+
+	require "EmailNotifications.php";

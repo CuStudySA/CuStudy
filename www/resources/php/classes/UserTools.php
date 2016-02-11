@@ -105,28 +105,7 @@
 			# Jog. ellenörzése
 			if (System::PermCheck('users.edit')) return 1;
 
-			# Formátum ellenörzése
-			foreach ($datas as $key => $value){
-				if (in_array($key,['classid','role'])) continue;
-
-				switch ($key){
-					case 'name':
-						$type = 'name';
-					break;
-					case 'id':
-						$type = 'numeric';
-					break;
-					case 'active':
-						$type = 'numeric';
-					break;
-					default:
-						$type = $key;
-					break;
-				}
-
-				if (System::InputCheck($value,$type)) return 2;
-			}
-			if (System::OptionCheck($datas['active'],['0','1'])) return 2;
+			# Bevitel ellenörzése
 			if (System::OptionCheck($datas['role'],['visitor','editor','admin'])) return 2;
 
 			# Jog. ellenörzése
@@ -137,26 +116,13 @@
 						WHERE u.id = ? && cm.classid = ?',array($datas['id'],$user['class'][0]));
 			if (empty($data)) return 1;
 
-			# Létezik-e már ilyen felhasználó?
-			$userdata = $db->where('id',$id)->getOne('users');
-
-			if ($datas['email'] != $userdata['email']){
-				$data = $db->where('email',$datas['email'])->getOne('users');
-				if (!empty($data)) return 6;
-			}
-
 			# Szerepkörök előkészítése
-			if (!empty($datas['role'])){
-				$role = $datas['role'];
-				unset($datas['role']);
+			$role = $datas['role'];
+			unset($datas['role']);
 
-				$db->where('userid',$id)->where('classid',$user['class'][0])->update('class_members',array(
-					'role' => $role,
-				));
-			}
-
-			if (!empty($datas['username'])) unset($datas['username']);
-			$action = $db->where('id',$id)->update('users',$datas);
+			$action = $db->where('userid',$id)->where('classid',$user['class'][0])->update('class_members',array(
+				'role' => $role,
+			));
 
 			if ($action) return 0;
 			else return 7;
@@ -167,17 +133,18 @@
 
 			$action = self::_modifyUser($id,$datas);
 
-			$datas = System::TrashForeignValues(['username','name','priv','email','active'],$datas);
+			# TODO Logging redbetétele
+			//$datas = System::TrashForeignValues(['role'],$datas);
 
-			Logging::Insert(array_merge(array(
-				'action' => 'user_edit',
-				'user' => $user['id'],
-				'errorcode' => $action,
-				'db' => 'user_edit',
-			),$datas,array(
-				'classid' => $user['class'][0],
-				'e_id' => $id,
-			)));
+			//Logging::Insert(array_merge(array(
+			//	'action' => 'user_edit',
+			//	'user' => $user['id'],
+			//	'errorcode' => $action,
+			//	'db' => 'user_edit',
+			//),$datas,array(
+			//	'classid' => $user['class'][0],
+			//	'e_id' => $id,
+			//)));
 
 			return $action;
 		}
@@ -251,6 +218,47 @@
 
 			if ($action) return 0;
 			else return 3;
+		}
+
+		static function EjectUser($id){
+			global $db, $user;
+
+			# Jog. ellenörzése
+			if (System::PermCheck('users.eject')) return 1;
+
+			$data = $db->rawQuery('SELECT u.*
+									FROM `users` u
+									LEFT JOIN `class_members` cm
+									ON u.id = cm.userid
+									WHERE u.id = ? && cm.classid = ?',array($id,$user['class'][0]));
+			if (empty($data)) return 1;
+
+			$data = $db->where('userid',$id)->where('classid',$user['class'][0])->getOne('class_members');
+			$Juzer = $db->where('id',$id)->getOne('users');
+			$Session = $db->where('userid',$id)->get('sessions');
+
+			if ($Juzer['defaultSession'] == $data['id']){
+				$defSession = 0;
+
+				if ($Juzer['role'] == 'none'){
+					$Roles = $db->where('userid',$id)->get('class_members');
+
+					if (!empty($Roles))
+						$defSession = $Roles[0]['id'];
+				}
+
+				$db->where('id',$id)->update('users',array(
+					'defaultSession' => $defSession,
+				));
+			}
+
+			//if (!empty($Session))
+			//	System::Logout($Juzer);
+
+			$action = $db->where('userid',$id)->where('classid',$user['class'][0])->delete('class_members');
+
+			if ($action) return 0;
+			else return 2;
 		}
 
 		static function EditMyProfile($data){

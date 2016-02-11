@@ -74,10 +74,49 @@
 
 		# 404-es hiba esetén
 		static function Missing($path = ''){
-			global $ENV;
+			global $ENV, $Notifications;
 
 			if ($ENV['do'] != 'not-found')
 				System::Redirect("/not-found?path=$path");
+		}
+
+		static function SendNotify($activity,$address,$invocation = null,$parameters = array()){
+			global $db, $user, $Notifications;
+
+			$slices = explode('.',$activity,2);
+			if (count($slices) == 1)
+				$template = $Notifications[$activity];
+			else
+				$template = $Notifications[$slices[0]][$slices[1]];
+
+			$text = $Notifications['template']['header'].$template['body'].$Notifications['template']['footer'];
+
+			if (empty($invocation)){
+				$data = $db->where('email',$address)->getOne('users');
+				if (!empty($data))
+					$invocation = $data['name'];
+			}
+
+			$toReplace = array(
+				'title' => $template['title'],
+				'name' => !empty($invocation) ? $invocation : 'felhasználónk',
+			);
+
+			foreach (array_merge($toReplace,$parameters) as $key => $value)
+				$text = str_replace('++'.strtoupper($key).'++',$value,$text);
+
+			$action = System::SendMail(array(
+				'title' => $template['title'],
+				'to' => array(
+					'name' => !empty($invocation) ? $invocation : 'CuStudy felhasználó',
+					'address' => $address,
+				),
+				'body' => $text,
+			));
+
+			if ($action) return true;
+
+			return false;
 		}
 
 		static $DB_FAIL = "Hiba történt az adatbázisba mentés során";

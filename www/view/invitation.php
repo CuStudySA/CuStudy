@@ -1,11 +1,23 @@
 <?php
-	if (!isset($ENV['URL'][0])) System::Redirect('/');
-	$token = $ENV['URL'][0];
-	if (strlen($token) != 12) System::Redirect('/');
+	function Page(){
+		global $ENV,$db;
 
-	$data = $db->where('invitation',$token)->getOne('invitations');
-	if (empty($data)) System::Redirect('/');
-	if (!$data['active']) System::Redirect('/');
+		if (ROLE != 'guest') return 1;
+		if (!isset($ENV['URL'][0])) return 2;
+		$token = $ENV['URL'][0];
+
+		$data = $db->where('invitation',$token)->getOne('invitations');
+		if (empty($data)) return 3;
+		if (!$data['active']) return 4;
+
+		return [$data,$token];
+	}
+
+	$action = Page();
+	if (!is_array($action)) System::Redirect("/?invitationErr=".Message::Respond('invitation.view',$action));
+
+	$data = $action[0];
+	$token = $action[1];
 ?>
 <script>
 	var Patterns = <?=json_encode(System::GetHtmlPatterns())?>;
