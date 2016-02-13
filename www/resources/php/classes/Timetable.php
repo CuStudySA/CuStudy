@@ -215,6 +215,7 @@ STRING;
 			}
 
 			$today = strtotime('today');
+			$todayWeekday = self::GetDay($today);
 			if ($date < $today)
 				$date = $today;
 
@@ -227,7 +228,7 @@ STRING;
 			$timetable = Timetable::Render(null, $TT, $days, false);
 
 			$firstDay = strtotime('midnight',$days[0]);
-			$lockBack = $firstDay-self::OneDayInSeconds <= $today;
+			$lockBack = $firstDay <= $today + ($todayWeekday >= 6 ? (8-$todayWeekday)*self::OneDayInSeconds : 0);
 
 			foreach ($days as $k => $day)
 				$days[$k] = date('Y-m-d', $day);
@@ -245,7 +246,7 @@ STRING;
 		 * @param int|null $week        Hétszám
 		 * @param int|null $lastWeekDay A hét utolsó lekérdezendő napja
 		 * @param bool     $allgroup    Összes csoport órarendjének lekérése
-		 * @param int|null $maxDays     Maximum hny napot adjon vissza a függvén (null = nincs korlát)
+		 * @param int|null $maxDays     Maximum hány napot adjon vissza a függvény (null = nincs korlát)
 		 *
 		 * @return array
 		 */
@@ -259,7 +260,7 @@ STRING;
 			// Hiányzó értékek esetén jelenlegi dátum használata
 			if (empty($week) && empty($lastWeekDay)){
 				$week = (int)date('W');
-				$lastWeekDay = (int)self::GetDay()+1;
+				$lastWeekDay = (int)self::GetDay()+(is_int($maxDays) ? $maxDays : 5);
 			}
 
 			// Megfelelő hétre ugrás
@@ -356,31 +357,30 @@ STRING;
 						'week' => $entry['week']
 					);
 			}
+
+			if (!is_int($maxDays))
+				$maxDays = 5;
+
+			$days = [];
+			$loopDate = $firstWeekdayDate;
+			while (count($days) < $maxDays){
+				if (self::GetDay($loopDate) < 6)
+					$days[] = $loopDate;
+				$loopDate += self::OneDayInSeconds;
+			}
+
 			if ($firstWeekday !== 1){
-				$firstDayNumber = (int)$ttentries[0]['day'];
+				$firstDayNumber = self::GetDay($days[0]);
 				foreach ($Timetable as $k => $lesson){
 					$move = array_splice($lesson,$firstDayNumber-1,count($lesson));
 					$Timetable[$k] = array_merge($move, $lesson);
 				}
 			}
-			if (is_int($maxDays)){
+			if ($maxDays !== 5){
 				foreach ($Timetable as $k => $lesson)
 					$Timetable[$k] = array_splice($lesson, 0, $maxDays);
 			}
-			$targetWeekdays = count($reqDays);
 
-			$days = [];
-			$loopDate = $firstWeekdayDate;
-			$foundWeekdays = 0;
-			$loopTarget = is_int($maxDays) ? min($maxDays, $targetWeekdays) : $targetWeekdays;
-			while (count($days) < $loopTarget){
-				$day = self::GetDay($loopDate);
-				if ($day < 6){
-					$days[] = $loopDate;
-					$foundWeekdays++;
-				}
-				$loopDate += self::OneDayInSeconds;
-			}
 			$Timetable['opt'] = $days;
 
 			return $Timetable;
@@ -454,14 +454,34 @@ STRING;
 		//Órarend kirenderelése
 		static function Render($week, $Timetable, $weekdays = null, $wrap = true, $dataAttributes = false){
 			if (empty($weekdays) && empty($week)) return;
+
+			if (is_array($weekdays)){
+				$classCount = array();
+				foreach ($Timetable as $k => $lesson){
+					foreach ($lesson as $weekday => $class){
+						if (!isset($classCount[$weekday]))
+							$classCount[$weekday] = 0;
+						$classCount[$weekday] += count($class);
+					}
+				}
+				$emptyWeekdays = array();
+				foreach ($classCount as $weekday => $count){
+					if ($count === 0)
+						$emptyWeekdays[$weekday] = true;
+				}
+				//var_dump($emptyWeekdays);
+			}
+
 			if (!empty($weekdays)){
 				// Hetek kirenderelésének előkészítése
 				$weeks = [];
-				foreach ($weekdays as $day){
-					$wNum = (int)date('W',$day);
+				foreach ($weekdays as $weekday => $date){
+					if (isset($emptyWeekdays[$weekday]))
+						continue;
+					$wNum = (int)date('W',$date);
 					if (!isset($weeks[$wNum]))
-						$weeks[$wNum] = array(0, Timetable::GetWeekLetter($day));
-					$weeks[$wNum][0]++;
+						$weeks[$wNum] = array('colspan' => 0, 'letter' => Timetable::GetWeekLetter($date));
+					$weeks[$wNum]['colspan']++;
 				}
 				ksort($weeks);
 			}
@@ -470,13 +490,12 @@ STRING;
 			$HTML .= "<thead>";
 			if (!empty($weeks)) {
 				$HTML .= "<tr><th>H</th>";
-				foreach ($weeks as $key => $array){
-					$HTML .= "<th colspan='$array[0]'>{$array[1]}. hét ({$key}. hét)</th>";
-				}
+				foreach ($weeks as $wNum => $array)
+					$HTML .= "<th colspan='{$array['colspan']}'>{$array['letter']}. hét ($wNum. hét)</th>";
 				$HTML .= "</tr>";
 			}
 			$HTML .= '<tr><th class="week">'.(empty($week) ? 'D' : strtoupper($week)).'</th>';
-			if (empty($weekdays)) {
+			if (empty($weekdays)){
 				$HTML .=
 					'<th class="weekday">Hétfő</th>'.
 					'<th class="weekday">Kedd</th>'.
@@ -484,20 +503,26 @@ STRING;
 					'<th class="weekday">Csütörtök</th>'.
 					'<th class="weekday">Péntek</th>';
 			}
-			else foreach ($weekdays as $day)
-				$HTML .= '<th class="weekday">'.HomeworkTools::FormatMonthDay($day).' '.System::$Days[Timetable::GetDay($day)].'</th>';
+			else foreach ($weekdays as $weekday => $date){
+				if (isset($emptyWeekdays[$weekday]))
+					continue;
+				$HTML .= '<th class="weekday">'.HomeworkTools::FormatMonthDay($date).' '.System::$Days[Timetable::GetDay($date)].'</th>';
+			}
 			$HTML .= "</tr></thead><tbody>";
 
 			foreach ($Timetable as $lessoncount => $lesson){
-				$TR = '<tr class="lesson-field"><th>'.($lessoncount+1).'</th>';
-				$i = 0;
-				foreach ($lesson as $weekday){
-					$td = self::_RenderClass($weekday);
+				$TR = '';
+				foreach ($lesson as $weekday => $class){
+					if (isset($emptyWeekdays[$weekday]))
+						continue;
+					$td = self::_RenderClass($class);
 					if ($dataAttributes)
-						$td = str_replace('<td>','<td data-week="'.date('Y\WW',$weekdays[$i++]).'">',$td);
+						$td = str_replace('<td>','<td data-week="'.date('Y\WW',$weekdays[$weekday]).'">',$td);
+
 					$TR .= $td;
 				}
-				$HTML .= "$TR</tr>";
+				if (!empty($TR))
+					$HTML .= '<tr class="lesson-field"><th>'.($lessoncount+1)."</th>$TR</tr>";
 			}
 
 			$HTML .= "</tbody></table>";
