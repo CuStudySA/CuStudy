@@ -510,6 +510,7 @@ STRING;
 			}
 			$HTML .= "</tr></thead><tbody>";
 
+			ksort($Timetable);
 			foreach ($Timetable as $lessoncount => $lesson){
 				$TR = '';
 				foreach ($lesson as $weekday => $class){
