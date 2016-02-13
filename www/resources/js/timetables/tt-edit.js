@@ -80,7 +80,7 @@ $(function(){
 					if (grpnmef != 'Teljes o.')
 						grpnme = ' (' + grpnmef + ')';
 
-					$td.append("<span class='lesson' style='background: "+ ntc +"'>"+ ntn + grpnme +"<span class='del typcn typcn-times' data-id='#"+ nwelem.tantargy +"'></span></span>");
+					$td.append("<span class='lesson' style='background: "+ ntc +"'>"+ ntn + grpnme +"<span class='del typcn typcn-times' data-ttid='#"+ nwelem.tantargy +"'></span></span>");
 				});
 				$tds.each(function(){
 					var $add = $(this).find('.add'),
@@ -145,7 +145,7 @@ $(function(){
 	// Törölt órarend-elemek listába foglalása
 	$tds.on('click','.del',function(){
 		var $elem = $(this),
-			dataid = $elem.attr('data-id');
+			dataid = $elem.attr('data-ttid');
 		var $ttobj = $elem.parent(),
 			$cella = $ttobj.parent();
 
