@@ -7,7 +7,19 @@
 
 			switch ($scase){
 				case 'get':
-					System::Respond('',1,array('roles' => System::GetAvailableRoles()));
+					$Roles = System::GetAvailableRoles();
+					$roles = array();
+
+					foreach ($Roles as $role){
+						$Role = $role;
+
+						if ($Role['entryId'] != 0)
+							$Role['intezmeny'] = "{$Role['intezmeny']} {$Role['osztaly']} osztálya";
+
+						$roles[] = $Role;
+					}
+
+					System::Respond('',1,array('roles' => $roles));
 				break;
 
 				case 'set':

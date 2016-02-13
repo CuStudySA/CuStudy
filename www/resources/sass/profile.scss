@@ -1,4 +1,5 @@
 @import "vars";
+$tileRadius: 4px;
 
 #dataform {
 	width: 100%;
@@ -28,6 +29,7 @@
 		padding: 10px;
 		margin-bottom: 7px;
 		background: rgba(0,0,0,.1);
+		border-radius: $tileRadius;
 
 		strong {
 			display: block;
@@ -37,7 +39,7 @@
 	}
 }
 
-#extconn-list {
+#extconn-list, #classList {
 	display: flex;
 	flex: 1 1 auto;
 	flex-flow: row wrap;
@@ -54,6 +56,7 @@
 			background: #fff;
 			margin: 0 7px 7px 0;
 			padding: 7px;
+			border-radius: $tileRadius;
 
 			.icon {
 				display: block;

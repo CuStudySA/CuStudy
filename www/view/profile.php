@@ -119,4 +119,37 @@
 						</div>
 					</div>
 				</div>
+			</div>
+
+			<!-- Szerepkörök -->
+
+			<h1 style='margin-top: 25px !important;'>Szerepkörök és osztályok</h1>
+			<div id="classList">
+<?php
+			$roles = System::GetAvailableRoles();
+			foreach ($roles as $role){
+				$isDefault = $user['defaultSession'] == $role['entryId']; ?>
+				<div class='conn-wrap' data-id='<?=$role['entryId']?>'>
+					<div class='conn'>
+						<div class="text">
+<?php                       if ($role['entryId'] != 0){ ?>
+								<span class="n"><?=$role['intezmeny']?></span>
+								<strong class="status"><?=$role['osztaly']?> osztály (<?=$role['szerep']?>)</strong>
+								<span class="actions">
+									<button class='btn js_eject typcn typcn-media-eject' data-id='<?=$role['entryId']?>'>Leválasztás</button>
+									<button class='btn js_changeDefault typcn typcn-tick' data-id='<?=$role['entryId']?>' <?=$isDefault ? 'disabled' : ''?>>Alapértelmezetté tétel</button>
+								</span>
+<?PHP                       }
+							else { ?>
+								<span class="n"><?=$role['intezmeny']?></span>
+								<strong class="status"><?=$role['szerep']?></strong>
+								<span class="actions">
+									<button class='btn js_changeDefault typcn typcn-tick' data-id='<?=$role['entryId']?>' <?=$isDefault ? 'disabled' : ''?>>Alapértelmezetté tétel</button>
+								</span>
+<?php                       } ?>
+						</div>
+					</div>
+				</div>
+<?php } ?>
+			</div>
 <?  }

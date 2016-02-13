@@ -124,6 +124,7 @@
 		if (!file_exists("executive/{$pages[$do]['file']}.php")) System::Respond();
 
 		# Szükséges oldalak betöltése
+		$pages[$do]['addons'] = array_merge(!empty($pages[$do]['addons']) ? $pages[$do]['addons'] : array(),$addon);
 		if (!empty($pages[$do]['addons'])){
 			foreach ($pages[$do]['addons'] as $addonName){
 				if (empty($addons[$addonName]['php'])) continue;
@@ -220,6 +221,7 @@
 	if (System::PermCheck("$do.view")) Message::AccessDenied();
 
 	# Szükséges oldalak betöltése
+	$pages[$do]['addons'] = array_merge(!empty($pages[$do]['addons']) ? $pages[$do]['addons'] : array(),$addon);
 	if (!empty($pages[$do]['addons'])){
 		foreach ($pages[$do]['addons'] as $addonName){
 			if (empty($addons[$addonName]['php'])) continue;
@@ -249,6 +251,7 @@
 		foreach ($css_list as $value)
 			$respond['css'][] = "{$rootdoc}resources/css/$value";
 
+		$pages[$do]['addons'] = array_merge($pages[$do]['addons'],$addon);
 		if (!empty($pages[$do]['addons'])){
 			foreach ($pages[$do]['addons'] as $addonName){
 				if (!empty($addons[$addonName]['css'])){
