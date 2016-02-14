@@ -67,7 +67,7 @@ $(function(){
 						//JS auto. lefut
 						loadJS(i+1);
 					},
-					error: function(){ window.location.reload() }
+					error: function(){ window.location.href = '/'; }
 				});
 			}
 
@@ -77,11 +77,11 @@ $(function(){
 				$.ajax({
 					url: load.css[i],
 					success: function(data){
-						if (typeof data !== 'string') return window.location.reload();
+						if (typeof data !== 'string') return window.location.href = '/';
 						$head.append($(document.createElement('style')).text(data));
 						loadCSS(i+1);
 					},
-					error: function(){ window.location.reload() }
+					error: function(){ window.location.href = '/'; }
 				});
 			})(0);
 		},500) });

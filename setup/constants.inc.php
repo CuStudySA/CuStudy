@@ -57,3 +57,9 @@
  */
 	$ENV['oAuthAPI'] = array(
 	);
+
+	# Mantis integráció
+	define('MANTIS_HOST','');
+	define('MANTIS_USER','');
+	define('MAINTIS_PASS','');
+	define('MANTIS_NAME','');
