@@ -60,12 +60,13 @@
 				return 1;
 
 			$check = $MantisDB->where('id',$id)->getOne('mantis_user_table');
-			if (empty($cehck))
+			if (empty($check))
 				return 2;
 
 			$data = System::TrashForeignValues(['username','name','password','email'],$data);
-			foreach ($data as $key => $value)
+			foreach ($data as $key => $value){
 				if (System::InputCheck($value,$key)) return 3;
+			}
 
 			if (!empty($data['name'])){
 				$data['realname'] = $data['name'];
