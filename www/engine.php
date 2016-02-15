@@ -112,6 +112,12 @@
 	# Jogosultságok előkészítése
 	System::CompilePerms();
 
+	# MantisBT integráció alapért. értékének beállítása
+	$MantisDB = 1001;
+
+	# Frisstési szkript futtatása (ha frissítés történt a rendszeren)
+	System::RunUpdatingTasks();
+
 	// 'Executive' rész \\
 	if ($ENV['SERVER']['REQUEST_METHOD'] == 'POST'){
 		# Létező oldal?
