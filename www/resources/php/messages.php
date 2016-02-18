@@ -466,4 +466,36 @@
 				),
 			),
 		),
+		'adminUserTools' => array(
+			'editBasicInfos' => array(
+				'errors' => array(
+					1 => 'nincs engedélye a kiválasztott szerepkör használatához',
+					3 => 'a megadott szerepkör már aktív a munkameneten',
+				),
+				'messages' => array(
+					1 => 'Nem sikerült a felhasználó alapadatait módosítani, mert @msg! (Hibakód: @code)',
+					0 => 'A felhasználó alapadatainak módosítása sikeresen befejeződött, most átirányítjuk...',
+				),
+			),
+			'deleteRole' => array(
+				'errors' => array(
+					1 => 'nincs engedélye a kiválasztott szerepkör használatához',
+					3 => 'a megadott szerepkör már aktív a munkameneten',
+				),
+				'messages' => array(
+					1 => 'Nem sikerült törölni a kiválasztott szerepkört, mert @msg! (Hibakód: @code)',
+					0 => 'A kiválasztott szerepkör törlése sikeresen befejeződött, most átirányítjuk...',
+				),
+			),
+			'editRole' => array(
+				'errors' => array(
+					1 => 'nincs engedélye a kiválasztott szerepkör használatához',
+					3 => 'a megadott szerepkör már aktív a munkameneten',
+				),
+				'messages' => array(
+					1 => 'Nem sikerült szerkeszteni a kiválasztott szerepkört, mert @msg! (Hibakód: @code)',
+					0 => 'A kiválasztott szerepkör szerkesztése sikeresen befejeződött, most átirányítjuk...',
+				),
+			),
+		),
 	);

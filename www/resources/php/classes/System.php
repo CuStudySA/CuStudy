@@ -441,6 +441,12 @@
 
 			# Alapjog. ell.
 			$array = explode('.',$action);
+			if (count($array) > 2){
+				$Array = $array;
+				$Array[0] = $array[0].'.'.$array[1];
+				$Array[1] = $array[2];
+				$array = $Array;
+			}
 			if (!isset($ENV['permissions'][$array[0]])) return true;
 			if (!in_array($array[1],$ENV['permissions'][$array[0]])) return true;
 			if (empty($id)) return false;

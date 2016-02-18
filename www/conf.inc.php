@@ -220,13 +220,13 @@
 			'addons' =>     ['fullCalendar','dateRangePicker'],
 		),
 
-		'system' => array(
+		'system.users' => array(
 			'title' => 		'Globális rendszerkezelés',
 			'css' => 		['system.users.css'],
 			'js' => 		['system.users.js'],
 			'customjs' =>   [],
 			'reqdoc' => 	[],
-			'file' => 		'system',
+			'file' => 		'system.users',
 			'addons' =>     [],
 		),
 	);
@@ -265,7 +265,7 @@
 			'invitation' => ['view'],
 		),
 		'systemadmin' => array(
-			'system' => ['view'],
+			'system.users' => ['view'],
 		),
 		'everybody' => array(
 			'not-found' => ['view'],

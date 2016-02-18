@@ -1,5 +1,4 @@
 <?php
-
 	require "classes/Password.php";
 	require "classes/Logging.php";
 	require "classes/System.php";
@@ -9,7 +8,6 @@
 	require "classes/Message.php";
 	require "classes/InviteTools.php";
 	require "classes/FileTools.php";
-	require "classes/AdminManTools.php";
 	require "classes/LessonTools.php";
 	require "classes/ClassTools.php";
 	require "classes/UserTools.php";
