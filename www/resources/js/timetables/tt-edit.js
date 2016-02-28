@@ -27,9 +27,10 @@ $(function(){
 
 			if (data.status){
 				var $LOptions = $(document.createElement('div')),
-					$GOptions = $(document.createElement('div'));
+					$GOptions = $(document.createElement('div')),
+					hasLessons = data.lessons && data.lessons.length;
 
-				$.each(data.lessons,function(_,lesson){
+				if (hasLessons) $.each(data.lessons,function(_,lesson){
 					$LOptions.append($(document.createElement('option')).attr('value',lesson.id).attr('data-name',lesson.name).text(lesson.name+' ('+lesson.teacher+')'));
 				});
 				$GOptions.append($(document.createElement('option')).attr('value','0').text('Teljes o.'));
@@ -45,8 +46,11 @@ $(function(){
 				});
 
 				var $form = $('#form-template').children();
-				$form.find('.lessons').html($LOptions.children().clone());
 				$form.find('.groups').html($GOptions.children().clone());
+				var _$lessons = $form.find('.lessons');
+				if (hasLessons)
+					_$lessons.html($LOptions.children().clone());
+				else _$lessons.attr('disabled', true).html("<option disabled>(nincs hozzáadva tantárgy)</option>");
 				$form.on('submit',function(e){
 					// Órarend-elem hozzáadásakor
 					e.preventDefault();
@@ -58,6 +62,9 @@ $(function(){
 						$selects = $form.find('select'),
 						$groups = $selects.filter('[name=groups]'),
 						$lessons = $selects.filter('[name=lessons]');
+
+					if ($lessons.is('[disabled]'))
+						return $.Dialog.fail('Óra hozzáadása','Nem található tantárgy az adatbázisban!<br>A folytatáshoz adj hozzá legalább egy tantárgyat a <a href="/lessons">Tantárgyak</a> menüpontban!');
 
 					var nwelem = {'group': $groups.val(), 'tantargy': $lessons.val(), 'lesson': lesson+1, 'day': weekday};
 					container.add.push(nwelem);
