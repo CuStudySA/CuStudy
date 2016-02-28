@@ -394,9 +394,10 @@
 			'add' => array(
 				'errors' => array(
 					1 => 'nincs jogosultsága a művelethez',
-					2 => 'valamelyik megadott adat formátuma hibás',
-					3 => "az esemény időtartama nem 'kezdet ~ vég' formátumban lett megadva",
-					4 => 'a megadott intervallum nem értelmezhető',
+					2 => 'valamelyik mezű üresen maradt',
+					3 => 'valamelyik megadott adat formátuma hibás',
+					4 => "az esemény időtartama nem 'kezdet ~ vég' formátumban lett megadva",
+					5 => 'a megadott intervallum nem értelmezhető',
 				),
 				'messages' => array(
 					0 => 'Az esemény hozzáadása sikeresen megtörtént!',
@@ -406,9 +407,10 @@
 			'edit' => array(
 				'errors' => array(
 					1 => 'nincs jogosultsága a művelethez',
-					2 => 'valamelyik megadott adat formátuma hibás',
-					3 => "az esemény időtartama nem 'kezdet ~ vég' formátumban lett megadva",
-					4 => 'a megadott intervallum nem értelmezhető',
+					2 => 'valamelyik mezű üresen maradt',
+					3 => 'valamelyik megadott adat formátuma hibás',
+					4 => "az esemény időtartama nem 'kezdet ~ vég' formátumban lett megadva",
+					5 => 'a megadott intervallum nem értelmezhető',
 				),
 				'messages' => array(
 					0 => 'Az esemény szerkesztése sikeresen megtörtént!',

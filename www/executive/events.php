@@ -5,21 +5,25 @@
 		break;
 
 		case 'add':
-			if (!empty($ENV['POST']))
-				$action = EventTools::Add($ENV['POST']);
-			else
-				System::Respond();
-
-			System::Respond(Message::Respond('events.add',$action), $action == 0 ? 1 : 0);
-		break;
-
 		case 'edit':
-			if (!empty($ENV['POST']))
-				$action = EventTools::Edit($ENV['POST']);
-			else
+			if (empty($ENV['POST']))
 				System::Respond();
 
-			System::Respond(Message::Respond('events.edit',$action), $action == 0 ? 1 : 0);
+			$method = $ENV['URL'][0] === 'add' ? 'Add' : 'Edit';
+			$action = EventTools::$method($ENV['POST']);
+			$message = null;
+			if (is_array($action)){
+				$field = $action[1];
+				$action = $action[0];
+				$names = array(
+					'isFullDay' => 'Egész napos',
+					'title' => 'Cím',
+					'description' => 'Rövid leírás',
+				);
+				$message = System::Article(isset($names[$field]) ? "\"$names[$field]\"" : 'egyik').'  mező formátuma hibás';
+			}
+
+			System::Respond(Message::Respond("events.{$ENV['URL'][0]}",$action,$message), $action == 0 ? 1 : 0);
 		break;
 
 		case 'delete':

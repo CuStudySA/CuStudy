@@ -4,15 +4,16 @@
 		static $Messages = array();
 
 		// Hibakód feldolgozása (to string)
-		static function Respond($activity,$code = 0){
-			$array = explode('.',$activity);
+		static function Respond($activity,$code = 0,$errorMsg = null){
+			list($class,$action) = explode('.',$activity);
 
-			$class = $array[0];
-			$action = $array[1];
-
-			if ($code != 0){
-				$errorMsg = isset(self::$Messages[$class][$action]['errors'][$code]) ? self::$Messages[$class][$action]['errors'][$code] :
-					'ismeretlen hiba történt a művelet során';
+			if ($code){
+				if (!is_string($errorMsg)){
+					$errorMsg =
+						isset(self::$Messages[$class][$action]['errors'][$code])
+						? self::$Messages[$class][$action]['errors'][$code]
+						: 'ismeretlen hiba történt a művelet során';
+				}
 
 				return str_replace('@code',$code,str_replace('@msg',$errorMsg,self::$Messages[$class][$action]['messages'][1]));
 			}

@@ -34,6 +34,7 @@
 			return [$start,$end];
 		}
 
+		/** @return int|array */
 		static function Add($data){
 			global $db, $user;
 
@@ -57,16 +58,16 @@
 						continue 2;
 					break;
 				}
-				if (System::InputCheck($value,$type)) return 2;
+				if (System::InputCheck($value,$type)) return [3, $key];
 			}
 
 			# Dátum értelmezése
 			$range = trim($data['interval']);
 			$rangeParts = explode('~',$range);
-			if (count($rangeParts) != 2) return 3;
+			if (count($rangeParts) != 2) return 4;
 
 			$dates = self::ParseDates($rangeParts[0],$rangeParts[1]);
-			if (!is_array($dates)) return 4;
+			if (!is_array($dates)) return 5;
 
 			$action = $db->insert('events',array(
 				'classid' => $user['class'][0],
@@ -77,8 +78,7 @@
 				'isallday' => isset($data['isFullDay']) ? true : false,
 			));
 
-			if (!is_int($action)) return 5;
-			else return 0;
+			return !is_int($action) ? 6 : 0;
 		}
 
 		static function GetEventInfos($id){
@@ -96,6 +96,7 @@
 			);
 		}
 
+		/** @return int|array */
 		static function Edit($data){
 			global $db, $user;
 
@@ -121,16 +122,16 @@
 						continue 2;
 					break;
 				}
-				if (System::InputCheck($value,$type)) return 2;
+				if (System::InputCheck($value,$type)) return [3, $key];
 			}
 
 			# Dátum értelmezése
 			$range = trim($data['interval']);
 			$rangeParts = explode('~',$range);
-			if (count($rangeParts) != 2) return 3;
+			if (count($rangeParts) != 2) return 4;
 
 			$dates = self::ParseDates($rangeParts[0],$rangeParts[1]);
-			if (!is_array($dates)) return 4;
+			if (!is_array($dates)) return 5;
 
 			$action = $db->where('id',$data['id'])->update('events',array(
 				'start' => date('c',$dates[0]),
@@ -140,8 +141,7 @@
 				'isallday' => isset($data['isFullDay']) ? true : false,
 			));
 
-			if ($action) return 0;
-			else return 5;
+			return $action ? 0 : 6;
 		}
 
 		static function Delete($id){
