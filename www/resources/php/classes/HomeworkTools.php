@@ -9,7 +9,7 @@
 			return $ret;
 		}
 
-		static $RomanMonths = array(null,'I','II','II','IV','V','VI','VII','VIII','IX','X','XI','XII');
+		static $RomanMonths = array(null,'I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII');
 		static function FormatMonthDay($time){
 			return HomeworkTools::$RomanMonths[(int)date('m', $time)].'.'.date('d', $time);
 		}
