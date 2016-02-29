@@ -197,18 +197,17 @@ $(function(){
 				$dialog.find('[name=short]').attr('value',data.short);
 				$dialog.find('[name=id]').attr('value',id);
 
-				$.Dialog.request(title,$dialog.prop('outerHTML'),'js_form','Mentés',function(){
-					var $urlap = $('#js_form');
-
+				$.Dialog.request(title,$dialog.prop('outerHTML'),'js_form','Mentés',function($urlap){
 					$urlap.on('submit',function(e){
 						e.preventDefault();
 
+						var data = $urlap.serializeForm();
 						$.Dialog.wait(title);
 
 						$.ajax({
 							method: "POST",
 							url: "/teachers/edit",
-							data: $urlap.serializeForm(),
+							data: data,
 							success: function(data2){
 								if (typeof data2 === 'string'){
 									console.log(data2);

@@ -52,7 +52,6 @@
 		return e.keyCode == Key;
 	};
 
-
 	// Checks if a variable is a function and if yes, runs it
 	// If no, returns default value (undefined or value of def)
 	$.callCallback = function(func, params, def){
@@ -175,6 +174,11 @@
 			return {'JSSESSID': token};
 		}
 	};
+
+	$body.on('scroll',function(){
+		if (this.className.indexOf('dialog-open') !== -1)
+			return false;
+	});
 })(jQuery);
 
 $(function(){

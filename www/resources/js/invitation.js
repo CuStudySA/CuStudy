@@ -98,12 +98,13 @@ $(function(){
 			return $.Dialog.fail(title,'A megadott jelszavak nem egyeznek meg. Kérjük gépelje be őket újra!');
 		}
 
+		var data = $Form.serializeForm();
 		$.Dialog.wait(title);
 
 		$.ajax({
 			method: 'POST',
 			url: '/invitation/registration',
-			data: $Form.serializeForm(),
+			data: data,
 			success: function(data){
 				if (data.status){
 					$('#contentDiv').html(data.html);
@@ -112,12 +113,13 @@ $(function(){
 					$Form.on('submit',function(e){
 						e.preventDefault();
 
+						var data = $Form.serializeForm();
 						$.Dialog.wait(title);
 
 						$.ajax({
 							method: 'POST',
 							url: '/invitation/setGroupMembers',
-							data: $Form.serializeForm(),
+							data: data,
 							success: function(data){
 								if (data.status){
 									goToMainpage();

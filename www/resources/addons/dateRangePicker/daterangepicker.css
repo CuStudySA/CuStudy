@@ -194,7 +194,7 @@
 	position:absolute;
 	right: 0px; 
 	top: 6px;
-	padding:3px 5px;
+/*	padding:3px 5px;
 	margin:0;
 	font-size:12px;
 	border-radius:4px;
@@ -207,7 +207,7 @@
 	background: -moz-linear-gradient(top,  #00adee,  #0078a5);
 	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#00adee', endColorstr='#0078a5');
 	color:white;
-	line-height: initial;
+	line-height: initial;*/
 }
 
 .date-picker-wrapper .drp_top-bar .apply-btn.disabled

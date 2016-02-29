@@ -2,18 +2,17 @@ $(function(){
 	$('#pw-reset-form').on('submit',function(e){
 		e.preventDefault();
 
-		var title = 'Jelszóvisszaállítás';
+		var data = $(this).serializeForm();
+		$.Dialog.wait('Jelszóvisszaállítás', 'Új jelszó mentése');
 
-		$.Dialog.wait(title, 'Új jelszó mentése');
-
-		$.post('/pw-reset/reset', $(this).serializeForm(), function(data){
+		$.post('/pw-reset/reset', data, function(data){
 			if (typeof data !== 'object'){
 				console.log(data);
 				$(window).trigger('ajaxerror');
 				return false;
 			}
 
-			$.Dialog[data.status?'success':'fail'](title, data.message);
+			$.Dialog[data.status?'success':'fail'](false, data.message);
 			if (!data.status) return;
 
 			setTimeout(function(){

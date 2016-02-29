@@ -24,11 +24,13 @@
 			return $output;
 		}
 
-		static function ParseDates($start,$end){
-			$start = strtotime(preg_replace('/^(\d{4})\.(\d{2})\.(\d{2})\.? (\d{2})\:(\d{2})(\:(?:\d{2}))?$/','$1-$2-$3 $4:$5$6',trim($start)));
+		static function ParseDates($start,$end,$allDay){
+			$regex = '/^(\d{4})\.(\d{2})\.(\d{2})\.?(?: (\d{2})\:(\d{2})(\:(?:\d{2}))?)?$/';
+			$replace = '$1-$2-$3'.(!$allDay?' $4:$5$6':'');
+			$start = strtotime(preg_replace($regex,$replace,trim($start)));
 			if ($start === false) return false;
 
-			$end = strtotime(preg_replace('/^(\d{4})\.(\d{2})\.(\d{2})\.? (\d{2})\:(\d{2})(\:(?:\d{2}))?$/','$1-$2-$3 $4:$5$6',trim($end)));
+			$end = strtotime(preg_replace($regex,$replace,trim($end)));
 			if ($end === false) return false;
 
 			return [$start,$end];
@@ -66,7 +68,7 @@
 			$rangeParts = explode('~',$range);
 			if (count($rangeParts) != 2) return 4;
 
-			$dates = self::ParseDates($rangeParts[0],$rangeParts[1]);
+			$dates = self::ParseDates($rangeParts[0],$rangeParts[1],isset($data['isFullDay']));
 			if (!is_array($dates)) return 5;
 
 			$action = $db->insert('events',array(
@@ -75,7 +77,7 @@
 				'end' => date('c',$dates[1]),
 				'title' => $data['title'],
 				'description' => $data['description'],
-				'isallday' => isset($data['isFullDay']) ? true : false,
+				'isallday' => isset($data['isFullDay']),
 			));
 
 			return !is_int($action) ? 6 : 0;
@@ -130,7 +132,7 @@
 			$rangeParts = explode('~',$range);
 			if (count($rangeParts) != 2) return 4;
 
-			$dates = self::ParseDates($rangeParts[0],$rangeParts[1]);
+			$dates = self::ParseDates($rangeParts[0],$rangeParts[1],isset($data['isFullDay']));
 			if (!is_array($dates)) return 5;
 
 			$action = $db->where('id',$data['id'])->update('events',array(
@@ -138,7 +140,7 @@
 				'end' => date('c',$dates[1]),
 				'title' => $data['title'],
 				'description' => $data['description'],
-				'isallday' => isset($data['isFullDay']) ? true : false,
+				'isallday' => isset($data['isFullDay']),
 			));
 
 			return $action ? 0 : 6;

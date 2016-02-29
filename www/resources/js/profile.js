@@ -1,14 +1,15 @@
 $('#dataform').on('submit',function(e){
 	e.preventDefault();
 
-	var title = "Felhasználói adataim módosítása";
+	var title = "Felhasználói adataim módosítása",
+		data = $(this).serializeForm();
 
 	$.Dialog.wait(title);
 
 	$.ajax({
 		method: 'POST',
 		url: '/profile/edit',
-		data: $(this).serializeForm(),
+		data: data,
 		success: function(data){
 			if (typeof data === 'string'){
 				console.log(data);
@@ -224,18 +225,17 @@ $connBtn.on('click',function(e){
 
 		$dialog.find('input[type=hidden]').attr('value',id);
 
-		$.Dialog.request(title,$dialog,'js_form','Leválasztás',function(){
-			var $urlap = $('#js_form');
-
+		$.Dialog.request(title,$dialog,'js_form','Leválasztás',function($urlap){
 			$urlap.on('submit',function(ev){
 				ev.preventDefault();
 
+				var data = $urlap.serializeForm();
 				$.Dialog.wait();
 
 				$.ajax({
 					method: 'POST',
 					url: '/profile/roles/eject',
-					data: $urlap.serializeForm(),
+					data: data,
 					success: function(data){
 						if (typeof data === 'string'){
 							console.log(data);
