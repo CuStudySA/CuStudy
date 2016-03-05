@@ -22,14 +22,14 @@ $ZIndexBase: 1000;
 	#dialogOverlay {
 		background-color: rgba(white, .9);
 		display: flex;
-		justify-content: center;
-		align-items: center;
+		padding: 10px;
 
 		transition: opacity .29s linear;
 	}
 	#dialogBox {
 		position: relative;
-		margin: 10px;
+		// http://stackoverflow.com/a/33455342/1344955
+		margin: auto;
 		min-width: 150px;
 		max-width: 450px;
 		width: auto;
@@ -57,6 +57,7 @@ body.dialog-open { overflow: hidden }
 #dialogBox {
 	font-family: 'Segoe UI', sans-serif;
 	z-index: $ZIndexBase+1;
+	box-sizing: border-box;
 
 	/* Colors */
 	.blue-bg     { background-color: $NBlue }
