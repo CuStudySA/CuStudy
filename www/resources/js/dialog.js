@@ -59,7 +59,7 @@
 				additional_info = undefined;
 			}
 			if (typeof additional_info !== 'string')
-				additional_info = 'Sending request';
+				additional_info = 'Kérés küldése';
 			Display('wait',title,$.capitalize(additional_info)+'&hellip;',force_new);
 		};
 		Dialog.request = function(title,content,formid,confirmBtn,callback){
@@ -161,7 +161,7 @@
 				title = defaultTitles[type];
 			else if (title === false)
 				title = undefined;
-			if (typeof content !== 'string' && !(content instanceof jQuery))
+			if (!content)
 				content = defaultContent[type];
 			var params = {
 				type: type,
