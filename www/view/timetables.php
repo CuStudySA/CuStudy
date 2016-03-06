@@ -12,6 +12,10 @@
 			$days = $TT['opt'];
 			unset($TT['opt']);
 
+			// Ha nincs elérhető óra, akkor irányítson át a Szerkesztői nézethez
+			if (empty($days))
+				System::Redirect('/timetables/edit');
+
 			sort($days,SORT_NUMERIC);
 			$days = array_splice($days,0,5);
 

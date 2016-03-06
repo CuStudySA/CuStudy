@@ -1,5 +1,5 @@
 <?php
-	define('ABSPATH_',str_replace('.lc','.tk',ABSPATH));
+	define('ABSPATH_',str_replace('.lc','.hu',ABSPATH));
 ?>
 
 <div id="sidebar">
