@@ -226,7 +226,8 @@
 				$dialogOverlay.append($dialogBox).appendTo($body);
 
 				setTimeout(function(){
-					$dialogOverlay.add($dialogBox).css('opacity', 1);
+					$dialogOverlay.add($dialogBox).css('opacity', 1).addClass('animating');
+					setTimeout(function(){ $dialogOverlay.removeClass('animating') },300);
 					$dialogBox.css('top', 0);
 				},10);
 
@@ -299,8 +300,9 @@
 			if (!Dialog.isOpen())
 				return $.callCallback(callback, false);
 
-			$dialogOverlay.add($dialogBox).css('opacity', 0);
-			$dialogBox.css('top', '20%');
+			$dialogOverlay.add($dialogBox).css('opacity', 0).addClass('animating');
+			setTimeout(function(){ $dialogOverlay.removeClass('animating') },300);
+			$dialogBox.css('top', '10%');
 
 			_closeTimeout = setTimeout(function(){
 				_open = undefined;

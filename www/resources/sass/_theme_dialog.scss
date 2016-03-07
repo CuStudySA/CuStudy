@@ -23,8 +23,9 @@ $ZIndexBase: 1000;
 		background-color: rgba(white, .9);
 		display: flex;
 		padding: 10px;
-
 		transition: opacity .29s linear;
+
+		&.animating { overflow: hidden }
 	}
 	#dialogBox {
 		position: relative;
@@ -42,6 +43,8 @@ $ZIndexBase: 1000;
 	}
 	#dialogContent { overflow: auto }
 }
+
+
 
 body.dialog-open { overflow: hidden }
 #dialogOverlay {
