@@ -104,6 +104,13 @@ $(function(){
 							$body = $(document.body), $head = $(document.head),
 							load = {css: [], js: []};
 
+						if ($data.find('#loginform').length != 0){
+							$.Dialog.fail(title,'Egy hiba miatt a bejelentkezés nem sikerült! Az oldal frissül, várjon...',undefined,false);
+							return setTimeout(function(){
+								window.location.reload();
+							},3000);
+						}
+
 						$styles.each(function(){
 							var a = document.createElement('a');
 							a.href = this.href;
