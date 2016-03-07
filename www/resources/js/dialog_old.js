@@ -37,14 +37,14 @@
 	
 	$.Dialog = {
 		open: undefined,
-		fail: function(title,content,callback){
-			$.Dialog.display('fail',title,content,{
+		fail: function(title,content,callback,closeBtn){
+			$.Dialog.display('fail',title,content,(closeBtn !== false ? {
 				'Bezárás': {
 					'action': function(){
 						$.Dialog.close();
 					}
 				}
-			},callback);
+			} : undefined),callback);
 		},
 		success: function(title,content,closeBtn,callback){
 			$.Dialog.display('success',title,content,(closeBtn === true ? {
