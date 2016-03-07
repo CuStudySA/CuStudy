@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title><?=$pages[$do]['title']?> - CuStudy</title>
+<link rel="shortcut icon" href="/favicon.ico">
 <?php
 	foreach ($css_list as $value){
 		print '<link rel="stylesheet" href="'.$rootdoc.'resources/css/'.$value.'">'."\n";
