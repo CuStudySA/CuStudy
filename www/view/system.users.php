@@ -3,7 +3,7 @@
 
 	if (!empty($ENV['URL'][0])){
 		$User = $db->where('id',$ENV['URL'][0])->getOne('users');
-		if (empty($User)) System::Redirect('/system/users');
+		if (empty($User)) System::Redirect('/system.users');
 
 		$Classes = AdminUserTools::GetLocalRoles($ENV['URL'][0]);
 

@@ -469,8 +469,10 @@
 		'adminUserTools' => array(
 			'editBasicInfos' => array(
 				'errors' => array(
-					1 => 'nincs engedélye a kiválasztott szerepkör használatához',
-					3 => 'a megadott szerepkör már aktív a munkameneten',
+					1 => 'nincs jogosultsága a művelethez',
+					2 => 'a megadott adatok formátuma nem megfelelő',
+					3 => 'az e-mail cím már foglalt a rendszerben',
+					4 => 'a felhasználói név már foglalt a rendszerben',
 				),
 				'messages' => array(
 					1 => 'Nem sikerült a felhasználó alapadatait módosítani, mert @msg! (Hibakód: @code)',
@@ -479,8 +481,9 @@
 			),
 			'deleteRole' => array(
 				'errors' => array(
-					1 => 'nincs engedélye a kiválasztott szerepkör használatához',
-					3 => 'a megadott szerepkör már aktív a munkameneten',
+					1 => 'nincs jogosultsága a művelethez',
+					2 => 'nem található a felhasználó',
+					4 => 'nem található a szerepkör',
 				),
 				'messages' => array(
 					1 => 'Nem sikerült törölni a kiválasztott szerepkört, mert @msg! (Hibakód: @code)',
@@ -489,12 +492,24 @@
 			),
 			'editRole' => array(
 				'errors' => array(
-					1 => 'nincs engedélye a kiválasztott szerepkör használatához',
-					3 => 'a megadott szerepkör már aktív a munkameneten',
+					1 => 'nincs jogosultsága a művelethez',
+					2 => 'a művelet végrehajtásához nincs elég információ',
+					3 => 'a megadott adatok formátuma nem megfelelő',
+					4 => 'nem található a szerepkör',
 				),
 				'messages' => array(
 					1 => 'Nem sikerült szerkeszteni a kiválasztott szerepkört, mert @msg! (Hibakód: @code)',
 					0 => 'A kiválasztott szerepkör szerkesztése sikeresen befejeződött, most átirányítjuk...',
+				),
+			),
+			'deleteUser' => array(
+				'errors' => array(
+					1 => 'nincs jogosultsága a művelethez',
+					2 => 'a felhasználó nem létezik',
+				),
+				'messages' => array(
+					1 => 'Nem sikerült törölni a felhasználót, mert @msg! (Hibakód: @code)',
+					0 => 'A kiválasztott felhasználó törlése sikeresen befejeződött, most átirányítjuk...',
 				),
 			),
 		),

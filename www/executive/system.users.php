@@ -126,4 +126,13 @@
 
 			System::Respond(Message::Respond('adminUserTools.editRole',$action),$action == 0 ? 1 : 0);
 		break;
+
+		case 'deleteUser':
+			if (!empty($ENV['POST']['id']))
+				$action = AdminUserTools::DeleteUser($ENV['POST']['id']);
+			else
+				System::Respond();
+
+			System::Respond(Message::Respond('adminUserTools.deleteUser',$action),$action == 0 ? 1 : 0);
+		break;
 	}

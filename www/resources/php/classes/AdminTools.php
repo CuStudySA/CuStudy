@@ -168,4 +168,32 @@
 			if ($action) return 0;
 			else return 5;
 		}
+
+		static function DeleteUser($id){
+			global $db;
+
+			# Jog. ellenörzése
+			if (System::PermCheck('system.users.view')) return 1;
+
+			# Létezik-e a felhasználó?
+			$data = $db->where('id',$id)->getOne('users');
+			if (empty($data)) return 2;
+
+			# Felhasználó kiléptetése a rendszerből
+			$db->where('userid',$id)->delete('sessions');
+
+			# Felhasználó kiléptetése a szerepköreiből
+			$db->where('userid',$id)->delete('class_members');
+
+			# Felhasználó kiléptetése a csoportjaiból
+			$db->where('userid',$id)->delete('group_members');
+
+			# Egy kis takarítás a felhasználó után...
+			$db->where('userid',$id)->delete('hw_markdone');
+
+			# Törlés a felhasználók táblájából
+			$db->where('id',$id)->delete('users');
+
+			return 0;
+		}
 	}

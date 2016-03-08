@@ -127,6 +127,39 @@ $(function(){
 		});
 	});
 
+	$('#js_deleteUser').on('click',function(e){
+		e.preventDefault();
+
+		var id = $(e.currentTarget).attr('data-id'),
+			title = 'Felhasználó eltávolítása a rendszerből';
+
+		$.Dialog.confirm(title,'A felhasználó törlésével teljesen eltávolításra kerülnek a hozzá kapcsolódó információk és személyes adatok a rendszerből! Csak akkor töröljön egy felhasználót, ha az feltétlenül szükséges! Folytatja?',['Felhasználó törlése','Visszalépés'],function(action){
+			if (!action) return;
+
+			$.Dialog.wait(title);
+
+			$.ajax({
+				method: "POST",
+				url: "/system.users/deleteUser",
+				data: pushToken({'id': id}),
+				success: function(data){
+					if (typeof data === 'string'){
+						console.log(data);
+						$(window).trigger('ajaxerror');
+						return false;
+					}
+					if (data.status){
+						$.Dialog.success(title,data.message);
+						setTimeout(function(){
+							window.location.reload();
+						}, 1500)
+					}
+					else $.Dialog.fail(title,data.message);
+				}
+			});
+		});
+	});
+
 	$('#js_editRoles').on('click',function(e){
 		e.preventDefault();
 
@@ -179,7 +212,10 @@ $(function(){
 
 							// Törlés esetén
 							if ($form.find('#roleDelete').prop('checked')){
-								$.Dialog.confirm(title,'A kiválasztott szerepkör törlésére készül! Folytatja a műveletet?',['Szerepkör törlése','Visszalépés'],function(e){
+								$.Dialog.confirm(title,'A kiválasztott szerepkör törlésére készül! Folytatja a műveletet?',['Szerepkör törlése','Visszalépés'],function(action){
+									if (!action) return;
+
+									$.Dialog.wait(title);
 
 									$.ajax({
 										method: "POST",
