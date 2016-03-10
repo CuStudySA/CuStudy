@@ -24,10 +24,10 @@
 	td > label:not(:last-child) {
 		margin-right: 10px;
 	}
-	input {
-		&[type="text"], &[type="date"], &[type="number"] {
-			width: calc(100% - 9px);
-		}
+	input[type="text"], input[type="date"], input[type="number"], select {
+		display: block;
+		width: 100%;
+		box-sizing: border-box;
 	}
 	.focim {
 		text-align: center;

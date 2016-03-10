@@ -15,7 +15,7 @@
             <tbody>
 				<tr>
 					<td>Osztályazonosító</td>
-					<td><input type="number" name='evt_classid' min="0"></td>
+					<td><select name='evt_classid' id="classid_selector"><option value="" selected default>(nincs szűrés)</option></select></td>
 				</tr>
 				<tr>
 					<td>Ált. tulajdonságok</td>

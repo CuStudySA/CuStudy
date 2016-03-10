@@ -128,9 +128,11 @@ $(function(){
 
 		optgroups[row.school].append($.mk('option').attr('value', row.id).text(row.school+' '+row.name));
 	});
-	var _$classid = $formTempl.find('select[name=classid]');
+	var _$classid = $formTempl.find('select[name=classid]'),
+		$classFilter = $('#classid_selector');
 	$.each(optgroups,function(_, $grp){
 		_$classid.append($grp);
+		$classFilter.append($grp);
 	});
 	$formTempl.find('input[name=isGlobal]').on('change',function(){
 		$(this).parents('form').find('select[name=classid]').attr('disabled', this.checked);
