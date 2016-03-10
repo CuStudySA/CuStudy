@@ -162,12 +162,12 @@
 
 	# JS token generálása
 	CSRF::Generate();
-	
+
 	# Létezik a megjelenítésfájl?
 	$resc = "view/{$pages[$do]['file']}.php";
 	if (!file_exists($resc))
 		Message::Missing($resc);
-		
+
 	# Léteznek-e az erőforrások?
 	if (ROLE !== 'guest') $js[] = 'signed_in.js';
 

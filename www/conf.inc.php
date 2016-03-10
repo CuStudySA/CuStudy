@@ -221,12 +221,22 @@
 		),
 
 		'system.users' => array(
-			'title' => 		'Globális rendszerkezelés',
+			'title' => 		'Felh.kezelő eszközök',
 			'css' => 		['system.users.css'],
 			'js' => 		['system.users.js'],
 			'customjs' =>   [],
 			'reqdoc' => 	[],
 			'file' => 		'system.users',
+			'addons' =>     [],
+		),
+
+		'system.classes' => array(
+			'title' => 		'Osztályok kezelése',
+			'css' => 		['system.classes.css'],
+			'js' => 		['system.classes.js'],
+			'customjs' =>   [],
+			'reqdoc' => 	[],
+			'file' => 		'system.classes',
 			'addons' =>     [],
 		),
 	);
@@ -266,6 +276,7 @@
 		),
 		'systemadmin' => array(
 			'system.users' => ['view'],
+			'system.classes' => ['view'],
 		),
 		'everybody' => array(
 			'not-found' => ['view'],
