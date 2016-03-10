@@ -131,8 +131,8 @@ $(function(){
 	var _$classid = $formTempl.find('select[name=classid]'),
 		$classFilter = $('#classid_selector');
 	$.each(optgroups,function(_, $grp){
-		_$classid.append($grp);
-		$classFilter.append($grp);
+		_$classid.append($grp.clone());
+		$classFilter.append($grp.clone());
 	});
 	$formTempl.find('input[name=isGlobal]').on('change',function(){
 		$(this).parents('form').find('select[name=classid]').attr('disabled', this.checked);
