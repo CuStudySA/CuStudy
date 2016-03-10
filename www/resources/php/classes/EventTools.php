@@ -1,10 +1,10 @@
 <?php
 
 	class EventTools {
-		static function GetEvents($start, $end){
+		static function GetEvents($start, $end, $global = false){
 			global $db, $user;
 
-			$data = $db->where('classid', $user['class'][0])->get('events');
+			$data = $db->where('classid', $global ? 0 : $user['class'][0])->get('events');
 
 			$output = [];
 			foreach ($data as $event){
