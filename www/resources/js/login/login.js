@@ -145,13 +145,14 @@ $(function(){
 
 		var title = 'Jelszóvisszaállítás';
 
-		$.Dialog.request(title,"<form id='pw-reset'><p><p>Kérjük adja meg e-mail címét, és küldünk önnek egy<br>linket, melyre kattintva vissza tudja állítani jelszavát.</p><input type='email' name='email' placeholder='E-mail cím' required></label></form>",'pw-reset',function(){
-			$('#pw-reset').on('submit',function(e){
+		$.Dialog.request(title,"<form id='pw-reset'><p><p>Kérjük adja meg e-mail címét, és küldünk önnek egy<br>linket, melyre kattintva vissza tudja állítani jelszavát.</p><input type='email' name='email' placeholder='E-mail cím' required></label></form>",'pw-reset',function($urlap){
+			$urlap.on('submit',function(e){
 				e.preventDefault();
 
+				var data = $urlap.serializeForm();
 				$.Dialog.wait(title, 'Üzenet küldése');
 
-				$.post('/pw-reset/send',$(this).serializeForm(),function(data){
+				$.post('/pw-reset/send',data,function(data){
 					if (typeof data !== 'object'){
 						console.log(data);
 						$(window).trigger('ajaxerror');

@@ -211,12 +211,13 @@ $(function(){
 					$urlap.on('submit',function(e){
 						e.preventDefault();
 
+						var data = $urlap.serializeForm();
 						$.Dialog.wait(title);
 
 						$.ajax({
 							method: "POST",
 							url: "/users/edit",
-							data: $urlap.serializeForm(),
+							data: data,
 							success: function(data2){
 								if (typeof data2 === 'string'){
 									console.log(data2);

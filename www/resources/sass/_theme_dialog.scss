@@ -1,4 +1,9 @@
-$ZIndexBase: 21000;
+@import "dialog_notices";
+//  Előző request dialog szín \\
+//$DefaultUIColor: #c29008;
+//  Új request dialog szín  \\
+$DefaultUIColor: $Link;
+$ZIndexBase: 1000;
 
 // Mobile-only Styles
 @media all and (max-width: $Breakpoint){
@@ -15,27 +20,31 @@ $ZIndexBase: 21000;
 // Desktop-only Styles
 @media all and (min-width: $Breakpoint){
 	#dialogOverlay {
-		background-color: rgba(white, .8);
+		background-color: rgba(white, .9);
+		display: flex;
+		padding: 10px;
+		transition: opacity .29s linear;
+
+		&.animating { overflow: hidden }
 	}
 	#dialogBox {
-		margin: 10px;
+		position: relative;
+		// http://stackoverflow.com/a/33455342/1344955
+		margin: auto;
+		min-width: 150px;
 		max-width: 700px;
 		width: auto;
 		overflow: hidden;
-		border-radius: 5px;
-		background-color: white;
-		box-shadow: 0 0 20px rgba(black, .5);
-	}
-	#dialogContent {
-		//noinspection All
-		border: 1px solid rgba(black, .2);
-		//noinspection All
-		border-width: 0 1px 1px;
+		flex: 0 0 auto;
+		box-shadow: 0 0 20px rgba(0,0,0,.5);
+		background-color: rgba(255,255,255,.9);
 
-		overflow: auto;
+		transition: top .29s linear, opacity .29s linear;
 	}
-	body.dialog-open #main { padding-right: #{8px + 15px} }
+	#dialogContent { overflow: auto }
 }
+
+
 
 body.dialog-open { overflow: hidden }
 #dialogOverlay {
@@ -46,15 +55,11 @@ body.dialog-open { overflow: hidden }
 	left: 0;
 	z-index: $ZIndexBase;
 	overflow: auto;
-	opacity: 0;
-	transition: opacity .5s;
 }
 #dialogBox {
-	position: absolute;
-	top: 40%;
-	left: 40%;
-	min-width: 150px;
+	font-family: 'Segoe UI', sans-serif;
 	z-index: $ZIndexBase+1;
+	box-sizing: border-box;
 
 	/* Colors */
 	.blue-bg     { background-color: $NBlue }
@@ -62,120 +67,66 @@ body.dialog-open { overflow: hidden }
 	.green-bg    { background-color: $NGreen }
 	.red-bg      { background-color: $NRed }
 	.orange-bg   { background-color: $NOrange }
-	.yellow-bg   { background-color: $NYellow }
+	//.yellow-bg   { background-color: $NYellow }
+	.blue-border     { border-color: $NBlue }
+	.darkblue-border { border-color: $NDarkBlue }
+	.green-border    { border-color: $NGreen }
+	.red-border      { border-color: $NRed }
+	.orange-border   { border-color: $NOrange }
+	//.yellow-border   { border-color: $NYellow }
 }
+//noinspection CssOptimizeSimilarProperties
 #dialogHeader {
 	font-weight: 200;
 	width: auto;
-	padding: 5px 8px;
+	padding: 5px;
 	font-size: 18px;
 	color: #fff;
-	background: #ededed linear-gradient(to bottom, rgba(black, 0) 0%, rgba(black, .4) 100%);
+	background-color: $DefaultUIColor;
+	background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, .4) 100%);
 }
 #dialogContent {
 	padding: 15px 10px;
-	font-size: 16px;
+	font-size: 11pt;
+	line-height: 14pt;
 	font-weight: normal;
+	color: $DefaultUIColor;
 
-	> div:not(.yellow){ text-align: center }
+	form {
+		min-width: 300px;
 
-	form > label {
-		> span {
-			~ select,
-			~ textarea,
-			~ input:not([type=radio]):not([type=checkbox]):not([type=button]) {
-				margin-top: 5px !important;
-				display: block;
+		> label {
+			> span {
+				~ select,
+				~ textarea,
+				~ input:not([type=radio]):not([type=checkbox]):not([type=button]) {
+					margin-top: 5px !important;
+					display: block;
+				}
 			}
-		}
-		> select,
-		> textarea,
-		> input:not([type=radio]):not([type=checkbox]):not([type=button]) {
-			width: 100%;
-			box-sizing: border-box;
+			> select,
+			> textarea,
+			> input:not([type=radio]):not([type=checkbox]):not([type=button]) {
+				width: 100%;
+				box-sizing: border-box;
+			}
+			> textarea {
+				resize: vertical;
+			}
 		}
 	}
 	.notice {
-		margin: 0;
 		padding: 4px 7.5px;
-		border-width: 1px;
-		display: block;
-		border-radius: 7px;
-		color: #fff;
 		font-size: .9em;
-		background-color: #000;
-
-		&:not(:last-child) { margin-bottom: 10px }
-		&.info {
-			color: $NBlue;
-			background-color: $NBlueBG;
-
-			button, .btn {
-				color: $NBlueBG;
-				background-color: $NBlue;
-			}
-		}
-		&.success {
-			color: $NGreen;
-			background-color: $NGreenBG;
-
-			button, .btn {
-				color: $NGreenBG;
-				background-color: $NGreen;
-			}
-		}
-		&.fail {
-			color: $NRed;
-			background-color: $NRedBG;
-
-			button, .btn {
-				color: $NRedBG;
-				background-color: $NRed;
-			}
-		}
-		&.warn {
-			color: $NOrange;
-			background-color: $NOrangeBG;
-
-			button, .btn {
-				color: $NOrangeBG;
-				background-color: $NOrange;
-			}
-		}
-		&.caution {
-			color: $NYellow;
-			background-color: $NYellowBG;
-
-			button, .btn {
-				color: $NYellowBG;
-				background-color: $NYellow;
-			}
-		}
-
-		> label:first-child {
-			display: block;
-			font-weight: bold;
-
-			&:not(:last-child) {
-				padding-bottom: 5px;
-				margin-bottom: 10px;
-				border-bottom: 2px solid;
-			}
-		}
-		> p {
-			margin: 0 !important;
-
-			&:not(:last-child) { margin-bottom: 5px }
-
-			time { border-bottom: 1px dashed }
-		}
+		border-width: 1px;
 	}
-	p {
+	:not(.notice) > p {
 		margin: 0 0 5px;
 
+		pre { margin: 5px 0 }
 		code {
-			background-color: rgba(black, .1);
-			color: #000;
+			background-color: rgba($DefaultUIColor, .1);
+			color: $DefaultUIColor;
 			font-size: .9em;
 			padding: 3px;
 			border-radius: 3px;
@@ -188,11 +139,32 @@ body.dialog-open { overflow: hidden }
 			margin-top: 4px;
 		}
 
-		> .notice {
+		&:not([class]) > .notice {
 			margin-top: 10px;
 			border-width: 2px;
 			font-size: 1em;
 			font-weight: bold;
+		}
+
+		pre {
+			max-width: 100%;
+			display: block;
+			overflow: auto;
+			font-size: 12px;
+			padding: 3px;
+			margin: 5px 0 10px;
+			box-sizing: border-box;
+		}
+
+		.reset {
+			background-color: #fff;
+			color: #000;
+			margin-top: 5px;
+
+			> font {
+				display: block;
+				width: 100%;
+			}
 		}
 	}
 	> * {
@@ -210,7 +182,7 @@ body.dialog-open { overflow: hidden }
 	.green    { color: $NGreen }
 	.red      { color: $NRed }
 	.orange   { color: $NOrange }
-	.yellow   { color: $NYellow }
+	//.yellow   { color: $NYellow }
 }
 #dialogButtons {
 	width: auto;
@@ -227,7 +199,6 @@ body.dialog-open { overflow: hidden }
 		font-size: 14px;
 		line-height: 20px;
 		min-width: 90px;
-		min-height: 32px;
 		height: 32px;
 		color: #fff;
 		margin: 0 10px 0 0 !important;
@@ -241,13 +212,13 @@ body.dialog-open { overflow: hidden }
 		opacity: .85;
 		border: 3px solid transparent;
 		box-sizing: border-box;
+		background-color: $DefaultUIColor;
+		transition: border-color .2s ease-out, opacity .2s ease-out;
 
 		&[disabled] { cursor: not-allowed }
 		&:last-child { margin-right: 0 !important }
-		&:focus {
-			opacity: 1;
-			border-color: rgba(black, .2);
-		}
+		&:hover, &:focus { opacity: 1 }
+		&:focus { border-color: rgba(black, .2) }
 		&:active {
 			top: 1px;
 			left: 1px;

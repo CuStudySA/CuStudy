@@ -48,19 +48,20 @@
 						$html .= "<p><b>{$key}{$kettosPont}</b> {$value}</p>";
 					}
 
-					System::Respond('',1,array('html' => $html));
+					System::Respond(array('html' => $html));
 				}
 				else {
 					$data = $db->where('id',$ENV['POST']['id'])->where('classid',$user['class'][0])->getOne('events');
 
 					if (!empty($data)){
-						$data['start'] = str_replace('.','-',$data['start']);
-						$data['end'] = str_replace('.','-',$data['end']);
+						$dates = EventTools::ParseDates($data['start'], $data['end'], $data['isallday']);
+						$format = 'Y.m.d.'.(!$data['isallday']?' H:i:s':'');
+						$data['start'] = date($format, $dates[0]);
+						$data['end'] = date($format, $dates[1]);
 
-						System::Respond('',1,$data);
+						System::Respond($data);
 					}
-					else
-						System::Respond();
+					else System::Respond();
 				}
 			}
 			else

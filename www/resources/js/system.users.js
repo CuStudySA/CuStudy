@@ -14,12 +14,13 @@ $(function(){
 	$('#filterForm').on('submit',function(e){
 		e.preventDefault();
 
+		var data = $(this).serializeForm();
 		$.Dialog.wait();
 
 		$.ajax({
 			method: "POST",
 			url: "/system/users/filter",
-			data: $('#filterForm').serializeForm(),
+			data: data,
 			success: function(data){
 				if (typeof data === 'string'){
 					console.log(data);

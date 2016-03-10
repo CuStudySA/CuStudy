@@ -46,8 +46,8 @@
 	);
 
 	# Menüpontok beállítása, JS, CSS és addonok tömbjeinek kezdeti értékadása
-	$css = ['theme.css','dialog_old.css'];
-	$js = ['jquery.functions.js','dialog_old.js'];
+	$css = ['theme.css'];
+	$js = ['jquery.functions.js','dialog.js'];
 	$addon = ['swiftMailer'];
 
 	$pages = array(

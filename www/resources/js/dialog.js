@@ -1,10 +1,12 @@
+/* globals $body,Key,$w */
 (function ($, undefined) {
+	'use strict';
 	function $makeDiv(id){ return $.mk('div').attr('id', id) }
 	var colors = {
 			fail: 'red',
 			success: 'green',
 			wait: 'blue',
-			request: 'yellow',
+			request: '',
 			confirm: 'orange',
 			info: 'darkblue'
 		},
@@ -36,31 +38,29 @@
 		$dialogHeader = $('#dialogHeader'),
 		$dialogBox = $('#dialogBox'),
 		$dialogButtons = $('#dialogButtons');
-	
-	$.Dialog = (function(){
-		var _open = $dialogContent.length,
-			Dialog = {
-				isOpen: function(){ return Boolean(_open) },
-			};
 
-		// Pre-defined dialogs
-		Dialog.fail = function(title,content,callback){
-			Display('fail',title,content,{
-				'Bezárás': function(){ Close() }
-			},callback);
+	$.Dialog = (function(){
+		var _open = $dialogContent.length ? {} : undefined,
+			Dialog = {
+				isOpen: function(){ return typeof _open === 'object' },
+			},
+			CloseButton = { 'Bezárás': function(){ Close() } };
+
+		// Dialog defintions
+		Dialog.fail = function(title,content,force_new){
+			Display('fail',title,content,CloseButton,Boolean(force_new));
 		};
 		Dialog.success = function(title,content,closeBtn,callback){
-			Display('success',title,content,(closeBtn === true ? {
-				'Bezárás': function(){ Close() }
-			} : undefined), callback);
+			Display('success',title,content, (closeBtn === true ? CloseButton : undefined), callback);
 		};
-		Dialog.wait = function(title,additional_info,callback){
-			if (typeof additional_info === 'function' && callback === 'undefined'){
-				callback = additional_info;
+		Dialog.wait = function(title,additional_info,force_new){
+			if (typeof additional_info === 'boolean' && typeof force_new === 'undefined'){
+				force_new = additional_info;
+				additional_info = undefined;
 			}
-			if (typeof additional_info !== 'string' || additional_info.length < 2) additional_info = 'Sending request';
-			var content = $.capitalize(additional_info)+'&hellip;';
-			Display('wait',title,content,callback);
+			if (typeof additional_info !== 'string')
+				additional_info = 'Kérés küldése';
+			Display('wait',title,$.capitalize(additional_info)+'&hellip;',force_new);
 		};
 		Dialog.request = function(title,content,formid,confirmBtn,callback){
 			if (typeof confirmBtn === 'function' && typeof callback === 'undefined'){
@@ -80,7 +80,7 @@
 		Dialog.confirm = function(title,content,btnTextArray,handlerFunc){
 			if (typeof btnTextArray === 'function' && typeof handlerFunc === 'undefined')
 				handlerFunc = btnTextArray;
-			
+
 			if (typeof handlerFunc !== 'function')
 				handlerFunc = function(){ Close() };
 			
@@ -91,9 +91,7 @@
 			Display('confirm',title,content,buttons);
 		};
 		Dialog.info = function(title,content,callback){
-			Display('info',title,content,{
-				'Bezárás': function(){ Close() }
-			},callback);
+			Display('info',title,content,CloseButton,callback);
 		};
 
 		// Storing and restoring focus
@@ -106,12 +104,13 @@
 			if (typeof _$focusedElement !== 'undefined' && _$focusedElement instanceof jQuery)
 				return;
 			var $focus = $(':focus');
-			if ($focus.length > 0) _$focusedElement = $focus.last();
-			else _$focusedElement = undefined;
+			_$focusedElement = $focus.length > 0 ? $focus.last() : undefined;
 		}
 		function _restoreFocus(){
-			if (typeof _$focusedElement !== 'undefined' && _$focusedElement instanceof jQuery)
+			if (typeof _$focusedElement !== 'undefined' && _$focusedElement instanceof jQuery){
 				_$focusedElement.focus();
+				_$focusedElement = undefined;
+			}
 		}
 		function _setFocus(){
 			var $inputs = $('#dialogContent').find('input,select,textarea').filter(':visible'),
@@ -122,21 +121,48 @@
 
 		var DISABLE = true,
 			ENABLE = false;
-		function _controlInputs(disable){
-				$dialogContent.children(':not(:last-child)').find('input, select, textarea').attr('disabled',disable);
+		function _controlInputs(action){
+			var $inputs = $dialogContent
+				.children(':not(#dialogButtons)')
+				.last()
+				.find('input, select, textarea');
+
+			if (action === DISABLE)
+				$inputs.filter(':not(:disabled)').addClass('temp-disable').attr('disabled',DISABLE);
+			else $inputs.filter('.temp-disable').removeClass('temp-disable').attr('disabled',ENABLE);
 		}
+
+		var _closeTimeout;
 
 		// Displaying dialogs
 		function Display(type,title,content,buttons,callback) {
 			if (typeof type !== 'string' || typeof colors[type] === 'undefined')
 				throw new TypeError('Invalid dialog type: '+typeof type);
-			
-			if (typeof buttons == 'function' && typeof callback == 'undefined')
+
+			if (typeof _closeTimeout !== 'undefined'){
+				clearTimeout(_closeTimeout);
+				_closeTimeout = undefined;
+			}
+			if (typeof buttons === 'function' && typeof callback !== 'function'){
 				callback = buttons;
-			
-			if (typeof title === 'undefined') title = defaultTitles[type];
-			else if (title === false) title = undefined;
-			if (typeof content === 'undefined') content = defaultContent[type];
+				buttons = undefined;
+			}
+			var force_new = false;
+			if (typeof callback === 'boolean'){
+				force_new = callback;
+				callback = undefined;
+			}
+			else if (typeof buttons === 'boolean' && typeof callback === 'undefined'){
+				force_new = buttons;
+				buttons = undefined;
+			}
+
+			if (typeof title === 'undefined')
+				title = defaultTitles[type];
+			else if (title === false)
+				title = undefined;
+			if (!content)
+				content = defaultContent[type];
 			var params = {
 				type: type,
 				title: title,
@@ -146,18 +172,21 @@
 			};
 
 			var append = Boolean(_open),
-				$contentAdd = $makeDiv().addClass(params.color).append(params.content),
+				$contentAdd = $makeDiv().append(params.content),
 				appendingToRequest = append && _open.type === 'request' && ['fail','wait'].includes(params.type),
 				$requestContentDiv;
+
+			if (params.color.length)
+				$contentAdd.addClass(params.color);
 			if (append){
-				$dialogOverlay = $('#dialogOverlay');
-				$dialogBox = $('#dialogBox');
+				$dialogOverlay = $('#dialogOverlay').css('opacity', 1);
+				$dialogBox = $('#dialogBox').css({ top: 0, opacity: 1 });
 				$dialogHeader = $('#dialogHeader');
 				if (typeof params.title === 'string')
 					$dialogHeader.text(params.title);
 				$dialogContent = $('#dialogContent');
 
-				if (appendingToRequest){
+				if (appendingToRequest && !force_new){
 					$requestContentDiv = $dialogContent.children(':not(#dialogButtons)').last();
 					var $ErrorNotice = $requestContentDiv.children('.notice');
 					if (!$ErrorNotice.length){
@@ -186,27 +215,29 @@
 				_storeFocus();
 				_open = params;
 
-				$dialogOverlay = $makeDiv('dialogOverlay');
+				$dialogOverlay = $makeDiv('dialogOverlay').css('opacity', 0);
 				$dialogHeader = $makeDiv('dialogHeader').text(params.title||defaultTitles[type]);
 				$dialogContent = $makeDiv('dialogContent');
-				$dialogBox = $makeDiv('dialogBox');
+				$dialogBox = $makeDiv('dialogBox').css({ top: '-10%', opacity: 0 });
 
 				$dialogContent.append($contentAdd);
 				$dialogButtons = $makeDiv('dialogButtons').appendTo($dialogContent);
 				$dialogBox.append($dialogHeader).append($dialogContent);
 				$dialogOverlay.append($dialogBox).appendTo($body);
 
+				setTimeout(function(){
+					$dialogOverlay.add($dialogBox).css('opacity', 1).addClass('animating');
+					setTimeout(function(){ $dialogOverlay.removeClass('animating') },300);
+					$dialogBox.css('top', 0);
+				},10);
+
 				$body.addClass('dialog-open');
-				var overlay = {w: $dialogOverlay.width(), h: $dialogOverlay.height()},
-					dialogpos = {w: $dialogBox.outerWidth(true), h: $dialogBox.outerHeight(true)};
-				$dialogBox.css({
-					top: Math.max(((overlay.h - dialogpos.h) / 2)*.5, 0),
-					left: Math.max((overlay.w - dialogpos.w) / 2, 0),
-				});
 			}
 
-			if (!appendingToRequest)
+			if (!appendingToRequest){
 				$dialogHeader.attr('class',params.color+'-bg');
+				$dialogContent.attr('class',params.color+'-border');
+			}
 
 			if (!appendingToRequest && params.buttons) $.each(params.buttons, function (name, obj) {
 				var $button = $.mk('input').attr({
@@ -217,7 +248,7 @@
 					obj = {action: obj};
 				else if (obj.form){
 					$requestContentDiv = $('#'+obj.form);
-					if ($requestContentDiv.length == 1){
+					if ($requestContentDiv.length === 1){
 						$button.on('click', function(){
 							$requestContentDiv.find('input[type=submit]').trigger('click');
 						});
@@ -259,7 +290,6 @@
 				});
 				$dialogButtons.append($button);
 			});
-			Dialog.center(true, append);
 			_setFocus();
 
 			$.callCallback(callback, [$requestContentDiv]);
@@ -270,62 +300,50 @@
 			if (!Dialog.isOpen())
 				return $.callCallback(callback, false);
 
-			var overlay = {w: $dialogOverlay.width(), h: $dialogOverlay.height()},
-				dialogpos = {w: $dialogBox.outerWidth(true), h: $dialogBox.outerHeight(true)};
-			$dialogBox.css('left',Math.max((overlay.w - dialogpos.w) / 2, 0)).animate({
-				top: Math.max(((overlay.h - dialogpos.h) / 2) * 1.2, 0)
-			}, 500, function(){
-				$dialogOverlay.remove();
+			$dialogOverlay.add($dialogBox).css('opacity', 0).addClass('animating');
+			setTimeout(function(){ $dialogOverlay.removeClass('animating') },300);
+			$dialogBox.css('top', '10%');
+
+			_closeTimeout = setTimeout(function(){
 				_open = undefined;
+				$dialogOverlay.remove();
 				_restoreFocus();
 				$.callCallback(callback);
 
 				$body.removeClass('dialog-open');
-			});
-			$dialogOverlay.css('opacity', 0);
+				_closeTimeout = undefined;
+			}, 300);
 		}
 		Dialog.close = function(){ Close.apply(Dialog, arguments) };
-		Dialog.center = function(animate, append){
-			if (typeof _open === 'undefined') return;
-
-			var overlay = {w: $dialogOverlay.width(), h: $dialogOverlay.height()},
-				dialog = {w: $dialogBox.outerWidth(true), h: $dialogBox.outerHeight(true)};
-			if (animate === true){
-				if (append !== true)
-					$dialogBox.css({
-						left: (overlay.w - dialog.w) / 2,
-						top: overlay.h / 2 - dialog.h,
-					});
-
-				$dialogBox.stop().animate({
-					top: (overlay.h - dialog.h) / 2,
-					left: (overlay.w - dialog.w) / 2,
-				}, 350, _setFocus);
-			}
-			else $dialogBox.css({
-				top: Math.max((overlay.h - dialog.h) / 2, 0),
-				left: Math.max((overlay.w - dialog.w) / 2, 0),
-			});
-			$dialogOverlay.css('opacity', 1);
-		};
 		return Dialog;
 	})();
 
-	$w.on('resize', $.Dialog.center);
 	$body.on('keydown',function(e){
-		if (e.keyCode === 9 && $.Dialog.isOpen()){
-			var $inputs = $dialogContent.find(':input'),
-				idx = $inputs.index(e.target);
+		if (!$.Dialog.isOpen() || e.keyCode !== Key.Tab)
+			return true;
 
-			if (e.shiftKey && idx === 0){
+		var $inputs = $dialogContent.find(':input'),
+			$focused = $inputs.filter(e.target),
+			idx = $inputs.index($focused);
+
+		if ($focused.length === 0){
+			e.preventDefault();
+			$inputs.first().focus();
+		}
+		else if (e.shiftKey){
+			if (idx === 0){
 				e.preventDefault();
 				$dialogButtons.find(':last').focus();
 			}
-			else if ($inputs.filter(':focus').length !== 1){
-				e.preventDefault();
-				$inputs.first().focus();
+			else {
+				var $parent = $focused.parent();
+				if (!$parent.is($dialogButtons))
+					return true;
+				if ($parent.children().first().is($focused)){
+					e.preventDefault();
+					$inputs.eq($inputs.index($focused)-1).focus();
+				}
 			}
-			return true;
 		}
 	});
 })(jQuery);
