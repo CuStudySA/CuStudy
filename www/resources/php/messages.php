@@ -513,4 +513,28 @@
 				),
 			),
 		),
+		'adminEventTools' => array(
+			'delete' => array(
+				'errors' => array(
+					1 => 'nincs jogosultsága a művelethez',
+					2 => 'hiba történt az adatbázisba mentés közben',
+				),
+				'messages' => array(
+					0 => 'Az esemény szerkesztése sikeresen megtörtént',
+					1 => 'Az esemény szerkesztése nem sikerült, mert @msg! (Hibakód: @code)',
+				),
+			),
+			'edit' => array(
+				'errors' => array(
+					1 => 'nincs jogosultsága a művelethez',
+					2 => 'valamelyik megadott adat formátuma hibás',
+					3 => "az esemény időtartama nem 'kezdet ~ vég' formátumban lett megadva",
+					4 => 'a megadott intervallum nem értelmezhető',
+				),
+				'messages' => array(
+					0 => 'Az esemény szerkesztése sikeresen megtörtént!',
+					1 => 'Az esemény szerkesztése nem sikerült, mert @msg! (Hibakód: @code)',
+				),
+			),
+		),
 	);

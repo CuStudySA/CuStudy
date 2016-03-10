@@ -1,0 +1,37 @@
+#filterFormContainer {
+	margin-top: 2px;
+
+	.js_filterUsers {
+		//float: right;
+    margin-right: 8px;
+    margin-top: 5px;
+	}
+}
+
+.filterFormTable {
+	border: 1px solid black;
+	border-collapse: collapse;
+	padding: 5px;
+	width: 99%;
+
+	tr, td, th {
+		border: 1px solid black;
+		padding: 4px;
+	}
+	> thead {
+		font-weight: bold;
+	}
+	td > label:not(:last-child) {
+		margin-right: 10px;
+	}
+	input {
+		&[type="text"], &[type="date"], &[type="number"] {
+			width: calc(100% - 9px);
+		}
+	}
+	.focim {
+		text-align: center;
+		font-weight: bold;
+	}
+}
+#resultContainer .resultTable { @extend .filterFormTable }

@@ -229,6 +229,16 @@
 			'file' => 		'system.users',
 			'addons' =>     [],
 		),
+
+		'system.events' => array(
+			'title' => 		'Globális eseménykezelő',
+			'css' => 		['system.events.css'],
+			'js' => 		['system.events.js'],
+			'customjs' =>   [],
+			'reqdoc' => 	[],
+			'file' => 		'system.events',
+			'addons' =>     ['dateRangePicker'],
+		),
 	);
 
 	$Perm = array(
@@ -266,6 +276,7 @@
 		),
 		'systemadmin' => array(
 			'system.users' => ['view'],
+			'system.events' => ['view'],
 		),
 		'everybody' => array(
 			'not-found' => ['view'],

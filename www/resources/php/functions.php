@@ -14,7 +14,8 @@
 	require "classes/PasswordReset.php";
 	require "classes/GroupTools.php";
 	require "classes/GroupThemeTools.php";
-	require "classes/AdminTools.php";
+	require "classes/AdminUserTools.php";
+	require "classes/AdminEventTools.php";
 	require "classes/TeacherTools.php";
 	require "classes/HomeworkTools.php";
 	require "classes/EventTools.php";
