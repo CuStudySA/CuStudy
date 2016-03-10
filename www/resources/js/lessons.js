@@ -169,7 +169,7 @@
 			return $.Dialog.fail(title, 'Tantárgyak felvétele előtt hozzá kell adnod tanárokat a <a href="/teachers">Tanárok</a> menüpontban!');
 
 		var $dialog = $formTempl.clone();
-		$dialog.find('[name=id]').reomve();
+		$dialog.find('[name=id]').remove();
 		$dialog.find('[name=teacherid]').append(opt_s);
 
 		$.Dialog.request(title,$dialog,'js_form','Mentés',function($urlap){
