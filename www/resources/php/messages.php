@@ -513,4 +513,16 @@
 				),
 			),
 		),
+		'adminClassTools' => array(
+			'editBasicInfos' => array(
+				'errors' => array(
+					1 => 'nincs jogosultsága a művelethez',
+					2 => 'a megadott adatok formátuma nem megfelelő',
+				),
+				'messages' => array(
+					1 => 'Nem sikerült az osztály alapadatait módosítani, mert @msg! (Hibakód: @code)',
+					0 => 'Az osztály alapadatainak módosítása sikeresen befejeződött, most átirányítjuk...',
+				),
+			),
+		),
 	);

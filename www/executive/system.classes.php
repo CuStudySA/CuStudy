@@ -2,6 +2,32 @@
 	$case1  = isset($ENV['URL'][0]) ? $ENV['URL'][0] : 'def';
 
 	switch ($case1){
+		case 'get':
+			$subaction  = isset($ENV['URL'][1]) ? $ENV['URL'][1] : 'def';
+			switch ($subaction){
+				case 'basicInfos':
+					if (!isset($ENV['POST']['id'])) System::Respond();
+					$id = $ENV['POST']['id'];
+
+					$data = $db->where('id',$id)->getOne('class');
+					if (empty($data)) System::Respond();
+
+					System::Respond('',1,array(
+						'classid' => $data['classid'],
+					));
+				break;
+			}
+		break;
+
+		case 'editBasicInfos':
+			if (!empty($ENV['POST']))
+				$action = AdminClassTools::EditBasicInfos($ENV['POST']);
+			else
+				System::Respond();
+
+			System::Respond(Message::Respond('adminClassTools.editBasicInfos',$action),$action == 0 ? 1 : 0);
+		break;
+
 		case 'filter':
 			if (empty($ENV['POST'])) System::Respond();
 

@@ -62,8 +62,9 @@
 
 		<h3 class='dataTitle'>Műveletek</h3>
 		<ol class='actions'>
-			<li><a class='typcn typcn-pencil' id='js_editUserInfos' href='#' data-id='<?=$Class['id']?>'> Osztály alapadatainak szerkesztése</a></li>
-			<li><a class='typcn typcn-lock-closed' id='js_editRoles' href='#' data-id='<?=$Class['id']?>'> Szerepkörök szerkesztése</a></li>
-			<li><a class='typcn typcn-user-delete' id='js_deleteUser' href='#' data-id='<?=$Class['id']?>'> Felhasználó törlése</a></li>
+			<li><a class='typcn typcn-pencil' id='js_editBasicInfos' href='#' data-id='<?=$Class['id']?>'> Osztály alapadatainak szerkesztése</a></li>
+			<li><a class='typcn typcn-group' href='/system.classes/manage.users/<?=$Class['id']?>'> Tagfelvétel és tagkezelés</a></li>
+			<li><a class='typcn typcn-arrow-right-thick' href='#' data-id='<?=$Class['id']?>'> Belépés az osztályba mint adminisztrátor</a></li>
+			<li><a class='typcn typcn-trash' id='js_deleteClass' href='#' data-id='<?=$Class['id']?>'> Osztály megsemmisítése</a></li>
 		</ol>
 <?php }

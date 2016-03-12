@@ -44,4 +44,27 @@
 
 			return $data;
 		}
+
+		static function EditBasicInfos($data){
+			global $db;
+
+			# Jog. ellenörzése
+			if (System::PermCheck('system.classes.view')) return 1;
+
+			# Bevitel ellenörzése
+			$data = System::TrashForeignValues(['id','classid'],$data);
+			if (!System::ValuesExists($data,['id','classid'])) return 2;
+			foreach ($data as $key => $value){
+				$keys = [
+					'classid' => 'class',
+					'id' => 'numeric',
+				];
+				if (System::InputCheck($value,isset($keys[$key]) ? $keys[$key] : $key)) return 2;
+			}
+
+			$action = $db->where('id',$data['id'])->update('class',$data);
+
+			if ($action) return 0;
+			else return 3;
+		}
 	}

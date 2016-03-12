@@ -498,12 +498,10 @@
 		}
 
 		// Idegen értékek törlése a tömbből
-		static function TrashForeignValues($req,$array,$assoc = true){
+		static function TrashForeignValues($req,$array){
 			$ret = array();
-			if ($assoc){
-				foreach ($array as $key => $value)
-					if (in_array($key,$req)) $ret[$key] = $value;
-			}
+			foreach ($array as $key => $value)
+				if (in_array($key,$req)) $ret[$key] = $value;
 			return $ret;
 		}
 
