@@ -141,8 +141,8 @@
 
 		# CSRF-elleni védelem
 		if (!isset($skipCSRF)){
-			if (empty($ENV['POST']['JSSESSID'])) System::Respond('A kérésből hiányzik a CSRF token');
-			if (!CSRF::Check($ENV['POST']['JSSESSID'])) System::Respond('CSRF támadás érzékelve');
+			if (empty($ENV['POST']['JSSESSID'])) System::Respond('A művelet nem teljesíthető, mert a kéréshez nem tartozik CSRF token!');
+			if (!CSRF::Check($ENV['POST']['JSSESSID'])) System::Respond('A művelet nem teljesíthető, mert a kéréshez tartozó CSRF token nem egyezik a várt CSRF tokennel!');
 
 			unset($ENV['POST']['JSSESSID']);
 
@@ -233,7 +233,7 @@
 	if (!($ENV['SERVER']['REQUEST_METHOD'] === 'GET' && isset($ENV['GET']['via-js']))){
 		# Szükséges dokumentumok listájának előkészítése
 		$doc_list = ['header'];
-		if (ROLE !== 'guest')
+		if (ROLE !== 'guest' && empty($pages[$do]['withoutSidebar']))
 			$doc_list[] = 'sidebar';
 		$doc_list[] = $pages[$do]['file'];
 		$doc_list[] = 'footer';

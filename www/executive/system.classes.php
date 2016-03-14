@@ -61,4 +61,13 @@
 
 			System::Respond('',1,['html' => $html]);
 		break;
+
+		case 'manageMembers':
+			if (!empty($ENV['POST']['data']))
+				$action = AdminClassTools::ManageMembers($ENV['POST']['data']);
+			else
+				System::Respond();
+
+			System::Respond(Message::Respond('adminClassTools.manageMembers',$action),$action == 0 ? 1 : 0);
+		break;
 	}

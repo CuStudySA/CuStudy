@@ -239,6 +239,17 @@
 			'file' => 		'system.classes',
 			'addons' =>     [],
 		),
+
+		'system.popup' => array(
+			'title' => 		'Felhasználók szűrése',
+			'css' => 		['system.users.css'],
+			'js' => 		['system.users.js','system.popup.js'],
+			'customjs' =>   [],
+			'reqdoc' => 	[],
+			'file' => 		'system.popup',
+			'addons' =>     [],
+			'withoutSidebar' => true,
+		),
 	);
 
 	$Perm = array(
@@ -277,6 +288,7 @@
 		'systemadmin' => array(
 			'system.users' => ['view'],
 			'system.classes' => ['view'],
+			'system.popup' => ['view'],
 		),
 		'everybody' => array(
 			'not-found' => ['view'],

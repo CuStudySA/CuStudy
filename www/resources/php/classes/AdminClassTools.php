@@ -67,4 +67,50 @@
 			if ($action) return 0;
 			else return 3;
 		}
+
+		static function ManageMembers($data){
+			global $db;
+
+			# Jog. ellenörzése
+			if (System::PermCheck('system.classes.view')) return 1;
+
+			foreach ($data as $entry){
+				# Bevitel ellenörzése
+				if (!System::ValuesExists($entry,['id','role','remove','classid'])) return 2;
+				if (System::InputCheck($entry['id'],'numeric') || System::InputCheck($entry['classid'],'numeric')) return 2;
+				if (System::OptionCheck($entry['role'],array_keys(array_slice(UserTools::$roleLabels,0,3)))) return 2;
+
+				$classid = $entry['classid'];
+
+				// Ha el kell távolítani...
+				if ($entry['remove'] == 1){
+					$db->where('userid',$entry['id'])->where('classid',$classid)->delete('class_members');
+					continue;
+				}
+
+				$cm = $db->where('userid',$entry['id'])->where('classid',$classid)->getOne('class_members');
+
+				// Ha hozzá kell adni...
+				if (empty($cm)){
+					$db->insert('class_members',array(
+						'userid' => $entry['id'],
+						'classid' => $classid,
+						'role' => $entry['role'],
+					));
+
+					continue;
+				}
+
+				// Ha módosítani kell a lok. jogosultságát
+				if ($cm['role'] != $entry['role']){
+					$db->where('id',$cm['id'])->update('class_members',array(
+						'role' => $entry['role'],
+					));
+
+					continue;
+				}
+			}
+
+			return 0;
+		}
 	}
