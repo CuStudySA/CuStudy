@@ -534,5 +534,15 @@
 					0 => 'Az osztály taglistájának módosítása sikeresen befejeződött, most átirányítjuk...',
 				),
 			),
+			'enterClass' => array(
+				'errors' => array(
+					1 => 'nincs jogosultsága a művelethez',
+					2 => 'a megadott adatok formátuma nem megfelelő',
+				),
+				'messages' => array(
+					1 => 'Nem sikerült belépni az osztályba, mert @msg! (Hibakód: @code)',
+					0 => 'Átirányítás az osztály főoldalára, kérem várjon...',
+				),
+			),
 		),
 	);

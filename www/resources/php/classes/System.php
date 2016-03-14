@@ -190,7 +190,17 @@
 			# Felhasználó szerepkörének megállapítása
 			if ($session['activeSession'] == 0){
 				if ($user['role'] == 'none') return 'guest';
-				else return array($user['role'],$user);
+
+				$tempSession = $db->where('sessionid',$session['id'])->getOne('temporary_roles');
+				if (!empty($tempSession)){
+					if (self::UserActParent($tempSession['classid'])) return 'guest';
+
+					$user['class'][0] = $tempSession['classid'];
+					$user['tempSession'] = true;
+					return array($tempSession['role'],$user);
+				}
+
+				return array($user['role'],$user);
 			}
 
 			$classMemShip = $db->where('id',$session['activeSession'])->getOne('class_members');

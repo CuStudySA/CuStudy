@@ -113,4 +113,32 @@
 
 			return 0;
 		}
+
+		static function EnterClass($classid){
+			global $db, $user, $ENV;
+
+			# Jog. ellenörzése
+			if (System::PermCheck('system.classes.view')) return 1;
+
+			# Bevitel ellenörzése
+			if (System::InputCheck($classid,'numeric')) return 2;
+
+			$action = $db->insert('temporary_roles',array(
+				'sessionid' => $ENV['session'][0]['id'],
+				'classid' => $classid,
+				'role' => 'admin',
+			));
+
+			if ($action === false) return 3;
+			return 0;
+		}
+
+		static function ExitClass(){
+			global $user, $ENV, $db;
+
+			if (empty($user) || !is_array($user)) return 1;
+
+			$db->where('sessionid',$ENV['session'][0]['id'])->delete('temporary_roles');
+			return 0;
+		}
 	}

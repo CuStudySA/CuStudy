@@ -103,6 +103,38 @@ $(function(){
 		});
 	});
 
+	$('#js_enterClass').on('click',function(e){
+		e.preventDefault();
+
+		var id = $(e.currentTarget).attr('data-id'),
+			title = 'Belépés az osztályba mint adminisztrátor';
+
+		$.Dialog.confirm(title,'Arra készül, hogy belép a kiválasztott osztályba, mint az osztály adminisztrátora! Folytatja a műveletet?',['Belépés az osztályba','Visszalépés'],function(action){
+			if (!action) return;
+
+			$.ajax({
+				method: "POST",
+				url: "/system.classes/enterClass",
+				data: pushToken({'classid': id}),
+				success: function(data2){
+					if (typeof data2 === 'string'){
+						console.log(data2);
+						$(window).trigger('ajaxerror');
+						return false;
+					}
+					if (data2.status){
+						$.Dialog.success(title,data2.message);
+						setTimeout(function(){
+							window.location.href = '/';
+						},1500)
+					}
+
+					else $.Dialog.fail(title,data2.message);
+				}
+			});
+		});
+	});
+
 	// Felhasználó hozzáadása az osztályhoz
 	var $trTempl = $("<tr>\
 						<td class='check'><input type='checkbox' data-id=''></td>\

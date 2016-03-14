@@ -778,6 +778,22 @@ ALTER TABLE `timetable`
 --
 ALTER TABLE `users`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  
+--
+-- `temporary_roles` szerkezete
+--
+CREATE TABLE `temporary_roles` (
+  `id` int(11) NOT NULL,
+  `sessionid` int(11) NOT NULL,
+  `classid` int(11) NOT NULL,
+  `role` tinytext NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE `temporary_roles`
+  ADD PRIMARY KEY (`id`);
+  
+ALTER TABLE `temporary_roles`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

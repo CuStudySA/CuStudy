@@ -39,7 +39,10 @@ if (ROLE == 'admin')
 		//array('document-text','logs','Tevékenységnapló'),
 	));
 
-$Actions[] = array('power','#logout','Kijelentkezés');
+if (!isset($user['tempSession']))
+	$Actions[] = array('power','#logout','Kijelentkezés');
+else
+	$Actions[] = array('arrow-back','#exit','Kilépés az osztályból');
 
 foreach ($Actions as $a){
 	list($icon, $link, $text) = $a;

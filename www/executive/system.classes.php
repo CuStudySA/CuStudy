@@ -70,4 +70,13 @@
 
 			System::Respond(Message::Respond('adminClassTools.manageMembers',$action),$action == 0 ? 1 : 0);
 		break;
+
+		case 'enterClass':
+			if (!empty($ENV['POST']['classid']))
+				$action = AdminClassTools::EnterClass($ENV['POST']['classid']);
+			else
+				System::Respond();
+
+			System::Respond(Message::Respond('adminClassTools.enterClass',$action),$action == 0 ? 1 : 0);
+		break;
 	}

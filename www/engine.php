@@ -93,7 +93,13 @@
 
 	# Kiléptetés
 	if ($do === 'logout'){
-		$status = !System::Logout();
+		if (empty($ENV['URL'][0]))
+			$status = !System::Logout();
+		else if ($ENV['URL'][0] == 'exit')
+			AdminClassTools::ExitClass();
+		else
+			System::Respond();
+
 		if ($_SERVER['REQUEST_METHOD'] === 'GET') System::Redirect('/');
 		else System::Respond(true);
 	}

@@ -67,7 +67,7 @@
 				<ol class='actions'>
 					<li><a class='typcn typcn-pencil' id='js_editBasicInfos' href='#' data-id='<?=$Class['id']?>'> Osztály alapadatainak szerkesztése</a></li>
 					<li><a class='typcn typcn-group' href='/system.classes/manageMembers/<?=$Class['id']?>'> Tagfelvétel és tagkezelés</a></li>
-					<li><a class='typcn typcn-arrow-right-thick' href='#' data-id='<?=$Class['id']?>'> Belépés az osztályba mint adminisztrátor</a></li>
+					<li><a class='typcn typcn-arrow-right-thick' href='#' id='js_enterClass' data-id='<?=$Class['id']?>'> Belépés az osztályba mint adminisztrátor</a></li>
 					<li><a class='typcn typcn-trash' id='js_deleteClass' href='#' data-id='<?=$Class['id']?>'> Osztály megsemmisítése</a></li>
 				</ol>
 <?php		break;
