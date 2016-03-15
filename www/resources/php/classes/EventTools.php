@@ -4,24 +4,33 @@
 		static function GetEvents($start, $end){
 			global $db, $user;
 
-			$data = $db->rawQuery('SELECT *
-									FROM `events`
-									WHERE `classid` = ?',
+			$start = date('c',strtotime($start));
+			$end = date('c',strtotime($end));
 
-									array($user['class'][0]));
+			$data = $db
+				->where('classid', $user['class'][0])
+				->where('start', $start, '>=')
+				->where('end', $end, '<=')
+				->get('events');
 
 			$output = [];
 			foreach ($data as $event){
-				if (!(strtotime('12 am',strtotime($start)) < strtotime('12 am',strtotime($event['end']))
-					&& strtotime('12 am',strtotime($event['start'])) < strtotime('12 am',strtotime($end))))
-						continue;
-				
+				$allday = (bool)$event['isallday'];
+
+				$endtime = strtotime($event['end']);
+				// A befejezés időpontja exklúzív, ezért ki kell bővíteni, ha megfelelően akarjuk, hogy megjelenjen
+				if ($allday)
+					$endtime = strtotime('+1 day', $endtime);
+				else $endtime = strtotime('+1 second', $endtime);
+
+				$starttime = strtotime($event['start']);
+
 				$output[] = array(
 					'id' => $event['id'],
 					'title' => $event['title'],
-					'start' => $event['start'],
-					'end' => $event['end'],
-					'allDay' => (bool)$event['isallday'],
+					'start' => date('c',$starttime),
+					'end' => date('c',$endtime),
+					'allDay' => $allday,
 				);
 			}
 
