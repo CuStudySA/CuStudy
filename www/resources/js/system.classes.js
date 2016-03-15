@@ -112,6 +112,8 @@ $(function(){
 		$.Dialog.confirm(title,'Arra készül, hogy belép a kiválasztott osztályba, mint az osztály adminisztrátora! Folytatja a műveletet?',['Belépés az osztályba','Visszalépés'],function(action){
 			if (!action) return;
 
+			$.Dialog.wait(title);
+
 			$.ajax({
 				method: "POST",
 				url: "/system.classes/enterClass",

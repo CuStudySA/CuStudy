@@ -139,7 +139,7 @@ $(function(){
 
 						run();
 					}
-					else $.Dialog.fail(title,'Nem tudtuk lekérdezni az elérhető szerepkörök listáját! A szerepkör-választás nem lehetséges!');
+					else $.Dialog.fail(title,'Nem tudtuk lekérdezni az elérhető szerepkörök listáját! A szerepkör-választás pillanatnyilag nem lehetséges!');
 				}
 			});
 		}
