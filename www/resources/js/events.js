@@ -43,6 +43,8 @@ $(function(){
 			},
 			eventLimit: true,
 			height: 530,
+			nextDayThreshold: '00:00:00',
+			timezone: 'local',
 
 			eventClick: function(event) {
 				if (inSelectMode){
