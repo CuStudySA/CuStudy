@@ -16,10 +16,13 @@ $(function(){
 
 		$.Dialog.wait();
 
+		var data = $('#filterForm').serializeForm();
+		data.noSidebar = noSidebar;
+
 		$.ajax({
 			method: "POST",
 			url: "/system.users/filter",
-			data: $('#filterForm').serializeForm(),
+			data: data,
 			success: function(data){
 				if (typeof data === 'string'){
 					console.log(data);

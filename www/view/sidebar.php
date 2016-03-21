@@ -27,7 +27,8 @@ if (in_array(ROLE,array_keys($Perm['students']))){
 
 if (in_array(ROLE,array_keys($Perm))){
 	$Actions = array_merge($Actions,array(
-		array('group','system.users','Felhasználókezelő eszközök'),
+		array('user','system.users','Felhasználókezelő eszközök'),
+		array('group','system.classes','Osztályok kezelése'),
 	));
 }
 
@@ -38,7 +39,10 @@ if (ROLE == 'admin')
 		//array('document-text','logs','Tevékenységnapló'),
 	));
 
-$Actions[] = array('power','#logout','Kijelentkezés');
+if (!isset($user['tempSession']))
+	$Actions[] = array('power','#logout','Kijelentkezés');
+else
+	$Actions[] = array('arrow-back','#exit','Kilépés az osztályból');
 
 foreach ($Actions as $a){
 	list($icon, $link, $text) = $a;

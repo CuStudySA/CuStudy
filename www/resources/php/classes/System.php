@@ -190,7 +190,17 @@
 			# Felhasználó szerepkörének megállapítása
 			if ($session['activeSession'] == 0){
 				if ($user['role'] == 'none') return 'guest';
-				else return array($user['role'],$user);
+
+				$tempSession = $db->where('sessionid',$session['id'])->getOne('temporary_roles');
+				if (!empty($tempSession)){
+					if (self::UserActParent($tempSession['classid'])) return 'guest';
+
+					$user['class'][0] = $tempSession['classid'];
+					$user['tempSession'] = true;
+					return array($tempSession['role'],$user);
+				}
+
+				return array($user['role'],$user);
 			}
 
 			$classMemShip = $db->where('id',$session['activeSession'])->getOne('class_members');
@@ -498,12 +508,10 @@
 		}
 
 		// Idegen értékek törlése a tömbből
-		static function TrashForeignValues($req,$array,$assoc = true){
+		static function TrashForeignValues($req,$array){
 			$ret = array();
-			if ($assoc){
-				foreach ($array as $key => $value)
-					if (in_array($key,$req)) $ret[$key] = $value;
-			}
+			foreach ($array as $key => $value)
+				if (in_array($key,$req)) $ret[$key] = $value;
 			return $ret;
 		}
 

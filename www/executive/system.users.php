@@ -56,45 +56,62 @@
 		case 'filter':
 			if (empty($ENV['POST'])) System::Respond();
 
+			if (!empty($ENV['POST']['noSidebar'])){
+				$noSidebar = $ENV['POST']['noSidebar'] == 'true' ? true : false;
+				unset($ENV['POST']['noSidebar']);
+			}
+			else
+				$noSidebar = false;
+
 			$data = AdminUserTools::FilterUsers($ENV['POST']);
-			$html = '<h3>A lekérdezés eredménye: '.count($data).' felhasználó</h3>'.
-					 '<table class="resultTable">
-					     <thead>
-					        <tr>
-					          <td>ID</td>
-					          <td>Név</td>
-					          <td>E-mail cím</td>
-					          <td>Globális jogosultság</td>
-					          <td>Felh. kezelése</td>
-					        </tr>
-		                  </thead>
 
-		                  <tbody>';
+			if (count($data) != 0)
+				$html = '<h3>A lekérdezés eredménye: '.count($data).' felhasználó</h3>'.
+						 '<table class="resultTable">
+							 <thead>
+								<tr>
+								  <td>ID</td>
+								  <td>Név</td>
+								  <td>E-mail cím</td>
+								  <td>Globális jogosultság</td>'.
 
-		    foreach ($data as $entry){
-		        $html .= '<tr>';
+								  (!$noSidebar ? '<td>Felh. kezelése</td>' : '<td>Kiválasztás</td>').
 
-		        $toPrint = ['id','name','email','role'];
-		        foreach ($toPrint as $label){
-		            if ($label == 'role'){
-		                $role = UserTools::$roleLabels[$entry[$label]];
-		                $html .= "<td>{$role}</td>";
-		                continue;
-		            }
+								'</tr>
+							  </thead>
 
-		            if (!is_array($entry[$label]))
-		                $html .= "<td>".(empty($entry[$label]) ? '(ismeretlen)' : $entry[$label])."</td>";
-		            else {
-		                $string = implode('<br>',$entry[$label]);
-		                $html .= "<td>{$string}</td>";
-		            }
-		        }
-				$html .= "<td><a href='/system.users/{$entry['id']}'>{$entry['username']}</a></td>";
+							  <tbody>';
+			else
+				$html = '<h3>A lekérdezés eredménye: '.count($data).' felhasználó</h3>'.
+						 '<table class="resultTable">
+							 <thead></thead>
 
-		        $html .= '</tr>';
-		    }
+							 <tbody>';
 
-		    $html .= '</tbody>
+			foreach ($data as $entry){
+				$html .= '<tr>';
+
+				$toPrint = ['id','name','email','role'];
+				foreach ($toPrint as $label){
+					if ($label == 'role'){
+						$role = UserTools::$roleLabels[$entry[$label]];
+						$html .= "<td data-type='{$label}'>{$role}</td>";
+						continue;
+					}
+
+					if (!is_array($entry[$label]))
+						$html .= "<td data-type='{$label}'>".(empty($entry[$label]) ? '(ismeretlen)' : $entry[$label])."</td>";
+					else {
+						$string = implode('<br>',$entry[$label]);
+						$html .= "<td data-type='{$label}'>{$string}</td>";
+					}
+				}
+				$html .= !$noSidebar ? "<td><a href='/system.users/{$entry['id']}'>{$entry['username']}</a></td>" : "<td style='text-align: center;'><input type='checkbox' class='selectorCheckbox'></td>";
+
+				$html .= '</tr>';
+			}
+
+			$html .= '</tbody>
 					</table>';
 
 			System::Respond('',1,['html' => $html]);
