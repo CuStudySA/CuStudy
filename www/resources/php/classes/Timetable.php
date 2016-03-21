@@ -209,7 +209,7 @@ STRING;
 			?>
 			<span class='dispDays'><?=json_encode($dates)?></span>
 			<span class='lockBack'><?=json_encode($lockBack)?></span>
-		<?php	}
+<?php	}
 
 		static function MoveDate($date,$numberOfDays = 3,$showAllGroups = true){
 			$date = strtotime('- 1 days',strtotime($date));
@@ -238,7 +238,7 @@ STRING;
 			?>
 			<span class='dispDays'><?=json_encode($dates)?></span>
 			<span class='lockBack'><?=json_encode($lockBack)?></span>
-		<?php	}
+<?php	}
 
 		static function SwitchView($fromDate,$allgroup = true){
 			$fromDate = strtotime('- 1 days',$fromDate);
@@ -265,7 +265,7 @@ STRING;
 			?>
 			<span class='dispDays'><?=json_encode($days)?></span>
 			<span class='lockBack'><?=json_encode($lockBack)?></span>
-		<?php	}
+<?php	}
 
 		static function GetHWTimeTable($week = null, $lastDay = null, $allgroup = true){
 			global $user, $db;
@@ -288,8 +288,8 @@ STRING;
 				$weekday = time();
 
 				$addon = array_merge($addon,[self::GetActualWeek(),
-				                             $hour >= 8 && $minute >= 0 ? self::GetDayNumber() : self::GetDayNumber()-1,
-				                             strtolower(self::GetActualWeek()) == 'a' ? 'b' : 'a']);
+							$hour >= 8 && $minute >= 0 ? self::GetDayNumber() : self::GetDayNumber()-1,
+							strtolower(self::GetActualWeek()) == 'a' ? 'b' : 'a']);
 
 				$actWeek = strtolower(Timetable::GetActualWeek());
 				$dayInWeek = Timetable::GetDayNumber();
@@ -325,7 +325,7 @@ STRING;
 											ON (l.id = tt.lessonid && l.classid = tt.classid)
 											WHERE tt.classid = ? && tt.day > ? $onlyGrp
 											ORDER BY tt.day, tt.lesson"
-					,array($user['class'][0],$hour >= 8 && $minute >= 0 ? $dayInWeek : $dayInWeek-1));
+									,array($user['class'][0],$hour >= 8 && $minute >= 0 ? $dayInWeek : $dayInWeek-1));
 
 				$data_nextWeek = $db->rawQuery("SELECT l.name, l.color, tt.id, tt.lesson, tt.day, tt.week, (SELECT `name` FROM `groups` WHERE `id` = tt.groupid) as group_name
 											FROM timetable tt
@@ -333,7 +333,7 @@ STRING;
 											ON (l.id = tt.lessonid && l.classid = tt.classid)
 											WHERE tt.classid = ? $onlyGrp
 											ORDER BY tt.day, tt.lesson"
-					,array($user['class'][0]));
+									,array($user['class'][0]));
 
 				$data_nW = array();
 				foreach ($data_nextWeek as $array){
@@ -408,8 +408,8 @@ STRING;
 
 			# Ha minden csoport adatait szeretnénk lekérni...
 			if ($allgroups == false){
-				$query .= ' && groupid = ?';
-				$data[] = '0';
+	            $query .= ' && groupid = ?';
+	            $data[] = '0';
 				foreach ($groupdata as $subgd){
 					$query .= " || groupid = ?";
 					$data[] = $subgd['id'];
@@ -460,41 +460,41 @@ STRING;
 			} ?>
 
 			<table class='timet'>
-			<thead>
-			<?php				if (!empty($weeks)) {
-				print "<tr><th>H</th>";
-				foreach ($weeks as $key => $array){
-					print "<th colspan='$array[0]'>{$array[1]}. hét ({$key}. hét)</th>";
-				}
-				print "</tr>";
-			} ?>
-			<tr>
-				<th class="week"><?= empty($week) ? 'D' : strtoupper($week) ?></th>
-				<?php                   if (empty($weekdays)) { ?>
-					<th class="weekday">Hétfő</th>
-					<th class="weekday">Kedd</th>
-					<th class="weekday">Szerda</th>
-					<th class="weekday">Csütörtök</th>
-					<th class="weekday">Péntek</th>
-				<?php                   }
-				else
-					foreach ($weekdays as $day)
-						print "<th class='weekday'>".HomeworkTools::FormatMonthDay($day).' '.System::$Days[Timetable::GetDayNumber($day)]."</th>"; ?>
-			</tr>
-			</thead>
+				<thead>
+<?php				if (!empty($weeks)) {
+						print "<tr><th>H</th>";
+						foreach ($weeks as $key => $array){
+							print "<th colspan='$array[0]'>{$array[1]}. hét ({$key}. hét)</th>";
+						}
+						print "</tr>";
+					} ?>
+					<tr>
+						<th class="week"><?= empty($week) ? 'D' : strtoupper($week) ?></th>
+<?php                   if (empty($weekdays)) { ?>
+							<th class="weekday">Hétfő</th>
+							<th class="weekday">Kedd</th>
+							<th class="weekday">Szerda</th>
+							<th class="weekday">Csütörtök</th>
+							<th class="weekday">Péntek</th>
+<?php                   }
+						else
+							foreach ($weekdays as $day)
+								print "<th class='weekday'>".HomeworkTools::FormatMonthDay($day).' '.System::$Days[Timetable::GetDayNumber($day)]."</th>"; ?>
+					</tr>
+				</thead>
 
-			<tbody>
-			<?php       if (empty($weekdays)){
+				<tbody>
+<?php       if (empty($weekdays)){
 				for ($lesson = 0; $lesson <= 8; $lesson++){
 					if (empty($Timetable[$lesson])) continue; ?>
 					<tr class="lesson-field">
 						<th><?=$lesson+1?></th>
-						<?php                   for ($weekday = 0; $weekday < (empty($weekdays) ? 5 : count($weekdays)); $weekday++){
+<?php                   for ($weekday = 0; $weekday < (empty($weekdays) ? 5 : count($weekdays)); $weekday++){
 							$class = isset($Timetable[$lesson][$weekday]) ? $Timetable[$lesson][$weekday] : null;
 							self::_RenderClass($class);
 						} ?>
 					</tr>
-				<?php           }
+<?php           }
 			}
 			else {
 				$days = array_keys($weekdays);
@@ -502,17 +502,17 @@ STRING;
 					if (empty($Timetable[$lesson])) continue; ?>
 					<tr class="lesson-field">
 						<th><?=$lesson+1?></th>
-						<?php                   for ($day = 0; $day < count($days); $day++){
+<?php                   for ($day = 0; $day < count($days); $day++){
 							//var_dump($days[$day]);
 							$class = isset($Timetable[$lesson][$weekdays[$day]]) ? $Timetable[$lesson][$weekdays[$day]] : null;
 							self::_RenderClass($class);
 						} ?>
 					</tr>
-				<?php           }
+<?php           }
 			} ?>
-			<?php
-			print "</tbody></table>";
-			if (!empty($week) && !System::PermCheck('timetables.edit')) print "<button class='btn sendbtn'>Módosítások mentése</button>";
+<?php
+		print "</tbody></table>";
+		if (!empty($week) && !System::PermCheck('timetables.edit')) print "<button class='btn sendbtn'>Módosítások mentése</button>";
 		}
 
 		// Órarend cella kirenderelő

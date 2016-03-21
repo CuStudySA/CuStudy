@@ -10,8 +10,6 @@ SET time_zone = "+00:00";
 --
 -- Adatbázis: `custudy`
 --
-CREATE DATABASE IF NOT EXISTS `custudy` DEFAULT CHARACTER SET utf8 COLLATE utf8_hungarian_ci;
-USE `custudy`;
 
 -- --------------------------------------------------------
 
@@ -155,7 +153,7 @@ CREATE TABLE `homeworks` (
   `text` tinytext COLLATE utf8_hungarian_ci NOT NULL,
   `author` int(11) NOT NULL,
   `week` int(11) NOT NULL,
-  `year` int(11) NOT NULL DEFAULT '2016',
+  `year` int(11) NOT NULL,
   `classid` int(11) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
@@ -307,6 +305,29 @@ CREATE TABLE `log_login` (
 -- --------------------------------------------------------
 
 --
+-- Tábla szerkezet ehhez a táblához `log_role_del`
+--
+
+CREATE TABLE `log_role_del` (
+  `id` int(11) NOT NULL,
+  `e_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf32 COLLATE=utf32_hungarian_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `log_role_edit`
+--
+
+CREATE TABLE `log_role_edit` (
+  `id` int(11) NOT NULL,
+  `e_id` int(11) NOT NULL,
+  `role` tinytext COLLATE utf32_hungarian_ci NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf32 COLLATE=utf32_hungarian_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Tábla szerkezet ehhez a táblához `log_user_add`
 --
 
@@ -353,12 +374,12 @@ CREATE TABLE `log_user_edit` (
   `e_id` int(11) NOT NULL,
   `username` tinytext COLLATE utf8_hungarian_ci NOT NULL,
   `name` tinytext COLLATE utf8_hungarian_ci NOT NULL,
-  `classid` int(11) NOT NULL,
   `role` tinytext COLLATE utf8_hungarian_ci NOT NULL,
-  `active` int(11) NOT NULL,
+  `active` int(11) NOT NULL DEFAULT '-1',
   `email` tinytext COLLATE utf8_hungarian_ci NOT NULL,
-  `birthday` date NOT NULL,
-  `phone` tinytext COLLATE utf8_hungarian_ci NOT NULL
+  `defaultSession` int(11) NOT NULL DEFAULT '-1',
+  `avatar_provider` tinytext COLLATE utf8_hungarian_ci NOT NULL,
+  `mantisAccount` int(11) NOT NULL DEFAULT '-1'
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
 -- --------------------------------------------------------
@@ -418,6 +439,19 @@ CREATE TABLE `teachers` (
 -- --------------------------------------------------------
 
 --
+-- Tábla szerkezet ehhez a táblához `temporary_roles`
+--
+
+CREATE TABLE `temporary_roles` (
+  `id` int(11) NOT NULL,
+  `sessionid` int(11) NOT NULL,
+  `classid` int(11) NOT NULL,
+  `role` tinytext NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
 -- Tábla szerkezet ehhez a táblához `timetable`
 --
 
@@ -448,7 +482,8 @@ CREATE TABLE `users` (
   `email` tinytext COLLATE utf8_hungarian_ci NOT NULL,
   `role` enum('systemadmin','none','admin') COLLATE utf8_hungarian_ci NOT NULL,
   `defaultSession` int(11) NOT NULL DEFAULT '0',
-  `avatar_provider` varchar(12) COLLATE utf8_hungarian_ci DEFAULT NULL
+  `avatar_provider` varchar(12) COLLATE utf8_hungarian_ci NOT NULL,
+  `mantisAccount` int(11) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
 --
@@ -576,6 +611,18 @@ ALTER TABLE `log_login`
   ADD PRIMARY KEY (`id`);
 
 --
+-- A tábla indexei `log_role_del`
+--
+ALTER TABLE `log_role_del`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- A tábla indexei `log_role_edit`
+--
+ALTER TABLE `log_role_edit`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- A tábla indexei `log_user_add`
 --
 ALTER TABLE `log_user_add`
@@ -615,6 +662,12 @@ ALTER TABLE `sessions`
 -- A tábla indexei `teachers`
 --
 ALTER TABLE `teachers`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- A tábla indexei `temporary_roles`
+--
+ALTER TABLE `temporary_roles`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -734,6 +787,16 @@ ALTER TABLE `log_lesson_edit`
 ALTER TABLE `log_login`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
+-- AUTO_INCREMENT a táblához `log_role_del`
+--
+ALTER TABLE `log_role_del`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT a táblához `log_role_edit`
+--
+ALTER TABLE `log_role_edit`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
 -- AUTO_INCREMENT a táblához `log_user_add`
 --
 ALTER TABLE `log_user_add`
@@ -769,6 +832,11 @@ ALTER TABLE `sessions`
 ALTER TABLE `teachers`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
+-- AUTO_INCREMENT a táblához `temporary_roles`
+--
+ALTER TABLE `temporary_roles`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
 -- AUTO_INCREMENT a táblához `timetable`
 --
 ALTER TABLE `timetable`
@@ -778,7 +846,6 @@ ALTER TABLE `timetable`
 --
 ALTER TABLE `users`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

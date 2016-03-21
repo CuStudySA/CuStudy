@@ -1,7 +1,7 @@
 <?php
 
 	class EventTools {
-		static function GetEvents($start, $end){
+		static function GetEvents($start, $end, $global = false){
 			global $db, $user;
 
 			$start = date('c',strtotime($start));
@@ -173,7 +173,7 @@
 		static function ListEvents($Events = null){
 			if (empty($Events)){
 				global $db, $user;
-				$Events = $db->where('start > NOW()')->where('classid',$user['class'][0])->orderBy('start', 'ASC')->get('events', 10);
+				$Events = $db->where('start > NOW()')->where("classid IN ({$user['class'][0]},0)")->orderBy('start', 'ASC')->get('events', 10);
 			}
 			if (empty($Events)) return;
 

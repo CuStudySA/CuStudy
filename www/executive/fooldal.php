@@ -7,6 +7,9 @@
 
 			switch ($scase){
 				case 'get':
+					if (isset($user['tempSession']))
+						System::Respond(false);
+
 					$Roles = System::GetAvailableRoles();
 					$roles = array();
 

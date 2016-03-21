@@ -57,10 +57,15 @@ $(function(){
 				else
 					e_getEventInfos(event);
 			}
-		};
+		},
+		$calendar = $('#calendar');
 
 	// Naptár inicializálása
-	$('#calendar').fullCalendar(calendarSettings);
+	$calendar.fullCalendar(calendarSettings);
+	$calendar.fullCalendar( 'addEventSource', {
+		url: '/events/getGlobalEvents',
+		className: 'global-event',
+	});
 
 	var e_switchToSelectionMode = function(){
 		$(this).blur();
@@ -228,9 +233,7 @@ $(function(){
 						return false;
 					}
 					if (data.status){
-						var $calendar = $('#calendar');
-						$calendar.fullCalendar('destroy');
-						$calendar.fullCalendar(calendarSettings);
+						$calendar.fullCalendar('refetchEvents');
 
 						$selectedEvent = undefined;
 						$('.js_edit').attr('disabled',true);

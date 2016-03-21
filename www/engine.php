@@ -95,14 +95,20 @@
 
 	# Ha kilépésre van szükség...
 	if ($do === 'logout'){
-		$status = !System::Logout();
+		if (empty($ENV['URL'][0]))
+			$status = !System::Logout();
+		else if ($ENV['URL'][0] == 'exit')
+			AdminClassTools::ExitClass();
+		else
+			System::Respond();
+
 		if ($_SERVER['REQUEST_METHOD'] === 'GET') System::Redirect('/');
 		else System::Respond(true);
 	}
 
 	# Események lekérésénél 'Executive' végrehajtása
 	if (!empty($ENV['URL'][0]))
-		if ($ENV['URL'][0] == 'getEvents' && $do == 'events'){
+		if (preg_match('/^get(Global)?Events$/',$ENV['URL'][0]) && $do == 'events'){
 			$ENV['SERVER']['REQUEST_METHOD'] = 'POST';
 			$skipCSRF = true;
 		}
@@ -143,8 +149,8 @@
 
 		# CSRF-elleni védelem
 		if (!isset($skipCSRF)){
-			if (empty($ENV['POST']['JSSESSID'])) System::Respond('A kérésből hiányzik a CSRF token');
-			if (!CSRF::Check($ENV['POST']['JSSESSID'])) System::Respond('CSRF támadás érzékelve');
+			if (empty($ENV['POST']['JSSESSID'])) System::Respond('A művelet nem teljesíthető, mert a kéréshez nem tartozik CSRF token!');
+			if (!CSRF::Check($ENV['POST']['JSSESSID'])) System::Respond('A művelet nem teljesíthető, mert a kéréshez tartozó CSRF token nem egyezik a várt CSRF tokennel!');
 
 			unset($ENV['POST']['JSSESSID']);
 
@@ -236,7 +242,7 @@
 	if (!($ENV['SERVER']['REQUEST_METHOD'] === 'GET' && isset($ENV['GET']['via-js']))){
 		# Szükséges dokumentumok listájának előkészítése
 		$doc_list = ['header'];
-		if (ROLE !== 'guest')
+		if (ROLE !== 'guest' && empty($pages[$do]['withoutSidebar']))
 			$doc_list[] = 'sidebar';
 		$doc_list[] = $pages[$do]['file'];
 		$doc_list[] = 'footer';

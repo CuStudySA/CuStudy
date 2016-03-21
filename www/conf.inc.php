@@ -221,14 +221,45 @@
 			'addons' =>     ['fullCalendar','dateRangePicker'],
 		),
 
-		'system' => array(
-			'title' => 		'Globális rendszerkezelés',
+		'system.users' => array(
+			'title' => 		'Felh.kezelő eszközök',
 			'css' => 		['system.users.css'],
 			'js' => 		['system.users.js'],
 			'customjs' =>   [],
 			'reqdoc' => 	[],
-			'file' => 		'system',
+			'file' => 		'system.users',
 			'addons' =>     [],
+		),
+
+		'system.classes' => array(
+			'title' => 		'Osztályok kezelése',
+			'css' => 		['system.classes.css'],
+			'js' => 		['system.classes.js'],
+			'customjs' =>   [],
+			'reqdoc' => 	[],
+			'file' => 		'system.classes',
+			'addons' =>     [],
+		),
+
+		'system.popup' => array(
+			'title' => 		'Felhasználók szűrése',
+			'css' => 		['system.users.css'],
+			'js' => 		['system.users.js','system.popup.js'],
+			'customjs' =>   [],
+			'reqdoc' => 	[],
+			'file' => 		'system.popup',
+			'addons' =>     [],
+			'withoutSidebar' => true,
+		),
+
+		'system.events' => array(
+			'title' => 		'Globális eseménykezelő',
+			'css' => 		['system.events.css'],
+			'js' => 		['system.events.js'],
+			'customjs' =>   [],
+			'reqdoc' => 	[],
+			'file' => 		'system.events',
+			'addons' =>     ['dateRangePicker'],
 		),
 	);
 
@@ -267,7 +298,10 @@
 			'invitation' => ['view'],
 		),
 		'systemadmin' => array(
-			'system' => ['view'],
+			'system.users' => ['view'],
+			'system.classes' => ['view'],
+			'system.popup' => ['view'],
+			'system.events' => ['view'],
 		),
 		'everybody' => array(
 			'not-found' => ['view'],

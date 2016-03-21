@@ -1,0 +1,97 @@
+@import "vars";
+
+#filterTitle {
+	margin-bottom: 9px;
+
+	.className {
+		font-weight: normal !important;
+	}
+}
+#filterFormContainer {
+	margin-top: 2px;
+
+	.js_filterClasses {
+		//float: right;
+    margin-right: 8px;
+    margin-top: 5px;
+	}
+
+	.filterFormTable {
+		border: 1px solid black;
+		border-collapse: collapse;
+		padding: 5px;
+		width: 99%;
+
+		tr, td {
+			border: 1px solid black;
+			padding: 4px;
+		}
+		> thead {
+			font-weight: bold;
+		}
+		input {
+			width: calc(100% - 9px);
+		}
+		.focim {
+			text-align: center;
+			font-weight: bold;
+		}
+	}
+}
+#resultContainer {
+	.resultTable {
+		border: 1px solid black;
+		border-collapse: collapse;
+		padding: 5px;
+		width: 99%;
+
+		tr, td {
+			border: 1px solid black;
+			padding: 4px;
+		}
+		> thead {
+			font-weight: bold;
+		}
+	}
+}
+.dataTitle {
+	margin-bottom: 0;
+}
+.dataList {
+	margin-top: 7px;
+	list-style-type: circle;
+
+	.entry {
+		line-height: 1.6em;
+
+		span {
+			font-weight: bold;
+		}
+	}
+}
+.actions a {
+	color: #2C3B81;
+}
+
+.members {
+	border: 1px solid #000;
+	border-collapse: collapse;
+	padding: 5px;
+	width: 99%;
+	margin-bottom: 10px;
+
+	tr,td {
+		border: 1px solid #000;
+		padding: 5px;
+	}
+
+	thead {
+		font-weight: bold;
+		text-align: center;
+	}
+
+	.check {
+		width: 4px;
+		text-align: center;
+	}
+}

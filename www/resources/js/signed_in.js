@@ -36,6 +36,33 @@ $(function(){
 		});
 	});
 
+	$('#exit').on('click',function(e){
+		e.preventDefault();
+
+		var title = 'Kilépés az osztályból';
+		$.Dialog.wait(title);
+
+		$.ajax({
+			method: "POST",
+			url: "/logout/exit",
+			data: pushToken({}),
+			success: function(data){
+				if (typeof data === 'string'){
+					console.log(data);
+					$(window).trigger('ajaxerror');
+					return false;
+				}
+				if (data.status){
+					$.Dialog.success(title,'Sikeresen kilépett az osztályból, átirányítjuk...');
+					setTimeout(function(){
+							window.location.href = '/';
+					},1500)
+				}
+				else $.Dialog.fail(title,'Kijelentkezés nem sikerült, próbálja meg később, vagy törölje a böngésző sütijeit!');
+			}
+		});
+	});
+
 	// Szerepkör-választás előkészítése
 	var isOpenedBefore = false,
 		$text = $('<form id="js_form"><p>Kérem válasszon az elérhető szerepkörök közül:</p></form>');
@@ -90,7 +117,7 @@ $(function(){
 					}
 
 					if (!data.status)
-						return $.Dialog.fail(false, 'Nem tudtuk lekérdezni az elérhető szerepkörök listáját! A szerepkör-választás nem lehetséges!');
+						return $.Dialog.fail(false, 'Nem tudtuk lekérdezni az elérhető szerepkörök listáját! A szerepkör-választás pillanatnyilag nem lehetséges!');
 
 					$.each(data.roles,function(_,elem){
 						var $input = $listElement.clone();

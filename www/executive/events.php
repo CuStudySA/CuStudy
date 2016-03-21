@@ -1,7 +1,10 @@
 <?php
 	switch ($ENV['URL'][0]){
 		case 'getEvents':
-			echo json_encode(EventTools::GetEvents($ENV['GET']['start'],$ENV['GET']['end']));
+			die(json_encode(EventTools::GetEvents($ENV['GET']['start'],$ENV['GET']['end'])));
+		break;
+		case 'getGlobalEvents':
+			die(json_encode(EventTools::GetEvents($ENV['GET']['start'],$ENV['GET']['end'],true)));
 		break;
 
 		case 'add':
