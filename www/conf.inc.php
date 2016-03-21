@@ -21,9 +21,10 @@
 		'COMMIT' => 'unknown',
 	);
 
+	# Tetszőleges üzenet kiíratása a HTML forrásba
 	$ENV['EE_MESSAGE'] = '';
 
-	# Beépülő modulok leírásai
+	# Beépülő modulok definiálása
 	$addons = array(
 		'sceditor' => array(
 			'css' => ['sceditor/themes/default.min.css'],
@@ -231,6 +232,7 @@
 		),
 	);
 
+	# Jogosultsági szintek definiálása
 	$Perm = array(
 		'students' => array(
 			'visitor' => array(
@@ -275,6 +277,7 @@
 		),
 	);
 
+	# 'PermCheck' funkció működéséhez szükséges tömb
 	$permKeyDB = array(
 		'timetables' => 'timetable',
 		'groupThemes' => 'group_themes',

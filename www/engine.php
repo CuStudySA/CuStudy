@@ -25,7 +25,7 @@
 	# Külső szolgáltatók API-jának betöltése
 	require $root.'resources/php/ExternalAPIs.php';
 
-	# Karbantartási állapot ellenörzése
+	# Karbantartási állapot ellenörzése, kapcsolódás az adatbázishoz
 	System::LoadMaintenance();
 
 	# Scipt futattásának kezdeti idejének lekérése
@@ -38,7 +38,7 @@
 			$_SERVER['REMOTE_ADDR'] = $_SERVER['HTTP_CF_CONNECTING_IP'];
 	}
 
-	# POST és/vagy GET adatok ill. tevékenység lekérése
+	# POST és/vagy GET adatok ill. tevékenység lekérése, változók definiálása
 	if (!empty($_GET['do'])){
 		$ENV['do'] = $_GET['do'];
 		unset($_GET['do']);
@@ -47,7 +47,8 @@
 	$ENV['GET'] = $_GET;
 	$ENV['POST'] = $_POST;
 	$ENV['SERVER'] = $_SERVER;
-	
+
+	# URL szétbontása tömbbé
 	if (!empty($ENV['GET']['data'])){
 		if (!System::InputCheck($ENV['GET']['data'],'suburl')){
 			$ENV['URL'] = explode('/',$ENV['GET']['data']);
@@ -58,7 +59,7 @@
 	}
 	unset($_GET,$_POST);
 
-	# Jogosultsági szintek beállítása
+	# Jogosultsági szintek és felhasználói profil beállítása
 	$user = System::CheckLogin();
 
 	if (!is_array($user)) define('ROLE',$user);
@@ -88,10 +89,11 @@
 		else $do = $ENV['do'];
 	}
 
+	# URL fixálása
 	if (($do === "login" || $do === "fooldal") && empty($ENV['URL']))
 		System::FixPath('/');
 
-	# Kiléptetés
+	# Ha kilépésre van szükség...
 	if ($do === 'logout'){
 		$status = !System::Logout();
 		if ($_SERVER['REQUEST_METHOD'] === 'GET') System::Redirect('/');
@@ -149,6 +151,7 @@
 			CSRF::Generate();
 		}
 
+		# Oldal betöltése
 		die(include "executive/{$pages[$do]['file']}.php");
 	}
 
@@ -168,7 +171,7 @@
 	if (!file_exists($resc))
 		Message::Missing($resc);
 		
-	# Léteznek-e az erőforrások?
+	# Erőforrások ellenörzése és előkészítése
 	if (ROLE !== 'guest') $js[] = 'signed_in.js';
 
 	$css_list = array_merge($css, $pages[$do]['css']);
