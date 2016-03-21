@@ -1,10 +1,10 @@
 <?php
 
 	class EventTools {
-		static function GetEvents($start, $end){
+		static function GetEvents($start, $end, $global = false){
 			global $db, $user;
 
-			$data = $db->where('classid', $user['class'][0])->get('events');
+			$data = $db->where('classid', $global ? 0 : $user['class'][0])->get('events');
 
 			$output = [];
 			foreach ($data as $event){
@@ -24,11 +24,13 @@
 			return $output;
 		}
 
-		static function ParseDates($start,$end){
-			$start = strtotime(preg_replace('/^(\d{4})\.(\d{2})\.(\d{2})\.? (\d{2})\:(\d{2})(\:(?:\d{2}))?$/','$1-$2-$3 $4:$5$6',trim($start)));
+		static function ParseDates($start,$end,$allDay){
+			$regex = '/^(\d{4})\.(\d{2})\.(\d{2})\.?(?: (\d{2})\:(\d{2})(\:(?:\d{2}))?)?$/';
+			$replace = '$1-$2-$3'.(!$allDay?' $4:$5$6':'');
+			$start = strtotime(preg_replace($regex,$replace,trim($start)));
 			if ($start === false) return false;
 
-			$end = strtotime(preg_replace('/^(\d{4})\.(\d{2})\.(\d{2})\.? (\d{2})\:(\d{2})(\:(?:\d{2}))?$/','$1-$2-$3 $4:$5$6',trim($end)));
+			$end = strtotime(preg_replace($regex,$replace,trim($end)));
 			if ($end === false) return false;
 
 			return [$start,$end];
@@ -65,7 +67,7 @@
 			$rangeParts = explode('~',$range);
 			if (count($rangeParts) != 2) return 3;
 
-			$dates = self::ParseDates($rangeParts[0],$rangeParts[1]);
+			$dates = self::ParseDates($rangeParts[0],$rangeParts[1],isset($data['isFullDay']));
 			if (!is_array($dates)) return 4;
 
 			$action = $db->insert('events',array(
@@ -74,7 +76,7 @@
 				'end' => date('c',$dates[1]),
 				'title' => $data['title'],
 				'description' => $data['description'],
-				'isallday' => isset($data['isFullDay']) ? true : false,
+				'isallday' => isset($data['isFullDay']),
 			));
 
 			if (!is_int($action)) return 5;
@@ -129,7 +131,7 @@
 			$rangeParts = explode('~',$range);
 			if (count($rangeParts) != 2) return 3;
 
-			$dates = self::ParseDates($rangeParts[0],$rangeParts[1]);
+			$dates = self::ParseDates($rangeParts[0],$rangeParts[1],isset($data['isFullDay']));
 			if (!is_array($dates)) return 4;
 
 			$action = $db->where('id',$data['id'])->update('events',array(
@@ -137,7 +139,7 @@
 				'end' => date('c',$dates[1]),
 				'title' => $data['title'],
 				'description' => $data['description'],
-				'isallday' => isset($data['isFullDay']) ? true : false,
+				'isallday' => isset($data['isFullDay']),
 			));
 
 			if ($action) return 0;
@@ -158,7 +160,7 @@
 		static function ListEvents($Events = null){
 			if (empty($Events)){
 				global $db, $user;
-				$Events = $db->where('start > NOW()')->where('classid',$user['class'][0])->orderBy('start', 'ASC')->get('events', 10);
+				$Events = $db->where('start > NOW()')->where("classid IN ({$user['class'][0]},0)")->orderBy('start', 'ASC')->get('events', 10);
 			}
 			if (empty($Events)) return;
 

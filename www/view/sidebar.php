@@ -27,8 +27,9 @@ if (in_array(ROLE,array_keys($Perm['students']))){
 
 if (in_array(ROLE,array_keys($Perm))){
 	$Actions = array_merge($Actions,array(
-		array('user','system.users','Felhasználókezelő eszközök'),
-		array('group','system.classes','Osztályok kezelése'),
+		array('user','system.users','Felhasználók'),
+		array('group','system.classes','Osztályok'),
+		array('calendar','system.events','Események'),
 	));
 }
 

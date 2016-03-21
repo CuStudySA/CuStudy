@@ -106,7 +106,7 @@
 
 	# Események lekérésénél 'Executive' végrehajtása
 	if (!empty($ENV['URL'][0]))
-		if ($ENV['URL'][0] == 'getEvents' && $do == 'events'){
+		if (preg_match('/^get(Global)?Events$/',$ENV['URL'][0]) && $do == 'events'){
 			$ENV['SERVER']['REQUEST_METHOD'] = 'POST';
 			$skipCSRF = true;
 		}

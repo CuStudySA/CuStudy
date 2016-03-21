@@ -16,6 +16,7 @@
 	require "classes/GroupThemeTools.php";
 	require "classes/AdminUserTools.php";
 	require "classes/AdminClassTools.php";
+	require "classes/AdminEventTools.php";
 	require "classes/TeacherTools.php";
 	require "classes/HomeworkTools.php";
 	require "classes/EventTools.php";
