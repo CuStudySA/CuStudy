@@ -88,13 +88,15 @@ $(function(){
 								$body.addClass('sidebar-slide');
 								$('title').text(data.title);
 								if (formData.r) history.replaceState({},'',formData.r);
-								$('main').children(':not(#main)').remove()
-									.end().prepend(data.main);
+								var $main = $('main');
+								console.log($main);
+								$main.children(':not(#main)').remove();
+								console.log($main);
+								$main.prepend(data.main);
 								// Amber flag start
 								$('link[href*=amber]').remove();
 								// Amber flag end
-								var $main = $('#main').addClass('loaded');
-								setTimeout(function(){ $main.remove() }, 400);
+								$('#main').addClass('loaded');
 								loadJS(0);
 							}
 
@@ -122,7 +124,7 @@ $(function(){
 										if (typeof data !== 'string')
 											return formData.r ? window.location.href = r : window.location.reload();
 										data = data.replace(/url\((['"])?\.\.\//g,'url($1/resources/');
-										$head.append($(document.createElement('style')).text(data));
+										$head.append($.mk('style').text(data));
 										loadCSS(i+1);
 									},
 									error: function(){ throw new Error('CSS #'+i+' - '+load.css[i]) }
