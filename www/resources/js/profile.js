@@ -33,22 +33,21 @@ var $connSel = $('#connect_s'),
 $connBtn.on('click',function(e){
 	e.preventDefault();
 
-	var title = 'Fiókok összekapcsolása',
-		provider = $connSel.val();
+	var provider = $connSel.val();
 
 	if (!provider)
 		return $.Dialog.fail('Fiókok összekapcsolása','Fiókjának összekapcsolásához először válasszon ki egy szolgáltatót!');
 
-	$.Dialog.confirm(title,'A fiókjának összekapcsolásához át kell irányítanunk Önt a szolgáltatójának weboldalára.<br>A sikeres azonosítás után a rendszer visszairányítja. Folytatja?',['Tovább a szolgáltatóhoz','Visszalépés'],
+	$.Dialog.confirm('Fiókok összekapcsolása','A fiókjának összekapcsolásához át kell irányítanunk Önt a szolgáltatójának weboldalára.<br>A sikeres azonosítás után a rendszer visszairányítja. Folytatja?',['Tovább a szolgáltatóhoz','Visszalépés'],
 	function(sure){
 		if (!sure) return;
-		$.Dialog.wait(title,'Átirányítjuk...');
+		$.Dialog.wait(false, 'Átirányítjuk');
 		window.location.href = '/profile/connect/' + provider;
 	});
 });
 
 (function rebind(){
-	'use setrict';
+	'use strict';
 
 	$('.disconnect').off('click').on('click',function(e){
 		e.preventDefault();

@@ -103,7 +103,7 @@ $(function(){
 
 		if (!isOpenedBefore){
 			isOpenedBefore = true;
-			$.Dialog.wait(title,'Az elérhető szerepkörök lekérdezése folyamatban...');
+			$.Dialog.wait(title,'Az elérhető szerepkörök lekérdezése folyamatban');
 
 			$.ajax({
 				method: "POST",

@@ -72,7 +72,7 @@ $(function(){
 		var id = $(e.currentTarget).attr('data-id'),
 			title = 'Felhasználó alapadatainak szerkesztése';
 
-		$.Dialog.wait(title,'Alapadatok lekérdezése...');
+		$.Dialog.wait(title,'Alapadatok lekérdezése');
 
 		$.ajax({
 			method: "POST",
@@ -168,7 +168,7 @@ $(function(){
 		var id = $(e.currentTarget).attr('data-id'),
 			title = 'Felhasználó szerepköreinek lekérdezése';
 
-		$.Dialog.wait(title,'Az elérhető szerepkörök lekérdezése folyamatban...');
+		$.Dialog.wait(title,'Az elérhető szerepkörök lekérdezése folyamatban');
 
 		$.ajax({
 			method: "POST",
@@ -243,7 +243,7 @@ $(function(){
 
 							// Módosítás esetén
 							else {
-								$.Dialog.wait(title,'Szerepkör adatainak lekérdezése...');
+								$.Dialog.wait(title,'Szerepkör adatainak lekérdezése');
 
 								$.ajax({
 									method: "POST",
@@ -266,7 +266,7 @@ $(function(){
 												$formEdit.on('submit',function(e){
 													e.preventDefault();
 
-													$.Dialog.wait(title,'Módosítások mentése...');
+													$.Dialog.wait(title,'Módosítások mentése');
 
 													$.ajax({
 														method: "POST",

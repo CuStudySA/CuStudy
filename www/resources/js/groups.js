@@ -55,7 +55,7 @@ $(function(){
 		var title = 'Csoportkategória szerkesztése',
 			id = $(e.currentTarget).attr('href').substring(1);
 
-		$.Dialog.wait(title,'Információk lekérése a szerverről...');
+		$.Dialog.wait(title,'Információk lekérése a szerverről');
 
 		$.ajax({
 			method: "POST",
