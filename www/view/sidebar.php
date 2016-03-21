@@ -61,3 +61,4 @@ foreach ($Actions as $a){
 
 	<h1>CuStudy</h1>
 </div>
+<main>

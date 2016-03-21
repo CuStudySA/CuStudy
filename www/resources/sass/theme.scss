@@ -167,14 +167,6 @@ main {
 	width: 100%;
 	position: absolute;
 
-	// Amber flag
-	> p {
-		margin: 0;
-		font-weight: 700;
-		font-size: 1.1em;
-		color: white;
-	}
-
 	#sidebar ~ & {
 		background: url('../img/logo-very-faded.svg') no-repeat center;
 		background-size: 500px 500px;

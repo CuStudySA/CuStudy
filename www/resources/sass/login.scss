@@ -1,5 +1,13 @@
 @import "vars";
 
+// Amber flag
+main > #underDevelopment {
+	margin: 0;
+	font-weight: bold;
+	font-size: 1.1em;
+	color: #EBF0FD !important;
+}
+
 $LoaderHide: .5s;
 #main {
 	position: fixed;
@@ -15,12 +23,6 @@ $LoaderHide: .5s;
 
 	cursor: default;
 	user-select:none;
-
-	p {
-		margin: 0;
-		font-weight: bold;
-		font-size: 1.1em;
-	}
 
 	&.loaded {
 		animation: fadeout $LoaderHide linear;
@@ -271,10 +273,11 @@ body.sidebar-slide {
 	bottom: 10px;
 	right: 10px;
 	z-index: 10;
+	color: #EBF0FD !important;
 
 	a {
 		text-decoration: none;
-		color: #EBF0FD !important;
+		color: inherit !important;
 		font-weight: bold;
 	}
 }

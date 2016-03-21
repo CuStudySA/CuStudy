@@ -243,7 +243,7 @@
 		# Szükséges dokumentumok listájának előkészítése
 		$doc_list = ['header'];
 		if (ROLE !== 'guest' && empty($pages[$do]['withoutSidebar']))
-			$ENV['SIDEBAR'] = true;
+			$ENV['sidebar'] = true;
 		$doc_list[] = $pages[$do]['file'];
 		$doc_list[] = 'footer';
 
