@@ -222,7 +222,7 @@
 		),
 
 		'system.users' => array(
-			'title' => 		'Felh.kezelő eszközök',
+			'title' => 		'Rendszerfelhasználók',
 			'css' => 		['system.users.css'],
 			'js' => 		['system.users.js'],
 			'customjs' =>   [],
@@ -232,7 +232,7 @@
 		),
 
 		'system.classes' => array(
-			'title' => 		'Osztályok kezelése',
+			'title' => 		'Osztályok',
 			'css' => 		['system.classes.css'],
 			'js' => 		['system.classes.js'],
 			'customjs' =>   [],
@@ -253,7 +253,7 @@
 		),
 
 		'system.events' => array(
-			'title' => 		'Globális eseménykezelő',
+			'title' => 		'Rendszeresemények',
 			'css' => 		['system.events.css'],
 			'js' => 		['system.events.js'],
 			'customjs' =>   [],
