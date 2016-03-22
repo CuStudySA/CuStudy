@@ -27,6 +27,7 @@ $LoaderHide: .4s;
 	&.loaded {
 		animation: fadeout $LoaderHide linear;
 		animation-fill-mode: forwards;
+		pointer-events: none;
 	}
 }
 @keyframes fadeout {
@@ -68,7 +69,7 @@ $LoaderHide: .4s;
 	}
 
 	// Animation times
-	$ContentFadeOut: .1s;
+	$ContentFadeOut: .2s;
 	$FormShrink: .3s;
 
 	&.animate {
@@ -91,11 +92,8 @@ $LoaderHide: .4s;
 			transition: border-color $FormShrink $ContentFadeOut;
 		}
 		> * {
-			animation: fade $ContentFadeOut;
+			animation: fadeout $ContentFadeOut;
 			animation-fill-mode: forwards;
-			@keyframes fade {
-				to { opacity: 0 }
-			}
 		}
 	}
 	@keyframes shrinkNcolor {
@@ -200,7 +198,7 @@ body.sidebar-slide {
 		animation-duration: $LoaderHide;
 		animation-delay: $LoaderHide;
 
-		> *:not(#main) {
+		> * {
 			opacity: 0;
 			animation-name: fadein;
 			animation-duration: .5s;
@@ -226,6 +224,9 @@ body.sidebar-slide {
 }
 @keyframes fadein {
 	to { opacity: 1 }
+}
+@keyframes fadeout {
+	to { opacity: 0 }
 }
 
 #loginform ~ p {
