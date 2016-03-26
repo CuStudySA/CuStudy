@@ -20,7 +20,7 @@
 					$Auth = $api->getTokens($code, 'authorization_code');
 				}
 				catch(oAuthRequestException $e){
-					die(header(ABSPATH."/?errtype=remote&prov={$provider}"));
+					System::Redirect("?error=Ismeretlen hiba lépett fel az összekapcsolás során, így az nem sikerült!");
 				}
 				$aToken = $Auth['access_token'];
 				$remUser = $api->getUserInfo($aToken);

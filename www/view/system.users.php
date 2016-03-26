@@ -8,7 +8,7 @@
 		$Classes = AdminUserTools::GetLocalRoles($ENV['URL'][0]);
 
 		$Logs = $db->rawQuery('SELECT c.id, c.action, c.errorcode, c.useragent, c.ipaddr, c.time
-								FROM `log_central` c
+								FROM `log__central` c
 								WHERE c.user = ?
 								ORDER BY c.time DESC
 								LIMIT 5',array($ENV['URL'][0])); ?>

@@ -226,7 +226,7 @@
 
 			$IP = $ENV['SERVER']['REMOTE_ADDR'];
 			$failedLogins = $db->rawQuery(
-				'SELECT COUNT(*) as cnt FROM log_failed_login
+				'SELECT COUNT(*) as cnt FROM log__failed_login
 				WHERE userid = ? && ip = ? && corrected IS NULL && at > NOW() - INTERVAL 2 MINUTE',array($data['id'],$IP));
 			if (!empty($failedLogins[0]['cnt']) && $failedLogins[0]['cnt'] > 5)
 				return 3;
@@ -244,7 +244,7 @@
 			else $db->where('userid', $data['id'])
 					->where('ip', $IP)
 					->where('corrected IS NULL')
-					->update('log_failed_login', array('corrected' => date('c')));
+					->update('log__failed_login', array('corrected' => date('c')));
 
 			# Session generálása és süti beállítása
 			$session = Password::GetSession($username);

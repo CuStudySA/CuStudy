@@ -56,7 +56,7 @@
 
 			if (!isset($data['user'])) $data['user'] = $user['id'];
 
-			return $db->insert('log_central',array_merge($data,$this->_getHeader()));
+			return $db->insert('log__central',array_merge($data,$this->_getHeader()));
 		}
 
 		private function _insertSubLog($data = null){
@@ -71,7 +71,7 @@
 			$datab = $data['db'];
 			unset($data['db']);
 
-			return $db->insert('log_'.$datab,$data);
+			return $db->insert('log__'.$datab,$data);
 		}
 
 		private function _spliceData($data){
