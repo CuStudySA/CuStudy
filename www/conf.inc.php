@@ -44,12 +44,15 @@
 			'css' => ['dateRangePicker/daterangepicker.css'],
 			'js' => ['fullCalendar/lib/moment.min.js','dateRangePicker/jquery.daterangepicker.js'],
 		),
+		'mantisIntegration' => array(
+			'php' => ['mantisIntegration/dataBaseConnect.php'],
+		),
 	);
 
 	# Menüpontok beállítása, JS, CSS és addonok tömbjeinek kezdeti értékadása
 	$css = ['theme.css'];
 	$js = ['jquery.functions.js','dialog.js'];
-	$addon = ['swiftMailer'];
+	$addon = ['swiftMailer','mantisIntegration'];
 
 	$pages = array(
 		'fooldal' => array(

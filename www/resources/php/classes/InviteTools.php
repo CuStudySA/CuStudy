@@ -122,9 +122,10 @@ STRING
 				'name' (string)
 			) */
 
-			global $db;
+			global $db,$MantisDB;
 
 			$token = $data['token'];
+			
 			# Formátum ellenörzése
 			foreach ($data as $key => $value){
 				switch ($key){
@@ -189,6 +190,10 @@ STRING
 			));
 
 			Cookie::set('PHPSESSID',$session,false);
+
+			// Mantis integráció
+			if (!is_int($MantisDB))
+				MantisTools::CreateUser($id,$data['password']);
 
 			$print = self::$groupChooser[0];
 
