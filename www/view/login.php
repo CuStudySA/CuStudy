@@ -5,7 +5,7 @@
 		default: ?>
 			<main>
 				<!-- Amber flag start -->
-				<p>Fejlesztés alatt álló szoftververzió!</p>
+				<p id='underDevelopment'>Fejlesztés alatt álló szoftververzió!</p>
 				<!-- Amber flag end -->
 				<div id="main">
 					<div id="wrap">

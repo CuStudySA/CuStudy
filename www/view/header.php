@@ -35,3 +35,9 @@
 </head>
 <body>
 	<script>var _USRGRP="<?=ROLE?>"</script>
+
+<?php
+	if (!empty($ENV['sidebar'])){
+		require dirname(__FILE__)."/sidebar.php";
+		echo "<main>";
+	}
