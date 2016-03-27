@@ -163,6 +163,10 @@
 			CSRF::Generate();
 		}
 
+		# Ha már be van jelentkezve...
+		if ($do == 'fooldal' && ROLE != 'guest' && empty($ENV['URL']))
+			System::Respond('A rendszerbe egy felhasználó már be van jelentkezve ezzel a böngészővel! Kérem, frissítse az oldalt...');
+
 		# Oldal betöltése
 		die(include "executive/{$pages[$do]['file']}.php");
 	}

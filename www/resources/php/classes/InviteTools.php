@@ -114,7 +114,7 @@ STRING
 			);
 		}
 
-		static function Registration($data){
+		static private function _registration($data){
 /*          array(
 				'token' (string)
 				'username' (string)
@@ -203,7 +203,7 @@ STRING
 											ON (g.theme = gt.id)
 											WHERE g.classid = ?',array($token_d['classid']));
 
-			if (empty($group_data)) return 10;
+			if (empty($group_data)) return [$id];
 
 			$groups = array();
 			$gt_names = array();
@@ -228,7 +228,36 @@ STRING
 				$print .= "</select></p>";
 			}
 
-			return [$print.self::$groupChooser[1]];
+			return [$print.self::$groupChooser[1],$id];
+		}
+
+		static function Registration($data){
+			global $db;
+
+			$action = self::_registration($data);
+
+			$uId = count($action) == 1 ? $action[0] : $action[1];
+
+			if (is_array($action)){
+				$User = $db->where('id',$uId)->getOne('users');
+				$User = System::TrashForeignValues(['username','name','role','active','email','defaultSession','avatar_provider','mantisAccount'],$User);
+			}
+			else
+				$User = [];
+
+			$token = $db->where('invitation',$data['token'])->getOne('invitations');
+
+			Logging::Insert(array_merge(array(
+				'action' => 'user_add',
+				'user' => !empty($token['inviter']) ? $token['inviter'] : 0,
+				'errorcode' => is_array($action) ? 0 : $action,
+				'db' => 'user_add',
+			),$User,array(
+				'e_id' => $uId,
+				'invitation_id' => !empty($token['id']) ? $token['id'] : 0,
+			)));
+
+			return $action;
 		}
 
 		static function SetGroupMembers($data){
