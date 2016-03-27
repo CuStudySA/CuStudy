@@ -681,6 +681,33 @@
 			return "$a ".($btw ? "$btw " : '').$str;
 		}
 
+		// Figyelmeztető üzenet
+		static function Notice($type, $title, $text = null, $center = false){
+			$NOTICE_TYPES = array('info','success','fail','warn','caution');
+
+			if (!in_array($type, $NOTICE_TYPES))
+				throw new Exception("Invalid notice type $type");
+
+			if (!is_string($text)){
+				if (is_bool($text))
+					$center = $text;
+				$text = $title;
+				unset($title);
+			}
+
+			$HTML = '';
+			if (!empty($title))
+				$HTML .= '<label>'.htmlspecialchars($title).'</label>';
+
+			$textRows = preg_split("/(\r\n|\n|\r){2}/", $text);
+			foreach ($textRows as $row)
+				$HTML .= '<p>'.trim($row).'</p>';
+
+			if ($center)
+				$type .= ' align-center';
+			return "<div class='notice $type'>$HTML</div>";
+		}
+
 		/**
 		 * A funkció segítségével megoldható az, hogy csak egy új commit után csak egyszer végrehajtódjon egy PHP szkript.
 		 * Hasznos lehet például abban az esetben, ha szükséges az új rendszerhez az adatbázis-szekezet frissítése, és ezt automatizálni szeretnénk.
