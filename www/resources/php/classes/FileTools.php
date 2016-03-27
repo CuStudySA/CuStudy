@@ -57,7 +57,8 @@
 			
 			// Hely meghatározása
 			$fileName = Password::Generalas();
-			$path = "usr_uploads/{$fileName}";
+			global $root;
+			$path = "{$root}usr_uploads/{$fileName}";
 			
 			// Mozgatás a végleges helyre
 			if (move_uploaded_file($file['tmp_name'],$path)) return [$fileName];
