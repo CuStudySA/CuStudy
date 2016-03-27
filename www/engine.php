@@ -113,15 +113,24 @@
 			$skipCSRF = true;
 		}
 
+
 	# Üzeneteket tartalmazó tömb áthelyezése
 	Message::$Messages = $ENV['Messages'];
 	unset($ENV['Messages']);
 
+	# MantisBT integráció alapért. értékének beállítása
+	$MantisDB = 1001;
+
 	# Jogosultságok előkészítése
 	System::CompilePerms();
 
-	# MantisBT integráció alapért. értékének beállítása
-	$MantisDB = 1001;
+	# Hozzáférési jogosultság ellenörzése
+	if (System::PermCheck("$do.view")){
+		if (ROLE == 'guest')
+			Message::AccessDenied();
+		else
+			$do = 'access-denied';
+	}
 
 	# Frisstési szkript futtatása (ha frissítés történt a rendszeren)
 	System::RunUpdatingTasks();
@@ -235,9 +244,6 @@
 
 	# HTTP státuszkód visszadaása
 	if (isset($pages[$do]['http_code'])) Message::StatusCode($pages[$do]['http_code']);
-	
-	# Hozzáférési jogosultság ellenörzése
-	if (System::PermCheck("$do.view")) Message::AccessDenied();
 
 	# Szükséges oldalak betöltése
 	$pages[$do]['addons'] = array_merge(!empty($pages[$do]['addons']) ? $pages[$do]['addons'] : array(),$addon);

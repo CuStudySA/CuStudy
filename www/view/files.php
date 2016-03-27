@@ -1,8 +1,12 @@
 <h1 id=h1cim><?=System::Article($ENV['class']['classid'], true)?> osztály dokumentumai</h1>
 
-<!-- <h2 class='title'>Nemrégiben hozzáadva</h2> -->
 <?php
-	echo FileTools::RenderList();
+	$echo = FileTools::RenderList();
+
+	if (empty($echo) && System::PermCheck('files.add'))
+		print System::Notice('info','Nem találhatóak az osztályhoz kapcsolódó dokumentumok!');
+
+	echo $echo;
 	if (!System::PermCheck('files.add')){
 		$Storage = FileTools::GetSpaceUsage(); ?>
 <div id="storage-use">

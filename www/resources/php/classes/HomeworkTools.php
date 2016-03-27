@@ -261,7 +261,7 @@
 			$homeWorks = HomeworkTools::GetHomeworks($numberOfHomework,$onlyListActive);
 ?>
 
-<?php       if (empty($homeWorks)) print "<p>Nincs megjelenítendő házi feladat! A kezdéshez adjon hozzá egyet, vagy váltson nézetet!</p>"; ?>
+<?php       if (empty($homeWorks)) print System::Notice('info','Nincs megjelenítendő házi feladat! A kezdéshez adjon hozzá egyet, vagy váltson nézetet!'); ?>
 
 			<table class='homeworks'>
 		        <tbody>

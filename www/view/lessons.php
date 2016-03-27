@@ -9,7 +9,7 @@
 
 <?php
 	if (empty($data) && System::PermCheck('lessons.add'))
-		print "<p>Nem található tantárgy az osztályban!</p>";
+		print System::Notice('info','Nem találhatóak az osztályhoz kapcsolódó tantárgyak!');
 ?>
 
 	<ul class='lessons flex'>

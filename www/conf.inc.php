@@ -86,6 +86,17 @@
 			'http_code' =>   404,
 		),
 
+		'access-denied' => array(
+			'title' => 		'403',
+			'css' => 		['404.css'],
+			'js' => 		[],
+			'minperm' => 	'guest',
+			'maxperm' => 	'',
+			'reqdoc' => 	[],
+			'file' => 		'403',
+			'http_code' =>   403,
+		),
+
 		'users' => array(
 			'title' => 		'Felhasználók',
 			'css' => 		['users.css'],
@@ -311,6 +322,7 @@
 			'fooldal' => ['view'],
 			'profile' => ['view'],
 			'invitation' => ['view'],
+			'access-denied' => ['view'],
 		),
 	);
 

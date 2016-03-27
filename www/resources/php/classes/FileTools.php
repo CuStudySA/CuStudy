@@ -135,6 +135,9 @@
 
 			$data = $db->where('classid', $classid)->orderBy('time')->get('files');
 
+			if (empty($data) && System::PermCheck('files.add'))
+				return '';
+
 			foreach ($data as $file) {
 				$deleteButton = !System::PermCheck('files.delete')
 					? "<a class='typcn typcn-trash js_delete' href='#{$file['id']}' title='Fájl törlése'></a>"
