@@ -9,218 +9,52 @@
 			'none' => 'Nincs jogosultság',
 		);
 
-// Felh. hozzáadása
-		private static function _addUser($data_a){
-			global $db, $user;
-
-			# Jog. ellelnörzése
-			if(System::PermCheck('users.add')) return 7;
-
-			# Bevitel ellenörzése
-			if (!System::ValuesExists($data_a,['username','name','role','email','active'])) return 1;
-			foreach ($data_a as $key => $value){
-				if (in_array($key,['classid','role'])) continue;
-
-				switch ($key){
-					case 'name':
-						$type = 'name';
-					break;
-					case 'active':
-						$type = 'numeric';
-					break;
-					default:
-						$type = $key;
-					break;
-				}
-
-				if (System::InputCheck($value,$type)) return 2;
-			}
-			if (System::OptionCheck($data_a['active'],['0','1'])) return 2;
-			if (System::OptionCheck($data_a['role'],['visitor','editor','admin'])) return 2;
-
-			# Szerepkörök előkészítése
-			$role = $data_a['role'];
-			unset($data_a['role']);
-
-			# Létezik-e már ilyen felhasználó?
-			$data = $db->where('username',$data_a['username'])->getOne('users');
-			if (!empty($data)) return 4;
-			$data = $db->where('email',$data_a['email'])->getOne('users');
-			if (!empty($data)) return 6;
-
-			# Ideiglenes jelszó készítése
-			$data_a['password'] = Password::Kodolas(Password::Generalas(6));
-
-			# Regisztráció
-			$id = $db->insert('users',$data_a);
-			if ($id === false) return 7;
-
-			# Hozzáadás a csoporthoz
-			$action = $db->insert('class_members',array(
-				'classid' => $user['class'][0],
-				'userid' => $id,
-				'role' => $role,
-			));
-			if ($action === false) return 8;
-
-			# Alapértelmezett szerepkör beállítása
-			$db->where('id',$id)->update('users',array(
-				'defaultSession' => $action,
-			));
-
-			return [$id];
-		}
-
-		static function AddUser($data_a){
-			global $user;
-/*			array(
-				'username',
-				'name',
-				'priv',
-				'email',
-				'active',
-			);					*/
-			$action = self::_addUser($data_a);
-
-			$data_a = System::TrashForeignValues(['username','name','role','email','active'],$data_a);
-
-			Logging::Insert(array_merge(array(
-				'action' => 'user_add',
-				'user' => $user['id'],
-				'errorcode' => (!is_array($action) ? $action : 0),
-				'db' => 'user_add',
-			),$data_a,array(
-				'classid' => $user['class'][0],
-				'e_id' => (is_array($action) ? $action[0] : 0),
-			)));
-
-			return $action;
-		}
-// Felh. hozzáadás vége
-
 // Felh. adatainak módosítása
-		private static function _modifyUser($id,$datas){
+		private static function _modifyUser($id,$data){
 			global $db, $user;
 
 			# Jog. ellenörzése
 			if (System::PermCheck('users.edit')) return 1;
 
 			# Bevitel ellenörzése
-			if (System::OptionCheck($datas['role'],['visitor','editor','admin'])) return 2;
+			if (System::OptionCheck($data['role'],['visitor','editor','admin'])) return 2;
 
 			# Jog. ellenörzése
-			$data = $db->rawQuery('SELECT u.*
+			$User = $db->rawQuery('SELECT u.*, cm.id as rId
 						FROM `users` u
 						LEFT JOIN `class_members` cm
 						ON u.id = cm.userid
-						WHERE u.id = ? && cm.classid = ?',array($datas['id'],$user['class'][0]));
-			if (empty($data)) return 1;
+						WHERE u.id = ? && cm.classid = ?',array($id,$user['class'][0]));
+			if (empty($User)) return 1;
 
-			# Szerepkörök előkészítése
-			$role = $datas['role'];
-			unset($datas['role']);
+			$action = $db->where('userid',$id)->where('classid',$user['class'][0])->update('class_members',$data);
 
-			$action = $db->where('userid',$id)->where('classid',$user['class'][0])->update('class_members',array(
-				'role' => $role,
-			));
-
-			if ($action) return 0;
+			if ($action) return [$User[0]['rId']];
 			else return 7;
 		}
 
-		static function ModifyUser($id,$datas){
+		static function ModifyUser($id,$data){
 			global $user;
 
-			$action = self::_modifyUser($id,$datas);
+			$data = System::TrashForeignValues(['role'],$data);
 
-			# TODO Logging redbetétele
-			//$datas = System::TrashForeignValues(['role'],$datas);
+			$action = self::_modifyUser($id,$data);
+			$isSuccess = is_array($action);
 
-			//Logging::Insert(array_merge(array(
-			//	'action' => 'user_edit',
-			//	'user' => $user['id'],
-			//	'errorcode' => $action,
-			//	'db' => 'user_edit',
-			//),$datas,array(
-			//	'classid' => $user['class'][0],
-			//	'e_id' => $id,
-			//)));
+			Logging::Insert(array_merge(array(
+				'action' => 'role_edit',
+				'user' => $user['id'],
+				'errorcode' => $isSuccess ? 0 : $action,
+				'db' => 'role_edit',
+			),$data,array(
+				$isSuccess ? 'e_id' : 'userid' => $isSuccess ? $action[0] : $id,
+			)));
 
 			return $action;
 		}
 // Felh. adatainak módosítása vége
 
-// Felh. törlése
-		private static function _deleteUser($id){
-			global $db, $user;
-
-			$action = $db->where('id',$id)->delete('users');
-
-			$db->where('userid',$id)->where('classid',$user['class'][0])->delete('class_members');
-
-			if ($action) return 0;
-			else return 2;
-		}
-
-		static function DeleteUser($id){
-			global $user,$db;
-
-			# Jog. ellenörzése
-			if (System::PermCheck('users.delete')) return 1;
-
-			$data = $db->rawQuery('SELECT u.*
-									FROM `users` u
-									LEFT JOIN `class_members` cm
-									ON u.id = cm.userid
-									WHERE u.id = ? && cm.classid = ?',array($id,$user['class'][0]));
-			if (empty($data)) return 1;
-			$data = $data[0];
-
-			$data = System::TrashForeignValues(['username','name','role','email','active'],$data);
-
-			$action = self::_deleteUser($id);
-
-			Logging::Insert(array_merge(array(
-				'action' => 'user_del',
-				'user' => $user['id'],
-				'errorcode' => $action,
-				'db' => 'user_del',
-			),$data,array(
-				'classid' => $user['class'][0],
-				'e_id' => $id,
-			)));
-
-			return $action;
-		}
-// Felh. törlése vége
-
-		static function EditAccessData($id,$data){
-			/* @param $id
-			 * @param $data = array('newpassword','vernewpasswd')
-			 */
-
-            global $db,$user;
-
-			# Jog. ellenörzése
-			if (System::PermCheck('users.editSecurity')) return 1;
-			$exists = $db->rawQuery('SELECT u.*
-						FROM `users` u
-						LEFT JOIN `class_members` cm
-						ON u.id = cm.userid
-						WHERE u.id = ? && cm.classid = ?',array($id,$user['class'][0]));
-			if (empty($exists)) return 1;
-
-			if ($data['newpassword'] != $data['vernewpasswd']) return 2;
-
-			$action = $db->where('id',$id)->update('users',array(
-				'password' => Password::Kodolas($data['newpassword']),
-			));
-
-			if ($action) return 0;
-			else return 3;
-		}
-
-		static function EjectUser($id){
+		static private function _ejectUser($id){
 			global $db, $user;
 
 			# Jog. ellenörzése
@@ -235,7 +69,12 @@
 
 			$data = $db->where('userid',$id)->where('classid',$user['class'][0])->getOne('class_members');
 			$Juzer = $db->where('id',$id)->getOne('users');
-			$Session = $db->where('userid',$id)->get('sessions');
+			$Session = $db->where('userid',$id)->where('activeSession',$data['id'])->get('sessions');
+
+			if (!empty($Session))
+				System::Logout($Juzer);
+
+			$action = $db->where('userid',$id)->where('classid',$user['class'][0])->delete('class_members');
 
 			if ($Juzer['defaultSession'] == $data['id']){
 				$defSession = 0;
@@ -252,13 +91,28 @@
 				));
 			}
 
-			//if (!empty($Session))
-			//	System::Logout($Juzer);
-
-			$action = $db->where('userid',$id)->where('classid',$user['class'][0])->delete('class_members');
-
-			if ($action) return 0;
+			if ($action) return [$data['id'],$data['role']];
 			else return 2;
+		}
+
+		static function EjectUser($id){
+			global $user;
+
+			$action = self::_ejectUser($id);
+			$isSuccess = is_array($action);
+
+			Logging::Insert(array_merge(array(
+				'action' => 'role_del',
+				'user' => $user['id'],
+				'errorcode' => $isSuccess ? 0 : $action,
+				'db' => 'role_del',
+			),array(
+				$isSuccess ? 'e_id' : 'userid' => $isSuccess ? $action[0] : $id,
+			),$isSuccess ? array(
+				'role' => $action[1],
+			) : array()));
+
+			return $action;
 		}
 
 		static function EditMyProfile($data){

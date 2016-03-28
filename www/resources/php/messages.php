@@ -7,7 +7,9 @@
 					2 => 'a felhasználó nem létezik, esetleg hibás a jelszó',
 					3 => 'túl sokszor adtál meg hibás jelszót rövid időn belül. Várj 1-2 percet, és próbálkozz újra',
 					4 => 'a felhasználó állapota tiltott',
-					5 => 'az osztály vagy iskola állapota tiltott',
+					5 => 'a felhasználó nem rendelkezik aktív szerepkörrel',
+					6 => 'nem sikerült kiolvasni a munkamenet indításához szükséges adatokat',
+					7 => 'az alapértelmezett szerepkör nem akítv',
 				),
 				'messages' => array(
 					1 => 'A bejelentkezés sikertelen volt, mert @msg! (Hibakód: @code)',
@@ -136,6 +138,7 @@
 					3 => 'az összekapcsolás létezik, de nem található a helyi felhasználó',
 					4 => 'az osztály vagy iskola nem aktív a rendszerben',
 					5 => 'nem sikerült kiolvasni a munkamenet indításához szükséges adatokat',
+					6 => 'a felhasználó nem rendelkezik aktív szerepkörrel',
 				),
 				'messages' => array(
 					1 => 'Nem sikerült bejelentkezni a(z) @provider szolgáltató segítségével, mert @msg! (Hibakód: @code)',
