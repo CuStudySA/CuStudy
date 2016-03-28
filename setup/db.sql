@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Gép: 127.0.0.1
--- Létrehozás ideje: 2016. Már 26. 15:38
+-- Létrehozás ideje: 2016. Már 28. 23:46
 -- Kiszolgáló verziója: 5.6.26
 -- PHP verzió: 5.6.12
 
@@ -314,6 +314,32 @@ CREATE TABLE `log__login` (
 -- --------------------------------------------------------
 
 --
+-- Tábla szerkezet ehhez a táblához `log__role_del`
+--
+
+CREATE TABLE `log__role_del` (
+  `id` int(11) NOT NULL,
+  `e_id` int(11) DEFAULT NULL,
+  `role` tinytext COLLATE utf8mb4_hungarian_ci,
+  `userid` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `log__role_edit`
+--
+
+CREATE TABLE `log__role_edit` (
+  `id` int(11) NOT NULL,
+  `e_id` int(11) DEFAULT NULL,
+  `role` tinytext COLLATE utf8mb4_hungarian_ci,
+  `userid` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Tábla szerkezet ehhez a táblához `log__user_add`
 --
 
@@ -327,7 +353,8 @@ CREATE TABLE `log__user_add` (
   `email` tinytext COLLATE utf8_hungarian_ci,
   `defaultSession` int(11) DEFAULT NULL,
   `avatar_provider` tinytext COLLATE utf8_hungarian_ci,
-  `mantisAccount` int(11) DEFAULT NULL
+  `mantisAccount` int(11) DEFAULT NULL,
+  `invitation_id` int(11) DEFAULT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
 -- --------------------------------------------------------
@@ -597,6 +624,18 @@ ALTER TABLE `log__login`
   ADD PRIMARY KEY (`id`);
 
 --
+-- A tábla indexei `log__role_del`
+--
+ALTER TABLE `log__role_del`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- A tábla indexei `log__role_edit`
+--
+ALTER TABLE `log__role_edit`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- A tábla indexei `log__user_add`
 --
 ALTER TABLE `log__user_add`
@@ -759,6 +798,16 @@ ALTER TABLE `log__lesson_edit`
 -- AUTO_INCREMENT a táblához `log__login`
 --
 ALTER TABLE `log__login`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT a táblához `log__role_del`
+--
+ALTER TABLE `log__role_del`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT a táblához `log__role_edit`
+--
+ALTER TABLE `log__role_edit`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT a táblához `log__user_add`
