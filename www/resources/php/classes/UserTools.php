@@ -42,7 +42,7 @@
 			$isSuccess = is_array($action);
 
 			Logging::Insert(array_merge(array(
-				'action' => 'role_edit',
+				'action' => 'users.modify_user',
 				'user' => $user['id'],
 				'errorcode' => $isSuccess ? 0 : $action,
 				'db' => 'role_edit',
@@ -102,7 +102,7 @@
 			$isSuccess = is_array($action);
 
 			Logging::Insert(array_merge(array(
-				'action' => 'role_del',
+				'action' => 'users.eject_user',
 				'user' => $user['id'],
 				'errorcode' => $isSuccess ? 0 : $action,
 				'db' => 'role_del',
@@ -115,7 +115,7 @@
 			return $action;
 		}
 
-		static function EditMyProfile($data){
+		static private function _editMyProfile($data){
 /*          array(
 				(req)'name',
 				(req)'email',
@@ -156,6 +156,25 @@
 			$action = $db->where('id',$user['id'])->update('users',$data);
 
 			return $action ? 0 : 3;
+		}
+
+		static function EditMyProfile($data){
+			global $user;
+
+			$action = self::_editMyProfile($data);
+
+			$data = System::TrashForeignValues(['name','email'],$data);
+
+			Logging::Insert(array_merge(array(
+				'action' => 'users.edit_my_profile',
+				'user' => $user['id'],
+				'errorcode' => $action,
+				'db' => 'user_edit',
+			),$data,array(
+				'e_id' => $user['id'],
+			)));
+
+			return $action;
 		}
 
 		static function SetAvatarProvider($provider){

@@ -23,7 +23,7 @@
 				'username' => $user['username'],
 				'realname' => $user['name'],
 				'email' => $user['email'],
-				'password' => md5($password),
+				'password' => Password::Kodolas($password),
 				'enabled' => 1,
 				'protected' => 1,
 				'access_level' => 25,
@@ -74,11 +74,31 @@
 			}
 
 			if (!empty($data['password']))
-				$data['password'] = md5($data['password']);
+				$data['password'] = Password::Kodolas($data['password']);
 
 			$action = $MantisDB->where('id',$id)->update('mantis_user_table',$data);
 
 			if ($action) return 0;
 			else return 4;
+		}
+
+		static function GetUserMantisStatus($userid){
+			global $MantisDB, $db;
+
+			if (is_int($MantisDB))
+				return 1;
+
+			$User = $db->where('id',$userid)->getOne('users');
+			if (empty($User))
+				return 2;
+
+			if (empty($User['mantisAccount']))
+				return 'not_connected';
+
+			$check = $MantisDB->where('id',$User['mantisAccount'])->getOne('mantis_user_table');
+			if (empty($check))
+				return 'not_connected';
+
+			return [$User['mantisAccount']];
 		}
 	}

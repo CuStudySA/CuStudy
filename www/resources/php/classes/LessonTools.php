@@ -38,7 +38,7 @@
 			$action = self::_add($data_a);
 
 			Logging::Insert(array_merge(array(
-				'action' => 'lesson_add',
+				'action' => 'lessons.lesson_add',
 				'user' => $user['id'],
 				'errorcode' => (!is_array($action) ? $action : 0),
 				'db' => 'lesson_add',
@@ -98,7 +98,7 @@
 			else $data_a['id'] = 0;
 
 			Logging::Insert(array_merge(array(
-				'action' => 'lesson_edit',
+				'action' => 'lessons.lesson_edit',
 				'user' => $user['id'],
 				'errorcode' => $action,
 				'db' => 'lesson_edit',
@@ -140,7 +140,7 @@
 			$action = self::_delete($id);
 
 			Logging::Insert(array_merge(array(
-				'action' => 'lesson_del',
+				'action' => 'lessons.lesson_del',
 				'user' => $user['id'],
 				'errorcode' => $action,
 				'db' => 'lesson_del',

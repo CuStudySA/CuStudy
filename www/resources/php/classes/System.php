@@ -263,7 +263,7 @@
 
 			if (!Password::Ellenorzes($password,$data['password'])){
 				Logging::Insert(array(
-					'action' => 'failed_login',
+					'action' => 'login.failed_login',
 					'db' => 'failed_login',
 					'userid' => $data['id'],
 					'ip' => $IP,
@@ -299,7 +299,7 @@
 			$action = self::_login($username,$password);
 
 			Logging::Insert(array(
-				'action' => 'login',
+				'action' => 'login.login',
 				'user' => (is_array($action) ? $action[0] : 0),
 				'errorcode' => (!is_array($action) ? $action : 0),
 				'db' => 'login',

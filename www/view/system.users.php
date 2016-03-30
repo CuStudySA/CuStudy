@@ -11,7 +11,9 @@
 								FROM `log__central` c
 								WHERE c.user = ?
 								ORDER BY c.time DESC
-								LIMIT 5',array($ENV['URL'][0])); ?>
+								LIMIT 5',array($ENV['URL'][0]));
+
+		$Mantis = MantisTools::GetUserMantisStatus($User['id']); ?>
 
 		<h2 id='filterTitle'>Kiválasztott felhasználó: <span class='userName'><?=$User['name']?> (#<?=$User['id']?>)</span></h2>
 
@@ -21,6 +23,10 @@
 			<li class='entry'><span>Teljes név: </span><?=$User['name']?></li>
 			<li class='entry'><span>E-mail cím: </span><?=$User['email']?></li>
 			<li class='entry'><span>Globális rendszerjogosultság: </span><?=UserTools::$roleLabels[$User['role']]?></li>
+
+<?php   if (!is_int($Mantis)){ ?>
+				<li class='entry'><span>BugTracker kapcsolat állapota: </span><?=is_array($Mantis) ? 'Összekapcsolva (#'.$Mantis[0].')' : 'Nincs összekapcsolva'?></li>
+<?php		} ?>
 		</ul>
 
 		<h3 class='dataTitle'>Osztálytagságok és szerepkörök</h3>
