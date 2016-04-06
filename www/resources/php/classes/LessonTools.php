@@ -2,15 +2,15 @@
 
 	class LessonTools {
 // Tantárgy hozzáadása
-		private static function _add($data_a){
+		private static function _add($data){
 			global $db,$ENV;
 
 			# Jog. ellenörzése
 			if (System::PermCheck('lessons.add')) return 1;
 
 			# Formátum ellenörzése
-			if (!System::ValuesExists($data_a,['name','teacherid'])) return 2;
-			foreach ($data_a as $key => $value){
+			if (!System::ValuesExists($data,['name','teacherid'])) return 2;
+			foreach ($data as $key => $value){
 				if ($key == 'color') continue;
 				switch ($key){
 					case 'name':
@@ -20,17 +20,17 @@
 						$type = 'numeric';
 					break;
 					default:
-						unset($data_a[$key]);
+						unset($data[$key]);
 						continue 2;
 					break;
 				}
 				if (System::InputCheck($value,$type)) return 2;
 			}
 
-			if (!isset($data_a['color']) || $data_a['color'] == '#000000') $data_a['color'] = 'default';
-			$data_a['classid'] = $ENV['class']['id'];
+			if (!isset($data['color']) || $data['color'] == '#000000') $data['color'] = 'default';
+			$data['classid'] = $ENV['class']['id'];
 
-			return [$db->insert('lessons',$data_a)];
+			return [$db->insert('lessons',$data)];
 		}
 		static function Add($data_a){
 			global $user;

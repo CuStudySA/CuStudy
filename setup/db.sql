@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Gép: 127.0.0.1
--- Létrehozás ideje: 2016. Már 28. 23:46
+-- Létrehozás ideje: 2016. Ápr 06. 20:37
 -- Kiszolgáló verziója: 5.6.26
 -- PHP verzió: 5.6.12
 
@@ -340,6 +340,47 @@ CREATE TABLE `log__role_edit` (
 -- --------------------------------------------------------
 
 --
+-- Tábla szerkezet ehhez a táblához `log__teacher_add`
+--
+
+CREATE TABLE `log__teacher_add` (
+  `id` int(11) NOT NULL,
+  `e_id` int(11) NOT NULL,
+  `classid` int(11) NOT NULL,
+  `short` tinytext COLLATE utf8mb4_hungarian_ci NOT NULL,
+  `name` tinytext COLLATE utf8mb4_hungarian_ci NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `log__teacher_del`
+--
+
+CREATE TABLE `log__teacher_del` (
+  `id` int(11) NOT NULL,
+  `e_id` int(11) NOT NULL,
+  `classid` int(11) NOT NULL,
+  `short` tinytext COLLATE utf8mb4_hungarian_ci NOT NULL,
+  `name` tinytext COLLATE utf8mb4_hungarian_ci NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `log__teacher_edit`
+--
+
+CREATE TABLE `log__teacher_edit` (
+  `id` int(11) NOT NULL,
+  `e_id` int(11) NOT NULL,
+  `short` tinytext COLLATE utf8mb4_hungarian_ci NOT NULL,
+  `name` tinytext COLLATE utf8mb4_hungarian_ci NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Tábla szerkezet ehhez a táblához `log__user_add`
 --
 
@@ -636,6 +677,24 @@ ALTER TABLE `log__role_edit`
   ADD PRIMARY KEY (`id`);
 
 --
+-- A tábla indexei `log__teacher_add`
+--
+ALTER TABLE `log__teacher_add`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- A tábla indexei `log__teacher_del`
+--
+ALTER TABLE `log__teacher_del`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- A tábla indexei `log__teacher_edit`
+--
+ALTER TABLE `log__teacher_edit`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- A tábla indexei `log__user_add`
 --
 ALTER TABLE `log__user_add`
@@ -808,6 +867,21 @@ ALTER TABLE `log__role_del`
 -- AUTO_INCREMENT a táblához `log__role_edit`
 --
 ALTER TABLE `log__role_edit`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT a táblához `log__teacher_add`
+--
+ALTER TABLE `log__teacher_add`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT a táblához `log__teacher_del`
+--
+ALTER TABLE `log__teacher_del`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT a táblához `log__teacher_edit`
+--
+ALTER TABLE `log__teacher_edit`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT a táblához `log__user_add`

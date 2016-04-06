@@ -1,5 +1,4 @@
 <?php
-
 	class System {
 		static $Patterns = array(
 			'username' => '^[a-zA-Z\d]{3,15}$',
@@ -146,19 +145,6 @@
 			}
 
 			return $return;
-		}
-
-		static function GetUserClasses(&$user){
-			global $db;
-
-			$data = $db->where('userid', $user['id'])->get('class_members');
-			$classes = array();
-			foreach ($data as $array)
-				$classes[] = $array['classid'];
-
-			$user['class'] = $classes;
-
-			return $classes;
 		}
 
 		//Cookie ellenőrzés & '$user' generálása

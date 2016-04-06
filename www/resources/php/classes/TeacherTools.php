@@ -1,11 +1,31 @@
 <?php
-
 	class TeacherTools {
-		static function Add($datas){
+		static function Add($data){
+			global $user;
+
+			$action = self::_add($data);
+
+			unset($data['lessons']);
+			$data = System::TrashForeignValues(['name','short'],$data);
+
+			Logging::Insert(array_merge(array(
+				'action' => 'teacher_add',
+				'user' => $user['id'],
+				'errorcode' => is_array($action) ? 0 : $action,
+				'db' => 'teacher_add',
+			),$data,array(
+				'classid' => $user['class'][0],
+				'e_id' => is_array($action) ? $action[0] : 0,
+			)));
+
+			return $action;
+		}
+
+		static private function _add($datas){
 			global $db,$user;
 
 			# Jog. ellenörzése
-			if(System::PermCheck('teachers.add')) return 1;
+			if (System::PermCheck('teachers.add')) return 1;
 
 			# Alapadatok feldolgozása
 			if (!isset($datas['name']) || !isset($datas['short'])) return 2;
@@ -30,20 +50,43 @@
 
 			# Tantárgyak hozzáadása
 			if (!isset($datas['lessons']) || empty($datas['lessons'])) return [$action];
-			foreach ($datas['lessons'] as $sublesson){
-				$action_l = $db->insert('lessons',array(
-					'classid' => $user['class'][0],
+			foreach ($datas['lessons'] as $sublesson)
+				LessonTools::Add(array(
 					'name' => $sublesson['name'],
 					'teacherid' => $action,
-					'color' => $sublesson['color'],
+					'color' => $sublesson['color']
 				));
-				if (!$action_l) return 4;
-			}
 
 			return [$action];
 		}
 
 		static function Edit($data){
+			global $user;
+
+			$action = self::_edit($data);
+
+			$data = System::TrashForeignValues(['id','short','name'],$data);
+
+			if (!empty($data['id'])){
+				$id = $data['id'];
+				unset($data['id']);
+			}
+			else
+				$id = 0;
+
+			Logging::Insert(array_merge(array(
+				'action' => 'teacher_edit',
+				'user' => $user['id'],
+				'errorcode' => $action,
+				'db' => 'teacher_edit',
+			),$data,array(
+				'e_id' => $id,
+			)));
+
+			return $action;
+		}
+
+		static private function _edit($data){
 			global $db;
 
 			# Formátum ellenörzése
@@ -77,6 +120,29 @@
 		}
 
 		static function Delete($id){
+			global $user, $db;
+
+			$data = $db->where('id',$id)->where('classid',$user['class'][0])->getOne('teachers');
+			if (!empty($data))
+				unset($data['id']);
+			else
+				$data = [];
+
+			$action = self::_delete($id);
+
+			Logging::Insert(array_merge(array(
+				'action' => 'teacher_del',
+				'user' => $user['id'],
+				'errorcode' => $action,
+				'db' => 'teacher_del',
+			),$data,array(
+				'e_id' => $id,
+			)));
+
+			return $action;
+		}
+
+		static private function _delete($id){
 			global $db;
 
 			# Jog. ellenörzése
