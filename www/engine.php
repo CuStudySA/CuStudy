@@ -199,8 +199,8 @@
 	# Erőforrások ellenörzése és előkészítése
 	if (ROLE !== 'guest') $js[] = 'signed_in.js';
 
-	$css_list = array_merge($css, $pages[$do]['css']);
-	$js_list = array_merge($js, $pages[$do]['js']);
+	$css_list = array_merge($css, !empty($pages[$do]['css']) ? $pages[$do]['css'] : array());
+	$js_list = array_merge($js, !empty($pages[$do]['js']) ? $pages[$do]['js'] : array());
 
 	if (!empty($pages[$do]['customjs'])){
 		foreach($pages[$do]['customjs'] as $key => $value){

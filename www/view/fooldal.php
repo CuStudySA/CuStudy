@@ -12,7 +12,7 @@
 <?php
 	switch (ROLE){
 		case 'systemadmin':
-			print "<div><p>Válasszon a menüsáv valamelyik adminisztrációs lehetősége közül!</p></div>";
+			print System::Notice('info','Válasszon a menüsáv valamelyik adminisztrációs lehetősége közül!');
 		break;
 
 		default: ?>
