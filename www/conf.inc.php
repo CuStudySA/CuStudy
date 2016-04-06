@@ -92,6 +92,7 @@
 
 		'logs' => array(
 			'title' => 		'Rendszernapló',
+			'css' => 		['logs.css'],
 			'js' => 		['dyntime.js'],
 			'file' => 		'logs',
 		),

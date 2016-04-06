@@ -30,6 +30,7 @@ if (in_array(ROLE,array_keys($Perm))){
 		array('user','system.users','Felhasználók'),
 		array('group','system.classes','Osztályok'),
 		array('calendar','system.events','Események'),
+		array('document-text','logs','Rendszernapló'),
 	));
 }
 
