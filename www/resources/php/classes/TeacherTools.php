@@ -9,10 +9,10 @@
 			$data = System::TrashForeignValues(['name','short'],$data);
 
 			Logging::Insert(array_merge(array(
-				'action' => 'teacher_add',
+				'action' => 'teachers.add',
 				'user' => $user['id'],
 				'errorcode' => is_array($action) ? 0 : $action,
-				'db' => 'teacher_add',
+				'db' => 'teachers',
 			),$data,array(
 				'classid' => $user['class'][0],
 				'e_id' => is_array($action) ? $action[0] : 0,
@@ -75,10 +75,10 @@
 				$id = 0;
 
 			Logging::Insert(array_merge(array(
-				'action' => 'teacher_edit',
+				'action' => 'teachers.edit',
 				'user' => $user['id'],
 				'errorcode' => $action,
-				'db' => 'teacher_edit',
+				'db' => 'teachers',
 			),$data,array(
 				'e_id' => $id,
 			)));
@@ -131,10 +131,10 @@
 			$action = self::_delete($id);
 
 			Logging::Insert(array_merge(array(
-				'action' => 'teacher_del',
+				'action' => 'teachers.del',
 				'user' => $user['id'],
 				'errorcode' => $action,
-				'db' => 'teacher_del',
+				'db' => 'teachers',
 			),$data,array(
 				'e_id' => $id,
 			)));

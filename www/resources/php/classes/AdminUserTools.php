@@ -109,10 +109,10 @@
 			unset($data['id']);
 
 			Logging::Insert(array_merge(array(
-				'action' => 'user_edit',
+				'action' => 'users.edit',
 				'user' => $user['id'],
 				'errorcode' => $action,
-				'db' => 'user_edit',
+				'db' => 'users',
 			),$data,array(
 				'e_id' => $eid,
 			)));
@@ -139,7 +139,7 @@
 			}
 		}
 
-		static private function DeleteRole($id,$userid){
+		static function DeleteRole($id,$userid){
 			global $db;
 
 			# Jog. ellenörzése
@@ -232,10 +232,10 @@
 				$data = [];
 
 			Logging::Insert(array_merge(array(
-				'action' => 'user_del',
+				'action' => 'users.del',
 				'user' => $user['id'],
 				'errorcode' => $action,
-				'db' => 'user_del',
+				'db' => 'users',
 			),$data,array(
 				'e_id' => $id,
 			)));

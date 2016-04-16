@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Gép: 127.0.0.1
--- Létrehozás ideje: 2016. Ápr 06. 20:37
+-- Létrehozás ideje: 2016. Ápr 16. 15:10
 -- Kiszolgáló verziója: 5.6.26
 -- PHP verzió: 5.6.12
 
@@ -238,7 +238,8 @@ CREATE TABLE `log__central` (
   `errorcode` int(11) NOT NULL,
   `useragent` tinytext COLLATE utf8_hungarian_ci NOT NULL,
   `ipaddr` tinytext COLLATE utf8_hungarian_ci NOT NULL,
-  `time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+  `time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `error_desc` tinytext COLLATE utf8_hungarian_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
 -- --------------------------------------------------------
@@ -258,40 +259,10 @@ CREATE TABLE `log__failed_login` (
 -- --------------------------------------------------------
 
 --
--- Tábla szerkezet ehhez a táblához `log__lesson_add`
+-- Tábla szerkezet ehhez a táblához `log__lessons`
 --
 
-CREATE TABLE `log__lesson_add` (
-  `id` int(11) NOT NULL,
-  `e_id` int(11) DEFAULT NULL,
-  `classid` int(11) DEFAULT NULL,
-  `name` tinytext COLLATE utf8_hungarian_ci,
-  `teacherid` int(11) DEFAULT NULL,
-  `color` tinytext COLLATE utf8_hungarian_ci
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
-
--- --------------------------------------------------------
-
---
--- Tábla szerkezet ehhez a táblához `log__lesson_del`
---
-
-CREATE TABLE `log__lesson_del` (
-  `id` int(11) NOT NULL,
-  `e_id` int(11) DEFAULT NULL,
-  `classid` int(11) DEFAULT NULL,
-  `name` tinytext COLLATE utf8_hungarian_ci,
-  `teacherid` int(11) DEFAULT NULL,
-  `color` tinytext COLLATE utf8_hungarian_ci
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
-
--- --------------------------------------------------------
-
---
--- Tábla szerkezet ehhez a táblához `log__lesson_edit`
---
-
-CREATE TABLE `log__lesson_edit` (
+CREATE TABLE `log__lessons` (
   `id` int(11) NOT NULL,
   `e_id` int(11) DEFAULT NULL,
   `classid` int(11) DEFAULT NULL,
@@ -314,10 +285,10 @@ CREATE TABLE `log__login` (
 -- --------------------------------------------------------
 
 --
--- Tábla szerkezet ehhez a táblához `log__role_del`
+-- Tábla szerkezet ehhez a táblához `log__roles`
 --
 
-CREATE TABLE `log__role_del` (
+CREATE TABLE `log__roles` (
   `id` int(11) NOT NULL,
   `e_id` int(11) DEFAULT NULL,
   `role` tinytext COLLATE utf8mb4_hungarian_ci,
@@ -327,64 +298,24 @@ CREATE TABLE `log__role_del` (
 -- --------------------------------------------------------
 
 --
--- Tábla szerkezet ehhez a táblához `log__role_edit`
+-- Tábla szerkezet ehhez a táblához `log__teachers`
 --
 
-CREATE TABLE `log__role_edit` (
+CREATE TABLE `log__teachers` (
   `id` int(11) NOT NULL,
   `e_id` int(11) DEFAULT NULL,
-  `role` tinytext COLLATE utf8mb4_hungarian_ci,
-  `userid` int(11) DEFAULT NULL
+  `classid` int(11) DEFAULT NULL,
+  `short` tinytext COLLATE utf8mb4_hungarian_ci,
+  `name` tinytext COLLATE utf8mb4_hungarian_ci
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
 -- --------------------------------------------------------
 
 --
--- Tábla szerkezet ehhez a táblához `log__teacher_add`
+-- Tábla szerkezet ehhez a táblához `log__users`
 --
 
-CREATE TABLE `log__teacher_add` (
-  `id` int(11) NOT NULL,
-  `e_id` int(11) NOT NULL,
-  `classid` int(11) NOT NULL,
-  `short` tinytext COLLATE utf8mb4_hungarian_ci NOT NULL,
-  `name` tinytext COLLATE utf8mb4_hungarian_ci NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
-
--- --------------------------------------------------------
-
---
--- Tábla szerkezet ehhez a táblához `log__teacher_del`
---
-
-CREATE TABLE `log__teacher_del` (
-  `id` int(11) NOT NULL,
-  `e_id` int(11) NOT NULL,
-  `classid` int(11) NOT NULL,
-  `short` tinytext COLLATE utf8mb4_hungarian_ci NOT NULL,
-  `name` tinytext COLLATE utf8mb4_hungarian_ci NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
-
--- --------------------------------------------------------
-
---
--- Tábla szerkezet ehhez a táblához `log__teacher_edit`
---
-
-CREATE TABLE `log__teacher_edit` (
-  `id` int(11) NOT NULL,
-  `e_id` int(11) NOT NULL,
-  `short` tinytext COLLATE utf8mb4_hungarian_ci NOT NULL,
-  `name` tinytext COLLATE utf8mb4_hungarian_ci NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
-
--- --------------------------------------------------------
-
---
--- Tábla szerkezet ehhez a táblához `log__user_add`
---
-
-CREATE TABLE `log__user_add` (
+CREATE TABLE `log__users` (
   `id` int(11) NOT NULL,
   `e_id` int(11) DEFAULT NULL,
   `username` tinytext COLLATE utf8_hungarian_ci,
@@ -396,44 +327,6 @@ CREATE TABLE `log__user_add` (
   `avatar_provider` tinytext COLLATE utf8_hungarian_ci,
   `mantisAccount` int(11) DEFAULT NULL,
   `invitation_id` int(11) DEFAULT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
-
--- --------------------------------------------------------
-
---
--- Tábla szerkezet ehhez a táblához `log__user_del`
---
-
-CREATE TABLE `log__user_del` (
-  `id` int(11) NOT NULL,
-  `e_id` int(11) DEFAULT NULL,
-  `username` tinytext COLLATE utf8_hungarian_ci,
-  `name` tinytext COLLATE utf8_hungarian_ci,
-  `role` tinytext COLLATE utf8_hungarian_ci,
-  `active` int(11) DEFAULT NULL,
-  `email` tinytext COLLATE utf8_hungarian_ci,
-  `defaultSession` int(11) DEFAULT NULL,
-  `avatar_provider` tinytext COLLATE utf8_hungarian_ci,
-  `mantisAccount` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
-
--- --------------------------------------------------------
-
---
--- Tábla szerkezet ehhez a táblához `log__user_edit`
---
-
-CREATE TABLE `log__user_edit` (
-  `id` int(11) NOT NULL,
-  `e_id` int(11) DEFAULT NULL,
-  `username` tinytext COLLATE utf8_hungarian_ci,
-  `name` tinytext COLLATE utf8_hungarian_ci,
-  `role` tinytext COLLATE utf8_hungarian_ci,
-  `active` int(11) DEFAULT NULL,
-  `email` tinytext COLLATE utf8_hungarian_ci,
-  `defaultSession` int(11) DEFAULT NULL,
-  `avatar_provider` tinytext COLLATE utf8_hungarian_ci,
-  `mantisAccount` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
 -- --------------------------------------------------------
@@ -641,21 +534,9 @@ ALTER TABLE `log__failed_login`
   ADD PRIMARY KEY (`id`);
 
 --
--- A tábla indexei `log__lesson_add`
+-- A tábla indexei `log__lessons`
 --
-ALTER TABLE `log__lesson_add`
-  ADD PRIMARY KEY (`id`);
-
---
--- A tábla indexei `log__lesson_del`
---
-ALTER TABLE `log__lesson_del`
-  ADD PRIMARY KEY (`id`);
-
---
--- A tábla indexei `log__lesson_edit`
---
-ALTER TABLE `log__lesson_edit`
+ALTER TABLE `log__lessons`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -665,51 +546,21 @@ ALTER TABLE `log__login`
   ADD PRIMARY KEY (`id`);
 
 --
--- A tábla indexei `log__role_del`
+-- A tábla indexei `log__roles`
 --
-ALTER TABLE `log__role_del`
+ALTER TABLE `log__roles`
   ADD PRIMARY KEY (`id`);
 
 --
--- A tábla indexei `log__role_edit`
+-- A tábla indexei `log__teachers`
 --
-ALTER TABLE `log__role_edit`
+ALTER TABLE `log__teachers`
   ADD PRIMARY KEY (`id`);
 
 --
--- A tábla indexei `log__teacher_add`
+-- A tábla indexei `log__users`
 --
-ALTER TABLE `log__teacher_add`
-  ADD PRIMARY KEY (`id`);
-
---
--- A tábla indexei `log__teacher_del`
---
-ALTER TABLE `log__teacher_del`
-  ADD PRIMARY KEY (`id`);
-
---
--- A tábla indexei `log__teacher_edit`
---
-ALTER TABLE `log__teacher_edit`
-  ADD PRIMARY KEY (`id`);
-
---
--- A tábla indexei `log__user_add`
---
-ALTER TABLE `log__user_add`
-  ADD PRIMARY KEY (`id`);
-
---
--- A tábla indexei `log__user_del`
---
-ALTER TABLE `log__user_del`
-  ADD PRIMARY KEY (`id`);
-
---
--- A tábla indexei `log__user_edit`
---
-ALTER TABLE `log__user_edit`
+ALTER TABLE `log__users`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -839,19 +690,9 @@ ALTER TABLE `log__central`
 ALTER TABLE `log__failed_login`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
--- AUTO_INCREMENT a táblához `log__lesson_add`
+-- AUTO_INCREMENT a táblához `log__lessons`
 --
-ALTER TABLE `log__lesson_add`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
---
--- AUTO_INCREMENT a táblához `log__lesson_del`
---
-ALTER TABLE `log__lesson_del`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
---
--- AUTO_INCREMENT a táblához `log__lesson_edit`
---
-ALTER TABLE `log__lesson_edit`
+ALTER TABLE `log__lessons`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT a táblához `log__login`
@@ -859,44 +700,19 @@ ALTER TABLE `log__lesson_edit`
 ALTER TABLE `log__login`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
--- AUTO_INCREMENT a táblához `log__role_del`
+-- AUTO_INCREMENT a táblához `log__roles`
 --
-ALTER TABLE `log__role_del`
+ALTER TABLE `log__roles`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
--- AUTO_INCREMENT a táblához `log__role_edit`
+-- AUTO_INCREMENT a táblához `log__teachers`
 --
-ALTER TABLE `log__role_edit`
+ALTER TABLE `log__teachers`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
--- AUTO_INCREMENT a táblához `log__teacher_add`
+-- AUTO_INCREMENT a táblához `log__users`
 --
-ALTER TABLE `log__teacher_add`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
---
--- AUTO_INCREMENT a táblához `log__teacher_del`
---
-ALTER TABLE `log__teacher_del`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
---
--- AUTO_INCREMENT a táblához `log__teacher_edit`
---
-ALTER TABLE `log__teacher_edit`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
---
--- AUTO_INCREMENT a táblához `log__user_add`
---
-ALTER TABLE `log__user_add`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
---
--- AUTO_INCREMENT a táblához `log__user_del`
---
-ALTER TABLE `log__user_del`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
---
--- AUTO_INCREMENT a táblához `log__user_edit`
---
-ALTER TABLE `log__user_edit`
+ALTER TABLE `log__users`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT a táblához `pw_reset`

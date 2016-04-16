@@ -42,10 +42,10 @@
 			$isSuccess = is_array($action);
 
 			Logging::Insert(array_merge(array(
-				'action' => 'users.modify_user',
+				'action' => 'users.modify_role',
 				'user' => $user['id'],
 				'errorcode' => $isSuccess ? 0 : $action,
-				'db' => 'role_edit',
+				'db' => 'roles',
 			),$data,array(
 				$isSuccess ? 'e_id' : 'userid' => $isSuccess ? $action[0] : $id,
 			)));
@@ -105,7 +105,7 @@
 				'action' => 'users.eject_user',
 				'user' => $user['id'],
 				'errorcode' => $isSuccess ? 0 : $action,
-				'db' => 'role_del',
+				'db' => 'roles',
 			),array(
 				$isSuccess ? 'e_id' : 'userid' => $isSuccess ? $action[0] : $id,
 			),$isSuccess ? array(
@@ -169,7 +169,7 @@
 				'action' => 'users.edit_my_profile',
 				'user' => $user['id'],
 				'errorcode' => $action,
-				'db' => 'user_edit',
+				'db' => 'users',
 			),$data,array(
 				'e_id' => $user['id'],
 			)));

@@ -1,4 +1,6 @@
 <?php
+	require "dBTitles.php";
+
 	require "classes/Password.php";
 	require "classes/Logging.php";
 	require "classes/System.php";
@@ -9,7 +11,6 @@
 	require "classes/InviteTools.php";
 	require "classes/FileTools.php";
 	require "classes/LessonTools.php";
-	require "classes/ClassTools.php";
 	require "classes/UserTools.php";
 	require "classes/PasswordReset.php";
 	require "classes/GroupTools.php";
@@ -24,3 +25,5 @@
 	require "classes/MantisTools.php";
 
 	require "EmailNotifications.php";
+
+	require "classes/UserAgentTools.php";

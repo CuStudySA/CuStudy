@@ -93,7 +93,7 @@
 		'logs' => array(
 			'title' => 		'Rendszernapló',
 			'css' => 		['logs.css'],
-			'js' => 		['dyntime.js'],
+			'js' => 		['dyntime.js','logs.js'],
 			'file' => 		'logs',
 		),
 
@@ -227,7 +227,7 @@
 				'groups' => ['view', 'add', 'edit', 'delete', 'list'],
 				'groupThemes' => ['add', 'edit', 'delete'],
 				'users' => ['view', 'edit', 'invite', 'eject'],
-				'logs' => ['view'],
+				'logs' => ['view','getClassLog'],
 			),
 		),
 		'guest' => array(
@@ -241,7 +241,7 @@
 			'system.classes' => ['view'],
 			'system.popup' => ['view'],
 			'system.events' => ['view'],
-			'logs' => ['view'],
+			'logs' => ['view','getAllUserLog'],
 		),
 		'everybody' => array(
 			'not-found' => ['view'],
