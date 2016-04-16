@@ -3,15 +3,19 @@ $(function(){
 		e.preventDefault();
 
 		var title = 'Naplóbejegyzés információinak lekérése',
-			id = $(e.currentTarget).attr('data-id'),
-			$td = $(e.currentTarget).parent(),
-			$this = $(e.currentTarget);
+			$this = $(this),
+			id = $this.attr('data-id'),
+			$td = $this.parent(),
+			requestInProgress = false;
 
-		if ($td.find('.expandable-section').length == 1){
+		if ($td.find('.expandable-section').length){
 			$this.toggleClass('typcn-plus typcn-minus');
-			$td.find('.expandable-section')[!$this.hasClass('typcn-minus') ? 'hide' : 'show']();
+			$td.find('.expandable-section').stop()[!$this.hasClass('typcn-minus') ? 'slideUp' : 'slideDown']();
 		}
 		else {
+			if (requestInProgress) return false;
+			requestInProgress = true;
+
 			$.Dialog.wait(title);
 
 			$.ajax({
@@ -26,15 +30,17 @@ $(function(){
 					}
 
 					$this.toggleClass('typcn-plus typcn-minus');
-					var $append = $('<div class="expandable-section"><div class="global"><h3>Alapvető adatok</h3></div><div class="sub"><h3>További adatok</h3></div></div>');
+					var $append = $.mk('div').attr('class','expandable-section').css('display','none'),
+						$global = $.mk('div').attr('class','global').html("<h3>Alapvető adatok</h3>"),
+						$sub = $.mk('div').attr('class','sub').html("<h3>Alapvető adatok</h3>");
 					$.each(data.global,function(i,e){
-						$append.find('.global').append("<p><strong>" + i + "</strong>: " + e + "</p>");
+						$global.append("<p><strong>" + i + "</strong>: " + e + "</p>");
 					});
 					$.each(data.sub,function(i,e){
-						$append.find('.sub').append("<p><strong>" + i + "</strong>: " + e + "</p>");
+						$sub.append("<p><strong>" + i + "</strong>: " + e + "</p>");
 					});
 
-					$(e.currentTarget).parent().append($append);
+					$append.append($global,$sub).appendTo($td).slideDown();
 
 					$.Dialog.close();
 				}
