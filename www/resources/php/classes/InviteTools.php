@@ -248,7 +248,7 @@ STRING
 			$token = $db->where('invitation',$data['token'])->getOne('invitations');
 
 			Logging::Insert(array_merge(array(
-				'action' => 'users.add',
+				'action' => 'invitation.registration',
 				'user' => !empty($token['inviter']) ? $token['inviter'] : 0,
 				'errorcode' => is_array($action) ? 0 : $action,
 				'db' => 'users',

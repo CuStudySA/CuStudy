@@ -6,21 +6,21 @@
 
 		static $ActionLabels = array(
 			'users' => array(
-				'modify_role' => 'Felhasználó lokális szerepkörének szerkesztése',
-				'eject_user' => 'Felhasználó lokális szerepkörének eltávolítása',
-				'edit_my_profile' => 'Felh. saját adatainak módosítása',
+				'modifyRole' => 'Felhasználó lokális szerepkörének szerkesztése',
+				'eject' => 'Felhasználó lokális szerepkörének eltávolítása',
+				'editMyProfile' => 'Felh. saját adatainak módosítása',
 			),
 			'lessons' => array(
 				'add' => 'Tantárgy hozzáadása',
 				'edit' => 'Tantárgy szerkesztése',
-				'del' => 'Tantárgy törlése',
+				'delete' => 'Tantárgy törlése',
 			),
 			'teachers' => array(
 				'add' => 'Tanár hozzáadása',
 				'edit' => 'Tanár szerkesztése',
-				'del' => 'Tanár törlése',
+				'delete' => 'Tanár törlése',
 			),
-			'login' => array(
+			'system' => array(
 				'login' => 'Bejelentkezés',
 			),
 		);
@@ -166,7 +166,7 @@
 					$r[$tile] = $v;
 				else {
 					$entry = $data;
-					$r[$tile[0]] = call_user_func($tile[1],$v);
+					$r[$tile[0]] = call_user_func($tile[1],$v,$entry);
 				}
 			}
 
@@ -174,7 +174,7 @@
 		}
 
 		static function GetDetails($id){
-			global $db;
+			global $db, $ENV;
 
 			$central = $db->where('id',$id)->getOne('log__central');
 

@@ -285,7 +285,7 @@
 			$action = self::_login($username,$password);
 
 			Logging::Insert(array(
-				'action' => 'login.login',
+				'action' => 'system.login',
 				'user' => (is_array($action) ? $action[0] : 0),
 				'errorcode' => (!is_array($action) ? $action : 0),
 				'db' => 'login',

@@ -6,6 +6,8 @@
 <?php
 	if (is_int($Log))
 		print System::Notice('fail','Nem tudtuk lekérdezni a rendszernaplót! Kérem próbálja újra később! Hibakód: '.$Log);
+	else if (empty($Log))
+		print System::Notice('info','Nincs megjeleníthető bejegyzés a naplóban!');
 	else { ?>
 		<table id="logs">
 			<thead>

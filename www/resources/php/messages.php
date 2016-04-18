@@ -18,22 +18,7 @@
 		),
 
 		'users' => array(
-			'add' => array(
-				'errors' => array(
-					1 => 'hiányzik egy szükséges adat',
-					2 => 'valamelyik megadott adat formátuma hibás',
-					3 => 'a megadott jelszavak nem egyeznek',
-					4 => 'már foglalt a megadott felhasználónév',
-					5 => 'már foglalt a megadott felhasználónév',
-					6 => 'létezik felhasználó a megadott e-mail címmel',
-					7 => 'nincs jogosultsága a művelethez'
-				),
-				'messages' => array(
-					0 => 'A felhasználó hozzáadása sikeresen megtörtént!',
-					1 => 'A felhasználót nem sikerült létrehozni, mert @msg! (Hibakód: @code)',
-				),
-			),
-			'edit' => array(
+			'modifyRole' => array(
 				'errors' => array(
 					1 => 'nincs jogosultsága a művelethez',
 					2 => 'valamelyik megadott adat formátuma hibás',
@@ -72,6 +57,16 @@
 					1 => 'A felhasználó törlése az osztályból sikertelen volt, mert @msg! (Hibakód: @code)',
 				),
 			),
+			'editMyProfile' => array(
+				'errors' => array(
+					1 => 'a megadott jelszó nem egyezik meg a felhasználó jelszavával',
+					2 => 'a megadott két új jelszó nem egyezik meg',
+				),
+				'messages' => array(
+					0 => 'A felhasználói adatok frissítése sikeresen megtörtént!',
+					1 => 'A felhasználói adatok frissítése sikertelen volt, mert @msg! (Hibakód: @code)',
+				),
+			),
 		),
 
 		'extConnTools' => array(
@@ -108,16 +103,6 @@
 				'messages' => array(
 					0 => 'A távoli szolgátató fiókjának leválasztása sikeresen megtörtént',
 					1 => 'A távoli szolgátató fiókjának leválasztása sikertelen volt, mert @msg! (Hibakód: @code)',
-				),
-			),
-			'editMyProfile' => array(
-				'errors' => array(
-					1 => 'a megadott jelszó nem egyezik meg a felhasználó jelszavával',
-					2 => 'a megadott két új jelszó nem egyezik meg',
-				),
-				'messages' => array(
-					0 => 'A felhasználói adatok frissítése sikeresen megtörtént!',
-					1 => 'A felhasználói adatok frissítése sikertelen volt, mert @msg! (Hibakód: @code)',
 				),
 			),
 			'setavatarprovider' => array(

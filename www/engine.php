@@ -19,8 +19,8 @@
 	require $root.'resources/php/MysqliDb.php';
 
 	# Funkciótár és üzenettár betöltése
-	require $root.'resources/php/functions.php';
 	require $root.'resources/php/messages.php';
+	require $root.'resources/php/functions.php';
 
 	# Külső szolgáltatók API-jának betöltése
 	require $root.'resources/php/ExternalAPIs.php';
@@ -116,7 +116,6 @@
 
 	# Üzeneteket tartalmazó tömb áthelyezése
 	Message::$Messages = $ENV['Messages'];
-	unset($ENV['Messages']);
 
 	# MantisBT integráció alapért. értékének beállítása
 	$MantisDB = 1001;

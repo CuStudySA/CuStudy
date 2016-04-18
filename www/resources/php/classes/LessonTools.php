@@ -140,7 +140,7 @@
 			$action = self::_delete($id);
 
 			Logging::Insert(array_merge(array(
-				'action' => 'lessons.del',
+				'action' => 'lessons.delete',
 				'user' => $user['id'],
 				'errorcode' => $action,
 				'db' => 'lessons',

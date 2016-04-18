@@ -21,17 +21,19 @@
 
 				return "{$data['name']} (#{$x})";
 			}),
-			'errorcode' => array('Művelet végeredménye',function($x){
-				global $db, $entry;
+			'errorcode' => array('Művelet végeredménye',function($x,$entry){
+				global $db, $ENV;
 
 				if ($x == 0)
 					return 'Sikeresen végrehajtva';
-				else {
-					if (empty($entry) || empty($entry['error_desc']))
-						return "Sikertelen, hiba ismeretlen (hibakód: {$x})";
-					else
-						return "Sikertelen, mert {$entry['error_desc']} (hibakód: {$x})";
-				}
+
+				$action = explode('.',$entry['action']);
+				if (count($action) == 1) return "Sikertelen, hiba ismeretlen (hibakód: {$x})";
+
+				if (!empty($ENV['Messages'][$action[0]][$action[1]]['errors'][$x]))
+						return 'Sikertelen, "'.$ENV['Messages'][$action[0]][$action[1]]['errors'][$x].'" (hibakód: '.$x.')';
+				else
+					return "Sikertelen, hiba ismeretlen (hibakód: {$x})";
 			}),
 			'action' => array('Művelet',function($x){
 				$action = explode('.',$x);

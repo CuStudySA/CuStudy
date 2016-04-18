@@ -52,10 +52,10 @@
 
 		case 'edit':
 			if (isset($ENV['POST']['id']))
-				$action = UserTools::ModifyUser($ENV['POST']['id'],$ENV['POST']);
+				$action = UserTools::ModifyRole($ENV['POST']['id'],$ENV['POST']);
 			else System::Respond();
 
-			System::Respond(Message::Respond('users.edit',is_array($action) ? 0 : $action), is_array($action) ? 1 : 0);
+			System::Respond(Message::Respond('users.modifyRole',is_array($action) ? 0 : $action), is_array($action) ? 1 : 0);
 		break;
 
 		case 'eject':

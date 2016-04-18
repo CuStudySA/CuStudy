@@ -19,7 +19,6 @@ if (in_array(ROLE,array_keys($Perm['students']))){
 		array('globe','homeworks','Házi feladatok'),
 		array('flash','events','Események'),
 		array('document','files','Dokumentumok'),
-		array('user','profile','Profilom'),
 		array('contacts','teachers','Tanárok'),
 		array('th-menu','lessons','Tantárgyak'),
 	));
@@ -40,6 +39,8 @@ if (ROLE == 'admin')
 		array('group','users','Felhasználók'),
 		//array('document-text','logs','Tevékenységnapló'),
 	));
+
+$Actions[] = array('user','profile','Profilom');
 
 if (!isset($user['tempSession']))
 	$Actions[] = array('power','#logout','Kijelentkezés');

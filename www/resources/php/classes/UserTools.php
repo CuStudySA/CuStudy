@@ -10,7 +10,7 @@
 		);
 
 // Felh. adatainak módosítása
-		private static function _modifyUser($id,$data){
+		private static function _modifyRole($id,$data){
 			global $db, $user;
 
 			# Jog. ellenörzése
@@ -33,16 +33,16 @@
 			else return 7;
 		}
 
-		static function ModifyUser($id,$data){
+		static function ModifyRole($id,$data){
 			global $user;
 
 			$data = System::TrashForeignValues(['role'],$data);
 
-			$action = self::_modifyUser($id,$data);
+			$action = self::_modifyRole($id,$data);
 			$isSuccess = is_array($action);
 
 			Logging::Insert(array_merge(array(
-				'action' => 'users.modify_role',
+				'action' => 'users.modifyRole',
 				'user' => $user['id'],
 				'errorcode' => $isSuccess ? 0 : $action,
 				'db' => 'roles',
@@ -102,7 +102,7 @@
 			$isSuccess = is_array($action);
 
 			Logging::Insert(array_merge(array(
-				'action' => 'users.eject_user',
+				'action' => 'users.eject',
 				'user' => $user['id'],
 				'errorcode' => $isSuccess ? 0 : $action,
 				'db' => 'roles',
@@ -166,7 +166,7 @@
 			$data = System::TrashForeignValues(['name','email'],$data);
 
 			Logging::Insert(array_merge(array(
-				'action' => 'users.edit_my_profile',
+				'action' => 'users.editMyProfile',
 				'user' => $user['id'],
 				'errorcode' => $action,
 				'db' => 'users',

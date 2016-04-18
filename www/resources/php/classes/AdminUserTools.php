@@ -109,7 +109,7 @@
 			unset($data['id']);
 
 			Logging::Insert(array_merge(array(
-				'action' => 'users.edit',
+				'action' => 'adminUserTools.editBasicInfos',
 				'user' => $user['id'],
 				'errorcode' => $action,
 				'db' => 'users',
@@ -232,7 +232,7 @@
 				$data = [];
 
 			Logging::Insert(array_merge(array(
-				'action' => 'users.del',
+				'action' => 'adminUserTools.deleteUser',
 				'user' => $user['id'],
 				'errorcode' => $action,
 				'db' => 'users',
