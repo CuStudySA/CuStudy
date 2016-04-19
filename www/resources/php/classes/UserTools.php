@@ -43,12 +43,13 @@
 
 			Logging::Insert(array_merge(array(
 				'action' => 'users.modifyRole',
-				'user' => $user['id'],
 				'errorcode' => $isSuccess ? 0 : $action,
 				'db' => 'roles',
 			),$data,array(
-				$isSuccess ? 'e_id' : 'userid' => $isSuccess ? $action[0] : $id,
-			)));
+				'userid' => $id,
+			),$isSuccess ? array(
+				'e_id' => $action[0],
+			) : array()));
 
 			return $action;
 		}
@@ -91,7 +92,7 @@
 				));
 			}
 
-			if ($action) return [$data['id'],$data['role']];
+			if ($action) return [$data['id'],$data['role'],$data['classid']];
 			else return 2;
 		}
 
@@ -103,13 +104,15 @@
 
 			Logging::Insert(array_merge(array(
 				'action' => 'users.eject',
-				'user' => $user['id'],
 				'errorcode' => $isSuccess ? 0 : $action,
 				'db' => 'roles',
-			),array(
-				$isSuccess ? 'e_id' : 'userid' => $isSuccess ? $action[0] : $id,
 			),$isSuccess ? array(
+				'e_id' => $action[0],
+			) : array(),
+			$isSuccess ? array(
 				'role' => $action[1],
+				'classid' => $action[2],
+				'userid' => $id,
 			) : array()));
 
 			return $action;
@@ -166,8 +169,8 @@
 			$data = System::TrashForeignValues(['name','email'],$data);
 
 			Logging::Insert(array_merge(array(
-				'action' => 'users.editMyProfile',
 				'user' => $user['id'],
+				'action' => 'users.editMyProfile',
 				'errorcode' => $action,
 				'db' => 'users',
 			),$data,array(

@@ -66,7 +66,7 @@
 		}
 
 		private function _spliceData($data){
-			$splita = ['action','user','errorcode'];
+			$splita = ['action','user','errorcode','u_classid'];
 
 			foreach ($splita as $value){
 				if (isset($data[$value])){
@@ -80,6 +80,8 @@
 		}
 
 		static function Insert($data){
+			global $db, $user, $ENV;
+
 /*          array(
 				(req)'action' => 'login',
 				(opt)'db' => 'login',
@@ -88,6 +90,15 @@
 			);                              */
 
 			$logclass = new Logging();
+
+
+			# Cselekvő akt. szerekörének meghatározása
+			if (!isset($data['user']) && !empty($user)){
+				$data['user'] = $user['id'];
+
+				if (!empty($ENV['class']))
+					$data['u_classid'] = $ENV['class']['id'];
+			}
 
 			# Adatok szétválasztása a funkcióknak
 			$separated = $logclass->_spliceData($data);
@@ -101,7 +112,9 @@
 			$separated['central']['sublogid'] = $action;
 
 			# Bejegyzés készítése a főtáblába
-			$action = $logclass->_insertCentral(array_merge($separated['central'],array('db' => $data['db'])));
+			$action = $logclass->_insertCentral(array_merge($separated['central'],array(
+				'db' => $data['db'],
+			)));
 
 			# Eredmény feldolgozása
 			return $action ? 0 : 3;
@@ -110,14 +123,18 @@
 		static function GetLog(){
 			global $user, $db;
 
-			if (!System::PermCheck('logs.getClassLog'))
+			$fullReadable = array('teachers','lessons');
+
+			if (!System::PermCheck('logs.getClassLog')){
 				$Log = $db->rawQuery('SELECT lc.*, u.username
 										FROM log__central lc
-										LEFT JOIN (class_members cm, users u)
-										ON (lc.user = cm.userid && u.id = lc.user)
-										WHERE cm.classid = ?
+										LEFT JOIN users u
+										ON u.id = lc.user
+										WHERE lc.u_classid = ?
 										ORDER BY lc.time DESC
 										LIMIT 30',array($user['class'][0]));
+			}
+
 			else if (!System::PermCheck('logs.getAllUserLog'))
 				$Log = $db->rawQuery('SELECT lc.*, u.username
 										FROM log__central lc

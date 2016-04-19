@@ -10,7 +10,6 @@
 
 			Logging::Insert(array_merge(array(
 				'action' => 'teachers.add',
-				'user' => $user['id'],
 				'errorcode' => is_array($action) ? 0 : $action,
 				'db' => 'teachers',
 			),$data,array(
@@ -76,10 +75,10 @@
 
 			Logging::Insert(array_merge(array(
 				'action' => 'teachers.edit',
-				'user' => $user['id'],
 				'errorcode' => $action,
 				'db' => 'teachers',
 			),$data,array(
+				'classid' => $user['class'][0],
 				'e_id' => $id,
 			)));
 
@@ -132,10 +131,10 @@
 
 			Logging::Insert(array_merge(array(
 				'action' => 'teachers.delete',
-				'user' => $user['id'],
 				'errorcode' => $action,
 				'db' => 'teachers',
 			),$data,array(
+				'classid' => $user['class'][0],
 				'e_id' => $id,
 			)));
 

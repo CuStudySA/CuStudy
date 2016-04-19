@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Gép: 127.0.0.1
--- Létrehozás ideje: 2016. Ápr 16. 15:10
+-- Létrehozás ideje: 2016. Ápr 19. 17:29
 -- Kiszolgáló verziója: 5.6.26
 -- PHP verzió: 5.6.12
 
@@ -233,13 +233,13 @@ CREATE TABLE `log__central` (
   `id` int(11) NOT NULL,
   `action` tinytext COLLATE utf8_hungarian_ci NOT NULL,
   `db` tinytext COLLATE utf8_hungarian_ci NOT NULL,
-  `user` int(11) NOT NULL,
+  `user` int(11) DEFAULT NULL,
   `sublogid` int(11) NOT NULL,
   `errorcode` int(11) NOT NULL,
   `useragent` tinytext COLLATE utf8_hungarian_ci NOT NULL,
   `ipaddr` tinytext COLLATE utf8_hungarian_ci NOT NULL,
   `time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `error_desc` tinytext COLLATE utf8_hungarian_ci NOT NULL
+  `u_classid` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
 -- --------------------------------------------------------
@@ -292,7 +292,8 @@ CREATE TABLE `log__roles` (
   `id` int(11) NOT NULL,
   `e_id` int(11) DEFAULT NULL,
   `role` tinytext COLLATE utf8mb4_hungarian_ci,
-  `userid` int(11) DEFAULT NULL
+  `userid` int(11) DEFAULT NULL,
+  `classid` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
 -- --------------------------------------------------------

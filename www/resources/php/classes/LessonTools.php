@@ -39,7 +39,6 @@
 
 			Logging::Insert(array_merge(array(
 				'action' => 'lessons.add',
-				'user' => $user['id'],
 				'errorcode' => (!is_array($action) ? $action : 0),
 				'db' => 'lessons',
 			),$data_a,array(
@@ -99,7 +98,6 @@
 
 			Logging::Insert(array_merge(array(
 				'action' => 'lessons.edit',
-				'user' => $user['id'],
 				'errorcode' => $action,
 				'db' => 'lessons',
 			),$data_a,array(
@@ -141,7 +139,6 @@
 
 			Logging::Insert(array_merge(array(
 				'action' => 'lessons.delete',
-				'user' => $user['id'],
 				'errorcode' => $action,
 				'db' => 'lessons',
 			),$data,array(

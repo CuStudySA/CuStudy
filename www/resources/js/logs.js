@@ -32,13 +32,19 @@ $(function(){
 					$this.toggleClass('typcn-plus typcn-minus');
 					var $append = $.mk('div').attr('class','expandable-section').css('display','none'),
 						$global = $.mk('div').attr('class','global').html("<h3>Alapvető adatok</h3>"),
-						$sub = $.mk('div').attr('class','sub').html("<h3>Alapvető adatok</h3>");
+						$sub = $.mk('div').attr('class','sub').html("<h3>További adatok</h3>"),
+						subEmpty = true;
+
 					$.each(data.global,function(i,e){
 						$global.append("<p><strong>" + i + "</strong>: " + e + "</p>");
 					});
 					$.each(data.sub,function(i,e){
+						subEmpty = false;
 						$sub.append("<p><strong>" + i + "</strong>: " + e + "</p>");
 					});
+
+					if (subEmpty)
+						$sub.css('display','none');
 
 					$append.append($global,$sub).appendTo($td).slideDown();
 

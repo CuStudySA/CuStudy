@@ -42,6 +42,33 @@ STRING
 STRING
 );
 
+		static private function _enrollUser($userid, $classid){
+			global $db;
+
+			$action = $db->insert('class_members',array(
+				'classid' => $classid,
+				'userid' => $userid,
+			));
+
+			if ($action === false) return 1;
+			else return 0;
+		}
+
+		static function EnrollUser($userid, $classid){
+			global $user;
+
+			$action = self::_enrollUser($userid,$classid);
+
+			Logging::Insert(array_merge(array(
+				'action' => 'users.enrollUser',
+				'user' => $user['id'],
+				'errorcode' => $action,
+				'db' => 'roles',
+			),$data,array(
+				$isSuccess ? 'e_id' : 'userid' => $isSuccess ? $action[0] : $id,
+			)));
+		}
+
 		static function Invite($email,$name){
 			global $db, $user, $ENV;
 
@@ -52,10 +79,7 @@ STRING
 
 			$data = $db->where('email',$email)->getOne('users');
 			if (!empty($data)){
-				$action = $db->insert('class_members',array(
-					'classid' => $user['class'][0],
-					'userid' => $data['id'],
-				));
+				self::EnrollUser($data['id'],$user['class'][0]);
 
 				Message::SendNotify('role.enrollment',$email,$data['name'],array(
 					'initiator' => $user['name'],

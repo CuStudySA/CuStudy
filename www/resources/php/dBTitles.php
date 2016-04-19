@@ -80,4 +80,29 @@
 				return "{$data['name']} (#{$x})";
 			}),
 		),
+		'lessons' => array(
+			'classid' => array('Osztály',function($x){
+				global $db;
+
+				$data = $db->rawQuery('SELECT c.classid as class, s.name as school
+										FROM class c
+										LEFT JOIN school s
+										ON (c.school = s.id)
+										WHERE c.id = ?',array($x));
+				if (empty($data)) return "Ismeretlen (azonosítója: #{$x})";
+				else return "{$data[0]['school']} - {$data[0]['class']} (#{$x})";
+			}),
+			'color' => array('Szín',function($x){
+				return "<span class='color' style='background-color: {$x}'></span> ({$x})";
+			}),
+			'teacherid' => array('Tanár',function($x){
+				global $db;
+
+				$data = $db->where('id',$x)->getOne('teachers');
+
+				if (empty($data)) return "Ismeretlen (adatbázisban: #{$x})";
+				else return "{$data['name']} (#{$x})";
+			}),
+			'name' => 'Név',
+		),
 	);
