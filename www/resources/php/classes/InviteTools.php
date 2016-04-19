@@ -48,10 +48,11 @@ STRING
 			$action = $db->insert('class_members',array(
 				'classid' => $classid,
 				'userid' => $userid,
+				'role' => 'visitor',
 			));
 
 			if ($action === false) return 1;
-			else return 0;
+			else return [$action];
 		}
 
 		static function EnrollUser($userid, $classid){
@@ -61,12 +62,17 @@ STRING
 
 			Logging::Insert(array_merge(array(
 				'action' => 'users.enrollUser',
-				'user' => $user['id'],
-				'errorcode' => $action,
+				'errorcode' => is_array($action) ? 0 : $action,
 				'db' => 'roles',
-			),$data,array(
-				$isSuccess ? 'e_id' : 'userid' => $isSuccess ? $action[0] : $id,
-			)));
+			),array(
+				'userid' => $userid,
+				'classid' => $classid,
+				'role' => 'visitor',
+			),is_array($action) ? array(
+				'e_id' => $action[0],
+			) : array()));
+
+			return $action;
 		}
 
 		static function Invite($email,$name){
@@ -195,11 +201,11 @@ STRING
 			));
 
 			# Hozzáadás a csoporthoz
-			$defSession = $db->insert('class_members',array(
-				'classid' => $token_d['classid'],
-				'userid' => $id,
-				'role' => 'visitor',
-			));
+			$defSession = self::EnrollUser($id,$token_d['classid']);
+			if (!is_array($defSession))
+				return 6;
+			else
+				$defSession = $defSession[0];
 
 			$db->where('id',$id)->update('users',array(
 				'defaultSession' => $defSession,

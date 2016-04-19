@@ -1,4 +1,16 @@
 <?php
+	$classid = function($x){
+		global $db;
+
+		$data = $db->rawQuery('SELECT c.classid as class, s.name as school
+								FROM class c
+								LEFT JOIN school s
+								ON (c.school = s.id)
+								WHERE c.id = ?',array($x));
+		if (empty($data)) return "Ismeretlen (azonosítója: #{$x})";
+		else return "{$data[0]['school']} - {$data[0]['class']} (#{$x})";
+	};
+
 	$dBTitles = array(
 		'global' => array(
 			'ipaddr' => 'IP-cím',
@@ -63,6 +75,7 @@
 				return $x == 1 ? 'Aktív' : 'Inaktív';
 			}),
 			'email' => 'E-mail cím',
+			'invitation_id' => 'Meghívás azonosítója',
 		),
 		'roles' => array(
 			'e_id' => 'Szerekör azonosítója',
@@ -81,17 +94,7 @@
 			}),
 		),
 		'lessons' => array(
-			'classid' => array('Osztály',function($x){
-				global $db;
-
-				$data = $db->rawQuery('SELECT c.classid as class, s.name as school
-										FROM class c
-										LEFT JOIN school s
-										ON (c.school = s.id)
-										WHERE c.id = ?',array($x));
-				if (empty($data)) return "Ismeretlen (azonosítója: #{$x})";
-				else return "{$data[0]['school']} - {$data[0]['class']} (#{$x})";
-			}),
+			'classid' => array('Osztály',$classid),
 			'color' => array('Szín',function($x){
 				return "<span class='color' style='background-color: {$x}'></span> ({$x})";
 			}),
@@ -104,5 +107,10 @@
 				else return "{$data['name']} (#{$x})";
 			}),
 			'name' => 'Név',
+		),
+		'teachers' => array(
+			'name' => 'Név',
+			'short' => 'Rövid név',
+			'classid' => array('Osztály',$classid),
 		),
 	);
