@@ -45,13 +45,18 @@ STRING
 		static private function _enrollUser($userid, $classid){
 			global $db;
 
+			$data = $db->where('classid',$classid)->where('userid',$userid)->getOne('class_members');
+
+			if (!empty($data))
+				return 1;
+
 			$action = $db->insert('class_members',array(
 				'classid' => $classid,
 				'userid' => $userid,
 				'role' => 'visitor',
 			));
 
-			if ($action === false) return 1;
+			if ($action === false) return 2;
 			else return [$action];
 		}
 
@@ -89,7 +94,10 @@ STRING
 
 			$data = $db->where('email',$email)->getOne('users');
 			if (!empty($data)){
-				self::EnrollUser($data['id'],$user['class'][0]);
+				$action = self::EnrollUser($data['id'],$user['class'][0]);
+
+				if (!is_array($action))
+					return 5;
 
 				Message::SendNotify('role.enrollment',$email,$data['name'],array(
 					'initiator' => $user['name'],

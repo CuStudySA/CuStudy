@@ -67,6 +67,14 @@
 					1 => 'A felhasználói adatok frissítése sikertelen volt, mert @msg! (Hibakód: @code)',
 				),
 			),
+			'enrollUser' => array(
+				'errors' => array(
+					1 => 'már létezik szerepkör ehhez a felhasználóhoz',
+					2 => 'hiba történt az adatbázisba íráskor',
+				),
+				'messages' => array(
+				),
+			),
 		),
 
 		'extConnTools' => array(

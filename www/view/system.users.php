@@ -50,7 +50,7 @@
 				<li>
 					<ul class='dataList'>
 						<li class='entry'><span>Bejegyzés száma: </span>#<?=$log['id']?></li>
-						<li class='entry'><span>Esemény: </span><?=Logging::$ActionLabels[$log['action']]?></li>
+						<li class='entry'><span>Esemény: </span><?=!empty(Logging::$ActionLabels[$log['action']]) ? Logging::$ActionLabels[$log['action']] : '(ismeretlen)'?></li>
 						<li class='entry'><span>Időpont: </span><?=$log['time']?></li>
 						<li class='entry'><span>Művelet hibakódja: </span><?=$log['errorcode'] == 0 ? '0 (a művelet sikeresen végrehajtva)' : $log['errorcode'].' (hiba történt a művelet közben)'?></li> <!-- TODO az új log db szerkezettel a hibakód-kijelzés javítva lesz -->
 					</ul>
