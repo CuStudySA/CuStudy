@@ -11,6 +11,17 @@
 		else return "{$data[0]['school']} - {$data[0]['class']} (#{$x})";
 	};
 
+	$userid = function($x){
+		global $db;
+
+		if ($x == 0) return 'Anonymus felhasználó';
+
+		$data = $db->where('id',$x)->getOne('users');
+		if (empty($data)) return "Ismeretlen felhasználó (#{$x})";
+
+		return "{$data['name']} (#{$x})";
+	};
+
 	$dBTitles = array(
 		'global' => array(
 			'ipaddr' => 'IP-cím',
@@ -18,8 +29,17 @@
 			'useragent' => array('Eszköz és böngésző',function($x){
 				$agent = UserAgentTools::Parse($x);
 
-				if (!empty($agent['version']))
-					return "{$agent['browser']} böngésző {$agent['version']} verziója ({$agent['platform']} alatt)";
+				if (!empty($agent['version'])){
+					$ver = substr($agent['version'],0,4);
+
+					if (substr($ver,-1) == '.')
+						$ver = substr($ver,0,-1);
+
+					if (strlen($agent['version']) != strlen($ver))
+						$ver .= '...';
+
+					return "{$agent['browser']} böngésző {$ver} verziója ({$agent['platform']} alatt)";
+				}
 
 				return "{$agent['browser']} böngésző {$agent['platform']} alatt";
 			}),
@@ -82,16 +102,7 @@
 			'role' => array('Szerepkör',function($x){
 				return UserTools::$roleLabels[$x];
 			}),
-			'userid' => array('Felhasználó',function($x){
-				global $db;
-
-				if ($x == 0) return 'Anonymus felhasználó';
-
-				$data = $db->where('id',$x)->getOne('users');
-				if (empty($data)) return "Ismeretlen felhasználó (#{$x})";
-
-				return "{$data['name']} (#{$x})";
-			}),
+			'userid' => array('Felhasználó',$userid),
 		),
 		'lessons' => array(
 			'classid' => array('Osztály',$classid),
@@ -112,5 +123,24 @@
 			'name' => 'Név',
 			'short' => 'Rövid név',
 			'classid' => array('Osztály',$classid),
+		),
+		'mantis_users' => array(
+			'e_id' => array('Mantis felhasználó',function($x){
+				global $db, $MantisDB;
+
+				if (is_int($MantisDB))
+					return "Ismeretlen (Mantis integr. kikapcs.)";
+
+				$User = $MantisDB->where('id',$x)->getOne('mantis_user_table');
+
+				if (empty($User))
+					return "Ismeretlen (adatbázisban: #{$x})";
+
+				return "{$User['realname']} (#{$User['id']})";
+			}),
+			'username' => 'Felhasználónév',
+			'name' => 'Név',
+			'email' => 'E-mail cím',
+			'userid' => array('C.S. felhasználó',$userid),
 		),
 	);

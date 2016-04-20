@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Gép: 127.0.0.1
--- Létrehozás ideje: 2016. Ápr 19. 17:29
+-- Létrehozás ideje: 2016. Ápr 20. 10:53
 -- Kiszolgáló verziója: 5.6.26
 -- PHP verzió: 5.6.12
 
@@ -285,6 +285,21 @@ CREATE TABLE `log__login` (
 -- --------------------------------------------------------
 
 --
+-- Tábla szerkezet ehhez a táblához `log__mantis_users`
+--
+
+CREATE TABLE `log__mantis_users` (
+  `id` int(11) NOT NULL,
+  `e_id` int(11) DEFAULT NULL,
+  `userid` int(11) DEFAULT NULL,
+  `username` tinytext COLLATE utf8mb4_hungarian_ci,
+  `email` tinytext COLLATE utf8mb4_hungarian_ci,
+  `name` tinytext COLLATE utf8mb4_hungarian_ci
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Tábla szerkezet ehhez a táblához `log__roles`
 --
 
@@ -547,6 +562,12 @@ ALTER TABLE `log__login`
   ADD PRIMARY KEY (`id`);
 
 --
+-- A tábla indexei `log__mantis_users`
+--
+ALTER TABLE `log__mantis_users`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- A tábla indexei `log__roles`
 --
 ALTER TABLE `log__roles`
@@ -699,6 +720,11 @@ ALTER TABLE `log__lessons`
 -- AUTO_INCREMENT a táblához `log__login`
 --
 ALTER TABLE `log__login`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT a táblához `log__mantis_users`
+--
+ALTER TABLE `log__mantis_users`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT a táblához `log__roles`

@@ -66,10 +66,14 @@ STRING
 				'db' => 'roles',
 			),array(
 				'userid' => $userid,
+				'u_classid' => $classid,
 				'classid' => $classid,
 				'role' => 'visitor',
 			),is_array($action) ? array(
 				'e_id' => $action[0],
+			) : array(),
+			!is_array($user) ? array(
+				'user' => 0,
 			) : array()));
 
 			return $action;

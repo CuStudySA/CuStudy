@@ -559,4 +559,26 @@
 				),
 			),
 		),
+		'mantis_users' => array(
+			'create' => array(
+				'errors' => array(
+					1 => 'a felhasználónak már van Mantis fiókja',
+					2 => 'nem sikerült az adatbázisba írás',
+					3 => "a Mantis integráció ki van kapcsolva",
+					4 => 'már van a Mantis rendszerben azonos adatokkal rendelkező felh.',
+				),
+				'messages' => array(
+				),
+			),
+			'edit' => array(
+				'errors' => array(
+					1 => "a Mantis integráció ki van kapcsolva",
+					2 => 'a Mantis fiók nem található',
+					3 => 'valamelyik megadott adat formátuma hibás',
+					4 => 'nem sikerült az adatbázisba írás',
+				),
+				'messages' => array(
+				),
+			),
+		),
 	);

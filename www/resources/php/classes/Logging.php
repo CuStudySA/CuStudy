@@ -9,6 +9,7 @@
 				'modifyRole' => 'Felhasználó lokális szerepkörének szerkesztése',
 				'eject' => 'Felhasználó lokális szerepkörének eltávolítása',
 				'editMyProfile' => 'Felh. saját adatainak módosítása',
+				'enrollUser' => 'Új lokális szerepkör hozzáadása',
 			),
 			'lessons' => array(
 				'add' => 'Tantárgy hozzáadása',
@@ -22,6 +23,13 @@
 			),
 			'system' => array(
 				'login' => 'Bejelentkezés',
+			),
+			'invitation' => array(
+				'registration' => 'Regisztráció meghívó segítségével',
+			),
+			'mantis_users' => array(
+				'create' => 'Mantis felhasználó létrehozása',
+				'edit' => 'Mantis felhasználó szerkesztése',
 			),
 		);
 

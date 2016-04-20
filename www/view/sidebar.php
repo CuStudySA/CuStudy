@@ -37,7 +37,7 @@ if (ROLE == 'admin')
 	$Actions = array_merge($Actions,array(
 		array('th-large','groups','Csoportok'),
 		array('group','users','Felhasználók'),
-		//array('document-text','logs','Tevékenységnapló'),
+		array('document-text','logs','Tevékenységnapló'),
 	));
 
 $Actions[] = array('user','profile','Profilom');
