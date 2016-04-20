@@ -721,7 +721,7 @@
 			if (empty($ENV['SOFTWARE']['COMMIT']))
 				return;
 
-			$data = $db->where('key','lastRunningCommit')->getOne('global_settings');
+			$data = $db->where('`key`','lastRunningCommit')->getOne('global_settings');
 			if (empty($data)) return;
 
 			if ($data['value'] == $ENV['SOFTWARE']['COMMIT'])
