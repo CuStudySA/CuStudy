@@ -658,7 +658,7 @@
 		}
 
 		/**
-		 * NHatározott névelő hozzáadása egy stringhez
+		 * Határozott névelő hozzáadása egy stringhez
 		 *
 		 * @param string $str    Karaktersorozat
 		 * @param bool   $upperc Nagybetűvel kezdődjön-e a névelő
@@ -707,5 +707,42 @@
 				$type .= ' align-center';
 			return "<div class='notice $type'>$HTML</div>";
 		}
-	}
 
+		/**
+		 * A funkció segítségével megoldható az, hogy csak egy új commit után csak egyszer végrehajtódjon egy PHP szkript.
+		 * Hasznos lehet például abban az esetben, ha szükséges az új rendszerhez az adatbázis-szekezet frissítése, és ezt automatizálni szeretnénk.
+		 */
+		static function RunUpdatingTasks(){
+			global $db, $root;
+
+			$script = $root.'update.inc.php';
+
+			# Kell-e futtatni a frissítő szkriptet?
+			if (empty($ENV['SOFTWARE']['COMMIT']))
+				return;
+
+			$data = $db->where('key','lastRunningCommit')->getOne('global_settings');
+			if (empty($data)) return;
+
+			if ($data['value'] == $ENV['SOFTWARE']['COMMIT'])
+				return;
+
+			# Szkript újboli futtatásának megakadályozása
+			$db->where('key','lastRunningCommit')->update('global_settings',array(
+				'value' => $ENV['SOFTWARE']['COMMIT'],
+			));
+
+			# Létezik-e a frissítő szkript?
+			if (!file_exists($script))
+				return;
+
+			# Minden rendben van, futtassuk az Updating szkriptet...
+			require_once $script;
+
+			# Törlöm a szkriptet, nehogy lefusson mégegyszer!
+			unlink($script);
+
+			# Figyelmeztető üzenet a felhasználónak, funckió vége!
+			die("A CuStudy frissítése befejeződött, a frissítési utómunkálatok végrehajtódtak! Kérem, frissítse ezt az oldalt a CuStudy betöltéséhez!");
+		}
+	}
