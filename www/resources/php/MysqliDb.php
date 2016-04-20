@@ -1532,4 +1532,8 @@ class MysqliDb
         $this->get ('information_schema.tables', $count);
         return $this->count == $count;
     }
+
+    public function runQuery($q){
+        return $this->mysqli()->query($q);
+    }
 } // END class
