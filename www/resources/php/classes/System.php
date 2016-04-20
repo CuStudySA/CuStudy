@@ -713,7 +713,7 @@
 		 * Hasznos lehet például abban az esetben, ha szükséges az új rendszerhez az adatbázis-szekezet frissítése, és ezt automatizálni szeretnénk.
 		 */
 		static function RunUpdatingTasks(){
-			global $db, $root;
+			global $db, $root, $ENV;
 
 			$script = $root.'update.inc.php';
 
