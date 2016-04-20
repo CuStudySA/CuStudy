@@ -728,7 +728,7 @@
 				return;
 
 			# Szkript újboli futtatásának megakadályozása
-			$db->where('key','lastRunningCommit')->update('global_settings',array(
+			$db->where('`key`','lastRunningCommit')->update('global_settings',array(
 				'value' => $ENV['SOFTWARE']['COMMIT'],
 			));
 
