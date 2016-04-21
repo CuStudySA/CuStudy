@@ -22,7 +22,7 @@ $(function(){
 								</div>\
 							</div>\
 							<div class='bottom'>\
-								<a class='typcn typcn-pencil js_user_edit' href='' title='Módosítás'></a>\
+								<a class='typcn typcn-edit js_user_edit' href='' title='Módosítás'></a>\
 								<a class='typcn typcn-media-eject js_user_eject' href='' title='Felhasználó osztálybeli szerepkörének törlése'></a>\
 							</div>\
 						</li>");

@@ -23,7 +23,7 @@
 				System::Respond();
 			$action = UserTools::EditMyProfile($ENV['POST']);
 
-			System::Respond(Message::Respond('extConnTools.editMyProfile',$action), $action == 0);
+			System::Respond(Message::Respond('users.editMyProfile',$action), $action == 0);
 		break;
 
 		case 'setavatarprovider':

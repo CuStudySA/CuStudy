@@ -14,6 +14,12 @@
 			</script>
 
 			<h1 id="h1cim"><?=System::Article($ENV['class']['classid'], true)?> osztály tanárai</h1>
+
+<?php
+			if (empty($data) && System::PermCheck('teachers.add'))
+				print System::Notice('info','Nem találhatóak az osztályhoz kapcsolódó tanárok!');
+?>
+
 			<ul class='teachers flex'>
 <?php foreach ($data as $subarray){  ?>
 			<li data-id='<?=$subarray['id']?>'>

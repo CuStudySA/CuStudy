@@ -1,5 +1,4 @@
 <?php
-
 	class System {
 		static $Patterns = array(
 			'username' => '^[a-zA-Z\d]{3,15}$',
@@ -148,19 +147,6 @@
 			return $return;
 		}
 
-		static function GetUserClasses(&$user){
-			global $db;
-
-			$data = $db->where('userid', $user['id'])->get('class_members');
-			$classes = array();
-			foreach ($data as $array)
-				$classes[] = $array['classid'];
-
-			$user['class'] = $classes;
-
-			return $classes;
-		}
-
 		//Cookie ellenőrzés & '$user' generálása
 		static function CheckLogin() {
 			global $db, $ENV;
@@ -213,7 +199,7 @@
 		}
 
 		// Bejelentkezés
-		static private function _login($username,$password){
+		static private function _login($username,$password,$calledAgain = false){
 			global $db, $ENV;
 
 			# Formátum ellenörzése
@@ -224,16 +210,46 @@
 
 			if (!$data['active']) return 4;
 
+			# Felhasználó rendelkezik-e élő szerepkörrel?
+			if ($data['defaultSession'] == 0){
+				if ($data['role'] == 'none'){
+					if (!$calledAgain){
+						self::FindRole($data);
+						return self::_login($username,$password,true);
+					}
+					else
+						return 5;
+				}
+			}
+			else {
+				$Roles = $db->where('id',$data['defaultSession'])->getOne('class_members');
+				if (empty($Roles)){
+					if (!$calledAgain){
+						self::FindRole($data);
+						return self::_login($username,$password,true);
+					}
+					else
+						return 5;
+				}
+			}
+
+			# Felhasználó beléphet-e a szerepköre alapján?
+			if ($data['defaultSession'] != 0){
+				$conn = $db->where('id',$data['defaultSession'])->getOne('class_members');
+				if (System::UserActParent($conn['classid']))
+					return 7;
+			}
+
 			$IP = $ENV['SERVER']['REMOTE_ADDR'];
 			$failedLogins = $db->rawQuery(
-				'SELECT COUNT(*) as cnt FROM log_failed_login
+				'SELECT COUNT(*) as cnt FROM log__failed_login
 				WHERE userid = ? && ip = ? && corrected IS NULL && at > NOW() - INTERVAL 2 MINUTE',array($data['id'],$IP));
 			if (!empty($failedLogins[0]['cnt']) && $failedLogins[0]['cnt'] > 5)
 				return 3;
 
 			if (!Password::Ellenorzes($password,$data['password'])){
 				Logging::Insert(array(
-					'action' => 'failed_login',
+					'action' => 'login.failed_login',
 					'db' => 'failed_login',
 					'userid' => $data['id'],
 					'ip' => $IP,
@@ -244,14 +260,14 @@
 			else $db->where('userid', $data['id'])
 					->where('ip', $IP)
 					->where('corrected IS NULL')
-					->update('log_failed_login', array('corrected' => date('c')));
+					->update('log__failed_login', array('corrected' => date('c')));
 
 			# Session generálása és süti beállítása
 			$session = Password::GetSession($username);
 			Cookie::set('PHPSESSID',$session,false);
 
 			$envInfos = self::GetBrowserEnvInfo();
-			if (!is_array($envInfos)) return 'guest';
+			if (!is_array($envInfos)) return 6;
 
 			self::_clearSessions($data);
 
@@ -269,7 +285,7 @@
 			$action = self::_login($username,$password);
 
 			Logging::Insert(array(
-				'action' => 'login',
+				'action' => 'system.login',
 				'user' => (is_array($action) ? $action[0] : 0),
 				'errorcode' => (!is_array($action) ? $action : 0),
 				'db' => 'login',
@@ -284,17 +300,16 @@
 		static function Logout($User = null){
 			global $user;
 
-			if (empty($User)){
+			if (!empty($User))
+				self::_clearSessions($User);
+
+			else {
 				# Felh. bejelentkézésnek ellenörzése
 				if (empty($user) || !is_array($user)) return 1;
 
-				$User = $user;
-			}
-
-			self::_clearSessions($User);
-
-			if (!empty($User))
+				self::_clearSessions($user);
 				Cookie::delete('PHPSESSID');
+			}
 
 			return 0;
 		}
@@ -302,7 +317,25 @@
 		// Munkamenetek törlése
 		static private function _clearSessions($user){
 			global $db;
+
 			$db->where('userid', $user['id'])->delete('sessions');
+		}
+
+		static function FindRole($User){
+			global $db;
+
+			$defSession = 0;
+
+			if ($User['role'] == 'none'){
+				$Roles = $db->where('userid',$User['id'])->get('class_members');
+
+				if (!empty($Roles))
+					$defSession = $Roles[0]['id'];
+			}
+
+			$db->where('id',$User['id'])->update('users',array(
+				'defaultSession' => $defSession,
+			));
 		}
 
 		static function CompilePerms(){
@@ -543,6 +576,11 @@
 				if (System::UserActParent($conn['classid']))
 					return 4;
 			}
+
+			# Felhasználó rendelkezik-e élő szerepkörrel?
+			$Roles = $db->where('userid',$user['id'])->getOne('class_members');
+			if (empty($Roles))
+				return 6;
 
 			$db->where('id', $data['id'])->update('ext_connections',array(
 				'name' => isset($userData['name']) ? $userData['name'] : '',

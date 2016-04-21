@@ -2,15 +2,15 @@
 
 	class LessonTools {
 // Tantárgy hozzáadása
-		private static function _add($data_a){
+		private static function _add($data){
 			global $db,$ENV;
 
 			# Jog. ellenörzése
 			if (System::PermCheck('lessons.add')) return 1;
 
 			# Formátum ellenörzése
-			if (!System::ValuesExists($data_a,['name','teacherid'])) return 2;
-			foreach ($data_a as $key => $value){
+			if (!System::ValuesExists($data,['name','teacherid'])) return 2;
+			foreach ($data as $key => $value){
 				if ($key == 'color') continue;
 				switch ($key){
 					case 'name':
@@ -20,17 +20,17 @@
 						$type = 'numeric';
 					break;
 					default:
-						unset($data_a[$key]);
+						unset($data[$key]);
 						continue 2;
 					break;
 				}
 				if (System::InputCheck($value,$type)) return 2;
 			}
 
-			if (!isset($data_a['color']) || $data_a['color'] == '#000000') $data_a['color'] = 'default';
-			$data_a['classid'] = $ENV['class']['id'];
+			if (!isset($data['color']) || $data['color'] == '#000000') $data['color'] = 'default';
+			$data['classid'] = $ENV['class']['id'];
 
-			return [$db->insert('lessons',$data_a)];
+			return [$db->insert('lessons',$data)];
 		}
 		static function Add($data_a){
 			global $user;
@@ -38,10 +38,9 @@
 			$action = self::_add($data_a);
 
 			Logging::Insert(array_merge(array(
-				'action' => 'lesson_add',
-				'user' => $user['id'],
+				'action' => 'lessons.add',
 				'errorcode' => (!is_array($action) ? $action : 0),
-				'db' => 'lesson_add',
+				'db' => 'lessons',
 			),$data_a,array(
 				'classid' => $user['class'][0],
 				'e_id' => (is_array($action) ? $action[0] : 0),
@@ -98,10 +97,9 @@
 			else $data_a['id'] = 0;
 
 			Logging::Insert(array_merge(array(
-				'action' => 'lesson_edit',
-				'user' => $user['id'],
+				'action' => 'lessons.edit',
 				'errorcode' => $action,
-				'db' => 'lesson_edit',
+				'db' => 'lessons',
 			),$data_a,array(
 				'classid' => $user['class'][0],
 			)));
@@ -140,10 +138,9 @@
 			$action = self::_delete($id);
 
 			Logging::Insert(array_merge(array(
-				'action' => 'lesson_del',
-				'user' => $user['id'],
+				'action' => 'lessons.delete',
 				'errorcode' => $action,
-				'db' => 'lesson_del',
+				'db' => 'lessons',
 			),$data,array(
 				'classid' => $user['class'][0],
 				'e_id' => $id,

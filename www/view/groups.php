@@ -17,7 +17,7 @@
 			echo "<h1 id=h1cim>".System::Article($ENV['class']['classid'], true)." osztály csoportjai</h1>";
 
 			if (empty($themes))
-				print "<p class='missingThemes'>Az osztályhoz még nincs felvéve csoportkategória. A kezdéshez vegyen fel egy kategóriát...</p>";
+				print System::Notice('info','Az osztályhoz még nincs felvéve csoportkategória. A kezdéshez vegyen fel egy kategóriát...');
 
 			print "<div id='groupContainer'>";
 			foreach ($themes as $thm){

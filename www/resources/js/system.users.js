@@ -14,13 +14,15 @@ $(function(){
 	$('#filterForm').on('submit',function(e){
 		e.preventDefault();
 
-		var data = $(this).serializeForm();
+		var data = $(this).serializeForm(),
+			title = 'Felhasználók szűrése';
+
 		data.noSidebar = noSidebar;
 		$.Dialog.wait();
 
 		$.ajax({
 			method: "POST",
-			url: "/system/users/filter",
+			url: "/system.users/filter",
 			data: data,
 			success: function(data){
 				if (typeof data === 'string'){
@@ -92,18 +94,17 @@ $(function(){
 					$form.find('[name=email]').attr('value',data.email);
 					$form.find('[name=id]').attr('value',id);
 
-					$.Dialog.request(title,$form,'js_form','Mentés',function(){
-						var $urlap = $('#js_form');
-
+					$.Dialog.request(title,$form,'js_form','Mentés',function($urlap){
 						$urlap.on('submit',function(e){
 							e.preventDefault();
 
+							var data = $urlap.serializeForm();
 							$.Dialog.wait(title);
 
 							$.ajax({
 								method: "POST",
 								url: "/system.users/editBasicInfos",
-								data: $urlap.serializeForm(),
+								data: data,
 								success: function(data2){
 									if (typeof data2 === 'string'){
 										console.log(data2);

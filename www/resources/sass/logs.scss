@@ -15,7 +15,7 @@
 		time { display: none !important }
 		.dynt-el {
 			text-decoration: underline;
-			color: $Link;
+			color: #059;
 			cursor: pointer;
 		}
 	}
@@ -32,8 +32,10 @@
 }
 #logs {
 	width: 100%;
+	border: 1px solid #000;
+	border-collapse: collapse;
 
-	tr td {
+	tr td, th {
 		&.entryid {
 			width: 5%;
 			text-align: center;
@@ -56,14 +58,23 @@
 			width: 40%;
 			padding: 12px;
 		}
+
+		border: 1px solid #000;
+		border-collapse: collapse;
+		padding: 5px;
 	}
 	tbody .entryid {
 		font-size: 1.6em;
 	}
+
+	tr td:last-of-type {
+		width: 1px;
+		white-space: nowrap;
+	}
 }
 .expand-section {
 	display: inline-block;
-	background-color: rgba(0,0,0,.15);
+	background-color: rgba($Link,.15);
 	border-radius: 5px;
 	padding: 3px 5px;
 	cursor: pointer;
@@ -79,18 +90,26 @@
 		border-bottom-left-radius: 0;
 		border-bottom-right-radius: 0;
 
-		background-color: rgba(0,0,0,.075);
+		background-color: rgba($Link,.075);
 	}
 }
 .expandable-section {
 	padding: 10px;
-	background-color: rgba(0,0,0,.075);
+	background-color: rgba($Link,.075);
 	border-radius: 0 8px 8px 8px;
 
 	p {
 		margin: 0;
 
 		i { font-size: .8em }
+	}
+
+	.global h3:first-of-type {
+		margin: 0 0 6px 0;
+	}
+
+	.sub h3:first-of-type {
+		margin-bottom: 6px;
 	}
 
 	pre {
@@ -101,5 +120,12 @@
 
 	img {
 		max-width: 200px;
+	}
+
+	.color {
+		border: 1px solid black;
+		display: inline-block;
+		width: 6%;
+		height: 11px;
 	}
 }

@@ -164,7 +164,7 @@ $(function(){
 							$elem.find('.js_thm_del').on('click', e_thm_del);
 
 							// Nincs csop.kat. üzenet eltávolítása
-							$('.missingThemes').hide();
+							$('.notice').hide();
 
 							// Csop.kat. hozzáadása a felülethez
 							var $templ = $listTempl.clone();

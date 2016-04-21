@@ -17,22 +17,33 @@
 
 			function RenderTT() { global $TT, $days; return Timetable::Render(null, $TT, $days); }
 
-			print "<h1 id=h1cim>A személyre szabott órarendem</h1>"; ?>
-			<script>var _dispDays = <?=json_encode($days)?></script>
-			<a class='btn typcn typcn-pencil' href='/timetables/edit'>Szerkesztői nézet</a>
-			<a class='btn js_showAllTT typcn typcn-group' href='#'>Teljes nézet</a>
-			<a class='btn typcn typcn-eye' id='js_switchView' style='float: right;'>Kompakt nézet</a>
-			<p class='weekPickerP'>
-				<button class='btn backWeek' disabled><< Vissza az előző napokra</button>
-				<span class='startDate'>
-					Kezdő nap megadása:
-					<input type='date' value='<?=date('Y-m-d')?>' id='startDatePicker'>
-				</span>
-				<button class='btn nextWeek'>Előre a következő napokhoz >></button>
-			</p>
+			print "<h1 id=h1cim>A személyre szabott órarendem</h1>";
 
-			<div id='lessonPicker'><?=RenderTT()?></div>
-<?php
+			if (!System::PermCheck('timetables.edit')){
+				$style = empty($days) ? "style='margin-bottom: 10px'" : '';
+				print "<a class='btn typcn typcn-pencil' {$style} href='/timetables/edit'>Szerkesztői nézet</a>";
+			}
+			else if (!empty($days))
+				print "<a class='btn typcn typcn-pencil' href='/timetables/edit'>Szerkesztői nézet</a>";
+
+			if (empty($days))
+				print System::Notice('info','Az osztály órarendje üres!');
+			else { ?>
+				<script>var _dispDays = <?=json_encode($days)?></script>
+				<a class='btn js_showAllTT typcn typcn-group' href='#'>Teljes nézet</a>
+				<a class='btn typcn typcn-eye' id='js_switchView' style='float: right;'>Kompakt nézet</a>
+				<p class='weekPickerP'>
+					<button class='btn backWeek' disabled><< Vissza az előző napokra</button>
+					<span class='startDate'>
+						Kezdő nap megadása:
+						<input type='date' value='<?=date('Y-m-d')?>' id='startDatePicker'>
+					</span>
+					<button class='btn nextWeek'>Előre a következő napokhoz >></button>
+				</p>
+
+				<div id='lessonPicker'><?=RenderTT()?></div>
+<?php		}
+
 		break;
 
 		case 'edit':

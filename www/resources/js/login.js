@@ -9,9 +9,9 @@ $(function(){
 			$tabItems.first().focus();
 		}
 	});
-	var $inner = $('#inner'),
+	var $loginInner = $('#inner'),
+		$loginMain = $('#main').appendTo('body'),
 		$loginForm = $('#loginform');
-
 
 	try {
 		var savedUsername = localStorage.getItem('username'),
@@ -28,9 +28,9 @@ $(function(){
 
 	$loginForm.on('submit',function(e){
 		e.preventDefault();
-		$inner
-			.width($inner.width()+1)
-			.height($inner.height()+1)
+		$loginInner
+			.width($loginInner.width()+1)
+			.height($loginInner.height()+1)
 			.addClass('animate');
 
 		var $links = $('#links'),
@@ -84,17 +84,14 @@ $(function(){
 							});
 
 							function done(){
-								$body.prepend(data.sidebar);
-								$body.addClass('sidebar-slide');
+								$body.prepend(data.sidebar).addClass('sidebar-slide');
 								$('title').text(data.title);
 								if (formData.r) history.replaceState({},'',formData.r);
-								$('main').children(':not(#main)').remove()
-									.end().prepend(data.main);
-								// Amber flag start
-								$('link[href*=amber]').remove();
-								// Amber flag end
-								var $main = $('#main').addClass('loaded');
-								setTimeout(function(){ $main.remove() }, 400);
+								var $main = $('main');
+								$main.children(':not(#main)').remove();
+								$main.append(data.main);
+								$loginMain.addClass('loaded');
+								setTimeout(function(){ $loginMain.remove() }, 410);
 								loadJS(0);
 							}
 
@@ -122,7 +119,7 @@ $(function(){
 										if (typeof data !== 'string')
 											return formData.r ? window.location.href = r : window.location.reload();
 										data = data.replace(/url\((['"])?\.\.\//g,'url($1/resources/');
-										$head.append($(document.createElement('style')).text(data));
+										$head.append($.mk('style').text(data));
 										loadCSS(i+1);
 									},
 									error: function(){ throw new Error('CSS #'+i+' - '+load.css[i]) }

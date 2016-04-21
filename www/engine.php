@@ -19,8 +19,8 @@
 	require $root.'resources/php/MysqliDb.php';
 
 	# Funkciótár és üzenettár betöltése
-	require $root.'resources/php/functions.php';
 	require $root.'resources/php/messages.php';
+	require $root.'resources/php/functions.php';
 
 	# Külső szolgáltatók API-jának betöltése
 	require $root.'resources/php/ExternalAPIs.php';
@@ -113,15 +113,23 @@
 			$skipCSRF = true;
 		}
 
+
 	# Üzeneteket tartalmazó tömb áthelyezése
 	Message::$Messages = $ENV['Messages'];
-	unset($ENV['Messages']);
+
+	# MantisBT integráció alapért. értékének beállítása
+	$MantisDB = 1001;
 
 	# Jogosultságok előkészítése
 	System::CompilePerms();
 
-	# MantisBT integráció alapért. értékének beállítása
-	$MantisDB = 1001;
+	# Hozzáférési jogosultság ellenörzése
+	if (System::PermCheck("$do.view")){
+		if (ROLE == 'guest')
+			Message::AccessDenied();
+		else
+			$do = 'access-denied';
+	}
 
 	# Frisstési szkript futtatása (ha frissítés történt a rendszeren)
 	System::RunUpdatingTasks();
@@ -163,6 +171,10 @@
 			CSRF::Generate();
 		}
 
+		# Ha már be van jelentkezve...
+		if ($do == 'fooldal' && ROLE != 'guest' && empty($ENV['URL']))
+			System::Respond('A rendszerbe egy felhasználó már be van jelentkezve ezzel a böngészővel! Kérem, frissítse az oldalt...');
+
 		# Oldal betöltése
 		die(include "executive/{$pages[$do]['file']}.php");
 	}
@@ -186,8 +198,8 @@
 	# Erőforrások ellenörzése és előkészítése
 	if (ROLE !== 'guest') $js[] = 'signed_in.js';
 
-	$css_list = array_merge($css, $pages[$do]['css']);
-	$js_list = array_merge($js, $pages[$do]['js']);
+	$css_list = array_merge($css, !empty($pages[$do]['css']) ? $pages[$do]['css'] : array());
+	$js_list = array_merge($js, !empty($pages[$do]['js']) ? $pages[$do]['js'] : array());
 
 	if (!empty($pages[$do]['customjs'])){
 		foreach($pages[$do]['customjs'] as $key => $value){
@@ -231,9 +243,6 @@
 
 	# HTTP státuszkód visszadaása
 	if (isset($pages[$do]['http_code'])) Message::StatusCode($pages[$do]['http_code']);
-	
-	# Hozzáférési jogosultság ellenörzése
-	if (System::PermCheck("$do.view")) Message::AccessDenied();
 
 	# Szükséges oldalak betöltése
 	$pages[$do]['addons'] = array_merge(!empty($pages[$do]['addons']) ? $pages[$do]['addons'] : array(),$addon);
@@ -249,7 +258,7 @@
 		# Szükséges dokumentumok listájának előkészítése
 		$doc_list = ['header'];
 		if (ROLE !== 'guest' && empty($pages[$do]['withoutSidebar']))
-			$doc_list[] = 'sidebar';
+			$ENV['sidebar'] = true;
 		$doc_list[] = $pages[$do]['file'];
 		$doc_list[] = 'footer';
 

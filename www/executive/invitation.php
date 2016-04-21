@@ -7,10 +7,12 @@
 			if (!empty($ENV['POST'])) $action = InviteTools::Registration($ENV['POST']);
 			else System::Respond();
 
-			if (is_array($action))
-				System::Respond('',1,array('html' => $action[0]));
-			else if ($action == 10)
-				System::Respond('nogroup',0);
+			if (is_array($action)){
+				if (count($action) == 2)
+					System::Respond('',1,array('html' => $action[0]));
+				else
+					System::Respond('nogroup',0);
+			}
 			else
 				System::Respond("A regisztráció sikertelenül zárult, mert ismeretlen hiba történt a művelet közben! (Hibakód: {$action})",0);
 		break;
