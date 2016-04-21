@@ -4,19 +4,8 @@
 	switch($action){
 		case 'new':
 			//Timetable előkészítése renderléshez
-			$TT = Timetable::GetHWTimeTable();
-
-			$days = $TT['opt'];
-			unset($TT['opt']);
-
-			sort($days,SORT_NUMERIC);
-			$days = array_splice($days,0,3);
-
-			function RenderTT() { global $TT, $days; return Timetable::Render(null, $TT, $days); } ?>
-
-			<script>
-				var _dispDays = <?=json_encode($days)?>;
-			</script>
+			$TT = Timetable::Get(null,null,true,3);
+			$days = Timetable::CalcDays($TT, 3, true); ?>
 
 			<h1>Új házi feladat hozzáadása</h1>
 
@@ -27,12 +16,12 @@
 					<button class='btn backWeek' disabled><< Vissza az előző napokra</button>
 					<span class='startDate'>
 						Kezdő nap megadása:
-						<input type='date' value='<?=date('Y-m-d')?>' id='startDatePicker'>
+						<input type='date' value='<?=date('Y-m-d',$days[0])?>' id='startDatePicker'>
 					</span>
 					<button class='btn nextWeek'>Előre a következő napokhoz >></button>
 				</p>
 
-				<div id='lessonPicker'><?=RenderTT()?></div>
+				<div id='lessonPicker'><?=Timetable::Render(null, $TT, $days, true, true)?></div>
 				<p class='step2p'><b>2. lépés:</b> <b>Add meg</b> a feladat <b>szövegét</b>!</p>
 				<p style='margin-top: 0'><textarea class='BBCodeEditor'></textarea></p>
 

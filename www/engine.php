@@ -25,6 +25,9 @@
 	# Külső szolgáltatók API-jának betöltése
 	require $root.'resources/php/ExternalAPIs.php';
 
+	# Egy üres MysqliDb instance, hogy a PhpStorm megtalálja
+	$db = new MysqliDb();
+
 	# Karbantartási állapot ellenörzése, kapcsolódás az adatbázishoz
 	System::LoadMaintenance();
 

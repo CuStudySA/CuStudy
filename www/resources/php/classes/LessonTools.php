@@ -120,7 +120,7 @@
 
 
 			if (!empty($data)){
-				Timetable::DeleteEntrys($data);
+				Timetable::DeleteEntries($data);
 			}
 
 			if ($action) return 0;

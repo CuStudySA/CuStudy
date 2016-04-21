@@ -161,8 +161,8 @@ CREATE TABLE `homeworks` (
   `lesson` int(11) NOT NULL,
   `text` tinytext COLLATE utf8_hungarian_ci NOT NULL,
   `author` int(11) NOT NULL,
-  `week` int(11) NOT NULL,
-  `year` int(11) NOT NULL,
+  `week` tinyint(2) NOT NULL,
+  `year` smallint(4) NOT NULL,
   `classid` int(11) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 

@@ -74,7 +74,6 @@
 	if (typeof Array.prototype.includes !== 'function')
 		Array.prototype.includes = function(elem){ return this.indexOf(elem) !== -1 };
 
-
 	function getCookie(name) {
 		var value = "; " + document.cookie;
 		var parts = value.split("; " + name + "=");
@@ -153,26 +152,51 @@
 		this.html(contentArray[$.rangeLimit(contentArray.indexOf(this.html())+1, true, contentArray.length-1)]);
 	};
 
+	var CSRF_COOKIE_NAME = 'JSSESSID';
 	window.getToken = function(){
-		var token = getCookie('JSSESSID');
+		var token = getCookie(CSRF_COOKIE_NAME);
 		if (typeof token == 'undefined') return '';
 
 		return token;
 	};
+	$.ajaxPrefilter(function(event, origEvent){
+		if ((origEvent.type||event.type).toUpperCase() !== 'POST')
+			return;
 
+		var t = getToken();
+		if (typeof event.data === "undefined")
+			event.data = "";
+		if (typeof event.data === "string"){
+			var r = event.data.length > 0 ? event.data.split("&") : [];
+			r.push(CSRF_COOKIE_NAME + '=' + t);
+			event.data = r.join("&");
+		}
+		else if (event.data instanceof FormData)
+			event.data.append(CSRF_COOKIE_NAME, t);
+		else event.data[CSRF_COOKIE_NAME] = t;
+	});
+	$.ajaxSetup({
+		dataType: "json",
+		error: function(_,name){
+			if (name === 'abort')
+				return;
+			$.Dialog.fail(undefined, "Ismeretlen AJAX hiba");
+		},
+		statusCode: {
+			401: function(){
+				$.Dialog.fail(undefined, "Oldalak közötti kéréshamisítást érzékelt rendszerünk");
+			},
+			404: function(){
+				$.Dialog.fail(undefined, "A kért oldal nem létezik");
+			},
+			500: function(){
+				$.Dialog.fail(false, 'A kérés egy belső szerverhiba miatt nem sikerült.');
+			},
+		},
+	});
 	window.pushToken = function(data){
-		var token = getCookie('JSSESSID');
-		if (typeof data != 'undefined'){
-			if (typeof token == 'undefined') return data;
-
-			data['JSSESSID'] = token;
-
-			return data;
-		}
-		else {
-			if (typeof token == 'undefined') return {};
-			return {'JSSESSID': token};
-		}
+		console.warn('%cA pushToken() funkció feleslegessé vált egy automatikus megoldás miatt, már nem szükséges a használata!\nCsak cseréld le a funkciót az első paraméterére. (pl. pushToken({a: 1}) => {a: 1})','font-weight:bold;font-size:1.2em');
+		return data;
 	};
 
 	$body.on('scroll',function(){

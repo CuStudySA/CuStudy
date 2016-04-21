@@ -180,6 +180,18 @@
 			return $action;
 		}
 
+		static function GetClassGroupIDs($classIndex = 0, $dataType = 'string'){
+			global $db, $user;
+			$userInGroups = $db->where('classid',$user['class'][$classIndex])->where('userid',$user['id'])->get('group_members',null,'groupid');
+			$groups = [0];
+			foreach ($userInGroups as $in)
+				$groups[] = $in['groupid'];
+			switch ($dataType) {
+				case 'string': return implode(',', $groups);
+				case 'array': return $groups;
+			}
+		}
+
 		static function SetAvatarProvider($provider){
 			global $user,$db;
 

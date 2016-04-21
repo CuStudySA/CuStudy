@@ -7,43 +7,26 @@
 	switch ($case){
 		default:
 			// Órarend előkészítése
-			$TT = Timetable::GetHWTimeTable(null,null,false);
+			$TT = Timetable::Get(null,null,false);
+			$days = Timetable::CalcDays($TT, 5, true);
 
-			$days = $TT['opt'];
-			unset($TT['opt']);
+			$table = Timetable::Render(null, $TT, $days);  ?>
 
-			sort($days,SORT_NUMERIC);
-			$days = array_splice($days,0,5);
+			<h1 id=h1cim>A személyre szabott órarendem</h1>
+			<a class='btn typcn typcn-pencil' href='/timetables/edit'>Szerkesztői nézet</a>
+			<a class='btn js_fullPersonalToggle typcn typcn-group'>Teljes nézet</a>
+			<a class='btn typcn typcn-eye' id='js_switchView' style='float: right;'>Kompakt nézet</a>
+			<p class='weekPickerP'>
+				<button class='btn backWeek' disabled>&lt;&lt; Vissza az előző napokra</button>
+				<span class='startDate'>
+					Kezdő nap megadása:
+					<input type='date' value='<?=date('Y-m-d',$days[0])?>' id='startDatePicker'>
+				</span>
+				<button class='btn nextWeek'>Előre a következő napokhoz &gt;&gt;</button>
+			</p>
 
-			function RenderTT() { global $TT, $days; return Timetable::Render(null, $TT, $days); }
-
-			print "<h1 id=h1cim>A személyre szabott órarendem</h1>";
-
-			if (!System::PermCheck('timetables.edit')){
-				$style = empty($days) ? "style='margin-bottom: 10px'" : '';
-				print "<a class='btn typcn typcn-pencil' {$style} href='/timetables/edit'>Szerkesztői nézet</a>";
-			}
-			else if (!empty($days))
-				print "<a class='btn typcn typcn-pencil' href='/timetables/edit'>Szerkesztői nézet</a>";
-
-			if (empty($days))
-				print System::Notice('info','Az osztály órarendje üres!');
-			else { ?>
-				<script>var _dispDays = <?=json_encode($days)?></script>
-				<a class='btn js_showAllTT typcn typcn-group' href='#'>Teljes nézet</a>
-				<a class='btn typcn typcn-eye' id='js_switchView' style='float: right;'>Kompakt nézet</a>
-				<p class='weekPickerP'>
-					<button class='btn backWeek' disabled><< Vissza az előző napokra</button>
-					<span class='startDate'>
-						Kezdő nap megadása:
-						<input type='date' value='<?=date('Y-m-d')?>' id='startDatePicker'>
-					</span>
-					<button class='btn nextWeek'>Előre a következő napokhoz >></button>
-				</p>
-
-				<div id='lessonPicker'><?=RenderTT()?></div>
-<?php		}
-
+			<div id='lessonPicker'><?=$table?></div>
+<?php
 		break;
 
 		case 'edit':
@@ -60,7 +43,7 @@
 
 <?php		echo '<div class="template" id="form-template">'.Timetable::ADD_FORM_HTML.'</div>';
 
-			Timetable::Render('a', Timetable::GetTimeTable('a',true), null, true);
+			echo Timetable::Render('a', Timetable::GetForWeek('a'), null, true);
 		break;
 
 		case 'week':
@@ -78,6 +61,7 @@
 
 <?php		print "<h2>'".strtoupper($week)."' órarend</h2>";
 			echo '<div class="template" id="form-template">'.Timetable::ADD_FORM_HTML.'</div>';
-			Timetable::Render($week, Timetable::GetTimeTable($week,true), null, true);
+			// FIXME Paraméter-szám eltérées - a funkció 3 paramétert fogad, de 4-el van meghívva
+			echo Timetable::Render($week, Timetable::GetForWeek($week), null, true);
 		break;
 	}
