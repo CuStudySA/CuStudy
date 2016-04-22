@@ -204,8 +204,12 @@
 			$central = $db->where('id',$id)->getOne('log__central');
 
 			$sub = [];
-			if (!empty($central['sublogid']))
+			if (!empty($central['sublogid'])){
 				$sub = $db->where('id',$central['sublogid'])->getOne('log__'.$central['db']);
+				
+				if (empty($sub))
+					$sub = [];
+			}
 
 			return array('global' => self::_progressData($central), 'sub' => self::_progressData($sub,$central['db']));
 		}
