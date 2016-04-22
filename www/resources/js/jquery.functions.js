@@ -203,6 +203,11 @@
 		if (this.className.indexOf('dialog-open') !== -1)
 			return false;
 	});
+
+	window.getUserSetting = function(key){
+		var keys = key.split('.');
+		return userSettings[keys[0]][keys[1]];
+	};
 })(jQuery);
 
 $(function(){

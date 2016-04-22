@@ -1,5 +1,4 @@
 <?php
-
 	class GlobalSettings {
 		static $Settings;
 
@@ -7,7 +6,7 @@
 		static function Load(){
 			global $db;
 
-			$data = $db->get('global_settings');
+			$data = $db->get('settings_global');
 
 			foreach ($data as $array)
 				self::$Settings[$array['key']] = $array['value'];

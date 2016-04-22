@@ -71,8 +71,9 @@
 		$user = $user[1];
 	}
 
-	# Rendszerbeállítások lekérése
+	# Beállítások lekérése
 	GlobalSettings::Load();
+	UserSettings::Load(null,PUSH_TO_USERVAR);
 
 	# Tevékenység meghatározása
 	if (empty($ENV['do']))
