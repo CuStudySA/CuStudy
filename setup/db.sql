@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Gép: 127.0.0.1
--- Létrehozás ideje: 2016. Ápr 22. 13:35
+-- Létrehozás ideje: 2016. Ápr 25. 21:43
 -- Kiszolgáló verziója: 5.6.26
 -- PHP verzió: 5.6.12
 
@@ -395,6 +395,7 @@ CREATE TABLE `settings_global` (
 CREATE TABLE `settings_user` (
   `id` int(11) NOT NULL,
   `userid` int(11) DEFAULT NULL,
+  `category` tinytext COLLATE utf8mb4_hungarian_ci,
   `key` tinytext COLLATE utf8mb4_hungarian_ci,
   `value` tinytext COLLATE utf8mb4_hungarian_ci
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;

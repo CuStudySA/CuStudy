@@ -44,6 +44,39 @@
 			}
 		break;
 
+		case 'settings':
+			$settings = $user['settings']; ?>
+			<h1>Beállításaim szerkesztése</h1>
+
+			<form id='dataform' class='settingsForm'>
+<?php           foreach (UserSettings::$keys as $key => $array){
+					print "<h2>".$array['name']."</h2>";
+
+					foreach ($array as $k => $v){
+						if (!is_array($v)) continue;
+
+						print "<label><span>{$v['name']}</span>";
+
+						switch ($v['type']){
+							case 'select':
+								print "<select name='".($key.'.'.$k)."'>";
+
+								foreach ($v['options'] as $optKey => $optValue){
+									$selected = ($user['settings'][$key][$k] == $optKey) ? 'selected' : '';
+									print "<option value='{$optKey}' {$selected}>{$optValue}</option>";
+								}
+
+								print '</select>';
+							break;
+						}
+
+						print '</label>';
+					}
+				} ?>
+				<button class='btn'>Beállítások mentése</button>
+			</form>
+<?php	break;
+
 		default:
 			$AvailProviders = ExtConnTools::GetAvailProviders();
 			$AvailProviderNames = [];

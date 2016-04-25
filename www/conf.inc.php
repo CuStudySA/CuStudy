@@ -137,7 +137,8 @@
 		'profile' => array(
 			'title' => 		'Profilom szerkesztése',
 			'css' => 		['profile.css'],
-			'js' => 		['profile.js'],
+			'js' => 		[],
+			'customjs' =>   ['' => 'profile.js', 'settings' => 'profile.settings.js'],
 			'file' => 		'profile',
 		),
 
