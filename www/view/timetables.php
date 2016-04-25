@@ -43,7 +43,7 @@
 
 <?php		echo '<div class="template" id="form-template">'.Timetable::ADD_FORM_HTML.'</div>';
 
-			echo Timetable::Render('a', Timetable::GetForWeek('a'), null, true);
+			echo Timetable::Render('a', Timetable::GetForWeek('a'), null, true, true);
 		break;
 
 		case 'week':

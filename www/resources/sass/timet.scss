@@ -60,10 +60,14 @@ h2 { margin-bottom: 10px }
 				margin-left: 0;
 			}
 			> .del {
-				width: 0;
+				width: 1em;
+				height: 1em;
 				overflow: hidden;
-				vertical-align: middle;
+				vertical-align: top;
 				text-decoration: none;
+				display: inline-block;
+				margin-left: 3px;
+				color: rgb(255, 220, 221);
 				// white-space:nowrap;
 
 				&:before {

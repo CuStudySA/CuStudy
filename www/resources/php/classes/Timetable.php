@@ -516,7 +516,7 @@ STRING;
 				foreach ($lesson as $weekday => $class){
 					if (isset($emptyWeekdays[$weekday]))
 						continue;
-					$td = self::_RenderClass($class);
+					$td = self::_RenderClass($class, $dataAttributes);
 					if ($dataAttributes)
 						$td = str_replace('<td>','<td data-week="'.date('Y\WW',$weekdays[$weekday]).'">',$td);
 
@@ -533,7 +533,7 @@ STRING;
 		}
 
 		// Órarend cella kirenderelő
-		static private function _RenderClass($class){
+		static private function _RenderClass($class, $delIcon = false){
 			if (!empty($class)){
 				$HTML = "<td>";
 				if (!is_array($class))
@@ -548,7 +548,7 @@ STRING;
 						$ids .= " data-ttid='{$c['ttid']}'";
 					if (!empty($c['lid']))
 						$ids .= " data-lid='{$c['lid']}'";
-					$deleteIcon = "<span class='del typcn typcn-times' $ids></span>";
+					$deleteIcon = $delIcon ? "<span class='del typcn typcn-times' $ids></span>" : '';
 					$HTML .= "<span class='lesson' style='background: {$c['bgcolor']}'>$name$deleteIcon</span>";
 				}
 			}
