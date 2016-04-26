@@ -161,7 +161,6 @@
 			if (!is_array($envInfos)) return 'guest';
 
 			$session = $ENV['session'] = $db->where('session', $sessionKey)
-				->where('ip', $envInfos['ip'])
 				->where('useragent', $envInfos['useragent'])
 				->get('sessions');
 
@@ -172,6 +171,11 @@
 
 			$user = $db->where('id',$userId)->getOne('users');
 			if (empty($user)) return 'guest';
+
+			# IP-cím ellenörzése
+			if (UserSettings::Get('security.checkSessionIp',$userId) != 'false')
+				if ($session['ip'] != $envInfos['ip'])
+					return 'guest';
 
 			# Felhasználó szerepkörének megállapítása
 			if ($session['activeSession'] == 0){

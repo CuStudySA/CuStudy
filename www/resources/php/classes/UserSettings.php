@@ -16,6 +16,20 @@
 					'defaultValue' => 'original',
 				),
 			),
+
+			'security' => array(
+				'name' => 'Biztonság',
+
+				'checkSessionIp' => array(
+					'name' => 'Munkamenet IP-címhez kényszerítése',
+					'options' => array(
+						'true' => 'Engedélyezve',
+						'false' => 'Letiltva',
+					),
+					'type' => 'select',
+					'defaultValue' => 'true',
+				),
+			),
 		);
 
 		static function Load($userid = null, $setToProfile = false){
@@ -53,7 +67,7 @@
 
 		static private function _get($storage,$key){
 			$keys = explode('.',$key,2);
-			return $storage['settings'][$keys[0]][$keys[1]];
+			return $storage[$keys[0]][$keys[1]];
 		}
 
 		static function Get($key, $userid = null){
