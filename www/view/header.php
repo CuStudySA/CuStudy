@@ -44,6 +44,11 @@
 <body>
 	<script>var _USRGRP="<?=ROLE?>"</script>
 
+	<!-- User settings -->
+	<script>
+		var userSettings = <?=json_encode($user['settings'])?>;
+	</script>
+
 <?php
 	if (!empty($ENV['sidebar'])){
 		require dirname(__FILE__)."/sidebar.php";

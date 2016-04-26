@@ -75,6 +75,15 @@
 				'messages' => array(
 				),
 			),
+			'applySettings' => array(
+				'errors' => array(
+
+				),
+				'messages' => array(
+					0 => 'A felhasználói beállítások frissítése sikeresen megtörtént!',
+					1 => 'A felhasználói beállítások frissítése sikertelen volt, mert @msg! (Hibakód: @code)',
+				),
+			),
 		),
 
 		'extConnTools' => array(

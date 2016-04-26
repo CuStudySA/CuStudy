@@ -6,6 +6,7 @@
 	require "classes/System.php";
 	require "classes/CSRF.php";
 	require "classes/GlobalSettings.php";
+	require "classes/UserSettings.php";
 	require "classes/ExtConnTools.php";
 	require "classes/Message.php";
 	require "classes/InviteTools.php";

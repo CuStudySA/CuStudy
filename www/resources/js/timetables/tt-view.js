@@ -140,10 +140,14 @@ $(function(){
 		else e_hideAllTT();
 	});
 
-	$switchView.on('click',function(){
+	var e_switchView  = function(){
 		simpleView = !simpleView;
 		$('.timet')[(simpleView ? 'add' : 'remove') + 'Class']('single');
 
 		$switchView.toggleClass('typcn-eye typcn-eye-outline').text(simpleView ? 'Hagyományos nézet' : 'Kompakt nézet');
-	});
+	};
+	$switchView.on('click',e_switchView);
+
+	if (getUserSetting("timetable.defaultViewMode") == 'compact')
+		e_switchView();
 });

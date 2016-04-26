@@ -759,14 +759,14 @@
 			if (empty($ENV['SOFTWARE']['COMMIT']))
 				return;
 
-			$data = $db->where('`key`','lastRunningCommit')->getOne('global_settings');
+			$data = $db->where('`key`','lastRunningCommit')->getOne('settings_global');
 			if (empty($data)) return;
 
 			if ($data['value'] == $ENV['SOFTWARE']['COMMIT'])
 				return;
 
 			# Szkript újboli futtatásának megakadályozása
-			$db->where('`key`','lastRunningCommit')->update('global_settings',array(
+			$db->where('`key`','lastRunningCommit')->update('settings_global',array(
 				'value' => $ENV['SOFTWARE']['COMMIT'],
 			));
 

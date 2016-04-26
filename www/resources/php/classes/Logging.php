@@ -206,7 +206,7 @@
 			$sub = [];
 			if (!empty($central['sublogid'])){
 				$sub = $db->where('id',$central['sublogid'])->getOne('log__'.$central['db']);
-				
+
 				if (empty($sub))
 					$sub = [];
 			}
