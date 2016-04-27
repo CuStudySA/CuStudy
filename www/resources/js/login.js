@@ -132,6 +132,7 @@ $(function(){
 				else {
 					$.Dialog.fail(title,data.message);
 					$('#inner').removeClass('animate');
+					$('input[name=password]').val('');
 					$links.appendTo($linkLocation);
 				}
 			}

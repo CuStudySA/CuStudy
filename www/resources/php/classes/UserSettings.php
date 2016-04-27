@@ -29,6 +29,15 @@
 					'type' => 'select',
 					'defaultValue' => 'true',
 				),
+				'checkUserAgent' => array(
+					'name' => 'Munkamenet böngészési környezethez kényszerítése',
+					'options' => array(
+						'true' => 'Engedélyezve',
+						'false' => 'Letiltva',
+					),
+					'type' => 'select',
+					'defaultValue' => 'true',
+				),
 			),
 		);
 

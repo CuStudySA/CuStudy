@@ -127,24 +127,16 @@
 	# Jogosultságok előkészítése
 	System::CompilePerms();
 
-	# Hozzáférési jogosultság ellenörzése
-	if (System::PermCheck("$do.view")){
-		if (ROLE == 'guest')
-			Message::AccessDenied();
-		else
-			$do = 'access-denied';
-	}
-
 	# Frisstési szkript futtatása (ha frissítés történt a rendszeren)
 	System::RunUpdatingTasks();
 
 	// 'Executive' rész \\
 	if ($ENV['SERVER']['REQUEST_METHOD'] == 'POST'){
 		# Létező oldal?
-		if (!isset($pages[$do])) System::Respond();
+		if (!isset($pages[$do])) System::Respond('A kérés nem teljesíthető, mert nem található a kért oldal!');
 
 		# Jogosultság ellenörzése
-		if (System::PermCheck("{$do}.view")) System::Respond();
+		if (System::PermCheck("{$do}.view")) System::Respond('A kérés nem teljesíthető, mert az oldalhoz a hozzáférés megtagadva!');
 
 		# Létező fájl?
 		if (!file_exists("executive/{$pages[$do]['file']}.php")) System::Respond();
@@ -181,6 +173,14 @@
 
 		# Oldal betöltése
 		die(include "executive/{$pages[$do]['file']}.php");
+	}
+
+	# Hozzáférési jogosultság ellenörzése
+	if (System::PermCheck("$do.view")){
+		if (ROLE == 'guest')
+			Message::AccessDenied();
+		else
+			$do = 'access-denied';
 	}
 
 	// Fájlletöltés \\

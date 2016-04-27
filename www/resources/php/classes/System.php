@@ -161,7 +161,6 @@
 			if (!is_array($envInfos)) return 'guest';
 
 			$session = $ENV['session'] = $db->where('session', $sessionKey)
-				->where('useragent', $envInfos['useragent'])
 				->get('sessions');
 
 			if (empty($session)) return 'guest';
@@ -175,6 +174,11 @@
 			# IP-cím ellenörzése
 			if (UserSettings::Get('security.checkSessionIp',$userId) != 'false')
 				if ($session['ip'] != $envInfos['ip'])
+					return 'guest';
+
+			# User-agent ellenörzése
+			if (UserSettings::Get('security.checkUserAgent',$userId) != 'false')
+				if ($session['useragent'] != $envInfos['useragent'])
 					return 'guest';
 
 			# Felhasználó szerepkörének megállapítása
@@ -517,8 +521,10 @@
 		}
 
 		// Válaszadó funkció AJAX-hoz
-		static function Respond($m = 'A művelet végrehajtása sikertelen volt!', $s = 0, $x = array()){
+		static function Respond($m = 'A művelet végrehajtása sikertelen volt!', $s = 0, $x = array(), $httpCode = 200){
 			header('Content-Type: application/json');
+			http_response_code($httpCode);
+
 			if ($m === true) $m = array();
 			if (is_array($m) && $s == false && empty($x)){
 				$m['status'] = true;
