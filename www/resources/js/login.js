@@ -12,6 +12,7 @@ $(function(){
 	var $loginInner = $('#inner'),
 		$loginMain = $('#main').appendTo('body'),
 		$loginForm = $('#loginform');
+	$('#links').appendTo('body');
 
 	try {
 		var savedUsername = localStorage.getItem('username'),
