@@ -41,8 +41,8 @@
 			),
 		);
 
-		static function Load($userid = null, $setToProfile = false){
-			global $db, $user;
+		static function Load($userid = null, $setToEnv = false){
+			global $db, $user, $ENV;
 
 			if (empty(self::$defaultValues)){
 				foreach (self::$keys as $key => $value){
@@ -57,8 +57,12 @@
 			if (empty($userid)){
 				if (!empty($user) && is_array($user))
 					$userid = $user['id'];
-				else
+				else{
+					if ($setToEnv)
+						$ENV['userSettings'] = self::$defaultValues;
+
 					return self::$defaultValues;
+				}
 			}
 
 			$data = $db->where('userid',$userid)->get('settings_user');
@@ -68,8 +72,8 @@
 				$return[$a['category']][$a['key']] = $a['value'];
 
 
-			if ($setToProfile)
-				$user['settings'] = $return;
+			if ($setToEnv)
+				$ENV['userSettings'] = $return;
 
 			return $return;
 		}
@@ -80,13 +84,13 @@
 		}
 
 		static function Get($key, $userid = null){
-			global $user;
+			global $ENV;
 
-			return self::_get((empty($userid) ? $user['settings'] : self::Load($userid)),$key);
+			return self::_get((empty($userid) ? $ENV['userSettings'] : self::Load($userid)),$key);
 		}
 
 		static function Apply($data){
-			global $user, $db;
+			global $user, $db, $ENV;
 
 			$userdb = $db->where('userid',$user['id'])->get('settings_user');
 			$userSett = [];
@@ -100,7 +104,7 @@
 				if (empty(self::$keys[$keys[0]][$keys[1]]))
 					continue;
 
-				if ($user['settings'][$keys[0]][$keys[1]] == $value)
+				if ($ENV['userSettings'][$keys[0]][$keys[1]] == $value)
 					continue;
 
 				if (self::$keys[$keys[0]][$keys[1]]['defaultValue'] == $value && !empty($userSett[$keys[0]][$keys[1]]))

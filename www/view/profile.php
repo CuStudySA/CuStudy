@@ -45,7 +45,7 @@
 		break;
 
 		case 'settings':
-			$settings = $user['settings']; ?>
+			$settings = $ENV['userSettings']; ?>
 			<h1>Beállításaim szerkesztése</h1>
 
 			<form id='dataform' class='settingsForm'>
@@ -62,7 +62,7 @@
 								print "<select name='".($key.'.'.$k)."'>";
 
 								foreach ($v['options'] as $optKey => $optValue){
-									$selected = ($user['settings'][$key][$k] == $optKey) ? 'selected' : '';
+									$selected = ($ENV['userSettings'][$key][$k] == $optKey) ? 'selected' : '';
 									print "<option value='{$optKey}' {$selected}>{$optValue}</option>";
 								}
 

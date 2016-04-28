@@ -46,7 +46,7 @@
 
 	<!-- User settings -->
 	<script>
-		var userSettings = <?=json_encode($user['settings'])?>;
+		var userSettings = <?=json_encode($ENV['userSettings'])?>;
 	</script>
 
 <?php
