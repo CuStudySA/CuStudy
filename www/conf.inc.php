@@ -201,6 +201,13 @@
 			'file' => 		'system.events',
 			'addons' =>     ['dateRangePicker'],
 		),
+
+		'mail.cron' => array(
+			'title' => 		'Sending mails using CronTab',
+			'css' => 		[],
+			'js' => 		[],
+			'file' => 		'mail.cron',
+		),
 	);
 
 	# Jogosultsági szintek definiálása
@@ -237,6 +244,7 @@
 			'login' => ['view'],
 			'not-found' => ['view'],
 			'invitation' => ['view'],
+			'mail.cron' => ['view'],
 		),
 		'systemadmin' => array(
 			'system.users' => ['view'],

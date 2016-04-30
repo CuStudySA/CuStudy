@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Gép: 127.0.0.1
--- Létrehozás ideje: 2016. Ápr 25. 21:43
+-- Létrehozás ideje: 2016. Ápr 30. 12:41
 -- Kiszolgáló verziója: 5.6.26
 -- PHP verzió: 5.6.12
 
@@ -336,6 +336,20 @@ CREATE TABLE `log__users` (
 -- --------------------------------------------------------
 
 --
+-- Tábla szerkezet ehhez a táblához `mail_queue`
+--
+
+CREATE TABLE `mail_queue` (
+  `id` int(11) NOT NULL,
+  `title` tinytext COLLATE utf8mb4_hungarian_ci NOT NULL,
+  `name` tinytext COLLATE utf8mb4_hungarian_ci NOT NULL,
+  `address` tinytext COLLATE utf8mb4_hungarian_ci NOT NULL,
+  `body` mediumtext COLLATE utf8mb4_hungarian_ci NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Tábla szerkezet ehhez a táblához `pw_reset`
 --
 
@@ -594,6 +608,12 @@ ALTER TABLE `log__users`
   ADD PRIMARY KEY (`id`);
 
 --
+-- A tábla indexei `mail_queue`
+--
+ALTER TABLE `mail_queue`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- A tábla indexei `pw_reset`
 --
 ALTER TABLE `pw_reset`
@@ -755,6 +775,11 @@ ALTER TABLE `log__teachers`
 -- AUTO_INCREMENT a táblához `log__users`
 --
 ALTER TABLE `log__users`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT a táblához `mail_queue`
+--
+ALTER TABLE `mail_queue`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT a táblához `pw_reset`

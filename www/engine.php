@@ -5,7 +5,7 @@
 	header('Content-Type: text/html; charset=utf-8;');
 	
 	# Dok. gyökér meghatározása
-	$root = $_SERVER['DOCUMENT_ROOT'];
+	$root = isset($repRoot) ? $repRoot : $_SERVER['DOCUMENT_ROOT'];
 	if (substr($root,-1) !== '/') $root .= '/';
 	
 	$rootdoc = '/';
@@ -195,7 +195,7 @@
 	CSRF::Generate();
 	
 	# Létezik a megjelenítésfájl?
-	$resc = "view/{$pages[$do]['file']}.php";
+	$resc = $root."view/{$pages[$do]['file']}.php";
 	if (!file_exists($resc))
 		Message::Missing($resc);
 		

@@ -617,8 +617,30 @@
 			return 0;
 		}
 
-		static $mailSended = false;
 		static function SendMail($mail){
+			global $db;
+
+			if (!defined('MAIL_USE_CRON'))
+				$cron = false;
+			else
+				$cron = MAIL_USE_CRON;
+
+			if ($cron){
+				$db->insert('mail_queue',array(
+					'title' => $mail['title'],
+					'name' => $mail['to']['name'],
+					'address' => $mail['to']['address'],
+					'body' => $mail['body'],
+				));
+
+				return 0;
+			}
+			else
+				return self::DispatchMail($mail);
+		}
+
+		static $mailSended = false;
+		static function DispatchMail($mail){
 /*          array(
 				'title' (string)
 				'to' => array(
@@ -631,20 +653,20 @@
 			if (!class_exists('Swift_Message'))
 				trigger_error('Nincs betöltve a swiftMailer addon', E_USER_ERROR);
 
-			$message = Swift_Message::newInstance($mail['title']); //Üzenet objektum beállítása és tárgy létrehozása
+			$message = Swift_Message::newInstance($mail['title']); // Üzenet objektum beállítása és tárgy létrehozása
 
-			$message->setBody($mail['body'], 'text/html'); //Szövegtörzs beállítása és szövegtípus beállítása
-			$message->setFrom(array(MAIL_ADDR => MAIL_DISPNAME)); //Feladó e-mail és feladó név
-			$message->setTo(array($mail['to']['address'] => $mail['to']['name'])); //Címzett e-mail és címzett
+			$message->setBody($mail['body'], 'text/html'); // Szövegtörzs beállítása és szövegtípus beállítása
+			$message->setFrom(array(MAIL_ADDR => MAIL_DISPNAME)); // Feladó e-mail és feladó név
+			$message->setTo(array($mail['to']['address'] => $mail['to']['name'])); // Címzett e-mail és címzett
 
-			$transport = Swift_SmtpTransport::newInstance(MAIL_HOST, MAIL_PORT, 'ssl') //Kapcsolódási objektum létrehozása
-		     ->setUsername(MAIL_USRNAME) //SMTP felhasználónév
-		     ->setPassword(MAIL_PWD) //SMTP jelszó
-		     ->setSourceIp('0.0.0.0'); //IPv4 kényszerítése
+			$transport = Swift_SmtpTransport::newInstance(MAIL_HOST, MAIL_PORT, 'ssl') // Kapcsolódási objektum létrehozása
+		     ->setUsername(MAIL_USRNAME) // SMTP felhasználónév
+		     ->setPassword(MAIL_PWD) // SMTP jelszó
+		     ->setSourceIp('0.0.0.0'); // IPv4 kényszerítése
 
-		    $mailer = Swift_Mailer::newInstance($transport); //Küldő objektum létrehozása
+		    $mailer = Swift_Mailer::newInstance($transport); // Küldő objektum létrehozása
 
-		    $action = $mailer->send($message); //Levél küldése
+		    $action = $mailer->send($message); // Levél küldése
 
 			// Várakoztatás
 		    if (!self::$mailSended) usleep(100);
