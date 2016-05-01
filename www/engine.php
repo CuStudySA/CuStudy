@@ -18,15 +18,22 @@
 	require $root.'resources/php/Cookie.php';
 	require $root.'resources/php/MysqliDb.php';
 
-	# Funkciótár és üzenettár betöltése
+	# Üzenettár betöltése
 	require $root.'resources/php/messages.php';
-	require $root.'resources/php/functions.php';
+
+	# Funkciótárolók betöltése
+	require $root.'resources/php/classes/System.php';
+	spl_autoload_register('System::LoadCoreClass');
+
+	# Segédfájlok betöltése
+	require "dBTitles.php";
+	require "EmailNotifications.php";
 
 	# Külső szolgáltatók API-jának betöltése
 	require $root.'resources/php/ExternalAPIs.php';
 
 	# Egy üres MysqliDb instance, hogy a PhpStorm megtalálja
-	$db = new MysqliDb();
+	$db = System::ConnectToDatabase();
 
 	# Karbantartási állapot ellenörzése, kapcsolódás az adatbázishoz
 	System::LoadMaintenance();

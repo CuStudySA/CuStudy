@@ -106,6 +106,20 @@
 			return !in_array($text, $values) ? true : false;
 		}
 
+		static function LoadCoreClass($className){
+			global $root;
+
+			if (class_exists($className))
+				return;
+
+			$path = $root."resources/php/classes/{$className}.php";
+
+			if (!file_exists($path))
+				throw new Exception("Nem találom a {$className} osztályt!");
+
+			require $path;
+		}
+
 		static function UserIsStudent($role = null){
 			if (empty($ROLE))
 				return (ROLE == 'visitor' || ROLE == 'editor' || ROLE == 'admin');
@@ -682,14 +696,22 @@
 				self::Redirect("$desired_path$query", STAY_ALIVE, $http);
 		}
 
-		static function CheckMaintenance(){
-			global $ENV, $db, $error;
-
+		static function ConnectToDatabase(){
 			try {
 				$db = new MysqliDb(DB_HOST,DB_USER,DB_PASS,DB_NAME);
 				@$db->connect();
 			}
 			catch (Exception $e){
+				return false;
+			}
+
+			return $db;
+		}
+
+		static function CheckMaintenance(){
+			global $ENV, $db, $error;
+
+			if (!is_object($db)){
 				$error = 'DB_CONNECTION_FALIED';
 				return true;
 			}
