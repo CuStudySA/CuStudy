@@ -26,8 +26,8 @@
 	spl_autoload_register('System::LoadCoreClass');
 
 	# Segédfájlok betöltése
-	require "dBTitles.php";
-	require "EmailNotifications.php";
+	require $root.'resources/php/dBTitles.php';
+	require $root.'resources/php/EmailNotifications.php';
 
 	# Külső szolgáltatók API-jának betöltése
 	require $root.'resources/php/ExternalAPIs.php';
