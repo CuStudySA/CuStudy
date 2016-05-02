@@ -61,7 +61,7 @@
 			$path = "{$root}usr_uploads/{$fileName}";
 			
 			// Mozgatás a végleges helyre
-			if (move_uploaded_file($file['tmp_name'],$path)) return [$fileName];
+			if (move_uploaded_file($file['tmp_name'],$path)) return [$fileName, md5_file($path)];
 			else return 5;
 		}
 
@@ -122,6 +122,7 @@
 				'time' => $data['time'],
 				'uploader' => empty($uploader) ? 'ismeretlen' : $uploader['name'].' (#'.$uploader['id'].')',
 				'filename' => $data['filename'],
+				'md5' => !empty($data['md5']) ? $data['md5'] : '(ismeretlen)',
 			);
 		}
 

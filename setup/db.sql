@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Gép: 127.0.0.1
--- Létrehozás ideje: 2016. Ápr 30. 12:41
+-- Létrehozás ideje: 2016. Máj 02. 23:35
 -- Kiszolgáló verziója: 5.6.26
 -- PHP verzió: 5.6.12
 
@@ -97,7 +97,8 @@ CREATE TABLE `files` (
   `time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `uploader` int(11) NOT NULL,
   `filename` tinytext COLLATE utf8_hungarian_ci NOT NULL,
-  `tempname` tinytext COLLATE utf8_hungarian_ci NOT NULL
+  `tempname` tinytext COLLATE utf8_hungarian_ci NOT NULL,
+  `md5` tinytext COLLATE utf8_hungarian_ci
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
 -- --------------------------------------------------------
