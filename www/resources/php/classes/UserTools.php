@@ -157,8 +157,14 @@
 			}
 
 			$action = $db->where('id',$user['id'])->update('users',$data);
+			$success = $action ? 0 : 3;
 
-			return $action ? 0 : 3;
+			if ($success == 0 && !empty($data['password']))
+				Message::SendNotify('users.change-password',$user['id'],!empty($data['name']) ? $data['name'] : $user['name'],array(
+					'initiator' => !empty($data['name']) ? $data['name'] : $user['name'],
+				));
+
+			return $success;
 		}
 
 		static function EditMyProfile($data){

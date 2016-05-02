@@ -109,6 +109,9 @@
 		static function LoadCoreClass($className){
 			global $root;
 
+			if (strpos(strtolower($className),'swift') !== false)
+				return;
+
 			if (class_exists($className))
 				return;
 
