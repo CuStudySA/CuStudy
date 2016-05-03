@@ -12,7 +12,7 @@
 		</div>
 	</div>
 </div>
-<div id="feature-list">
+<div id="main-content">
 	<section>
 		<div class="margin">
 			<div>
@@ -70,4 +70,8 @@
 			</div>
 		</div>
 	</section>
+	<footer>
+		<p>CuStudy és CuStudy logó &copy; CuStudy Software Alliance 2015-<?=date('Y')?> &mdash; Minden jog fenntartva.</p>
+		<p>A külső szolgáltatók ikonjai a hozzájuk tartozó szervezetek jogtulajdonát képezik.</p>
+	</footer>
 </div>
