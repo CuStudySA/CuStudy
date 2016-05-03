@@ -10,9 +10,8 @@ $(function(){
 		}
 	});
 	var $loginInner = $('#inner'),
-		$loginMain = $('#main').appendTo('body'),
+		$loginMain = $('#main'),
 		$loginForm = $('#loginform');
-	$('#links').appendTo('body');
 
 	try {
 		var savedUsername = localStorage.getItem('username'),
@@ -22,8 +21,7 @@ $(function(){
 			$loginInput.val(savedUsername);
 			$loginForm.find('input[name=password]').focus();
 		}
-		else
-			$loginInput.focus();
+		else $loginInput.focus();
 	}
 	catch(e){}
 
@@ -87,12 +85,13 @@ $(function(){
 							function done(){
 								$body.prepend(data.sidebar).addClass('sidebar-slide');
 								$('title').text(data.title);
-								if (formData.r) history.replaceState({},'',formData.r);
-								var $main = $('main');
-								$main.children(':not(#main)').remove();
-								$main.append(data.main);
+								history.replaceState({},'',formData.r ? formData.r : '/');
+								$.mk('main').append(data.main).appendTo($body);
 								$loginMain.addClass('loaded');
-								setTimeout(function(){ $loginMain.remove() }, 410);
+								setTimeout(function(){
+									$body.children('div:not(#sidebar):not(#main)').remove();
+									$loginMain.remove();
+								}, 410);
 								loadJS(0);
 							}
 

@@ -84,7 +84,7 @@
 
 	# Tevékenység meghatározása
 	if (empty($ENV['do']))
-		$do = ROLE !== 'guest' ? 'fooldal': 'login';
+		$do = ROLE !== 'guest' ? 'fooldal': 'landing';
 	else if (!isset($pages[$ENV['do']]) && $ENV['do'] != 'logout'){
 		if ($ENV['do'] === 'bb-webhook' && !empty($ENV['GET']['auth']) && $ENV['GET']['auth'] === BB_AUTHCODE){
 			$out = array();
@@ -95,13 +95,10 @@
 		}
 		$do = 'not-found';
 	}
-	else {
-		if ($ENV['do'] == 'login' && ROLE != 'guest') $do = 'fooldal';
-		else $do = $ENV['do'];
-	}
+	else $do = $ENV['do'] == 'login' && ROLE != 'guest' ? 'fooldal' : $ENV['do'];
 
 	# URL fixálása
-	if (($do === "login" || $do === "fooldal") && empty($ENV['URL']))
+	if (($do === "landing" || $do === "fooldal") && empty($ENV['URL']))
 		System::FixPath('/');
 
 	# Ha kilépésre van szükség...

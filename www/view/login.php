@@ -3,44 +3,46 @@
 
 	switch ($case){
 		default: ?>
-			<main>
-				<!-- Amber flag start -->
-				<p id='underDevelopment'>Fejlesztés alatt álló szoftververzió!</p>
-				<!-- Amber flag end -->
-				<div id="main">
-					<div id="wrap">
-						<div id="mid">
-							<div id="inner">
-								<img src="/resources/img/logo-login.png" class="logo">
-								<h1>CuStudy</h1>
-								<!-- Amber flag start -->
-								<h3> (Amber)</h3>
-								<!-- Amber flag end -->
+			<div id="heading">
+				<div id="heading-content">
+					<a href="/" class="logo-link">
+						<img src="/resources/img/landing-logo-header.svg" alt="CuStudy logó"><h1>CuStudy<!-- Amber flag start --><span>Amber</span><!-- Amber flag end --></h1>
+					</a>
+					<!-- Amber flag start -->
+					<p id='underDevelopment'>Fejlesztés alatt álló szoftververzió!</p>
+					<!-- Amber flag end -->
+				</div>
+			</div>
+			<div id="links">
+				<a href='#' id='pw-forgot'>Elfelejtett jelszó?</a> |
+				<a href="mailto:mbalint987@pageloop.tk?subject=CuStudy%20Hibabejelentés">Hibabejelentés</a>
+			</div>
+			<div id="main">
+				<div id="wrap">
+					<div id="mid">
+						<div id="inner">
+							<h2>Bejelentkezés</h2>
 <?php       if (!empty($ENV['GET']['r'])){ ?>
-								<p class="redirect">A kért oldal megtekintéséhez be kell jelentkezned!</p>
+							<p class="redirect">A kért oldal megtekintéséhez be kell jelentkezned!</p>
 <?php       } ?>
-								<form id="loginform">
-									<input type='text' name='username' placeholder='Felhasználónév' required tabindex=1 autocomplete="off">
-									<input type='password' name='password' placeholder='Jelszó' required tabindex=2>
+							<form id="loginform">
+								<input type='text' name='username' placeholder='Felhasználónév' required tabindex=1 autocomplete="off">
+								<input type='password' name='password' placeholder='Jelszó' required tabindex=2>
 <?php       if (!empty($ENV['GET']['r'])){ ?>
-									<input type='hidden' name='r' value='<?=$ENV['GET']['r']?>'>
+								<input type='hidden' name='r' value='<?=$ENV['GET']['r']?>'>
 <?php       } ?>
-									<p><button class='btn' tabindex=4>Belépés</button> <label><input type="checkbox" name="remember" tabindex=3 checked> Megjegyzés</label></p>
-								</form>
-								<p class="or"><span class="line"></span><span class="text">VAGY</span><span class="line"></span></p>
-								<p>Belépés külső szolgáltatóval:</p>
-								<div id="extlogin-btns"><?php
+								<p><button class='btn' tabindex=4>Belépés</button> <label><input type="checkbox" name="remember" tabindex=3 checked> Megjegyzés</label></p>
+							</form>
+							<p class="or"><span class="line"></span><span class="text">VAGY</span><span class="line"></span></p>
+							<p>Belépés külső szolgáltatóval:</p>
+							<div id="extlogin-btns"><?php
 			foreach (ExtConnTools::$apiShortName as $name => $class)
 				echo "<a class='$class' href='/login/external/$name'></a>";
-								?></div>
-							</div>
+							?></div>
 						</div>
 					</div>
 				</div>
-				<div id="links">
-					<a href='#' id='pw-forgot'>Elfelejtett jelszó?</a> |
-					<a href="mailto:mbalint987@pageloop.tk?subject=CuStudy%20Hibabejelentés">Hibabejelentés</a>
-				</div>
+			</div>
 <?php   break;
 
 		case 'external':

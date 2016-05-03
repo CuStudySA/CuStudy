@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title><?=$pages[$do]['title']?> - CuStudy</title>
+<title><?=!empty($pages[$do]['title'])?$pages[$do]['title'].' - ':''?>CuStudy</title>
 <link rel="shortcut icon" href="/favicon.ico">
 <meta property="og:type" content="website" />
 <meta property="og:image" content="<?=ABSPATH?>/resources/img/logo.png">

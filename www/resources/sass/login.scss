@@ -1,10 +1,12 @@
 @import "vars";
+@import "landing-header";
 
 // Amber flag
-main > #underDevelopment {
-	margin: 0;
+#underDevelopment {
+	margin: 0 0 0 10px;
 	font-weight: bold;
 	font-size: 1.1em;
+	line-height: $HeadingHeight;
 	color: #EBF0FD !important;
 }
 
@@ -62,9 +64,9 @@ $LoaderHide: .4s;
 	border: 5px solid rgba($LightBG,.35);
 	box-sizing: border-box;
 
-	h1, h3 {
-		margin: 0 0 10px;
-		line-height: 1em;
+	h2, h3 {
+		margin: 0 0 15px;
+		line-height: 1.2em;
 		display: inline-block;
 	}
 
