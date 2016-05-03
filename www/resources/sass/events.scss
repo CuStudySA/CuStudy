@@ -19,6 +19,7 @@ h1 { margin: 0 0 13px !important }
 		&.selectedEvent {
 			border-color: $Grey !important;
 		}
+		&.global-event { background-color: #3AAD3E }
 	}
 	.fc-day-grid-event {
 		padding: 1px !important;
@@ -29,4 +30,3 @@ h1 { margin: 0 0 13px !important }
 
 #dialogContent textarea { resize: vertical }
 #dateRangePicker { width: 71% }
-.fc-event.global-event { background-color: #3AAD3E }

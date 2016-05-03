@@ -135,9 +135,7 @@ $(function(){
 					}
 					if (!data.status) return $.Dialog.fail(title,data.message);
 
-					var $calendar = $('#calendar');
-					$calendar.fullCalendar('destroy');
-					$calendar.fullCalendar(calendarSettings);
+					$('#calendar').fullCalendar('refetchEvents');
 
 					$.Dialog.close();
 				});
@@ -188,9 +186,7 @@ $(function(){
 								}
 
 								if (!data.status) return $.Dialog.fail(false,data.message);
-								var $calendar = $('#calendar');
-								$calendar.fullCalendar('destroy');
-								$calendar.fullCalendar(calendarSettings);
+								$('#calendar').fullCalendar('refetchEvents');
 
 								$selectedEvent = undefined;
 								$('.js_edit').attr('disabled',true);
