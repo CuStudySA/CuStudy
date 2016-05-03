@@ -8,7 +8,7 @@
 			$end = date('c',strtotime($end));
 
 			$data = $db
-				->where('classid', $user['class'][0])
+				->where('classid', $global ? null : $user['class'][0])
 				->where('start', $start, '>=')
 				->where('end', $end, '<=')
 				->get('events');

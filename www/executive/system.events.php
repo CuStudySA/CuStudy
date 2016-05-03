@@ -33,7 +33,7 @@
 					$event['end'] = date('c',strtotime(str_replace('.','-', $event['end'])));
 					System::Respond($event);
 				break;
-				case 'del':
+				case 'delete':
 					$action = AdminEventTools::Delete($ENV['POST']);
 
 					System::Respond(Message::Respond('adminEventTools.delete',$action),$action == 0);
