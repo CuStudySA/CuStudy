@@ -1,7 +1,7 @@
 <div id="heading">
 	<div id="heading-content" class="landing">
 		<a href="/" class="logo-link"><img src="/resources/img/landing-logo-header.svg" alt="CuStudy logó"><h1>CuStudy</h1></a>
-		<a href="/login" class="login-wrap"><span class="btn typcn typcn-key">Bejelentkezés</span></a>
+		<a href="/login" class="login-wrap" rel="nofollow"><span class="btn typcn typcn-key">Bejelentkezés</span></a>
 	</div>
 </div>
 <div id="cliche-cover">
@@ -31,14 +31,15 @@
 				<p>A számodra legfontosabb informcációk közvetlenül belépés után a főoldalon azonnal eléd tárulnak, nem szükséges a menüpontok sokaságán átvergődni magad, ha csak a legfontosabbak érdekelnek. Az elkészítésre váró házi feladatatok, a következő tanítási nap órarendje és a közelgő események erőfeszítés nélkül elérhetőek.</p>
 			</div>
 			<div>
-				<img src="//placehold.it/465x256" alt="Képernyőkép">
+				<img src="/resources/img/landing/all_in_one.png" alt="Képernyőkép">
 			</div>
 		</div>
 	</section>
 	<section>
 		<div class="margin">
-			<div>
-				<img src="//placehold.it/465x256" alt="Képernyőkép">
+			<div class="align-center">
+				<span class="typcn typcn-device-desktop"></span>
+				<span class="typcn typcn-arrow-sync rotate-slowly"></span>
 			</div>
 			<div>
 				<h3>Szoftver, mint szolgáltatás</h3>
@@ -46,21 +47,22 @@
 			</div>
 		</div>
 	</section>
-	<section>
+	<section class="noimgshadow">
 		<div class="margin">
 			<div>
 				<h3>Remek, újabb jelszó&hellip;</h3>
-				<p>A szoftverünk más szolgáltatók segítségével is képes a felhasználók azonosítására, így <strong>nincs szükség egy újabb jelszó megjegyzésére</strong>, elég egy már megszokott szolgáltatónél lévő fiók jelszavát fejben tartani. A bejelentkező oldalon a Google, Facebook, Microsoft és további szolgáltatókon keresztül is be lehet lépni a rendszerbe, miután a felhasználó ezt a profilján engedélyezi.</p>
+				<p>A szoftverünk más szolgáltatók segítségével is képes a felhasználók azonosítására, így <strong>nincs szükség egy újabb jelszó megjegyzésére</strong>, elég egy már megszokott szolgáltatónál lévő fiók jelszavát fejben tartani. A bejelentkező oldalon a Google, Facebook, Microsoft és további szolgáltatókon keresztül is be lehet lépni a rendszerbe, miután a felhasználó ezt a profilján engedélyezi.</p>
 			</div>
 			<div>
-				<img src="//placehold.it/465x256" alt="Képernyőkép">
+				<img src="/resources/img/landing/extlogin.png" alt="Képernyőkép">
 			</div>
 		</div>
 	</section>
 	<section>
 		<div class="margin">
-			<div>
-				<img src="//placehold.it/465x256" alt="Képernyőkép">
+			<div class="align-center">
+				<span class="typcn typcn-user"></span>
+				<span class="typcn typcn-lock-closed"></span>
 			</div>
 			<div>
 				<h3>Biztonság mindenekelőtt</h3>

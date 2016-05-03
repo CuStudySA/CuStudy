@@ -83,5 +83,20 @@
 		img {
 			width: 100%;
 		}
+
+		.typcn {
+			display: inline-block;
+			font-size: 128px;
+			line-height: .8em;
+			height: 1em;
+		}
 	}
+}
+
+.rotate-slowly {
+	animation: rotate-slow 5s linear infinite;
+}
+@keyframes rotate-slow {
+	from { transform: rotate(0deg) }
+	to { transform: rotate(360deg) }
 }
