@@ -44,10 +44,12 @@
 <body>
 	<script>var _USRGRP="<?=ROLE?>"</script>
 
+<?php if (isset($ENV['userSettings'])){ ?>
 	<!-- User settings -->
 	<script>
 		var userSettings = <?=json_encode($ENV['userSettings'])?>;
 	</script>
+<?php } ?>
 
 <?php
 	if (!empty($ENV['sidebar'])){

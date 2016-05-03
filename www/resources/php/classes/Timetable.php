@@ -185,11 +185,12 @@ STRING;
 		/**
 		 * Régi nevén JSTimetable, léptatéskor fut le
 		 *
-		 * @param string|array $dispDays Megjelenítendő dátum (string)/dátumok (tömb)
-		 * @param bool $allgroups Minden csoport adatainak lekérdezése
-		 * @param int|string $move Elmozdulás mennyisége napokban VAGY 'next'/'back' következő/előző hét
+		 * @param string|array $dispDays       Megjelenítendő dátum (string)/dátumok (tömb)
+		 * @param bool         $allgroups      Minden csoport adatainak lekérdezése
+		 * @param int|string   $move           Elmozdulás mennyisége napokban VAGY 'next'/'back' következő/előző hét
+		 * @param bool         $dataAttributes data-* attribútumok kiiratása
 		 */
-		static function Step($dispDays, $allgroups = true, $move = null){
+		static function Step($dispDays, $allgroups = true, $move = null, $dataAttributes = false){
 			if (is_array($dispDays))
 				$dispDays = array_map('strtotime', $dispDays);
 			else $dispDays = strtotime($dispDays);
@@ -225,7 +226,7 @@ STRING;
 			$TT = Timetable::Get($week,$day,$allgroups, is_string($move) ? $targetWeekdays : (is_numeric($move) ? (int)$move : 5));
 			$days = Timetable::CalcDays($TT, is_numeric($move) ? (int)$move : 5);
 
-			$timetable = Timetable::Render(null, $TT, $days, false);
+			$timetable = Timetable::Render(null, $TT, $days, false, $dataAttributes);
 
 			$firstDay = strtotime('midnight',$days[0]);
 			$lockBack = $firstDay <= $today + ($todayWeekday >= 6 ? (8-$todayWeekday)*self::OneDayInSeconds : 0);
