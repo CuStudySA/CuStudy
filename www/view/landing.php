@@ -20,7 +20,7 @@
 			</div>
 			<div>
 				<h3>Letisztult kezelőfelület</h3>
-				<p>A CuStudy felhasználó felületét úgy alkottuk meg, hogy az minnél kevesebb üres teret tartalmazzon. Szerintünk a látható terültetet nem ürességgel, hanem hasznos információval kell feltölteni. A lágy sötétkék témaszín nyugalmat sugároz az egész programon át, kevésbé kellemetlenné téve a közelgő témazáró dolgozatok látványát.</p>
+				<p>A CuStudy felhasználó felületét úgy alkottuk meg, hogy az minnél kevesebb üres teret tartalmazzon. Szerintünk a látható területet nem ürességgel, hanem hasznos információval kell feltölteni. A lágy sötétkék témaszín nyugalmat sugároz az egész programon át, kevésbé kellemetlenné téve a közelgő témazáró dolgozatok látványát.</p>
 			</div>
 		</div>
 	</section>
@@ -28,7 +28,7 @@
 		<div class="margin">
 			<div>
 				<h3>Minden egy helyen</h3>
-				<p>A számodra legfontosabb informcációk közvetlenül belépés után a főoldalon azonnal eléd tárulnak, nem szükséges a menüpontok sokaságán átvergődni magad, ha csak a legfontosabbak érdekelnek. Az elkészítésre váró házi feladatatok, a következő tanítási nap órarendje és a közelgő események erőfeszítés nélkül elérhetőek.</p>
+				<p>A számodra legfontosabb információk közvetlenül belépés után a főoldalon azonnal eléd tárulnak, nem szükséges a menüpontok sokaságán átvergődni magad, ha csak a legfontosabbak érdekelnek. Az elkészítésre váró házi feladatatok, a következő tanítási nap órarendje és a közelgő események erőfeszítés nélkül elérhetőek.</p>
 			</div>
 			<div>
 				<img src="/resources/img/landing/all_in_one.png" alt="Képernyőkép">
