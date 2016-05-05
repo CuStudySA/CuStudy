@@ -207,6 +207,7 @@ $(function(){
 
 					if ($resultCont.is(':not(:empty)'))
 						$filterForm.triggerHandler('submit');
+					else $.Dialog.close();
 				});
 			});
 		});

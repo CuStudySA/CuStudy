@@ -14,6 +14,7 @@ $(function(){
 			method: "POST",
 			data: pushToken({'id': id}),
 			url: '/homeworks/makeMarkedDone/mainPage',
+			dataType: 'html',
 			success: function(data){
 				$hWContent.empty().append(data);
 				$('.js_makeMarkedDone').click(makeMarkedDone);

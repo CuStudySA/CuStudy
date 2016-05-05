@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Gép: 127.0.0.1
--- Létrehozás ideje: 2016. Ápr 20. 10:53
+-- Létrehozás ideje: 2016. Máj 02. 23:35
 -- Kiszolgáló verziója: 5.6.26
 -- PHP verzió: 5.6.12
 
@@ -97,20 +97,9 @@ CREATE TABLE `files` (
   `time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `uploader` int(11) NOT NULL,
   `filename` tinytext COLLATE utf8_hungarian_ci NOT NULL,
-  `tempname` tinytext COLLATE utf8_hungarian_ci NOT NULL
+  `tempname` tinytext COLLATE utf8_hungarian_ci NOT NULL,
+  `md5` tinytext COLLATE utf8_hungarian_ci
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
-
--- --------------------------------------------------------
-
---
--- Tábla szerkezet ehhez a táblához `global_settings`
---
-
-CREATE TABLE `global_settings` (
-  `id` int(11) NOT NULL,
-  `key` tinytext COLLATE utf8_hungarian_ci NOT NULL,
-  `value` tinytext COLLATE utf8_hungarian_ci NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
 -- --------------------------------------------------------
 
@@ -348,6 +337,20 @@ CREATE TABLE `log__users` (
 -- --------------------------------------------------------
 
 --
+-- Tábla szerkezet ehhez a táblához `mail_queue`
+--
+
+CREATE TABLE `mail_queue` (
+  `id` int(11) NOT NULL,
+  `title` tinytext COLLATE utf8mb4_hungarian_ci NOT NULL,
+  `name` tinytext COLLATE utf8mb4_hungarian_ci NOT NULL,
+  `address` tinytext COLLATE utf8mb4_hungarian_ci NOT NULL,
+  `body` mediumtext COLLATE utf8mb4_hungarian_ci NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Tábla szerkezet ehhez a táblához `pw_reset`
 --
 
@@ -385,6 +388,32 @@ CREATE TABLE `sessions` (
   `time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `activeSession` int(11) NOT NULL DEFAULT '0'
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `settings_global`
+--
+
+CREATE TABLE `settings_global` (
+  `id` int(11) NOT NULL,
+  `key` tinytext COLLATE utf8_hungarian_ci NOT NULL,
+  `value` tinytext COLLATE utf8_hungarian_ci NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `settings_user`
+--
+
+CREATE TABLE `settings_user` (
+  `id` int(11) NOT NULL,
+  `userid` int(11) DEFAULT NULL,
+  `category` tinytext COLLATE utf8mb4_hungarian_ci,
+  `key` tinytext COLLATE utf8mb4_hungarian_ci,
+  `value` tinytext COLLATE utf8mb4_hungarian_ci
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
 -- --------------------------------------------------------
 
@@ -484,12 +513,6 @@ ALTER TABLE `files`
   ADD PRIMARY KEY (`id`);
 
 --
--- A tábla indexei `global_settings`
---
-ALTER TABLE `global_settings`
-  ADD PRIMARY KEY (`id`);
-
---
 -- A tábla indexei `groups`
 --
 ALTER TABLE `groups`
@@ -586,6 +609,12 @@ ALTER TABLE `log__users`
   ADD PRIMARY KEY (`id`);
 
 --
+-- A tábla indexei `mail_queue`
+--
+ALTER TABLE `mail_queue`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- A tábla indexei `pw_reset`
 --
 ALTER TABLE `pw_reset`
@@ -601,6 +630,18 @@ ALTER TABLE `school`
 -- A tábla indexei `sessions`
 --
 ALTER TABLE `sessions`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- A tábla indexei `settings_global`
+--
+ALTER TABLE `settings_global`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- A tábla indexei `settings_user`
+--
+ALTER TABLE `settings_user`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -655,11 +696,6 @@ ALTER TABLE `ext_connections`
 -- AUTO_INCREMENT a táblához `files`
 --
 ALTER TABLE `files`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
---
--- AUTO_INCREMENT a táblához `global_settings`
---
-ALTER TABLE `global_settings`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT a táblához `groups`
@@ -742,6 +778,11 @@ ALTER TABLE `log__teachers`
 ALTER TABLE `log__users`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
+-- AUTO_INCREMENT a táblához `mail_queue`
+--
+ALTER TABLE `mail_queue`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
 -- AUTO_INCREMENT a táblához `pw_reset`
 --
 ALTER TABLE `pw_reset`
@@ -755,6 +796,16 @@ ALTER TABLE `school`
 -- AUTO_INCREMENT a táblához `sessions`
 --
 ALTER TABLE `sessions`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT a táblához `settings_global`
+--
+ALTER TABLE `settings_global`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT a táblához `settings_user`
+--
+ALTER TABLE `settings_user`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT a táblához `teachers`

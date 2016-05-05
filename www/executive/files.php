@@ -17,6 +17,7 @@
 					'time' => 'Feltöltés ideje',
 					'uploader' => 'Feltöltő',
 					'filename' => 'Fájl neve',
+					'md5' => 'MD5 Hash',
 				);
 
 				foreach($data as $key => $value)
@@ -58,6 +59,7 @@
 					'size' => $file['size'],
 					'filename' => $file['name'],
 					'tempname' => $action[0],
+					'md5' => $action[1],
 				));
 			}
 

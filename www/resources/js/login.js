@@ -12,6 +12,7 @@ $(function(){
 	var $loginInner = $('#inner'),
 		$loginMain = $('#main').appendTo('body'),
 		$loginForm = $('#loginform');
+	$('#links').appendTo('body');
 
 	try {
 		var savedUsername = localStorage.getItem('username'),
@@ -115,6 +116,7 @@ $(function(){
 									return done();
 								$.ajax({
 									url: load.css[i],
+									dataType: "text",
 									success: function(data){
 										if (typeof data !== 'string')
 											return formData.r ? window.location.href = r : window.location.reload();
@@ -131,6 +133,7 @@ $(function(){
 				else {
 					$.Dialog.fail(title,data.message);
 					$('#inner').removeClass('animate');
+					$('input[name=password]').val('');
 					$links.appendTo($linkLocation);
 				}
 			}

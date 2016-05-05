@@ -7,10 +7,11 @@ $(function(){
 				<textarea name='fileDesc' placeholder='Dokumentum tartalma, leírása' required></textarea>\
 			</div>\
 		</div>"),
-		$fileForm = $('.uploadFileForm'),
-		$uploadFileForm = $fileForm.clone(),
-		$fileList = $('ul.files'),
+		$fileForm = $('.uploadFileForm').on('click','.js_uploadFiles',e_upload_files),
+		$uploadFileForm = $fileForm.clone(true,true),
+		$fileList = $('ul.files').on('click','.js_file_add',e_file_add),
 		files = [];
+	$('.uploadField').add($uploadForm.find('.uploadField')).on('change', e_inputChange);
 
 	var ifExistInList = function(file){
 		var $fileInputs = $('.uploadContainer').find('input[type=file]');
@@ -36,42 +37,47 @@ $(function(){
 		return newList;
 	};
 
-	var e_inputChange = function(e){
-		var file = e.target.files[0],
-			$infoCont = $(e.currentTarget).parent().children().filter('.infoContainer'),
+	function e_inputChange(e){
+		var $this = $(this),
+			file = this.files[0],
+			$container = $this.parent(),
+			$infoCont = $this.next(),
 			$formContainer = $('.fileFormContainer');
 
 		if (typeof file != 'undefined'){
+			// Beviteli mezők megjelenítése
 			$infoCont.show();
 
 			if (ifExistInList(file))
-				$(e.currentTarget).parent().remove();
+				$container.remove();
 
-			if (typeof $(e.currentTarget).parent().prop('prevFiles') != 'undefined')
+			if (typeof $this.parent().prop('prevFiles') != 'undefined')
 				return;
+
+			$infoCont
+				// Fájlnév beálltása Dokumentum névnek
+				.find('input[name="fileTitle"]').val(e.target.value.split(/(\\|\/)/g).pop())
+				// Leírás mező fókuszálása
+				.next().focus();
 
 			$(e.currentTarget).parent().prop('prevFiles',e.target.files);
 
-			$formContainer.append($uploadForm.clone());
-			//$('.uploadContainer').last().find('[name=fileTitle]').focus();
-			$('.uploadField').on('change',e_inputChange);
+			$formContainer.append($uploadForm.clone(true,true));
 		}
 		else
-			$(e.currentTarget).parent().remove();
-	};
-	$('.uploadField').on('change',e_inputChange);
+			$container.remove();
+	}
 
-	var e_file_add = function(e){
+	function e_file_add(e){
 		e.preventDefault();
 
 		var $fileForm = $('.uploadFileForm');
 
 		$fileForm.show();
 		$(document.body).animate({scrollTop: $fileForm.offset().top - 10 }, 500);
-	};
-	$('.js_file_add').on('click',e_file_add);
+	}
 
-	var e_upload_files = function(e){
+	function e_upload_files(e){
 		e.preventDefault();
 
 		var data = new FormData();
@@ -117,6 +123,9 @@ $(function(){
 					$(window).trigger('ajaxerror');
 					return false;
 				}
+
+				$('.uploadFileForm').replaceWith($uploadFileForm);
+
 				if (data.status){
 					$fileList.html(data.filelist);
 					$.Dialog.close();
@@ -124,12 +133,6 @@ $(function(){
 						updateStorage(data.storage);
 				}
 				else {
-					$('.uploadFileForm').remove();
-					$('main').append($uploadFileForm);
-
-					$('.uploadField').on('change',e_inputChange);
-					$('.js_uploadFiles').on('click',e_upload_files);
-					$('.js_file_add').on('click',e_file_add);
 
 					$.Dialog.fail(title,data.message);
 				}
@@ -139,7 +142,6 @@ $(function(){
 			},
 		});
 	};
-	$('.js_uploadFiles').on('click',e_upload_files);
 
 	var $UsedSpaceIndicator = $('#storage-use').find('.indicator'),
 		$USIFill = $UsedSpaceIndicator.children('.used');

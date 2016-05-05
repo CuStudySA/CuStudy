@@ -9,7 +9,7 @@
 			return $ret;
 		}
 
-		static $RomanMonths = array(null,'I','II','II','IV','V','VI','VII','VIII','IX','X','XI','XII');
+		static $RomanMonths = array(null,'I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII');
 		static function FormatMonthDay($time){
 			return HomeworkTools::$RomanMonths[(int)date('m', $time)].'.'.date('d', $time);
 		}
@@ -18,24 +18,30 @@
 			global $db, $user;
 
 			# Jog. ellenörzése
-			if(System::PermCheck('homeworks.add')) return 0x1;
+			if (System::PermCheck('homeworks.add')) return 0x1;
 
 			# Formátum ellenörzése
 			if (!System::ValuesExists($data,['lesson','text','week'])) return 0x2;
+			unset($data['JSSESSID']);
 			foreach ($data as $key => $value){
 				switch ($key){
 					case 'lesson':
+					case 'year':
 						$type = 'numeric';
 					break;
 					case 'week':
+						$_match = array();
+						if (!empty($value) && preg_match('/(\d{4})w(\d{2})/i', $value, $_match)){
+							$data['week'] = $_match[2];
+							$data['year'] = $_match[1];
+							continue 2;
+						}
 						$type = 'numeric';
 					break;
 					case 'text':
 						continue 2;
 
 					case 'fileTitle':
-						$type = 'text';
-					break;
 					case 'fileDesc':
 						$type = 'text';
 					break;
@@ -64,9 +70,11 @@
 							array($user['class'][0],$data['lesson']));
 
 			if (empty($dbdata)) return 0x3;
-			else $dbdata = $dbdata[0];
 
-			if (Timetable::GetActualWeek(false,$dateFromUI) != strtoupper($dbdata['week'])) return 0x4;
+			if (Timetable::GetWeekLetter($dateFromUI) != strtoupper($dbdata[0]['week'])) return 0x4;
+
+			if ($db->where('week', $data['week'])->where('year', $data['year'])->where('classid', $user['class'][0])->where('lesson', $data['lesson'])->has('homeworks'))
+				return 0x5;
 
 			// Mellékelt fájl feltöltése
 			$uploadStatus = 0;
@@ -75,9 +83,7 @@
 				$uploadStatus = FileTools::UploadFile($file);
 
 				if (is_array($uploadStatus)){
-					$lessonId = $db->rawQuery('SELECT `lessonid`
-												FROM `timetable`
-												WHERE `id` = ?',array($data['lesson']))[0]['lessonid'];
+					$lessonId = $db->where('id', $data['lesson'])->getOne('timetable','lessonid')['lessonid'];
 
 					$action = $db->insert('files',array(
 						'name' => isset($data['fileTitle']) ? $data['fileTitle'] : 'Házi feladathoz feltöltött fájl',
@@ -95,7 +101,10 @@
 				}
 			}
 
-			$db->insert('homeworks',array_merge($data,array('author' => $user['id'], 'classid' => $user['class'][0])));
+			$db->insert('homeworks',array_merge($data,array(
+				'author' => $user['id'],
+				'classid' => $user['class'][0],
+			)));
 
 			return $uploadStatus;
 		}
@@ -132,8 +141,8 @@
 			foreach ($grpmember as $array)
 				$ids[] = $array['groupid'];
 
-			$weekNum = Timetable::GetWeekNum();
-			$dayInWeek = Timetable::GetDayNumber();
+			$weekNum = (int)date('W');
+			$dayInWeek = Timetable::GetDay();
 
 			$active = $onlyListActive ? '&& (SELECT `id` FROM `hw_markdone` WHERE `homework` = hw.id && `userid` = ?) IS NULL' : '';
 
@@ -192,7 +201,7 @@
 				}
 
 				$array['date'] = self::FormatMonthDay($hwTime);
-				$array['dayString'] = System::$Days[Timetable::GetDayNumber($hwTime)];
+				$array['dayString'] = System::$Days[Timetable::GetDay($hwTime)];
 
 				$homeWorks[$array['date']][] = $array;
 
@@ -324,7 +333,7 @@
 
 	            $time = strtotime($date);
 
-				print "<h3>Házi feladatok ".System::Article(System::$Days[Timetable::GetDayNumber($time)])."i napra ({$day})</h3>";
+				print "<h3>Házi feladatok ".System::Article(System::$Days[Timetable::GetDay($time)])."i napra ({$day})</h3>";
 		        $day = array_keys($homeWorks)[0]; ?>
 				<table class='homeworks'>
 					<tr>

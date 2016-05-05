@@ -81,7 +81,7 @@
 				System::Redirect("/not-found?path=$path");
 		}
 
-		static function SendNotify($activity,$address,$invocation = null,$parameters = array()){
+		static function SendNotify($activity,$addressOrId,$invocation = null,$parameters = array()){
 			global $db, $user, $Notifications;
 
 			$slices = explode('.',$activity,2);
@@ -92,8 +92,15 @@
 
 			$text = $Notifications['template']['header'].$template['body'].$Notifications['template']['footer'];
 
+			if (is_numeric($addressOrId)){
+				$data = $db->where('id',$addressOrId)->getOne('users');
+
+				if (empty($data)) return false;
+				else $addressOrId = $data['email'];
+			}
+
 			if (empty($invocation)){
-				$data = $db->where('email',$address)->getOne('users');
+				$data = $db->where('email',$addressOrId)->getOne('users');
 				if (!empty($data))
 					$invocation = $data['name'];
 			}
@@ -110,7 +117,7 @@
 				'title' => $template['title'],
 				'to' => array(
 					'name' => !empty($invocation) ? $invocation : 'CuStudy felhasználó',
-					'address' => $address,
+					'address' => $addressOrId,
 				),
 				'body' => $text,
 			));

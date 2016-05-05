@@ -67,6 +67,7 @@
 			'css' => 		['login.css'],
 			'js' => 		['login.js'],
 			'file' => 		'login',
+			'theme-color' =>'#71151F', //Amber flag
 		),
 
 		'not-found' => array(
@@ -108,7 +109,7 @@
 			'title' => 		'Órarend',
 			'css' => 		['timet.css','timetables.css'],
 			'js' => 		['jquery.powertip.min.js'],
-			'customjs' =>   ['' => 'timetables/ttedit.js', 'edit' => 'timetables/ttedit2.js','week' => 'timetables/ttedit2.js'],
+			'customjs' =>   ['' => 'timetables/tt-view.js', 'edit' => 'timetables/tt-edit.js','week' => 'timetables/tt-edit.js'],
 			'file' => 		'timetables',
 		),
 
@@ -136,7 +137,8 @@
 		'profile' => array(
 			'title' => 		'Profilom szerkesztése',
 			'css' => 		['profile.css'],
-			'js' => 		['profile.js'],
+			'js' => 		[],
+			'customjs' =>   ['' => 'profile.js', 'settings' => 'profile.settings.js'],
 			'file' => 		'profile',
 		),
 
@@ -199,6 +201,13 @@
 			'file' => 		'system.events',
 			'addons' =>     ['dateRangePicker'],
 		),
+
+		'mail.cron' => array(
+			'title' => 		'Sending mails using CronTab',
+			'css' => 		[],
+			'js' => 		[],
+			'file' => 		'mail.cron',
+		),
 	);
 
 	# Jogosultsági szintek definiálása
@@ -235,6 +244,7 @@
 			'login' => ['view'],
 			'not-found' => ['view'],
 			'invitation' => ['view'],
+			'mail.cron' => ['view'],
 		),
 		'systemadmin' => array(
 			'system.users' => ['view'],

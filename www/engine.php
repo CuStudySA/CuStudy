@@ -5,7 +5,7 @@
 	header('Content-Type: text/html; charset=utf-8;');
 	
 	# Dok. gyökér meghatározása
-	$root = $_SERVER['DOCUMENT_ROOT'];
+	$root = isset($repRoot) ? $repRoot : $_SERVER['DOCUMENT_ROOT'];
 	if (substr($root,-1) !== '/') $root .= '/';
 	
 	$rootdoc = '/';
@@ -18,12 +18,22 @@
 	require $root.'resources/php/Cookie.php';
 	require $root.'resources/php/MysqliDb.php';
 
-	# Funkciótár és üzenettár betöltése
+	# Üzenettár betöltése
 	require $root.'resources/php/messages.php';
-	require $root.'resources/php/functions.php';
+
+	# Funkciótárolók betöltése
+	require $root.'resources/php/classes/System.php';
+	spl_autoload_register('System::LoadCoreClass');
+
+	# Segédfájlok betöltése
+	require $root.'resources/php/dBTitles.php';
+	require $root.'resources/php/EmailNotifications.php';
 
 	# Külső szolgáltatók API-jának betöltése
 	require $root.'resources/php/ExternalAPIs.php';
+
+	# Egy üres MysqliDb instance, hogy a PhpStorm megtalálja
+	$db = System::ConnectToDatabase();
 
 	# Karbantartási állapot ellenörzése, kapcsolódás az adatbázishoz
 	System::LoadMaintenance();
@@ -68,8 +78,9 @@
 		$user = $user[1];
 	}
 
-	# Rendszerbeállítások lekérése
+	# Beállítások lekérése
 	GlobalSettings::Load();
+	UserSettings::Load(null,PUSH_TO_USERVAR);
 
 	# Tevékenység meghatározása
 	if (empty($ENV['do']))
@@ -123,24 +134,16 @@
 	# Jogosultságok előkészítése
 	System::CompilePerms();
 
-	# Hozzáférési jogosultság ellenörzése
-	if (System::PermCheck("$do.view")){
-		if (ROLE == 'guest')
-			Message::AccessDenied();
-		else
-			$do = 'access-denied';
-	}
-
 	# Frisstési szkript futtatása (ha frissítés történt a rendszeren)
 	System::RunUpdatingTasks();
 
 	// 'Executive' rész \\
 	if ($ENV['SERVER']['REQUEST_METHOD'] == 'POST'){
 		# Létező oldal?
-		if (!isset($pages[$do])) System::Respond();
+		if (!isset($pages[$do])) System::Respond('A kérés nem teljesíthető, mert nem található a kért oldal!');
 
 		# Jogosultság ellenörzése
-		if (System::PermCheck("{$do}.view")) System::Respond();
+		if (System::PermCheck("{$do}.view")) System::Respond('A kérés nem teljesíthető, mert az oldalhoz a hozzáférés megtagadva!');
 
 		# Létező fájl?
 		if (!file_exists("executive/{$pages[$do]['file']}.php")) System::Respond();
@@ -179,6 +182,14 @@
 		die(include "executive/{$pages[$do]['file']}.php");
 	}
 
+	# Hozzáférési jogosultság ellenörzése
+	if (System::PermCheck("$do.view")){
+		if (ROLE == 'guest')
+			Message::AccessDenied();
+		else
+			$do = 'access-denied';
+	}
+
 	// Fájlletöltés \\
 	if (!isset($ENV['URL'][0])) $suburl = '';
 	else $suburl = $ENV['URL'][0];
@@ -191,7 +202,7 @@
 	CSRF::Generate();
 	
 	# Létezik a megjelenítésfájl?
-	$resc = "view/{$pages[$do]['file']}.php";
+	$resc = $root."view/{$pages[$do]['file']}.php";
 	if (!file_exists($resc))
 		Message::Missing($resc);
 		

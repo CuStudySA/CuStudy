@@ -42,6 +42,15 @@
 				));
 			}
 		break;
+
+		case 'settings':
+			if (!empty($ENV['POST']))
+				$action = UserSettings::Apply($ENV['POST']);
+			else
+				System::Respond();
+
+			System::Respond(Message::Respond('users.applySettings',$action), $action == 0);
+		break;
 	}
 
 	if (isset($ENV['URL'][0]) ? $ENV['URL'][0] : '' == 'roles'){

@@ -44,6 +44,39 @@
 			}
 		break;
 
+		case 'settings':
+			$settings = $ENV['userSettings']; ?>
+			<h1>Beállításaim szerkesztése</h1>
+
+			<form id='dataform' class='settingsForm'>
+<?php           foreach (UserSettings::$keys as $key => $array){
+					print "<h2>".$array['name']."</h2>";
+
+					foreach ($array as $k => $v){
+						if (!is_array($v)) continue;
+
+						print "<label><span>{$v['name']}</span>";
+
+						switch ($v['type']){
+							case 'select':
+								print "<select name='".($key.'.'.$k)."'>";
+
+								foreach ($v['options'] as $optKey => $optValue){
+									$selected = ($ENV['userSettings'][$key][$k] == $optKey) ? 'selected' : '';
+									print "<option value='{$optKey}' {$selected}>{$optValue}</option>";
+								}
+
+								print '</select>';
+							break;
+						}
+
+						print '</label>';
+					}
+				} ?>
+				<button class='btn'>Beállítások mentése</button>
+			</form>
+<?php	break;
+
 		default:
 			$AvailProviders = ExtConnTools::GetAvailProviders();
 			$AvailProviderNames = [];
@@ -79,7 +112,9 @@
 					<span><strong>Jelenlegi jelszó</strong> <em>(kötelező megadni)</em></span>
 					<input type='password' name='oldpassword' placeholder='Jelenlegi jelszó' required pattern='^[\w\d]{6,20}$'>
 				</label>
+
 				<button class="btn">Adatok mentése</button>
+				<a class='btn typcn typcn-spanner' href='/profile/settings' style='margin-left: 4px;'>Személyes beállításaim >></a>
 			</form>
 			<h1 style='margin-top: 25px !important;'>Összekapcsolt fiókok</h1>
 <?php       $diff = array_diff(array_keys(ExtConnTools::$apiDisplayName),$AvailProviderNames);

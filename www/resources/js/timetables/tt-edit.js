@@ -1,5 +1,7 @@
-/* JS add-on for BetonHomeWork
- * Copyright(C) 2015. BetonSoft csoport */
+/*
+ * JS add-on for CuStudy
+ * @copyright (C) 2016 CuStudy Software Alliance
+ */
 
 $(function(){
 	var title = "Tanárok és tantárgyak lekérése", $tds = $('table tbody td'),
@@ -8,7 +10,7 @@ $(function(){
 
 	//Órarend-választás <select> tag működése
 	$('#select_tt').change(function(){
-		window.location.href = '/timetables/week/' + $('#select_tt').children().filter(':selected').attr('value');
+		window.location.href = '/timetables/week/' + this.value;
 	});
 
 	if (USRGRP == 'user' || USRGRP == 'editor'){
@@ -20,15 +22,15 @@ $(function(){
 	$.ajax({
 		method: 'POST',
 		url: '/timetables/getoptions',
-		data: pushToken({}),
 		success: function(data){
 			if (typeof data === 'string') return console.log(data) === $(window).trigger('ajaxerror');
 
 			if (data.status){
 				var $LOptions = $(document.createElement('div')),
-					$GOptions = $(document.createElement('div'));
+					$GOptions = $(document.createElement('div')),
+					hasLessons = data.lessons && data.lessons.length;
 
-				$.each(data.lessons,function(_,lesson){
+				if (hasLessons) $.each(data.lessons,function(_,lesson){
 					$LOptions.append($(document.createElement('option')).attr('value',lesson.id).attr('data-name',lesson.name).text(lesson.name+' ('+lesson.teacher+')'));
 				});
 				$GOptions.append($(document.createElement('option')).attr('value','0').text('Teljes o.'));
@@ -44,8 +46,11 @@ $(function(){
 				});
 
 				var $form = $('#form-template').children();
-				$form.find('.lessons').html($LOptions.children().clone());
 				$form.find('.groups').html($GOptions.children().clone());
+				var _$lessons = $form.find('.lessons');
+				if (hasLessons)
+					_$lessons.html($LOptions.children().clone());
+				else _$lessons.attr('disabled', true).html("<option disabled>(nincs hozzáadva tantárgy)</option>");
 				$form.on('submit',function(e){
 					// Órarend-elem hozzáadásakor
 					e.preventDefault();
@@ -57,6 +62,9 @@ $(function(){
 						$selects = $form.find('select'),
 						$groups = $selects.filter('[name=groups]'),
 						$lessons = $selects.filter('[name=lessons]');
+
+					if ($lessons.is('[disabled]'))
+						return $.Dialog.fail('Óra hozzáadása','Nem található tantárgy az adatbázisban!<br>A folytatáshoz adj hozzá legalább egy tantárgyat a <a href="/lessons">Tantárgyak</a> menüpontban!');
 
 					var nwelem = {'group': $groups.val(), 'tantargy': $lessons.val(), 'lesson': lesson+1, 'day': weekday};
 					container.add.push(nwelem);
@@ -72,13 +80,14 @@ $(function(){
 						grpnme = '',
 						grpnmef = $groups.find('option:selected').text();
 					$.each(postDatas.lessons,function(_,lesson){
-						if (ntn == lesson.name) ntc = lesson.color;
+						if (ntn == lesson.name)
+							ntc = lesson.color;
 					});
 
 					if (grpnmef != 'Teljes o.')
 						grpnme = ' (' + grpnmef + ')';
 
-					$td.append("<span class='lesson' style='background: "+ ntc +"'>"+ ntn + grpnme +"<span class='del typcn typcn-times' data-id='#"+ nwelem.tantargy +"'></span></span>");
+					$td.append("<span class='lesson' style='background: "+ ntc +"'>"+ ntn + grpnme +"<span class='del typcn typcn-times' data-ttid='#"+ nwelem.tantargy +"'></span></span>");
 				});
 				$tds.each(function(){
 					var $add = $(this).find('.add'),
@@ -143,7 +152,7 @@ $(function(){
 	// Törölt órarend-elemek listába foglalása
 	$tds.on('click','.del',function(){
 		var $elem = $(this),
-			dataid = $elem.attr('data-id');
+			dataid = $elem.attr('data-ttid');
 		var $ttobj = $elem.parent(),
 			$cella = $ttobj.parent();
 
@@ -182,38 +191,31 @@ $(function(){
 		$.ajax({
 			method: 'POST',
 			url: '/timetables/save',
-			data: pushToken(container),
+			data: container,
 			success: function(data){
 				if (typeof data === 'string') return console.log(data) === $(window).trigger('ajaxerror');
 
-				if (data.status){
-					$.Dialog.success(title,data.message);
-					setTimeout(function(){
-						location.reload();
-					},2500);
-				}
+				if (!data.status) return $.Dialog.fail(title,data.message);
 
-				else {
-					$.Dialog.fail(title,data.message);
-				}
+				$.Dialog.success(title,data.message);
+				setTimeout(function(){
+					location.reload();
+				},2500);
 			}
 		});
 	};
 
 	$('.sendbtn').on('click',function(){
-		var title = 'Órarend mentése';
+		if (container.delete.length == 0)
+			return e_modify();
+		$.Dialog.confirm('Órarend mentése',
+			'Arra készülsz, hogy mented az órarend változtatásait, köztük számos bejegyzés törlését.<br>Ezzel a törölt bejegyzésekhez tartozó adatok is elvesznek.<br>Biztos vagy benne, hogy végrehajtod a változtatásokat?',
+			['Változtatások mentése','Visszalépés'],
 
-		if (container.delete.length != 0)
-			$.Dialog.confirm(title,
-				'Arra készülsz, hogy mented az órarend változtatásait, köztük számos bejegyzés törlését. Ezzel a törölt bejegyzésekhez tartozó adatok is elvesznek. Biztos vagy benne, hogy végrehajtod a változtatásokat?',
-				['Változtatások mentése','Visszalépés'],
-
-				function(sure){
-					if (!sure) return;
-					e_modify();
-				}
-			);
-		else
-			e_modify();
+			function(sure){
+				if (!sure) return;
+				e_modify();
+			}
+		);
 	});
 });

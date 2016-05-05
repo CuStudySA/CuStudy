@@ -157,8 +157,14 @@
 			}
 
 			$action = $db->where('id',$user['id'])->update('users',$data);
+			$success = $action ? 0 : 3;
 
-			return $action ? 0 : 3;
+			if ($success == 0 && !empty($data['password']))
+				Message::SendNotify('users.change-password',$user['id'],!empty($data['name']) ? $data['name'] : $user['name'],array(
+					'initiator' => !empty($data['name']) ? $data['name'] : $user['name'],
+				));
+
+			return $success;
 		}
 
 		static function EditMyProfile($data){
@@ -178,6 +184,18 @@
 			)));
 
 			return $action;
+		}
+
+		static function GetClassGroupIDs($classIndex = 0, $dataType = 'string'){
+			global $db, $user;
+			$userInGroups = $db->where('classid',$user['class'][$classIndex])->where('userid',$user['id'])->get('group_members',null,'groupid');
+			$groups = [0];
+			foreach ($userInGroups as $in)
+				$groups[] = $in['groupid'];
+			switch ($dataType) {
+				case 'string': return implode(',', $groups);
+				case 'array': return $groups;
+			}
 		}
 
 		static function SetAvatarProvider($provider){

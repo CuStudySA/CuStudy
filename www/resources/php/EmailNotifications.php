@@ -38,4 +38,15 @@ STRING
 STRING
 			),
 		),
+		'users' => array(
+			//Variables: initiator
+			'change-password' => array(
+				'title' => 'Jelszavad megváltozott',
+				'body' => <<<STRING
+					<p>Értesítünk, hogy a CuStudy fiókod jelszava megváltozott! A műveletet ++INITIATOR++ kezdeményezte! A továbbiakban a fiókodat - hagyományos bejelentkezési módot választva - csak az új jelszavad megadásával érheted el!</p>
+
+					<p>Amennyiben a jelszóváltoztatást nem Te, vagy egy ügyedben eljáró munkatársunk kezdeményezte, kérlek haladéktalanul vedd fel a kapcsolatot az ügyfélszolgálatunkkal!</p>
+STRING
+			),
+		),
 	);

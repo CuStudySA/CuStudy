@@ -8,7 +8,7 @@
 			$end = date('c',strtotime($end));
 
 			$data = $db
-				->where('classid', $user['class'][0])
+				->where('classid', $global ? 0 : $user['class'][0])
 				->where('start', $start, '>=')
 				->where('end', $end, '<=')
 				->get('events');
@@ -99,8 +99,8 @@
 		static function GetEventInfos($id){
 			global $db,$user;
 
-			$data = $db->where('id',$id)->where('classid',$user['class'][0])->getOne('events');
-			if (empty($data)) return 1;
+			$data = $db->where('id',$id)->getOne('events');
+			if (empty($data) || ($data['classid'] !== 0 && $data['classid'] !== $user['class'][0])) return 1;
 
 			return array(
 				'Esemény címe' => $data['title'],

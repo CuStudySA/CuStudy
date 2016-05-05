@@ -106,6 +106,23 @@
 			return !in_array($text, $values) ? true : false;
 		}
 
+		static function LoadCoreClass($className){
+			global $root;
+
+			if (strpos(strtolower($className),'swift') !== false)
+				return;
+
+			if (class_exists($className))
+				return;
+
+			$path = $root."resources/php/classes/{$className}.php";
+
+			if (!file_exists($path))
+				throw new Exception("Nem találom a {$className} osztályt!");
+
+			require $path;
+		}
+
 		static function UserIsStudent($role = null){
 			if (empty($ROLE))
 				return (ROLE == 'visitor' || ROLE == 'editor' || ROLE == 'admin');
@@ -161,8 +178,6 @@
 			if (!is_array($envInfos)) return 'guest';
 
 			$session = $ENV['session'] = $db->where('session', $sessionKey)
-				->where('ip', $envInfos['ip'])
-				->where('useragent', $envInfos['useragent'])
 				->get('sessions');
 
 			if (empty($session)) return 'guest';
@@ -172,6 +187,16 @@
 
 			$user = $db->where('id',$userId)->getOne('users');
 			if (empty($user)) return 'guest';
+
+			# IP-cím ellenörzése
+			if (UserSettings::Get('security.checkSessionIp',$userId) != 'false')
+				if ($session['ip'] != $envInfos['ip'])
+					return 'guest';
+
+			# User-agent ellenörzése
+			if (UserSettings::Get('security.checkUserAgent',$userId) != 'false')
+				if ($session['useragent'] != $envInfos['useragent'])
+					return 'guest';
 
 			# Felhasználó szerepkörének megállapítása
 			if ($session['activeSession'] == 0){
@@ -513,8 +538,10 @@
 		}
 
 		// Válaszadó funkció AJAX-hoz
-		static function Respond($m = 'A művelet végrehajtása sikertelen volt!', $s = 0, $x = array()){
+		static function Respond($m = 'A művelet végrehajtása sikertelen volt!', $s = 0, $x = array(), $httpCode = 200){
 			header('Content-Type: application/json');
+			http_response_code($httpCode);
+
 			if ($m === true) $m = array();
 			if (is_array($m) && $s == false && empty($x)){
 				$m['status'] = true;
@@ -607,8 +634,30 @@
 			return 0;
 		}
 
-		static $mailSended = false;
 		static function SendMail($mail){
+			global $db;
+
+			if (!defined('MAIL_USE_CRON'))
+				$cron = false;
+			else
+				$cron = MAIL_USE_CRON;
+
+			if ($cron){
+				$db->insert('mail_queue',array(
+					'title' => $mail['title'],
+					'name' => $mail['to']['name'],
+					'address' => $mail['to']['address'],
+					'body' => $mail['body'],
+				));
+
+				return 0;
+			}
+			else
+				return self::DispatchMail($mail);
+		}
+
+		static $mailSended = false;
+		static function DispatchMail($mail){
 /*          array(
 				'title' (string)
 				'to' => array(
@@ -621,20 +670,20 @@
 			if (!class_exists('Swift_Message'))
 				trigger_error('Nincs betöltve a swiftMailer addon', E_USER_ERROR);
 
-			$message = Swift_Message::newInstance($mail['title']); //Üzenet objektum beállítása és tárgy létrehozása
+			$message = Swift_Message::newInstance($mail['title']); // Üzenet objektum beállítása és tárgy létrehozása
 
-			$message->setBody($mail['body'], 'text/html'); //Szövegtörzs beállítása és szövegtípus beállítása
-			$message->setFrom(array(MAIL_ADDR => MAIL_DISPNAME)); //Feladó e-mail és feladó név
-			$message->setTo(array($mail['to']['address'] => $mail['to']['name'])); //Címzett e-mail és címzett
+			$message->setBody($mail['body'], 'text/html'); // Szövegtörzs beállítása és szövegtípus beállítása
+			$message->setFrom(array(MAIL_ADDR => MAIL_DISPNAME)); // Feladó e-mail és feladó név
+			$message->setTo(array($mail['to']['address'] => $mail['to']['name'])); // Címzett e-mail és címzett
 
-			$transport = Swift_SmtpTransport::newInstance(MAIL_HOST, MAIL_PORT, 'ssl') //Kapcsolódási objektum létrehozása
-		     ->setUsername(MAIL_USRNAME) //SMTP felhasználónév
-		     ->setPassword(MAIL_PWD) //SMTP jelszó
-		     ->setSourceIp('0.0.0.0'); //IPv4 kényszerítése
+			$transport = Swift_SmtpTransport::newInstance(MAIL_HOST, MAIL_PORT, 'ssl') // Kapcsolódási objektum létrehozása
+		     ->setUsername(MAIL_USRNAME) // SMTP felhasználónév
+		     ->setPassword(MAIL_PWD) // SMTP jelszó
+		     ->setSourceIp('0.0.0.0'); // IPv4 kényszerítése
 
-		    $mailer = Swift_Mailer::newInstance($transport); //Küldő objektum létrehozása
+		    $mailer = Swift_Mailer::newInstance($transport); // Küldő objektum létrehozása
 
-		    $action = $mailer->send($message); //Levél küldése
+		    $action = $mailer->send($message); // Levél küldése
 
 			// Várakoztatás
 		    if (!self::$mailSended) usleep(100);
@@ -650,14 +699,22 @@
 				self::Redirect("$desired_path$query", STAY_ALIVE, $http);
 		}
 
-		static function CheckMaintenance(){
-			global $ENV, $db, $error;
-
+		static function ConnectToDatabase(){
 			try {
 				$db = new MysqliDb(DB_HOST,DB_USER,DB_PASS,DB_NAME);
 				@$db->connect();
 			}
 			catch (Exception $e){
+				return false;
+			}
+
+			return $db;
+		}
+
+		static function CheckMaintenance(){
+			global $ENV, $db, $error;
+
+			if (!is_object($db)){
 				$error = 'DB_CONNECTION_FALIED';
 				return true;
 			}
@@ -751,7 +808,7 @@
 		 * Hasznos lehet például abban az esetben, ha szükséges az új rendszerhez az adatbázis-szekezet frissítése, és ezt automatizálni szeretnénk.
 		 */
 		static function RunUpdatingTasks(){
-			global $db, $root;
+			global $db, $root, $ENV;
 
 			$script = $root.'update.inc.php';
 
@@ -759,14 +816,14 @@
 			if (empty($ENV['SOFTWARE']['COMMIT']))
 				return;
 
-			$data = $db->where('key','lastRunningCommit')->getOne('global_settings');
+			$data = $db->where('`key`','lastRunningCommit')->getOne('settings_global');
 			if (empty($data)) return;
 
 			if ($data['value'] == $ENV['SOFTWARE']['COMMIT'])
 				return;
 
 			# Szkript újboli futtatásának megakadályozása
-			$db->where('key','lastRunningCommit')->update('global_settings',array(
+			$db->where('`key`','lastRunningCommit')->update('settings_global',array(
 				'value' => $ENV['SOFTWARE']['COMMIT'],
 			));
 

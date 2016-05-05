@@ -15,6 +15,9 @@
 	$git = 'git';
 	define('LATEST_COMMIT_ID',rtrim(shell_exec("$git rev-parse --short=7 HEAD")));
 
+	# Alapért. témaszín (Chrome Mobile-hoz)
+	define('DEFAULT_THEME_COLOR','#CBD7F1');
+
 	// Mail exchange info
 	define('MAIL_ADDR', '');
 	define('MAIL_DISPNAME', '');
