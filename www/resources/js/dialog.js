@@ -37,6 +37,7 @@
 		$dialogContent = $('#dialogContent'),
 		$dialogHeader = $('#dialogHeader'),
 		$dialogBox = $('#dialogBox'),
+		$dialogWrap = $('#dialogWrap'),
 		$dialogButtons = $('#dialogButtons');
 
 	$.Dialog = (function(){
@@ -219,12 +220,13 @@
 				$dialogOverlay = $makeDiv('dialogOverlay').css('opacity', 0);
 				$dialogHeader = $makeDiv('dialogHeader').text(params.title||defaultTitles[type]);
 				$dialogContent = $makeDiv('dialogContent');
-				$dialogBox = $makeDiv('dialogBox').css({ top: '-10%', opacity: 0 });
+				$dialogBox = $makeDiv('dialogBox').css({ top: $w.height() * -.1, opacity: 0 });
+				$dialogWrap = $makeDiv('dialogWrap');
 
 				$dialogContent.append($contentAdd);
 				$dialogButtons = $makeDiv('dialogButtons').appendTo($dialogContent);
 				$dialogBox.append($dialogHeader).append($dialogContent);
-				$dialogOverlay.append($dialogBox).appendTo($body);
+				$dialogOverlay.append($dialogWrap.append($dialogBox)).appendTo($body);
 
 				setTimeout(function(){
 					$dialogOverlay.add($dialogBox).css('opacity', 1).addClass('animating');
@@ -235,10 +237,8 @@
 				$body.addClass('dialog-open');
 			}
 
-			if (!appendingToRequest){
+			if (!appendingToRequest)
 				$dialogHeader.attr('class',params.color+'-bg');
-				$dialogContent.attr('class',params.color+'-border');
-			}
 
 			if (!appendingToRequest && params.buttons) $.each(params.buttons, function (name, obj) {
 				var $button = $.mk('input').attr({
@@ -303,7 +303,7 @@
 
 			$dialogOverlay.add($dialogBox).css('opacity', 0).addClass('animating');
 			setTimeout(function(){ $dialogOverlay.removeClass('animating') },300);
-			$dialogBox.css('top', '10%');
+			$dialogBox.css('top', $w.height() * .1);
 
 			_closeTimeout = setTimeout(function(){
 				_open = undefined;
