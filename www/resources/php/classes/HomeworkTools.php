@@ -53,6 +53,8 @@
 				if (System::InputCheck($value,$type)) return 0x2;
 			}
 
+			System::LoadLibrary('jbbcode');
+
 			$parser = new JBBCode\Parser();
 			$parser->addCodeDefinitionSet(new JBBCode\AmberCodeDefSet());
 

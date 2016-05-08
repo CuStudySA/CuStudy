@@ -13,6 +13,7 @@
 								ORDER BY c.time DESC
 								LIMIT 5',array($ENV['URL'][0]));
 
+		System::LoadLibrary('mantisIntegration');
 		$Mantis = MantisTools::GetUserMantisStatus($User['id']); ?>
 
 		<h2 id='filterTitle'>Kiválasztott felhasználó: <span class='userName'><?=$User['name']?> (#<?=$User['id']?>)</span></h2>

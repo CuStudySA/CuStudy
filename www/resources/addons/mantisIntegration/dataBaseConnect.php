@@ -23,4 +23,5 @@
 		return $db;
     }
 
+	global $MantisDB;
     $MantisDB = MantisConnect();

@@ -1,7 +1,10 @@
 <?php
 	class MantisTools {
 		static private function _createUser($User, $password){
-			global $MantisDB, $db;
+			global $db;
+
+			System::LoadLibrary('mantisIntegration');
+			global $MantisDB;
 
 			if (is_int($MantisDB))
 				return 3;
@@ -83,6 +86,8 @@
 			 *  'email'
 			 * )
 			 */
+
+			System::LoadLibrary('mantisIntegration');
 			global $MantisDB;
 
 			if (is_int($MantisDB))
@@ -131,7 +136,10 @@
 		}
 
 		static function GetUserMantisStatus($userid){
-			global $MantisDB, $db;
+			global $db;
+
+			System::LoadLibrary('mantisIntegration');
+			global $MantisDB;
 
 			if (is_int($MantisDB))
 				return 1;

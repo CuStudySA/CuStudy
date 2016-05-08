@@ -33,7 +33,7 @@
 		'jbbcode' => array(
 			'php' => ['jbbcode/Parser.php','jbbcode/_AmberCodeDefSet.php'],
 		),
-		 'swiftMailer' => array(
+		'swiftMailer' => array(
 			'php' => ['swiftMailer/swift_required.php'],
 		),
 		'fullCalendar' => array(
@@ -52,7 +52,7 @@
 	# Menüpontok beállítása, JS, CSS és addonok tömbjeinek kezdeti értékadása
 	$css = ['theme.css'];
 	$js = ['jquery.functions.js','dialog.js'];
-	$addon = ['swiftMailer','mantisIntegration'];
+	$addon = [];
 
 	$pages = array(
 		'fooldal' => array(
@@ -147,7 +147,7 @@
 			'css' => 		['homeworks.css','timet.css'],
 			'js' => 		['homeworks.js'],
 			'file' => 		'homeworks',
-			'addons' =>     ['sceditor','jbbcode'],
+			'addons' =>     ['sceditor'],
 		),
 
 		'invitation' => array(

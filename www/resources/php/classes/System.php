@@ -123,6 +123,25 @@
 			require $path;
 		}
 
+		static function LoadLibrary($libraryName){
+			global $ENV, $addons, $root;
+
+			if (in_array($libraryName,$ENV['loaded_addons']))
+				return;
+
+			if (empty($addons[$libraryName]['php']))
+				throw new Exception("Probléma a(z) {$libraryName} addon betöltése közben: nem találom az addont!");
+
+			foreach ($addons[$libraryName]['php'] as $file){
+				if (!file_exists($root."resources/addons/$file"))
+					throw new Exception("Probléma a(z) {$libraryName} addon betöltése közben: nem találom a(z) {$file} fájlt!");
+
+				require $root."resources/addons/$file";
+			}
+
+			$ENV['loaded_addons'][] = $libraryName;
+		}
+
 		static function UserIsStudent($role = null){
 			if (empty($ROLE))
 				return (ROLE == 'visitor' || ROLE == 'editor' || ROLE == 'admin');
@@ -667,8 +686,7 @@
 				'body' (string)
 			) */
 
-			if (!class_exists('Swift_Message'))
-				trigger_error('Nincs betöltve a swiftMailer addon', E_USER_ERROR);
+			System::LoadLibrary('swiftMailer');
 
 			$message = Swift_Message::newInstance($mail['title']); // Üzenet objektum beállítása és tárgy létrehozása
 
