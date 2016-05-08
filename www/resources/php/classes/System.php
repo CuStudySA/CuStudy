@@ -795,7 +795,7 @@
 		}
 
 		// Figyelmeztető üzenet
-		static function Notice($type, $title, $text = null, $center = false){
+		static function Notice($type, $title, $text = null, $center = false, $hidden = false){
 			$NOTICE_TYPES = array('info','success','fail','warn','caution');
 
 			if (!in_array($type, $NOTICE_TYPES))
@@ -818,7 +818,9 @@
 
 			if ($center)
 				$type .= ' align-center';
-			return "<div class='notice $type'>$HTML</div>";
+
+			$hidden = $hidden ? 'style="display: none;"' : '';
+			return "<div class='notice $type' $hidden>$HTML</div>";
 		}
 
 		/**

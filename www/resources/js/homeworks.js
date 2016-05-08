@@ -68,7 +68,7 @@ $(function(){
 						deleteEmptyTd();
 
 						if ($('tbody').children().length == 0)
-							$('table').replaceWith('<p>Nincs megjelenítendő házi feladat! A kezdéshez adjon hozzá egyet, vagy váltson nézetet!</p>');
+							$('.notice').show();
 					}
 					else {
 						$(e.currentTarget).replaceWith("<a class='typcn typcn-times js_undoMarkedDone' title='Késznek jelölés visszavonása' href='#" + id + "'></a>");
@@ -324,6 +324,10 @@ $(function(){
 					if (data.status){
 						$elem.parent().remove();
 						deleteEmptyTd();
+
+						if ($('tbody').children().length == 0)
+							$('.notice').show();
+
 						$.Dialog.close();
 					}
 					else $.Dialog.fail(title,data.message);
