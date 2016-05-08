@@ -31,7 +31,7 @@
 			'js' => ['sceditor/jquery.sceditor.bbcode.min.js','sceditor/hu.js'],
 		),
 		'jbbcode' => array(
-			'php' => ['jbbcode/Parser.php','jbbcode/_BlueSkyCodeDefSet.php'],
+			'php' => ['jbbcode/Parser.php','jbbcode/_AmberCodeDefSet.php'],
 		),
 		 'swiftMailer' => array(
 			'php' => ['swiftMailer/swift_required.php'],
