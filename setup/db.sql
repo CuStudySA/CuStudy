@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Gép: 127.0.0.1
--- Létrehozás ideje: 2016. Máj 02. 23:35
+-- Létrehozás ideje: 2016. Máj 09. 16:29
 -- Kiszolgáló verziója: 5.6.26
 -- PHP verzió: 5.6.12
 
@@ -244,6 +244,23 @@ CREATE TABLE `log__failed_login` (
   `at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `corrected` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `log__homeworks`
+--
+
+CREATE TABLE `log__homeworks` (
+  `id` int(11) NOT NULL,
+  `e_id` int(11) DEFAULT NULL,
+  `lesson` int(11) DEFAULT NULL,
+  `text` tinytext COLLATE utf8mb4_hungarian_ci,
+  `author` int(11) DEFAULT NULL,
+  `week` int(11) DEFAULT NULL,
+  `year` int(11) DEFAULT NULL,
+  `classid` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
 -- --------------------------------------------------------
 
@@ -573,6 +590,12 @@ ALTER TABLE `log__failed_login`
   ADD PRIMARY KEY (`id`);
 
 --
+-- A tábla indexei `log__homeworks`
+--
+ALTER TABLE `log__homeworks`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- A tábla indexei `log__lessons`
 --
 ALTER TABLE `log__lessons`
@@ -746,6 +769,11 @@ ALTER TABLE `log__central`
 -- AUTO_INCREMENT a táblához `log__failed_login`
 --
 ALTER TABLE `log__failed_login`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT a táblához `log__homeworks`
+--
+ALTER TABLE `log__homeworks`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT a táblához `log__lessons`

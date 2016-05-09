@@ -277,11 +277,11 @@
 		'homeworks' => array(
 			'add' => array(
 				'errors' => array(
-					0x1 => 'nincs jogosultsága a művelethez',
-					0x2 => 'valamelyik megadott adat formátuma hibás',
-					0x3 => 'az órarend-bejegyzés nem található',
-					0x4 => 'a meadott órarend-bejegyzés a kapott hét sorszámával nem összeegyeztethető',
-					0x5 => 'ehhez az órához már hozzá van adva egy házi feladat',
+					1 => 'nincs jogosultsága a művelethez',
+					2 => 'valamelyik megadott adat formátuma hibás',
+					3 => 'az órarend-bejegyzés nem található',
+					4 => 'a meadott órarend-bejegyzés a kapott hét sorszámával nem összeegyeztethető',
+					5 => 'ehhez az órához már hozzá van adva egy házi feladat',
 				),
 				'messages' => array(
 					0 => 'A házi feladat hozzáadása sikeresen befejezeődött!',

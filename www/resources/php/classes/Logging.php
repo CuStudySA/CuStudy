@@ -31,6 +31,9 @@
 				'create' => 'Mantis felhasználó létrehozása',
 				'edit' => 'Mantis felhasználó szerkesztése',
 			),
+			'homeworks' => array(
+				'add' => 'Házi feladat hozzáadása',
+			),
 		);
 
 		private function _getHeader(){

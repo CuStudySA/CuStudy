@@ -143,4 +143,26 @@
 			'email' => 'E-mail cím',
 			'userid' => array('C.S. felhasználó',$userid),
 		),
+		'homeworks' => array(
+			'e_id' => array('Bejegyzés azonosítója',function($x){ return '#'.$x; }),
+			'author' => array('Szerző',$userid),
+			'classid' => array('Osztály',$classid),
+			'year' => 'Év',
+			'week' => array('Hét',function($x){ return "{$x}. hét"; }),
+			'text' => 'Szöveg',
+			'lesson' => array('Órarend bejegyzés',function($x){
+				global $db;
+
+				$data = $db->rawQuery('SELECT l.name, tt.week, tt.day, tt.lesson
+										FROM lessons l
+										LEFT JOIN timetable tt
+										ON (tt.lessonid = l.id)
+										WHERE tt.id = ?',array($x));
+
+				if (empty($data)) return "Ismeretlen (#{$x})";
+
+				$data = $data[0];
+				return strtoupper($data['week'])." héten, ".System::$Days[$data['day']]."i napon, {$data['lesson']}. órában ({$data['name']})";
+			}),
+		),
 	);

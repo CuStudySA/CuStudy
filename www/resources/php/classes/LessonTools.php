@@ -32,16 +32,16 @@
 
 			return [$db->insert('lessons',$data)];
 		}
-		static function Add($data_a){
+		static function Add($data){
 			global $user;
 
-			$action = self::_add($data_a);
+			$action = self::_add($data);
 
 			Logging::Insert(array_merge(array(
 				'action' => 'lessons.add',
 				'errorcode' => (!is_array($action) ? $action : 0),
 				'db' => 'lessons',
-			),$data_a,array(
+			),$data,array(
 				'classid' => $user['class'][0],
 				'e_id' => (is_array($action) ? $action[0] : 0),
 			)));
@@ -52,12 +52,12 @@
 // Tantárgy hozzáadása vége
 
 // Tantárgy szerkesztése
-		private static function _edit($data_a){
+		private static function _edit($data){
 			global $db;
 
 			# Formátum ellenörzése
-			if (!System::ValuesExists($data_a,['name','teacherid','id'])) return 2;
-			foreach ($data_a as $key => $value){
+			if (!System::ValuesExists($data,['name','teacherid','id'])) return 2;
+			foreach ($data as $key => $value){
 				if ($key == 'color') continue;
 				switch ($key){
 					case 'name':
@@ -70,7 +70,7 @@
 						$type = 'numeric';
 					break;
 					default:
-						unset($data_a[$key]);
+						unset($data[$key]);
 						continue;
 					break;
 				}
@@ -78,9 +78,9 @@
 			}
 
 			# Jogosultság ellenörzése
-			if (System::PermCheck('lessons.edit',$data_a['id'])) return 1;
+			if (System::PermCheck('lessons.edit',$data['id'])) return 1;
 
-			$action = $db->where('id',$data_a['id'])->update('lessons',$data_a);
+			$action = $db->where('id',$data['id'])->update('lessons',$data);
 
 			if ($action) return 0;
 			else return 3;
