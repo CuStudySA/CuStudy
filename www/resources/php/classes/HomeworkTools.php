@@ -53,8 +53,10 @@
 				if (System::InputCheck($value,$type)) return 0x2;
 			}
 
+			System::LoadLibrary('jbbcode');
+
 			$parser = new JBBCode\Parser();
-			$parser->addCodeDefinitionSet(new JBBCode\BlueSkyCodeDefSet());
+			$parser->addCodeDefinitionSet(new JBBCode\AmberCodeDefSet());
 
 			$parser->parse(nl2br($data['text']));
 
@@ -80,25 +82,25 @@
 			$uploadStatus = 0;
 			if (!empty($_FILES)){
 				$file = reset($_FILES);
-				$uploadStatus = FileTools::UploadFile($file);
 
-				if (is_array($uploadStatus)){
-					$lessonId = $db->where('id', $data['lesson'])->getOne('timetable','lessonid')['lessonid'];
+				$lessonId = $db->where('id', $data['lesson'])->getOne('timetable','lessonid')['lessonid'];
 
-					$action = $db->insert('files',array(
-						'name' => isset($data['fileTitle']) ? $data['fileTitle'] : 'Házi feladathoz feltöltött fájl',
-						'description' => isset($data['fileDesc']) ? $data['fileDesc'] : 'Házi feladathoz feltöltött fájl',
-						'lessonid' => $lessonId,
-						'classid' => $user['class'][0],
-						'uploader' => $user['id'],
-						'size' => $file['size'],
-						'filename' => $file['name'],
-						'tempname' => $uploadStatus[0],
-					));
+				$uploadStatus = FileTools::Insert(array(
+					'file' => $file,
+					'name' => isset($data['fileTitle']) ? $data['fileTitle'] : 'Házi feladathoz feltöltött fájl',
+					'description' => isset($data['fileDesc']) ? $data['fileDesc'] : 'Házi feladathoz feltöltött fájl',
+					'lessonid' => $lessonId,
+					'classid' => $user['class'][0],
+					'uploader' => $user['id'],
+				));
+
+				if (!is_array($uploadStatus))
+					return $uploadStatus;
+				else
 					$uploadStatus = 0;
-					unset($data['fileTitle']);
-					unset($data['fileDesc']);
-				}
+
+				unset($data['fileTitle']);
+				unset($data['fileDesc']);
 			}
 
 			$db->insert('homeworks',array_merge($data,array(
@@ -270,7 +272,8 @@
 			$homeWorks = HomeworkTools::GetHomeworks($numberOfHomework,$onlyListActive);
 ?>
 
-<?php       if (empty($homeWorks)) print System::Notice('info','Nincs megjelenítendő házi feladat! A kezdéshez adjon hozzá egyet, vagy váltson nézetet!'); ?>
+<?php       if (empty($homeWorks)) print System::Notice('info','Nincs megjelenítendő házi feladat! A kezdéshez adjon hozzá egyet, vagy váltson nézetet!');
+			else print System::Notice('info','Nincs megjelenítendő házi feladat! A kezdéshez adjon hozzá egyet, vagy váltson nézetet!',null,false,true) ?>
 
 			<table class='homeworks'>
 		        <tbody>

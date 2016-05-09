@@ -212,8 +212,8 @@
 	$css_list = array_merge($css, !empty($pages[$do]['css']) ? $pages[$do]['css'] : array());
 	$js_list = array_merge($js, !empty($pages[$do]['js']) ? $pages[$do]['js'] : array());
 
-	if (!empty($pages[$do]['customjs'])){
-		foreach($pages[$do]['customjs'] as $key => $value){
+	if (!empty($pages[$do]['sub_js'])){
+		foreach($pages[$do]['sub_js'] as $key => $value){
 			if (empty($key) && empty($ENV['URL'][0])){
 				$js_list[] = $value;
 				break;
@@ -257,6 +257,9 @@
 
 	# Szükséges oldalak betöltése
 	$pages[$do]['addons'] = array_merge(!empty($pages[$do]['addons']) ? $pages[$do]['addons'] : array(),$addon);
+	if (!empty($pages[$do]['sub_addons'][$ENV['URL'][0]]))
+			$pages[$do]['addons'][] = $pages[$do]['sub_addons'][$ENV['URL'][0]];
+
 	if (!empty($pages[$do]['addons'])){
 		foreach ($pages[$do]['addons'] as $addonName){
 			if (empty($addons[$addonName]['php'])) continue;
@@ -287,6 +290,10 @@
 			$respond['css'][] = "{$rootdoc}resources/css/$value";
 
 		$pages[$do]['addons'] = array_merge($pages[$do]['addons'],$addon);
+
+		if (!empty($pages[$do]['sub_addons'][$ENV['URL'][0]]))
+			$pages[$do]['addons'][] = $pages[$do]['sub_addons'][$ENV['URL'][0]];
+
 		if (!empty($pages[$do]['addons'])){
 			foreach ($pages[$do]['addons'] as $addonName){
 				if (!empty($addons[$addonName]['css'])){

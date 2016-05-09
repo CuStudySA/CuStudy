@@ -164,7 +164,7 @@ STRING
 				'name' (string)
 			) */
 
-			global $db,$MantisDB;
+			global $db;
 
 			$token = $data['token'];
 			
@@ -234,8 +234,7 @@ STRING
 			Cookie::set('PHPSESSID',$session,false);
 
 			// Mantis integráció
-			if (!is_int($MantisDB))
-				MantisTools::CreateUser($id,$data['password']);
+			MantisTools::CreateUser($id,$data['password']);
 
 			$print = self::$groupChooser[0];
 

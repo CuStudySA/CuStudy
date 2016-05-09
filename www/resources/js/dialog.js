@@ -38,6 +38,7 @@
 		$dialogHeader = $('#dialogHeader'),
 		$dialogBox = $('#dialogBox'),
 		$dialogWrap = $('#dialogWrap'),
+		$dialogScroll = $('#dialogScroll'),
 		$dialogButtons = $('#dialogButtons');
 
 	$.Dialog = (function(){
@@ -221,12 +222,17 @@
 				$dialogHeader = $makeDiv('dialogHeader').text(params.title||defaultTitles[type]);
 				$dialogContent = $makeDiv('dialogContent');
 				$dialogBox = $makeDiv('dialogBox').css({ top: $w.height() * -.1, opacity: 0 });
+				$dialogScroll = $makeDiv('dialogScroll');
 				$dialogWrap = $makeDiv('dialogWrap');
 
 				$dialogContent.append($contentAdd);
 				$dialogButtons = $makeDiv('dialogButtons').appendTo($dialogContent);
 				$dialogBox.append($dialogHeader).append($dialogContent);
-				$dialogOverlay.append($dialogWrap.append($dialogBox)).appendTo($body);
+				$dialogOverlay.append(
+					$dialogScroll.append(
+						$dialogWrap.append($dialogBox)
+					)
+				).appendTo($body);
 
 				setTimeout(function(){
 					$dialogOverlay.add($dialogBox).css('opacity', 1).addClass('animating');

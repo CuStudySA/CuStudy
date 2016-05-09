@@ -45,7 +45,7 @@
 
 			$classid = $user['class'][0];
 			foreach ($_FILES as $key => $file){
-				$action = FileTools::UploadFile($file);
+				$action = FileTools::Upload($file);
 
 				if (is_int($action))
 					System::Respond(Message::Respond('files.uploadFiles',$action));
