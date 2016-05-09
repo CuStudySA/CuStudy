@@ -257,7 +257,7 @@
 
 	# Szükséges oldalak betöltése
 	$pages[$do]['addons'] = array_merge(!empty($pages[$do]['addons']) ? $pages[$do]['addons'] : array(),$addon);
-	if (!empty($pages[$do]['sub_addons'][$ENV['URL'][0]]))
+	if (!empty($pages[$do]['sub_addons'][!empty($ENV['URL'][0]) ? $ENV['URL'][0] : '']))
 			$pages[$do]['addons'][] = $pages[$do]['sub_addons'][$ENV['URL'][0]];
 
 	if (!empty($pages[$do]['addons'])){
@@ -291,7 +291,7 @@
 
 		$pages[$do]['addons'] = array_merge($pages[$do]['addons'],$addon);
 
-		if (!empty($pages[$do]['sub_addons'][$ENV['URL'][0]]))
+		if (!empty($pages[$do]['sub_addons'][!empty($ENV['URL'][0]) ? $ENV['URL'][0] : '']))
 			$pages[$do]['addons'][] = $pages[$do]['sub_addons'][$ENV['URL'][0]];
 
 		if (!empty($pages[$do]['addons'])){
