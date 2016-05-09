@@ -109,7 +109,7 @@
 			'title' => 		'Órarend',
 			'css' => 		['timet.css','timetables.css'],
 			'js' => 		['jquery.powertip.min.js'],
-			'customjs' =>   ['' => 'timetables/tt-view.js', 'edit' => 'timetables/tt-edit.js','week' => 'timetables/tt-edit.js'],
+			'sub_js' =>     ['' => 'timetables/tt-view.js', 'edit' => 'timetables/tt-edit.js','week' => 'timetables/tt-edit.js'],
 			'file' => 		'timetables',
 		),
 
@@ -123,7 +123,7 @@
 		'groups' => array(
 			'title' => 		'Csoportok',
 			'css' => 		['groups.css'],
-			'customjs' =>   ['' => 'groups.js', 'edit' => 'groups.edit.js','add' => 'groups.add.js',],
+			'sub_js' =>     ['' => 'groups.js', 'edit' => 'groups.edit.js','add' => 'groups.add.js',],
 			'file' => 		'groups',
 		),
 
@@ -138,7 +138,7 @@
 			'title' => 		'Profilom szerkesztése',
 			'css' => 		['profile.css'],
 			'js' => 		[],
-			'customjs' =>   ['' => 'profile.js', 'settings' => 'profile.settings.js'],
+			'sub_js' =>     ['' => 'profile.js', 'settings' => 'profile.settings.js'],
 			'file' => 		'profile',
 		),
 
@@ -147,7 +147,7 @@
 			'css' => 		['homeworks.css','timet.css'],
 			'js' => 		['homeworks.js'],
 			'file' => 		'homeworks',
-			'addons' =>     ['sceditor'],
+			'sub_addons' => ['new' => 'sceditor'],
 		),
 
 		'invitation' => array(
