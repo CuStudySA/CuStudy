@@ -49,8 +49,27 @@
 			return [$start,$end];
 		}
 
-		/** @return int|array */
 		static function Add($data){
+			global $user;
+
+			$action = self::_add($data);
+			$data = System::TrashForeignValues(['interval','isFullDay','title','description'],$data);
+
+			Logging::Insert(array_merge(array(
+				'action' => 'events.add',
+				'errorcode' => is_array($action) ? 0 : $action,
+				'db' => 'events',
+			),$data,is_array($action) ? array(
+				'e_id' => $action[0],
+			) : array(),array(
+				'classid' => $user['class'][0],
+			)));
+
+			return is_array($action) ? 0 : $action;
+		}
+
+		/** @return int|array */
+		static private function _add($data){
 			global $db, $user;
 
 			# Jog. ellenörzése
@@ -93,7 +112,7 @@
 				'isallday' => isset($data['isFullDay']),
 			));
 
-			return !is_int($action) ? 6 : 0;
+			return !is_int($action) ? 6 : [$action];
 		}
 
 		static function GetEventInfos($id){

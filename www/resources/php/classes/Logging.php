@@ -33,7 +33,11 @@
 			),
 			'homeworks' => array(
 				'add' => 'Házi feladat hozzáadása',
+				'delete' => 'Házi feladat törlése',
 			),
+			'events' => array(
+				'add' => 'Esemény hozzáadása',
+			)
 		);
 
 		private function _getHeader(){

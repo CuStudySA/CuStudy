@@ -133,6 +133,25 @@
 		}
 
 		static function Delete($id){
+			global $db, $user;
+
+			$data = $db->where('id',$id)->where('classid',$user['class'][0])->getOne('homeworks');
+			$data = System::TrashForeignValues(['lesson','year','week','text','classid','author'],!empty($data) ? $data : []);
+
+			$action = self::_delete($id);
+
+			Logging::Insert(array_merge(array(
+				'action' => 'homeworks.delete',
+				'errorcode' => $action,
+				'db' => 'homeworks',
+			),$data,array(
+				'e_id' => $id,
+			)));
+
+			return $action;
+		}
+
+		static private function _delete($id){
 			global $db,$user;
 
 			# Form. ellenörzése

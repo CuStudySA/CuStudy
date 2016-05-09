@@ -1,7 +1,7 @@
 <?php
 
 	class CSRF {
-		const tokenLength = 8;
+		const tokenLength = 10;
 		static function Generate(){
 			if (Cookie::get('JSSESSID') !== false) Cookie::delete('JSSESSID');
 			Cookie::set('JSSESSID',Password::Generalas(self::tokenLength),false);

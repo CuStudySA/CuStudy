@@ -165,4 +165,14 @@
 				return strtoupper($data['week'])." héten, ".System::$Days[$data['day']]."i napon, {$data['lesson']}. órában ({$data['name']})";
 			}),
 		),
+		'events' => array(
+			'classid' => array('Osztály',$classid),
+			'e_id' => array('Bejegyzés azonosítója',function($x){ return '#'.$x; }),
+			'title' => 'Cím',
+			'description' => 'Rövid leírás',
+			'interval' => 'Megadott intervallum',
+			'isFullDay' => array('Egész napos-e',function($x){
+				return $x == 1 ? 'Igen' : 'Nem';
+			}),
+		),
 	);
