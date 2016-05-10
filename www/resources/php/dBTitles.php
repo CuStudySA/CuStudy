@@ -174,5 +174,7 @@
 			'isFullDay' => array('Egész napos-e',function($x){
 				return $x == 1 ? 'Igen' : 'Nem';
 			}),
+			'start' => 'Kezdete',
+			'end' => 'Vége',
 		),
 	);

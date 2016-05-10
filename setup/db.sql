@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Gép: 127.0.0.1
--- Létrehozás ideje: 2016. Máj 09. 16:29
+-- Létrehozás ideje: 2016. Máj 10. 17:24
 -- Kiszolgáló verziója: 5.6.26
 -- PHP verzió: 5.6.12
 
@@ -58,10 +58,9 @@ CREATE TABLE `events` (
   `classid` int(11) NOT NULL,
   `start` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
   `end` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `isrepeat` int(11) NOT NULL,
   `title` tinytext COLLATE utf8_hungarian_ci NOT NULL,
   `description` text COLLATE utf8_hungarian_ci NOT NULL,
-  `isallday` int(11) NOT NULL
+  `isFullDay` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
 -- --------------------------------------------------------
@@ -230,6 +229,24 @@ CREATE TABLE `log__central` (
   `time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `u_classid` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `log__events`
+--
+
+CREATE TABLE `log__events` (
+  `id` int(11) NOT NULL,
+  `e_id` int(11) DEFAULT NULL,
+  `classid` int(11) DEFAULT NULL,
+  `title` tinytext COLLATE utf8mb4_hungarian_ci,
+  `description` text COLLATE utf8mb4_hungarian_ci,
+  `isFullDay` int(11) DEFAULT NULL,
+  `interval` tinytext COLLATE utf8mb4_hungarian_ci,
+  `start` timestamp NULL DEFAULT NULL,
+  `end` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
 -- --------------------------------------------------------
 
@@ -584,6 +601,12 @@ ALTER TABLE `log__central`
   ADD PRIMARY KEY (`id`);
 
 --
+-- A tábla indexei `log__events`
+--
+ALTER TABLE `log__events`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- A tábla indexei `log__failed_login`
 --
 ALTER TABLE `log__failed_login`
@@ -764,6 +787,11 @@ ALTER TABLE `lessons`
 -- AUTO_INCREMENT a táblához `log__central`
 --
 ALTER TABLE `log__central`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT a táblához `log__events`
+--
+ALTER TABLE `log__events`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT a táblához `log__failed_login`

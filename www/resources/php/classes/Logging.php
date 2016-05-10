@@ -37,6 +37,8 @@
 			),
 			'events' => array(
 				'add' => 'Esemény hozzáadása',
+				'edit' => 'Esemény szerkesztése',
+				'delete' => 'Esemény törlése',
 			)
 		);
 

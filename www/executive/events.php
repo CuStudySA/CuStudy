@@ -59,8 +59,8 @@
 					$data = $db->where('id',$ENV['POST']['id'])->where('classid',$user['class'][0])->getOne('events');
 
 					if (!empty($data)){
-						$dates = EventTools::ParseDates($data['start'], $data['end'], $data['isallday']);
-						$format = 'Y.m.d.'.(!$data['isallday']?' H:i:s':'');
+						$dates = EventTools::ParseDates($data['start'], $data['end'], $data['isFullDay']);
+						$format = 'Y.m.d.'.(!$data['isFullDay']?' H:i:s':'');
 						$data['start'] = date($format, $dates[0]);
 						$data['end'] = date($format, $dates[1]);
 
