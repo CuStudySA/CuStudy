@@ -177,4 +177,8 @@
 			'start' => 'Kezdete',
 			'end' => 'Vége',
 		),
+
+		'timetable' => array(
+			'classid' => array('Osztály',$classid),
+		),
 	);
