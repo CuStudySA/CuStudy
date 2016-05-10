@@ -7,11 +7,9 @@
 			$start = date('c',strtotime($start));
 			$end = date('c',strtotime($end));
 
-			$data = $db
-				->where('classid', $global ? 0 : $user['class'][0])
-				->where('start', $start, '>=')
-				->where('end', $end, '<=')
-				->get('events');
+			$data = $db->rawQuery('SELECT *
+									FROM `events`
+									WHERE start <= ? && end >= ? && classid = ?',array($end,$start,$global ? 0 : $user['class'][0]));
 
 			$output = [];
 			foreach ($data as $event){
