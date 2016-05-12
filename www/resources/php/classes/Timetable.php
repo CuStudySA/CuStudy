@@ -270,8 +270,11 @@ STRING;
 			$thisYear = strtotime("first monday 1 jan", $currDate);
 			$lastWeekdayDate = strtotime('this monday', $thisYear + $weeksPassedSeconds);
 			// Megfelelő napra ugrás
-			if ($lastWeekDay > 1)
-				$lastWeekdayDate += ($lastWeekDay-1 + ($lastWeekDay-1 > 5 ? 8-$lastWeekDay : 0)) * self::OneDayInSeconds;
+			if ($lastWeekDay > 1){
+				if ($lastWeekDay > 5)
+					$lastWeekDay -= 5-(8-$lastWeekDay);
+				$lastWeekdayDate += $lastWeekDay * self::OneDayInSeconds;
+			}
 			$firstWeekdayDate = $lastWeekdayDate - self::OneWeekInSeconds;
 
 			// Hét betűjele
