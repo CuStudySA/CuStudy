@@ -385,6 +385,14 @@
 					1 => 'Valemlyik fájl (vagy fájlok) feltöltése nem sikerült, mert @msg! (Hibakód: @code)',
 				),
 			),
+			'uploadFile' => array(
+				'errors' => array(
+					1 => 'a fájl nem mozgatható a szerverre',
+					2 => 'nem lehetett a bejegyzést létrehozni',
+				),
+				'messages' => array(
+				),
+			),
 			'delete' => array(
 				'errors' => array(
 					1 => 'nincs jogosultsága a művelethez',

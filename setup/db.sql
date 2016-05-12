@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Gép: 127.0.0.1
--- Létrehozás ideje: 2016. Máj 10. 17:24
+-- Létrehozás ideje: 2016. Máj 12. 23:07
 -- Kiszolgáló verziója: 5.6.26
 -- PHP verzió: 5.6.12
 
@@ -265,6 +265,27 @@ CREATE TABLE `log__failed_login` (
 -- --------------------------------------------------------
 
 --
+-- Tábla szerkezet ehhez a táblához `log__files`
+--
+
+CREATE TABLE `log__files` (
+  `id` int(11) NOT NULL,
+  `e_id` int(11) DEFAULT NULL,
+  `name` tinytext COLLATE utf8mb4_hungarian_ci,
+  `description` text COLLATE utf8mb4_hungarian_ci,
+  `lessonid` int(11) DEFAULT NULL,
+  `classid` int(11) DEFAULT NULL,
+  `size` int(11) DEFAULT NULL,
+  `time` timestamp NULL DEFAULT NULL,
+  `uploader` int(11) DEFAULT NULL,
+  `filename` tinytext COLLATE utf8mb4_hungarian_ci,
+  `tempname` tinytext COLLATE utf8mb4_hungarian_ci,
+  `md5` tinytext COLLATE utf8mb4_hungarian_ci
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Tábla szerkezet ehhez a táblához `log__homeworks`
 --
 
@@ -346,6 +367,17 @@ CREATE TABLE `log__teachers` (
   `classid` int(11) DEFAULT NULL,
   `short` tinytext COLLATE utf8mb4_hungarian_ci,
   `name` tinytext COLLATE utf8mb4_hungarian_ci
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `log__timetable`
+--
+
+CREATE TABLE `log__timetable` (
+  `id` int(11) NOT NULL,
+  `classid` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
 -- --------------------------------------------------------
@@ -613,6 +645,12 @@ ALTER TABLE `log__failed_login`
   ADD PRIMARY KEY (`id`);
 
 --
+-- A tábla indexei `log__files`
+--
+ALTER TABLE `log__files`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- A tábla indexei `log__homeworks`
 --
 ALTER TABLE `log__homeworks`
@@ -646,6 +684,12 @@ ALTER TABLE `log__roles`
 -- A tábla indexei `log__teachers`
 --
 ALTER TABLE `log__teachers`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- A tábla indexei `log__timetable`
+--
+ALTER TABLE `log__timetable`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -799,6 +843,11 @@ ALTER TABLE `log__events`
 ALTER TABLE `log__failed_login`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
+-- AUTO_INCREMENT a táblához `log__files`
+--
+ALTER TABLE `log__files`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
 -- AUTO_INCREMENT a táblához `log__homeworks`
 --
 ALTER TABLE `log__homeworks`
@@ -827,6 +876,11 @@ ALTER TABLE `log__roles`
 -- AUTO_INCREMENT a táblához `log__teachers`
 --
 ALTER TABLE `log__teachers`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT a táblához `log__timetable`
+--
+ALTER TABLE `log__timetable`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT a táblához `log__users`

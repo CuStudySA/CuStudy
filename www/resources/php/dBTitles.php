@@ -177,8 +177,33 @@
 			'start' => 'Kezdete',
 			'end' => 'Vége',
 		),
-
 		'timetable' => array(
 			'classid' => array('Osztály',$classid),
+		),
+		'files' => array(
+			'classid' => array('Osztály',$classid),
+			'uploader' => array('Feltöltő',$userid),
+			'e_id' => array('Bejegyzés azonosítója',function($x){ return '#'.$x; }),
+			'size' => array('Méret',function($x){
+				return FileTools::FormatSize($x);
+			}),
+			'lessonid' => array('Hozzárendelt tantárgy',function($x){
+				global $db;
+
+				if (empty($x)) return 'Nincs';
+
+				$data = $db->rawQuery('SELECT l.name as lname, t.name as tname
+										FROM lessons l
+										LEFT JOIN teachers t
+										ON (t.id = l.teacherid)
+										WHERE l.id = ?',array($x));
+				if (empty($data)) return "Ismeretlen (#{$x})";
+
+				return "{$data[0]['lname']} (tanítja: {$data[0]['tname']})";
+			}),
+			'name' => 'Cím',
+			'description' => 'Leírás',
+			'md5' => 'MD5 Hash',
+			'filename' => 'Fájlnév',
 		),
 	);

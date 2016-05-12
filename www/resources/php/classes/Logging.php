@@ -46,6 +46,9 @@
 			'adminUserTools' => array(
 				'deleteUser' => 'Felhasználó törlése',
 			),
+			'files' => array(
+				'uploadFile' => 'Fájl feltöltése',
+			),
 		);
 
 		private function _getHeader(){

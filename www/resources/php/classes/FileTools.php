@@ -77,6 +77,39 @@
 		 * @return int|array
 		 */
 		static function Insert($data){
+			global $user;
+
+			$action = self::_insert($data);
+			$isSuccess = is_array($action);
+
+			$basicData = System::TrashForeignValues(['name','description','classid','uploader','lessonid'],$data);
+
+			$fileInfo = [];
+			if (!empty($data['file']['size']))
+				$fileInfo['size'] = $data['file']['size'];
+			if (!empty($data['file']['name']))
+				$fileInfo['filename'] = $data['file']['name'];
+			if ($isSuccess){
+				$fileInfo['md5'] = $action['md5'];
+				$fileInfo['tempname'] = $action['tempname'];
+				$fileInfo['e_id'] = $action['file_id'];
+			}
+
+			Logging::Insert(array_merge(array(
+				'action' => 'files.uploadFile',
+				'errorcode' => $isSuccess ? 0 : $action,
+				'db' => 'files',
+			),$basicData,$fileInfo,array(
+				'time' => date('c'),
+				'lessonid' => !empty($data['lessonid']) ? $data['lessonid'] : 0,
+				'classid' => !empty($data['classid']) ? $data['classid'] : $user['class'][0],
+				'uploader' => !empty($data['uploader']) ? $data['uploader'] : $user['id'],
+			)));
+
+			return $data;
+		}
+
+		static private function _insert($data){
 			global $user,$db;
 
 			$file = FileTools::Upload($data['file']);
