@@ -171,6 +171,8 @@ STRING;
 		static function CalcDays(&$TT, $count, $output = false){
 			$days = $TT['opt'];
 			unset($TT['opt']);
+			if (empty($TT))
+				return null;
 			sort($days,SORT_NUMERIC);
 			$days = array_splice($days,0,$count);
 			if ($output){
