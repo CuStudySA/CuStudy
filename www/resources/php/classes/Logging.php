@@ -48,6 +48,7 @@
 			),
 			'files' => array(
 				'uploadFile' => 'Fájl feltöltése',
+				'delete' => 'Fájl törlése',
 			),
 		);
 
@@ -87,6 +88,8 @@
 
 			$datab = $data['db'];
 			unset($data['db']);
+
+			if (empty($data)) return true;
 
 			return $db->insert('log__'.$datab,$data);
 		}

@@ -160,6 +160,28 @@
 		}
 
 		static function DeleteFile($id){
+			global $db, $user;
+
+			$data = $db->where('id',$id)->where('classid',$user['class'][0])->getOne('files');
+
+			if (!empty($data))
+				$data = System::TrashForeignValues(['name','lessonid','description','classid','size','time','uploader','filename','tempname','md5'],$data);
+			else $data = [];
+
+			$action = self::_deleteFile($id);
+
+			Logging::Insert(array_merge(array(
+				'action' => 'files.delete',
+				'errorcode' => $action,
+				'db' => 'files',
+			),$data,array(
+				'e_id' => $id,
+			)));
+
+			return $action;
+		}
+
+		static private function _deleteFile($id){
 			global $db, $user, $root;
 
 			# Jog. ellenörzése
