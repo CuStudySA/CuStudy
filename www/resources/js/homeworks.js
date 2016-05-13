@@ -4,16 +4,17 @@ $(function(){
 		showHidden = false,
 		files = [], $lP = $('#lessonPicker'), $sDP = $('#startDatePicker');
 
-	$("textarea").eq(0).sceditor({
-		plugins: "bbcode",
-		toolbar: "bold,italic,underline|color,removeformat|cut,copy,paste|source",
-		style: '/resources/addons/sceditor/jquery.sceditor.default.min.css',
-		width: "80%",
-		height: "170px",
-		runWithoutWysiwygSupport: true,
-		locale: 'hu',
-		emoticonsEnabled: false,
-	});
+	if ($("textarea").length !== 0)
+		$("textarea").eq(0).sceditor({
+			plugins: "bbcode",
+			toolbar: "bold,italic,underline|color,removeformat|cut,copy,paste|source",
+			style: '/resources/addons/sceditor/jquery.sceditor.default.min.css',
+			width: "80%",
+			height: "170px",
+			runWithoutWysiwygSupport: true,
+			locale: 'hu',
+			emoticonsEnabled: false,
+		});
 
 	var deleteEmptyTd = function(){
 		var index = -1,

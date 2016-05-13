@@ -111,6 +111,22 @@
 		}
 
 		static function ProcessTable($data){
+			global $user;
+
+			$action = self::_processTable($data);
+
+			Logging::Insert(array_merge(array(
+				'action' => 'timetables.progressTable',
+				'errorcode' =>$action,
+				'db' => 'timetable',
+
+				'classid' => $user['class'][0],
+			)));
+
+			return $action;
+		}
+
+		static private function _processTable($data){
 			# Jog. ellenörzése
 			if (System::PermCheck('timetables.edit')) return 2;
 

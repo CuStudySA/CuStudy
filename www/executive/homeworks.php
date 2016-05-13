@@ -7,7 +7,7 @@
 
 			$action = HomeworkTools::Add($ENV['POST']);
 
-			System::Respond(Message::Respond('homeworks.add',$action), $action == 0 ? 1 : 0);
+			System::Respond(Message::Respond('homeworks.add',is_array($action) ? 0 : $action), is_array($action) ? 1 : 0);
 		break;
 
 		case 'delete':

@@ -29,6 +29,9 @@ $(function(){
 						return false;
 					}
 
+					if (!data.status)
+						return $.Dialog.fail(title,data.message);
+
 					$this.toggleClass('typcn-plus typcn-minus');
 					var $append = $.mk('div').attr('class','expandable-section').css('display','none'),
 						$global = $.mk('div').attr('class','global').html("<h3>Alapvető adatok</h3>"),

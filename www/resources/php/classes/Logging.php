@@ -31,6 +31,25 @@
 				'create' => 'Mantis felhasználó létrehozása',
 				'edit' => 'Mantis felhasználó szerkesztése',
 			),
+			'homeworks' => array(
+				'add' => 'Házi feladat hozzáadása',
+				'delete' => 'Házi feladat törlése',
+			),
+			'events' => array(
+				'add' => 'Esemény hozzáadása',
+				'edit' => 'Esemény szerkesztése',
+				'delete' => 'Esemény törlése',
+			),
+			'timetables' => array(
+				'progressTable' => 'Órarend módosítása',
+			),
+			'adminUserTools' => array(
+				'deleteUser' => 'Felhasználó törlése',
+			),
+			'files' => array(
+				'uploadFile' => 'Fájl feltöltése',
+				'delete' => 'Fájl törlése',
+			),
 		);
 
 		private function _getHeader(){
@@ -69,6 +88,8 @@
 
 			$datab = $data['db'];
 			unset($data['db']);
+
+			if (empty($data)) return true;
 
 			return $db->insert('log__'.$datab,$data);
 		}
@@ -116,13 +137,14 @@
 
 			# Altábla bejegyzés ellenörzése
 			if ($action === false) return 2;
-			if ($action === true) $separated['central']['sublogid'] = 0;
-			$separated['central']['sublogid'] = $action;
+			else if ($action === true) $separated['central']['sublogid'] = 0;
+			else $separated['central']['sublogid'] = $action;
 
 			# Bejegyzés készítése a főtáblába
-			$action = $logclass->_insertCentral(array_merge($separated['central'],array(
+			$action = $logclass->_insertCentral(array_merge($separated['central'],
+				!empty($data['db']) ? array(
 				'db' => $data['db'],
-			)));
+			) : array()));
 
 			# Eredmény feldolgozása
 			return $action ? 0 : 3;

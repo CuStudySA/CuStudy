@@ -77,6 +77,39 @@
 		 * @return int|array
 		 */
 		static function Insert($data){
+			global $user;
+
+			$action = self::_insert($data);
+			$isSuccess = is_array($action);
+
+			$basicData = System::TrashForeignValues(['name','description','classid','uploader','lessonid'],$data);
+
+			$fileInfo = [];
+			if (!empty($data['file']['size']))
+				$fileInfo['size'] = $data['file']['size'];
+			if (!empty($data['file']['name']))
+				$fileInfo['filename'] = $data['file']['name'];
+			if ($isSuccess){
+				$fileInfo['md5'] = $action['md5'];
+				$fileInfo['tempname'] = $action['tempname'];
+				$fileInfo['e_id'] = $action['file_id'];
+			}
+
+			Logging::Insert(array_merge(array(
+				'action' => 'files.uploadFile',
+				'errorcode' => $isSuccess ? 0 : $action,
+				'db' => 'files',
+			),$basicData,$fileInfo,array(
+				'time' => date('c'),
+				'lessonid' => !empty($data['lessonid']) ? $data['lessonid'] : 0,
+				'classid' => !empty($data['classid']) ? $data['classid'] : $user['class'][0],
+				'uploader' => !empty($data['uploader']) ? $data['uploader'] : $user['id'],
+			)));
+
+			return $data;
+		}
+
+		static private function _insert($data){
 			global $user,$db;
 
 			$file = FileTools::Upload($data['file']);
@@ -127,6 +160,28 @@
 		}
 
 		static function DeleteFile($id){
+			global $db, $user;
+
+			$data = $db->where('id',$id)->where('classid',$user['class'][0])->getOne('files');
+
+			if (!empty($data))
+				$data = System::TrashForeignValues(['name','lessonid','description','classid','size','time','uploader','filename','tempname','md5'],$data);
+			else $data = [];
+
+			$action = self::_deleteFile($id);
+
+			Logging::Insert(array_merge(array(
+				'action' => 'files.delete',
+				'errorcode' => $action,
+				'db' => 'files',
+			),$data,array(
+				'e_id' => $id,
+			)));
+
+			return $action;
+		}
+
+		static private function _deleteFile($id){
 			global $db, $user, $root;
 
 			# Jog. ellenörzése
