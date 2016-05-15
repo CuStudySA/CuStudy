@@ -66,7 +66,7 @@ $(function(){
 
 				var $form = $formTempl.clone(true,true),
 					$classid = $form.find('select[name=classid]');
-				timeEnabled = data.isallday != 1;
+				timeEnabled = data.isFullDay != 1;
 				$form.find('input[name=isFullDay]').attr('checked',!timeEnabled);
 				$form.find('input[name=isGlobal]').attr('checked', Boolean(data.global)).triggerHandler('change');
 				$form.find('input[name=interval]').val(data.start + ' ~ ' + data.end);
@@ -140,7 +140,7 @@ $(function(){
 
 	function mkResultTR(row){
 		var props = [];
-		if (row.isallday)
+		if (row.isFullDay)
 			props.push('Egész napos');
 		if (row.global)
 			props.push('Globális esemény');
@@ -207,6 +207,7 @@ $(function(){
 
 					if ($resultCont.is(':not(:empty)'))
 						$filterForm.triggerHandler('submit');
+					else $.Dialog.close();
 				});
 			});
 		});

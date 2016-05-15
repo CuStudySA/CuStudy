@@ -1,37 +1,55 @@
 <?php
-
 	class Logging {
 		static $subTables = array(
 			'login' => 'login',
 		);
 
-		static $DataTitles = array(
-			'CONSTANS' => array(
-				'useragent' => 'Böngésző azonosítója',
-				'ipaddr' => 'IP-cím',
-				'errorcode' => 'Hibakód',
-			),
-
-			'login' => array(
-				'username' => 'Begépelt felhasználónév',
-				'user' => 'Belépett felhasználó',
-			),
-
-			'failed_login' => array(
-				'userid' => 'Felhasználó azonosító',
-				'ip' => 'IP cím',
-				'at' => 'Próbálkozás időbélyege',
-			),
-		);
-
 		static $ActionLabels = array(
-			'login' => 'Bejelentkezés',
-			'lesson_add' => 'Új tantárgy felvétele',
-			'lesson_edit' => 'Tantárgy szerkesztése',
-			'lesson_del' => 'Tantárgy törlése',
-			'user_add' => 'Új felhasználó felvétele',
-			'user_edit' => 'Felhasználó szerkesztése',
-			'user_del' => 'Felhasználó törlése',
+			'users' => array(
+				'modifyRole' => 'Felhasználó lokális szerepkörének szerkesztése',
+				'eject' => 'Felhasználó lokális szerepkörének eltávolítása',
+				'editMyProfile' => 'Felh. saját adatainak módosítása',
+				'enrollUser' => 'Új lokális szerepkör hozzáadása',
+			),
+			'lessons' => array(
+				'add' => 'Tantárgy hozzáadása',
+				'edit' => 'Tantárgy szerkesztése',
+				'delete' => 'Tantárgy törlése',
+			),
+			'teachers' => array(
+				'add' => 'Tanár hozzáadása',
+				'edit' => 'Tanár szerkesztése',
+				'delete' => 'Tanár törlése',
+			),
+			'system' => array(
+				'login' => 'Bejelentkezés',
+			),
+			'invitation' => array(
+				'registration' => 'Regisztráció meghívó segítségével',
+			),
+			'mantis_users' => array(
+				'create' => 'Mantis felhasználó létrehozása',
+				'edit' => 'Mantis felhasználó szerkesztése',
+			),
+			'homeworks' => array(
+				'add' => 'Házi feladat hozzáadása',
+				'delete' => 'Házi feladat törlése',
+			),
+			'events' => array(
+				'add' => 'Esemény hozzáadása',
+				'edit' => 'Esemény szerkesztése',
+				'delete' => 'Esemény törlése',
+			),
+			'timetables' => array(
+				'progressTable' => 'Órarend módosítása',
+			),
+			'adminUserTools' => array(
+				'deleteUser' => 'Felhasználó törlése',
+			),
+			'files' => array(
+				'uploadFile' => 'Fájl feltöltése',
+				'delete' => 'Fájl törlése',
+			),
 		);
 
 		private function _getHeader(){
@@ -56,7 +74,7 @@
 
 			if (!isset($data['user'])) $data['user'] = $user['id'];
 
-			return $db->insert('log_central',array_merge($data,$this->_getHeader()));
+			return $db->insert('log__central',array_merge($data,$this->_getHeader()));
 		}
 
 		private function _insertSubLog($data = null){
@@ -71,11 +89,13 @@
 			$datab = $data['db'];
 			unset($data['db']);
 
-			return $db->insert('log_'.$datab,$data);
+			if (empty($data)) return true;
+
+			return $db->insert('log__'.$datab,$data);
 		}
 
 		private function _spliceData($data){
-			$splita = ['action','user','errorcode'];
+			$splita = ['action','user','errorcode','u_classid'];
 
 			foreach ($splita as $value){
 				if (isset($data[$value])){
@@ -88,36 +108,9 @@
 			return $splito;
 		}
 
-		private function _translateDbTitles($centraldata){
-			global $db;
+		static function Insert($data){
+			global $db, $user, $ENV;
 
-			switch ($centraldata['action']){
-				case 'login':
-					$query = 'SELECT username,user,ipaddr,errorcode
-							FROM `log_login` INNER JOIN log_central
-							ON log_central.sublogid = log_login.id
-							WHERE log_login.id = '.$centraldata['sublogid'];
-				break;
-
-				default:
-					return false;
-			}
-
-			$data = $db->rawQuery($query);
-			if (empty($data)) return false;
-
-			$titles = array_merge(self::$DataTitles['CONSTANS'],self::$DataTitles[$centraldata['action']]);
-
-			$Finished = array();
-
-			foreach ($data as $subdata)
-				foreach ($subdata as $key => $value)
-					$Finished[] = array($titles[$key],$value);
-
-			return $Finished;
-		}
-
-		static function Insert($data_p){
 /*          array(
 				(req)'action' => 'login',
 				(opt)'db' => 'login',
@@ -127,58 +120,119 @@
 
 			$logclass = new Logging();
 
+
+			# Cselekvő akt. szerekörének meghatározása
+			if (!isset($data['user']) && !empty($user)){
+				$data['user'] = $user['id'];
+
+				if (!empty($ENV['class']))
+					$data['u_classid'] = $ENV['class']['id'];
+			}
+
 			# Adatok szétválasztása a funkcióknak
-			$data = $logclass->_spliceData($data_p);
+			$separated = $logclass->_spliceData($data);
 
 			# Bejegyzés készítése az altáblába
-			$action = $logclass->_insertSubLog($data['sublog']);
+			$action = $logclass->_insertSubLog($separated['sublog']);
 
 			# Altábla bejegyzés ellenörzése
 			if ($action === false) return 2;
-			if ($action === true) $data['central']['sublogid'] = 0;
-			$data['central']['sublogid'] = $action;
+			else if ($action === true) $separated['central']['sublogid'] = 0;
+			else $separated['central']['sublogid'] = $action;
 
 			# Bejegyzés készítése a főtáblába
-			$action = $logclass->_insertCentral(array_merge($data['central'],array('db' => $data_p['db'])));
+			$action = $logclass->_insertCentral(array_merge($separated['central'],
+				!empty($data['db']) ? array(
+				'db' => $data['db'],
+			) : array()));
 
 			# Eredmény feldolgozása
 			return $action ? 0 : 3;
 		}
 
-		# TODO Át kell írni a GetDetails() funkciót az új jogosultsági szintekhez!
-		static function GetDetails($id){
-			global $db,$user,$ENV;
-			$logclass = new Logging();
+		static function GetLog(){
+			global $user, $db;
 
-			# Bejegyzés ellenörzése
-			if (!preg_match('/^\d+$/',$id)) return 1;
-			$dataid = $db->where('id',$id)->getOne('log_central');
-			$userdataid = $db->where('id',$dataid['user'])->getOne('users');
+			$fullReadable = array('teachers','lessons');
 
-			# Jogosultság ellenörzése
-			switch (ROLE){
-				case 'admin':
-					if ($dataid['user'] === 0) return 2;
-					if ($userdataid['classid'] != $user['class'][0]) return 3;
-				break;
-
-				case 'schooladmin':
-					if ($dataid['user'] === 0) return 2;
-					$classdata = $db->where('id',$userdataid['classid'])->getOne('class');
-					if ($ENV['school']['id'] != $classdata['id']) return 3;
-				break;
-
-				case 'sysadmin': break;
-
-				default:
-					return 4;
+			if (!System::PermCheck('logs.getClassLog')){
+				$Log = $db->rawQuery('SELECT lc.*, u.username
+										FROM log__central lc
+										LEFT JOIN users u
+										ON u.id = lc.user
+										WHERE lc.u_classid = ?
+										ORDER BY lc.time DESC
+										LIMIT 30',array($user['class'][0]));
 			}
 
-			if (!isset(self::$subTables[$dataid['action']])) return 5;
+			else if (!System::PermCheck('logs.getAllUserLog'))
+				$Log = $db->rawQuery('SELECT lc.*, u.username
+										FROM log__central lc
+										LEFT JOIN users u
+										ON u.id = lc.user
+										ORDER BY lc.time DESC
+										LIMIT 30');
+			else
+				return 1;
 
-			$action['details'] = $logclass->_translateDbTitles($dataid);
+			$Return = array();
+			foreach ($Log as $entry){
+				$action = explode('.',$entry['action']);
 
-			return $action['details'] !== false ? $action : 6;
+				if (count($action) == 1) $Action = 'Esemény';
+				else {
+					if (!empty(self::$ActionLabels[$action[0]][$action[1]]))
+						$Action = self::$ActionLabels[$action[0]][$action[1]];
+					else
+						$Action = 'Esemény';
+				}
+
+				$Return[] = array(
+					'ip' => $entry['ipaddr'],
+					'time' => date('c',strtotime($entry['time'])),
+					'id' => $entry['id'],
+					'action' => $Action,
+					'username' => !empty($entry['username']) ? $entry['username'] : '(ismeretlen)',
+				);
+			}
+
+			return $Return;
+		}
+
+		static private function _progressData($data, $type = 'global'){
+			global $dBTitles;
+
+			$r = [];
+
+			foreach ($data as $k => $v){
+				if (empty($dBTitles[$type][$k])) continue;
+				if (empty($v) && $k != 'errorcode') continue;
+
+				$tile = $dBTitles[$type][$k];
+				if (!is_array($tile))
+					$r[$tile] = $v;
+				else {
+					$entry = $data;
+					$r[$tile[0]] = call_user_func($tile[1],$v,$entry);
+				}
+			}
+
+			return $r;
+		}
+
+		static function GetDetails($id){
+			global $db, $ENV;
+
+			$central = $db->where('id',$id)->getOne('log__central');
+
+			$sub = [];
+			if (!empty($central['sublogid'])){
+				$sub = $db->where('id',$central['sublogid'])->getOne('log__'.$central['db']);
+
+				if (empty($sub))
+					$sub = [];
+			}
+
+			return array('global' => self::_progressData($central), 'sub' => self::_progressData($sub,$central['db']));
 		}
 	}
-

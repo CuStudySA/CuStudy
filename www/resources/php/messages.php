@@ -7,7 +7,9 @@
 					2 => 'a felhasználó nem létezik, esetleg hibás a jelszó',
 					3 => 'túl sokszor adtál meg hibás jelszót rövid időn belül. Várj 1-2 percet, és próbálkozz újra',
 					4 => 'a felhasználó állapota tiltott',
-					5 => 'az osztály vagy iskola állapota tiltott',
+					5 => 'a felhasználó nem rendelkezik aktív szerepkörrel',
+					6 => 'nem sikerült kiolvasni a munkamenet indításához szükséges adatokat',
+					7 => 'az alapértelmezett szerepkör nem akítv',
 				),
 				'messages' => array(
 					1 => 'A bejelentkezés sikertelen volt, mert @msg! (Hibakód: @code)',
@@ -16,22 +18,7 @@
 		),
 
 		'users' => array(
-			'add' => array(
-				'errors' => array(
-					1 => 'hiányzik egy szükséges adat',
-					2 => 'valamelyik megadott adat formátuma hibás',
-					3 => 'a megadott jelszavak nem egyeznek',
-					4 => 'már foglalt a megadott felhasználónév',
-					5 => 'már foglalt a megadott felhasználónév',
-					6 => 'létezik felhasználó a megadott e-mail címmel',
-					7 => 'nincs jogosultsága a művelethez'
-				),
-				'messages' => array(
-					0 => 'A felhasználó hozzáadása sikeresen megtörtént!',
-					1 => 'A felhasználót nem sikerült létrehozni, mert @msg! (Hibakód: @code)',
-				),
-			),
-			'edit' => array(
+			'modifyRole' => array(
 				'errors' => array(
 					1 => 'nincs jogosultsága a művelethez',
 					2 => 'valamelyik megadott adat formátuma hibás',
@@ -68,6 +55,33 @@
 				),
 				'messages' => array(
 					1 => 'A felhasználó törlése az osztályból sikertelen volt, mert @msg! (Hibakód: @code)',
+				),
+			),
+			'editMyProfile' => array(
+				'errors' => array(
+					1 => 'a megadott jelszó nem egyezik meg a felhasználó jelszavával',
+					2 => 'a megadott két új jelszó nem egyezik meg',
+				),
+				'messages' => array(
+					0 => 'A felhasználói adatok frissítése sikeresen megtörtént!',
+					1 => 'A felhasználói adatok frissítése sikertelen volt, mert @msg! (Hibakód: @code)',
+				),
+			),
+			'enrollUser' => array(
+				'errors' => array(
+					1 => 'már létezik szerepkör ehhez a felhasználóhoz',
+					2 => 'hiba történt az adatbázisba íráskor',
+				),
+				'messages' => array(
+				),
+			),
+			'applySettings' => array(
+				'errors' => array(
+
+				),
+				'messages' => array(
+					0 => 'A felhasználói beállítások frissítése sikeresen megtörtént!',
+					1 => 'A felhasználói beállítások frissítése sikertelen volt, mert @msg! (Hibakód: @code)',
 				),
 			),
 		),
@@ -108,16 +122,6 @@
 					1 => 'A távoli szolgátató fiókjának leválasztása sikertelen volt, mert @msg! (Hibakód: @code)',
 				),
 			),
-			'editMyProfile' => array(
-				'errors' => array(
-					1 => 'a megadott jelszó nem egyezik meg a felhasználó jelszavával',
-					2 => 'a megadott két új jelszó nem egyezik meg',
-				),
-				'messages' => array(
-					0 => 'A felhasználói adatok frissítése sikeresen megtörtént!',
-					1 => 'A felhasználói adatok frissítése sikertelen volt, mert @msg! (Hibakód: @code)',
-				),
-			),
 			'setavatarprovider' => array(
 				'errors' => array(
 					1 => 'a megadott szolgáltató nem létezik',
@@ -136,6 +140,7 @@
 					3 => 'az összekapcsolás létezik, de nem található a helyi felhasználó',
 					4 => 'az osztály vagy iskola nem aktív a rendszerben',
 					5 => 'nem sikerült kiolvasni a munkamenet indításához szükséges adatokat',
+					6 => 'a felhasználó nem rendelkezik aktív szerepkörrel',
 				),
 				'messages' => array(
 					1 => 'Nem sikerült bejelentkezni a(z) @provider szolgáltató segítségével, mert @msg! (Hibakód: @code)',
@@ -272,10 +277,11 @@
 		'homeworks' => array(
 			'add' => array(
 				'errors' => array(
-					0x1 => 'nincs jogosultsága a művelethez',
-					0x2 => 'valamelyik megadott adat formátuma hibás',
-					0x3 => 'az órarend-bejegyzés nem található',
-					0x4 => 'a meadott órarend-bejegyzés a kapott hét sorszámával nem összeegyeztethető',
+					1 => 'nincs jogosultsága a művelethez',
+					2 => 'valamelyik megadott adat formátuma hibás',
+					3 => 'az órarend-bejegyzés nem található',
+					4 => 'a meadott órarend-bejegyzés a kapott hét sorszámával nem összeegyeztethető',
+					5 => 'ehhez az órához már hozzá van adva egy házi feladat',
 				),
 				'messages' => array(
 					0 => 'A házi feladat hozzáadása sikeresen befejezeődött!',
@@ -379,6 +385,14 @@
 					1 => 'Valemlyik fájl (vagy fájlok) feltöltése nem sikerült, mert @msg! (Hibakód: @code)',
 				),
 			),
+			'uploadFile' => array(
+				'errors' => array(
+					1 => 'a fájl nem mozgatható a szerverre',
+					2 => 'nem lehetett a bejegyzést létrehozni',
+				),
+				'messages' => array(
+				),
+			),
 			'delete' => array(
 				'errors' => array(
 					1 => 'nincs jogosultsága a művelethez',
@@ -394,9 +408,10 @@
 			'add' => array(
 				'errors' => array(
 					1 => 'nincs jogosultsága a művelethez',
-					2 => 'valamelyik megadott adat formátuma hibás',
-					3 => "az esemény időtartama nem 'kezdet ~ vég' formátumban lett megadva",
-					4 => 'a megadott intervallum nem értelmezhető',
+					2 => 'valamelyik mezű üresen maradt',
+					3 => 'valamelyik megadott adat formátuma hibás',
+					4 => "az esemény időtartama nem 'kezdet ~ vég' formátumban lett megadva",
+					5 => 'a megadott intervallum nem értelmezhető',
 				),
 				'messages' => array(
 					0 => 'Az esemény hozzáadása sikeresen megtörtént!',
@@ -406,9 +421,10 @@
 			'edit' => array(
 				'errors' => array(
 					1 => 'nincs jogosultsága a művelethez',
-					2 => 'valamelyik megadott adat formátuma hibás',
-					3 => "az esemény időtartama nem 'kezdet ~ vég' formátumban lett megadva",
-					4 => 'a megadott intervallum nem értelmezhető',
+					2 => 'valamelyik mezű üresen maradt',
+					3 => 'valamelyik megadott adat formátuma hibás',
+					4 => "az esemény időtartama nem 'kezdet ~ vég' formátumban lett megadva",
+					5 => 'a megadott intervallum nem értelmezhető',
 				),
 				'messages' => array(
 					0 => 'Az esemény szerkesztése sikeresen megtörtént!',
@@ -466,6 +482,7 @@
 				),
 			),
 		),
+
 		'adminUserTools' => array(
 			'editBasicInfos' => array(
 				'errors' => array(
@@ -566,6 +583,28 @@
 				'messages' => array(
 					0 => 'Az esemény szerkesztése sikeresen megtörtént!',
 					1 => 'Az esemény szerkesztése nem sikerült, mert @msg! (Hibakód: @code)',
+				),
+			),
+		),
+		'mantis_users' => array(
+			'create' => array(
+				'errors' => array(
+					1 => 'a felhasználónak már van Mantis fiókja',
+					2 => 'nem sikerült az adatbázisba írás',
+					3 => "a Mantis integráció ki van kapcsolva",
+					4 => 'már van a Mantis rendszerben azonos adatokkal rendelkező felh.',
+				),
+				'messages' => array(
+				),
+			),
+			'edit' => array(
+				'errors' => array(
+					1 => "a Mantis integráció ki van kapcsolva",
+					2 => 'a Mantis fiók nem található',
+					3 => 'valamelyik megadott adat formátuma hibás',
+					4 => 'nem sikerült az adatbázisba írás',
+				),
+				'messages' => array(
 				),
 			),
 		),

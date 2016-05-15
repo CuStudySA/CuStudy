@@ -5,7 +5,7 @@
 		default: ?>
 			<main>
 				<!-- Amber flag start -->
-				<p>Fejlesztés alatt álló szoftververzió!</p>
+				<p id='underDevelopment'>Fejlesztés alatt álló szoftververzió!</p>
 				<!-- Amber flag end -->
 				<div id="main">
 					<div id="wrap">
@@ -20,8 +20,8 @@
 								<p class="redirect">A kért oldal megtekintéséhez be kell jelentkezned!</p>
 <?php       } ?>
 								<form id="loginform">
-									<input type='text' name='username' placeholder='Felhasználónév' tabindex=1 autocomplete="off">
-									<input type='password' name='password' placeholder='Jelszó' tabindex=2>
+									<input type='text' name='username' placeholder='Felhasználónév' required tabindex=1 autocomplete="off">
+									<input type='password' name='password' placeholder='Jelszó' required tabindex=2>
 <?php       if (!empty($ENV['GET']['r'])){ ?>
 									<input type='hidden' name='r' value='<?=$ENV['GET']['r']?>'>
 <?php       } ?>

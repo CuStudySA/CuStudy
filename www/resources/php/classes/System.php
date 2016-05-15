@@ -1,5 +1,4 @@
 <?php
-
 	class System {
 		static $Patterns = array(
 			'username' => '^[a-zA-Z\d]{3,15}$',
@@ -65,7 +64,7 @@
 					$preg = '/^\d+$/';
 				break;
 				case 'text':
-					$preg = '/^[0-9A-ZÁÉÍÓÖŐÚÜŰa-záéíóöőúüű.-?,!()"" ]{2,}$/';
+					$preg = '/^[ -~ÁÉÍÓÖŐÚÜŰáéíóöőúüű]{2,}$/';
 				break;
 				case 'suburl':
 					$preg = '/^[a-zA-Z0-9\/]{1,}$/';
@@ -105,6 +104,42 @@
 		// HTML választómenü értékek ell.
 		static function OptionCheck($text = '',$values = []){
 			return !in_array($text, $values) ? true : false;
+		}
+
+		static function LoadCoreClass($className){
+			global $root;
+
+			if (strpos(strtolower($className),'swift') !== false)
+				return;
+
+			if (class_exists($className))
+				return;
+
+			$path = $root."resources/php/classes/{$className}.php";
+
+			if (!file_exists($path))
+				throw new Exception("Nem találom a {$className} osztályt!");
+
+			require $path;
+		}
+
+		static function LoadLibrary($libraryName){
+			global $ENV, $addons, $root;
+
+			if (in_array($libraryName,$ENV['loaded_addons']))
+				return;
+
+			if (empty($addons[$libraryName]['php']))
+				throw new Exception("Probléma a(z) {$libraryName} addon betöltése közben: nem találom az addont!");
+
+			foreach ($addons[$libraryName]['php'] as $file){
+				if (!file_exists($root."resources/addons/$file"))
+					throw new Exception("Probléma a(z) {$libraryName} addon betöltése közben: nem találom a(z) {$file} fájlt!");
+
+				require $root."resources/addons/$file";
+			}
+
+			$ENV['loaded_addons'][] = $libraryName;
 		}
 
 		static function UserIsStudent($role = null){
@@ -148,19 +183,6 @@
 			return $return;
 		}
 
-		static function GetUserClasses(&$user){
-			global $db;
-
-			$data = $db->where('userid', $user['id'])->get('class_members');
-			$classes = array();
-			foreach ($data as $array)
-				$classes[] = $array['classid'];
-
-			$user['class'] = $classes;
-
-			return $classes;
-		}
-
 		//Cookie ellenőrzés & '$user' generálása
 		static function CheckLogin() {
 			global $db, $ENV;
@@ -175,8 +197,6 @@
 			if (!is_array($envInfos)) return 'guest';
 
 			$session = $ENV['session'] = $db->where('session', $sessionKey)
-				->where('ip', $envInfos['ip'])
-				->where('useragent', $envInfos['useragent'])
 				->get('sessions');
 
 			if (empty($session)) return 'guest';
@@ -186,6 +206,16 @@
 
 			$user = $db->where('id',$userId)->getOne('users');
 			if (empty($user)) return 'guest';
+
+			# IP-cím ellenörzése
+			if (UserSettings::Get('security.checkSessionIp',$userId) != 'false')
+				if ($session['ip'] != $envInfos['ip'])
+					return 'guest';
+
+			# User-agent ellenörzése
+			if (UserSettings::Get('security.checkUserAgent',$userId) != 'false')
+				if ($session['useragent'] != $envInfos['useragent'])
+					return 'guest';
 
 			# Felhasználó szerepkörének megállapítása
 			if ($session['activeSession'] == 0){
@@ -213,7 +243,7 @@
 		}
 
 		// Bejelentkezés
-		static private function _login($username,$password){
+		static private function _login($username,$password,$calledAgain = false){
 			global $db, $ENV;
 
 			# Formátum ellenörzése
@@ -224,16 +254,46 @@
 
 			if (!$data['active']) return 4;
 
+			# Felhasználó rendelkezik-e élő szerepkörrel?
+			if ($data['defaultSession'] == 0){
+				if ($data['role'] == 'none'){
+					if (!$calledAgain){
+						self::FindRole($data);
+						return self::_login($username,$password,true);
+					}
+					else
+						return 5;
+				}
+			}
+			else {
+				$Roles = $db->where('id',$data['defaultSession'])->getOne('class_members');
+				if (empty($Roles)){
+					if (!$calledAgain){
+						self::FindRole($data);
+						return self::_login($username,$password,true);
+					}
+					else
+						return 5;
+				}
+			}
+
+			# Felhasználó beléphet-e a szerepköre alapján?
+			if ($data['defaultSession'] != 0){
+				$conn = $db->where('id',$data['defaultSession'])->getOne('class_members');
+				if (System::UserActParent($conn['classid']))
+					return 7;
+			}
+
 			$IP = $ENV['SERVER']['REMOTE_ADDR'];
 			$failedLogins = $db->rawQuery(
-				'SELECT COUNT(*) as cnt FROM log_failed_login
+				'SELECT COUNT(*) as cnt FROM log__failed_login
 				WHERE userid = ? && ip = ? && corrected IS NULL && at > NOW() - INTERVAL 2 MINUTE',array($data['id'],$IP));
 			if (!empty($failedLogins[0]['cnt']) && $failedLogins[0]['cnt'] > 5)
 				return 3;
 
 			if (!Password::Ellenorzes($password,$data['password'])){
 				Logging::Insert(array(
-					'action' => 'failed_login',
+					'action' => 'login.failed_login',
 					'db' => 'failed_login',
 					'userid' => $data['id'],
 					'ip' => $IP,
@@ -244,14 +304,14 @@
 			else $db->where('userid', $data['id'])
 					->where('ip', $IP)
 					->where('corrected IS NULL')
-					->update('log_failed_login', array('corrected' => date('c')));
+					->update('log__failed_login', array('corrected' => date('c')));
 
 			# Session generálása és süti beállítása
 			$session = Password::GetSession($username);
 			Cookie::set('PHPSESSID',$session,false);
 
 			$envInfos = self::GetBrowserEnvInfo();
-			if (!is_array($envInfos)) return 'guest';
+			if (!is_array($envInfos)) return 6;
 
 			self::_clearSessions($data);
 
@@ -269,7 +329,7 @@
 			$action = self::_login($username,$password);
 
 			Logging::Insert(array(
-				'action' => 'login',
+				'action' => 'system.login',
 				'user' => (is_array($action) ? $action[0] : 0),
 				'errorcode' => (!is_array($action) ? $action : 0),
 				'db' => 'login',
@@ -284,17 +344,16 @@
 		static function Logout($User = null){
 			global $user;
 
-			if (empty($User)){
+			if (!empty($User))
+				self::_clearSessions($User);
+
+			else {
 				# Felh. bejelentkézésnek ellenörzése
 				if (empty($user) || !is_array($user)) return 1;
 
-				$User = $user;
-			}
-
-			self::_clearSessions($User);
-
-			if (!empty($User))
+				self::_clearSessions($user);
 				Cookie::delete('PHPSESSID');
+			}
 
 			return 0;
 		}
@@ -302,7 +361,25 @@
 		// Munkamenetek törlése
 		static private function _clearSessions($user){
 			global $db;
+
 			$db->where('userid', $user['id'])->delete('sessions');
+		}
+
+		static function FindRole($User){
+			global $db;
+
+			$defSession = 0;
+
+			if ($User['role'] == 'none'){
+				$Roles = $db->where('userid',$User['id'])->get('class_members');
+
+				if (!empty($Roles))
+					$defSession = $Roles[0]['id'];
+			}
+
+			$db->where('id',$User['id'])->update('users',array(
+				'defaultSession' => $defSession,
+			));
 		}
 
 		static function CompilePerms(){
@@ -480,8 +557,10 @@
 		}
 
 		// Válaszadó funkció AJAX-hoz
-		static function Respond($m = 'A művelet végrehajtása sikertelen volt!', $s = 0, $x = array()){
+		static function Respond($m = 'A művelet végrehajtása sikertelen volt!', $s = 0, $x = array(), $httpCode = 200){
 			header('Content-Type: application/json');
+			http_response_code($httpCode);
+
 			if ($m === true) $m = array();
 			if (is_array($m) && $s == false && empty($x)){
 				$m['status'] = true;
@@ -544,6 +623,11 @@
 					return 4;
 			}
 
+			# Felhasználó rendelkezik-e élő szerepkörrel?
+			$Roles = $db->where('userid',$user['id'])->getOne('class_members');
+			if (empty($Roles))
+				return 6;
+
 			$db->where('id', $data['id'])->update('ext_connections',array(
 				'name' => isset($userData['name']) ? $userData['name'] : '',
 				'email' => isset($userData['email']) ? $userData['email'] : '',
@@ -569,8 +653,30 @@
 			return 0;
 		}
 
-		static $mailSended = false;
 		static function SendMail($mail){
+			global $db;
+
+			if (!defined('MAIL_USE_CRON'))
+				$cron = false;
+			else
+				$cron = MAIL_USE_CRON;
+
+			if ($cron){
+				$db->insert('mail_queue',array(
+					'title' => $mail['title'],
+					'name' => $mail['to']['name'],
+					'address' => $mail['to']['address'],
+					'body' => $mail['body'],
+				));
+
+				return 0;
+			}
+			else
+				return self::DispatchMail($mail);
+		}
+
+		static $mailSended = false;
+		static function DispatchMail($mail){
 /*          array(
 				'title' (string)
 				'to' => array(
@@ -580,23 +686,22 @@
 				'body' (string)
 			) */
 
-			if (!class_exists('Swift_Message'))
-				trigger_error('Nincs betöltve a swiftMailer addon', E_USER_ERROR);
+			System::LoadLibrary('swiftMailer');
 
-			$message = Swift_Message::newInstance($mail['title']); //Üzenet objektum beállítása és tárgy létrehozása
+			$message = Swift_Message::newInstance($mail['title']); // Üzenet objektum beállítása és tárgy létrehozása
 
-			$message->setBody($mail['body'], 'text/html'); //Szövegtörzs beállítása és szövegtípus beállítása
-			$message->setFrom(array(MAIL_ADDR => MAIL_DISPNAME)); //Feladó e-mail és feladó név
-			$message->setTo(array($mail['to']['address'] => $mail['to']['name'])); //Címzett e-mail és címzett
+			$message->setBody($mail['body'], 'text/html'); // Szövegtörzs beállítása és szövegtípus beállítása
+			$message->setFrom(array(MAIL_ADDR => MAIL_DISPNAME)); // Feladó e-mail és feladó név
+			$message->setTo(array($mail['to']['address'] => $mail['to']['name'])); // Címzett e-mail és címzett
 
-			$transport = Swift_SmtpTransport::newInstance(MAIL_HOST, MAIL_PORT, 'ssl') //Kapcsolódási objektum létrehozása
-		     ->setUsername(MAIL_USRNAME) //SMTP felhasználónév
-		     ->setPassword(MAIL_PWD) //SMTP jelszó
-		     ->setSourceIp('0.0.0.0'); //IPv4 kényszerítése
+			$transport = Swift_SmtpTransport::newInstance(MAIL_HOST, MAIL_PORT, 'ssl') // Kapcsolódási objektum létrehozása
+		     ->setUsername(MAIL_USRNAME) // SMTP felhasználónév
+		     ->setPassword(MAIL_PWD) // SMTP jelszó
+		     ->setSourceIp('0.0.0.0'); // IPv4 kényszerítése
 
-		    $mailer = Swift_Mailer::newInstance($transport); //Küldő objektum létrehozása
+		    $mailer = Swift_Mailer::newInstance($transport); // Küldő objektum létrehozása
 
-		    $action = $mailer->send($message); //Levél küldése
+		    $action = $mailer->send($message); // Levél küldése
 
 			// Várakoztatás
 		    if (!self::$mailSended) usleep(100);
@@ -612,14 +717,22 @@
 				self::Redirect("$desired_path$query", STAY_ALIVE, $http);
 		}
 
-		static function CheckMaintenance(){
-			global $ENV, $db, $error;
-
+		static function ConnectToDatabase(){
 			try {
 				$db = new MysqliDb(DB_HOST,DB_USER,DB_PASS,DB_NAME);
 				@$db->connect();
 			}
 			catch (Exception $e){
+				return false;
+			}
+
+			return $db;
+		}
+
+		static function CheckMaintenance(){
+			global $ENV, $db, $error;
+
+			if (!is_object($db)){
 				$error = 'DB_CONNECTION_FALIED';
 				return true;
 			}
@@ -658,7 +771,7 @@
 		}
 
 		/**
-		 * NHatározott névelő hozzáadása egy stringhez
+		 * Határozott névelő hozzáadása egy stringhez
 		 *
 		 * @param string $str    Karaktersorozat
 		 * @param bool   $upperc Nagybetűvel kezdődjön-e a névelő
@@ -680,5 +793,71 @@
 				$a .= 'z';
 			return "$a ".($btw ? "$btw " : '').$str;
 		}
-	}
 
+		// Figyelmeztető üzenet
+		static function Notice($type, $title, $text = null, $center = false, $hidden = false){
+			$NOTICE_TYPES = array('info','success','fail','warn','caution');
+
+			if (!in_array($type, $NOTICE_TYPES))
+				throw new Exception("Invalid notice type $type");
+
+			if (!is_string($text)){
+				if (is_bool($text))
+					$center = $text;
+				$text = $title;
+				unset($title);
+			}
+
+			$HTML = '';
+			if (!empty($title))
+				$HTML .= '<label>'.htmlspecialchars($title).'</label>';
+
+			$textRows = preg_split("/(\r\n|\n|\r){2}/", $text);
+			foreach ($textRows as $row)
+				$HTML .= '<p>'.trim($row).'</p>';
+
+			if ($center)
+				$type .= ' align-center';
+
+			$hidden = $hidden ? 'style="display: none;"' : '';
+			return "<div class='notice $type' $hidden>$HTML</div>";
+		}
+
+		/**
+		 * A funkció segítségével megoldható az, hogy csak egy új commit után csak egyszer végrehajtódjon egy PHP szkript.
+		 * Hasznos lehet például abban az esetben, ha szükséges az új rendszerhez az adatbázis-szekezet frissítése, és ezt automatizálni szeretnénk.
+		 */
+		static function RunUpdatingTasks(){
+			global $db, $root, $ENV;
+
+			$script = $root.'update.inc.php';
+
+			# Kell-e futtatni a frissítő szkriptet?
+			if (empty($ENV['SOFTWARE']['COMMIT']))
+				return;
+
+			$data = $db->where('`key`','lastRunningCommit')->getOne('settings_global');
+			if (empty($data)) return;
+
+			if ($data['value'] == $ENV['SOFTWARE']['COMMIT'])
+				return;
+
+			# Szkript újboli futtatásának megakadályozása
+			$db->where('`key`','lastRunningCommit')->update('settings_global',array(
+				'value' => $ENV['SOFTWARE']['COMMIT'],
+			));
+
+			# Létezik-e a frissítő szkript?
+			if (!file_exists($script))
+				return;
+
+			# Minden rendben van, futtassuk az Updating szkriptet...
+			require_once $script;
+
+			# Törlöm a szkriptet, nehogy lefusson mégegyszer!
+			unlink($script);
+
+			# Figyelmeztető üzenet a felhasználónak, funckió vége!
+			die("A CuStudy frissítése befejeződött, a frissítési utómunkálatok végrehajtódtak! Kérem, frissítse ezt az oldalt a CuStudy betöltéséhez!");
+		}
+	}

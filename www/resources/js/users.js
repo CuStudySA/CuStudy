@@ -22,7 +22,7 @@ $(function(){
 								</div>\
 							</div>\
 							<div class='bottom'>\
-								<a class='typcn typcn-pencil js_user_edit' href='' title='Módosítás'></a>\
+								<a class='typcn typcn-edit js_user_edit' href='' title='Módosítás'></a>\
 								<a class='typcn typcn-media-eject js_user_eject' href='' title='Felhasználó osztálybeli szerepkörének törlése'></a>\
 							</div>\
 						</li>");
@@ -211,12 +211,13 @@ $(function(){
 					$urlap.on('submit',function(e){
 						e.preventDefault();
 
+						var data = $urlap.serializeForm();
 						$.Dialog.wait(title);
 
 						$.ajax({
 							method: "POST",
 							url: "/users/edit",
-							data: $urlap.serializeForm(),
+							data: data,
 							success: function(data2){
 								if (typeof data2 === 'string'){
 									console.log(data2);

@@ -5,33 +5,32 @@ $(function(){
 		btn_switchToSelectionMode = $('.js_switchToSelectionMode').clone(),
 		timeEnabled = true;
 
+	// TODO az ellenörzéshez használt ált.kif.-eket külön kell mozgatni, és itt valahogy hozzáadni pattern attribútumként
 	var $formTempl = $("<form id='js_form'>\
-	                        <p>Egész napos? <input type='checkbox' name='isFullDay' value='1'>ez az esemény egész napos</p>\
-							<p>Időtartam: <input type='text' name='interval' id='dateRangePicker'></p>\
-							<p>Cím: <input type='text' name='title' placeholder='Esemény címe' required></p>\
-							<p>Rövid leírás: <br><textarea name='description' placeholder='Esemény leírása'></textarea></p>\
+							<label><span>Esemény címe</span><input type='text' name='title' required></label>\
+							<label><span>Időtartam</span><input type='text' name='interval' id='dateRangePicker' required></label>\
+	                        <label><input type='checkbox' name='isFullDay' value='1' autocomplete='off'> Egész napos esemény</label>\
+							<label><span>Esemény rövid leírása</span><textarea name='description' required></textarea></label>\
 						</form>");
 
 	var e_getEventInfos = function(event){
-			var title = 'Esemény információinak lekérése';
-
-			$.Dialog.wait(title);
+			$.Dialog.wait('Esemény részletei','Esemény részleteinek lekérése');
 
 			$.ajax({
-					method: "POST",
-					url: "/events/getEventInfos",
-					data: pushToken({'id': event.id}),
-					success: function(data){
-						if (typeof data === 'string'){
-							console.log(data);
-							$(window).trigger('ajaxerror');
-							return false;
-						}
-						if (data.status)
-							$.Dialog.info(title,data.html);
-
-						else $.Dialog.fail(title,data.message);
+				method: "POST",
+				url: "/events/getEventInfos",
+				data: pushToken({'id': event.id}),
+				success: function(data){
+					if (typeof data === 'string'){
+						console.log(data);
+						$(window).trigger('ajaxerror');
+						return false;
 					}
+
+					if (data.status)
+						$.Dialog.info(false, data.html);
+					else $.Dialog.fail(false, data.message);
+				}
 			});
 		},
 		calendarSettings = {
@@ -43,6 +42,8 @@ $(function(){
 			},
 			eventLimit: true,
 			height: 530,
+			nextDayThreshold: '00:00:00',
+			timezone: 'local',
 
 			eventClick: function(event) {
 				if (inSelectMode){
@@ -89,61 +90,54 @@ $(function(){
 		$('.js_switchToSelectionMode').on('click',e_switchToSelectionMode);
 	};
 
+	var drpBaseConfig = {
+		startOfWeek: 'monday',
+		separator: ' ~ ',
+		autoClose: false,
+		language: 'hu',
+	};
+	$.fn.drpConfigure = function(){
+		var $form = this,
+			$drp = $('#dateRangePicker'),
+			$fullDay = $form.find('input[name=isFullDay]');
+
+		$fullDay.on('change', function(){
+			timeEnabled = !this.checked;
+			if (typeof $drp.data('dateRangePicker') !== 'undefined')
+				$drp.data('dateRangePicker').destroy();
+			$drp.dateRangePicker($.extend({
+				format: 'YYYY.MM.DD.'+(timeEnabled?' HH:mm':''),
+				time: { enabled: timeEnabled },
+			},drpBaseConfig));
+			$drp.triggerHandler('change');
+		}).triggerHandler('change');
+
+		return this;
+	};
+
 	$('.js_add').on('click',function(e){
 		e.preventDefault();
 
-		var $dialog = $formTempl.clone(),
-			title = 'Esemény hozzáadása';
+		var title = 'Esemény hozzáadása';
 
-		$.Dialog.request(title,$dialog.prop('outerHTML'),'js_form','Mentés',function(){
-			$('#dateRangePicker').dateRangePicker({
-				startOfWeek: 'monday',
-				separator : ' ~ ',
-				format: 'YYYY.MM.DD HH:mm',
-				autoClose: false,
-				time: {
-					enabled: true
-				},
-			});
-
-			$('input[name=isFullDay]').change(function(){
-				$('#dateRangePicker').data('dateRangePicker').destroy();
-				$('#dateRangePicker').dateRangePicker({
-					startOfWeek: 'monday',
-					separator : ' ~ ',
-					format: 'YYYY.MM.DD. HH:mm',
-					autoClose: false,
-					time: {
-						enabled: !timeEnabled
-					},
-				});
-				timeEnabled = !timeEnabled;
-			});
-
-			var $urlap = $('#js_form');
-
-			$urlap.on('submit',function(e){
+		$.Dialog.request(title,$formTempl.clone(),'js_form','Mentés',function($urlap){
+			$urlap.drpConfigure().on('submit',function(e){
 				e.preventDefault();
 
+				var data = $urlap.serializeForm();
 				$.Dialog.wait(title);
 
-				$.ajax({
-					method: "POST",
-					url: "/events/add",
-					data: $urlap.serializeForm(),
-					success: function(data){
-						if (typeof data === 'string'){
-							console.log(data);
-							$(window).trigger('ajaxerror');
-							return false;
-						}
-						if (data.status){
-							$calendar.fullCalendar('refetchEvents');
-
-							$.Dialog.close();
-						}
-						else $.Dialog.fail(title,data.message);
+				$.post('/events/add', data, function(data){
+					if (typeof data === 'string'){
+						console.log(data);
+						$(window).trigger('ajaxerror');
+						return false;
 					}
+					if (!data.status) return $.Dialog.fail(title,data.message);
+
+					$('#calendar').fullCalendar('refetchEvents');
+
+					$.Dialog.close();
 				});
 			});
 		});
@@ -153,10 +147,11 @@ $(function(){
 	$('.js_edit').on('click',function(e){
 		e.preventDefault();
 
-		var $dialog = $formTempl.clone(),
-			title = 'Esemény szerkesztése';
+		var $dialog = $formTempl.clone();
 
 		if (typeof $selectedEvent == 'undefined') return;
+
+		$.Dialog.wait('Esemény szerkesztése', 'Esemény adatainak lekérése');
 
 		$.ajax({
 			method: "POST",
@@ -169,76 +164,44 @@ $(function(){
 					return false;
 				}
 				if (data.status){
-					$dialog.find('input[name=isFullDay]').attr('checked',data.isallday == 1);
+					timeEnabled = data.isFullDay != 1;
+					$dialog.find('input[name=isFullDay]').attr('checked',!timeEnabled);
 					$dialog.find('input[name=interval]').attr('value',data.start + ' ~ ' + data.end);
 					$dialog.find('input[name=title]').attr('value',data.title);
 					$dialog.find('textarea[name=description]').text(data.description);
 
-					$.Dialog.request(title,$dialog.prop('outerHTML'),'js_form','Mentés',function(){
-						$('#dateRangePicker').dateRangePicker({
-							startOfWeek: 'monday',
-							separator : ' ~ ',
-							format: 'YYYY.MM.DD HH:mm',
-							autoClose: false,
-							time: {
-								enabled: true
-							},
-						});
-
-						$('input[name=isFullDay]').change(function(){
-							$('#dateRangePicker').data('dateRangePicker').destroy();
-							$('#dateRangePicker').dateRangePicker({
-								startOfWeek: 'monday',
-								separator : ' ~ ',
-								format: 'YYYY.MM.DD. HH:mm',
-								autoClose: false,
-								time: {
-									enabled: !timeEnabled
-								},
-							});
-							timeEnabled = !timeEnabled;
-						});
-
-						var $urlap = $('#js_form');
-
-						$urlap.on('submit',function(e){
+					$.Dialog.request(false,$dialog,'js_form','Mentés',function($urlap){
+						$urlap.drpConfigure().on('submit',function(e){
 							e.preventDefault();
 
-							$.Dialog.wait(title);
+							var data = $urlap.serializeForm();
+							data.id = $selectedEvent.id;
+							$.Dialog.wait(false);
 
-							var $data = $urlap.serializeForm();
-							$data['id'] = $selectedEvent.id;
-
-							$.ajax({
-								method: "POST",
-								url: "/events/edit",
-								data: $data,
-								success: function(data){
-									if (typeof data === 'string'){
-										console.log(data);
-										$(window).trigger('ajaxerror');
-										return false;
-									}
-									if (data.status){
-										$calendar.fullCalendar('refetchEvents');
-
-										$selectedEvent = undefined;
-										$('.js_edit').attr('disabled',true);
-										$('.js_delete').attr('disabled',true);
-
-										$('.js_switchToViewMode').replaceWith(btn_switchToSelectionMode);
-										$('.js_switchToSelectionMode').on('click',e_switchToSelectionMode);
-										inSelectMode = false;
-
-										$.Dialog.close();
-									}
-									else $.Dialog.fail(title,data.message);
+							$.post('/events/edit', data, function(data){
+								if (typeof data === 'string'){
+									console.log(data);
+									$(window).trigger('ajaxerror');
+									return false;
 								}
+
+								if (!data.status) return $.Dialog.fail(false,data.message);
+								$('#calendar').fullCalendar('refetchEvents');
+
+								$selectedEvent = undefined;
+								$('.js_edit').attr('disabled',true);
+								$('.js_delete').attr('disabled',true);
+
+								$('.js_switchToViewMode').replaceWith(btn_switchToSelectionMode);
+								$('.js_switchToSelectionMode').on('click',e_switchToSelectionMode);
+								inSelectMode = false;
+
+								$.Dialog.close();
 							});
 						});
 					});
 				}
-				else return $.Dialog.fail(title,data.message);
+				else return $.Dialog.fail(false,data.message);
 			}
 		});
 	});

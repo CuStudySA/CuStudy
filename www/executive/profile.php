@@ -23,7 +23,7 @@
 				System::Respond();
 			$action = UserTools::EditMyProfile($ENV['POST']);
 
-			System::Respond(Message::Respond('extConnTools.editMyProfile',$action), $action == 0);
+			System::Respond(Message::Respond('users.editMyProfile',$action), $action == 0);
 		break;
 
 		case 'setavatarprovider':
@@ -41,6 +41,15 @@
 					'picture' => UserTools::GetAvatarURL($user),
 				));
 			}
+		break;
+
+		case 'settings':
+			if (!empty($ENV['POST']))
+				$action = UserSettings::Apply($ENV['POST']);
+			else
+				System::Respond();
+
+			System::Respond(Message::Respond('users.applySettings',$action), $action == 0);
 		break;
 	}
 

@@ -48,7 +48,7 @@ $(function(){
 		var id = $(e.currentTarget).attr('data-id'),
 			title = 'Osztály alapadatainak szerkesztése';
 
-		$.Dialog.wait(title,'Alapadatok lekérdezése...');
+		$.Dialog.wait(title,'Alapadatok lekérdezése');
 
 		$.ajax({
 			method: "POST",

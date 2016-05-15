@@ -1,3 +1,12 @@
+-- phpMyAdmin SQL Dump
+-- version 4.5.2
+-- http://www.phpmyadmin.net
+--
+-- Gép: 127.0.0.1
+-- Létrehozás ideje: 2016. Máj 12. 23:07
+-- Kiszolgáló verziója: 5.6.26
+-- PHP verzió: 5.6.12
+
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
 
@@ -8,10 +17,8 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Adatbázis: `custudy`
+-- Adatbázis: `custudy.amber`
 --
-CREATE DATABASE IF NOT EXISTS `custudy` DEFAULT CHARACTER SET utf8 COLLATE utf8_hungarian_ci;
-USE `custudy`;
 
 -- --------------------------------------------------------
 
@@ -51,10 +58,9 @@ CREATE TABLE `events` (
   `classid` int(11) NOT NULL,
   `start` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
   `end` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `isrepeat` int(11) NOT NULL,
   `title` tinytext COLLATE utf8_hungarian_ci NOT NULL,
   `description` text COLLATE utf8_hungarian_ci NOT NULL,
-  `isallday` int(11) NOT NULL
+  `isFullDay` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
 -- --------------------------------------------------------
@@ -90,20 +96,9 @@ CREATE TABLE `files` (
   `time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `uploader` int(11) NOT NULL,
   `filename` tinytext COLLATE utf8_hungarian_ci NOT NULL,
-  `tempname` tinytext COLLATE utf8_hungarian_ci NOT NULL
+  `tempname` tinytext COLLATE utf8_hungarian_ci NOT NULL,
+  `md5` tinytext COLLATE utf8_hungarian_ci
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
-
--- --------------------------------------------------------
-
---
--- Tábla szerkezet ehhez a táblához `global_settings`
---
-
-CREATE TABLE `global_settings` (
-  `id` int(11) NOT NULL,
-  `key` tinytext COLLATE utf8_hungarian_ci NOT NULL,
-  `value` tinytext COLLATE utf8_hungarian_ci NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
 -- --------------------------------------------------------
 
@@ -155,7 +150,7 @@ CREATE TABLE `homeworks` (
   `text` tinytext COLLATE utf8_hungarian_ci NOT NULL,
   `author` int(11) NOT NULL,
   `week` int(11) NOT NULL,
-  `year` int(11) NOT NULL DEFAULT '2016',
+  `year` int(11) NOT NULL,
   `classid` int(11) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
@@ -219,28 +214,47 @@ CREATE TABLE `lessons` (
 -- --------------------------------------------------------
 
 --
--- Tábla szerkezet ehhez a táblához `log_central`
+-- Tábla szerkezet ehhez a táblához `log__central`
 --
 
-CREATE TABLE `log_central` (
+CREATE TABLE `log__central` (
   `id` int(11) NOT NULL,
   `action` tinytext COLLATE utf8_hungarian_ci NOT NULL,
   `db` tinytext COLLATE utf8_hungarian_ci NOT NULL,
-  `user` int(11) NOT NULL,
+  `user` int(11) DEFAULT NULL,
   `sublogid` int(11) NOT NULL,
   `errorcode` int(11) NOT NULL,
   `useragent` tinytext COLLATE utf8_hungarian_ci NOT NULL,
   `ipaddr` tinytext COLLATE utf8_hungarian_ci NOT NULL,
-  `time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
+  `time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `u_classid` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
 -- --------------------------------------------------------
 
 --
--- Tábla szerkezet ehhez a táblához `log_failed_login`
+-- Tábla szerkezet ehhez a táblához `log__events`
 --
 
-CREATE TABLE `log_failed_login` (
+CREATE TABLE `log__events` (
+  `id` int(11) NOT NULL,
+  `e_id` int(11) DEFAULT NULL,
+  `classid` int(11) DEFAULT NULL,
+  `title` tinytext COLLATE utf8mb4_hungarian_ci,
+  `description` text COLLATE utf8mb4_hungarian_ci,
+  `isFullDay` int(11) DEFAULT NULL,
+  `interval` tinytext COLLATE utf8mb4_hungarian_ci,
+  `start` timestamp NULL DEFAULT NULL,
+  `end` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `log__failed_login`
+--
+
+CREATE TABLE `log__failed_login` (
   `id` int(11) NOT NULL,
   `userid` int(11) NOT NULL,
   `ip` tinytext COLLATE utf8_hungarian_ci NOT NULL,
@@ -251,115 +265,154 @@ CREATE TABLE `log_failed_login` (
 -- --------------------------------------------------------
 
 --
--- Tábla szerkezet ehhez a táblához `log_lesson_add`
+-- Tábla szerkezet ehhez a táblához `log__files`
 --
 
-CREATE TABLE `log_lesson_add` (
+CREATE TABLE `log__files` (
   `id` int(11) NOT NULL,
-  `e_id` int(11) NOT NULL,
-  `classid` int(11) NOT NULL,
-  `name` tinytext COLLATE utf8_hungarian_ci NOT NULL,
-  `teacherid` int(11) NOT NULL,
-  `color` tinytext COLLATE utf8_hungarian_ci NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
+  `e_id` int(11) DEFAULT NULL,
+  `name` tinytext COLLATE utf8mb4_hungarian_ci,
+  `description` text COLLATE utf8mb4_hungarian_ci,
+  `lessonid` int(11) DEFAULT NULL,
+  `classid` int(11) DEFAULT NULL,
+  `size` int(11) DEFAULT NULL,
+  `time` timestamp NULL DEFAULT NULL,
+  `uploader` int(11) DEFAULT NULL,
+  `filename` tinytext COLLATE utf8mb4_hungarian_ci,
+  `tempname` tinytext COLLATE utf8mb4_hungarian_ci,
+  `md5` tinytext COLLATE utf8mb4_hungarian_ci
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
 -- --------------------------------------------------------
 
 --
--- Tábla szerkezet ehhez a táblához `log_lesson_del`
+-- Tábla szerkezet ehhez a táblához `log__homeworks`
 --
 
-CREATE TABLE `log_lesson_del` (
+CREATE TABLE `log__homeworks` (
   `id` int(11) NOT NULL,
-  `e_id` int(11) NOT NULL,
-  `classid` int(11) NOT NULL,
-  `name` tinytext COLLATE utf8_hungarian_ci NOT NULL,
-  `teacherid` int(11) NOT NULL,
-  `color` tinytext COLLATE utf8_hungarian_ci NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
+  `e_id` int(11) DEFAULT NULL,
+  `lesson` int(11) DEFAULT NULL,
+  `text` tinytext COLLATE utf8mb4_hungarian_ci,
+  `author` int(11) DEFAULT NULL,
+  `week` int(11) DEFAULT NULL,
+  `year` int(11) DEFAULT NULL,
+  `classid` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
 -- --------------------------------------------------------
 
 --
--- Tábla szerkezet ehhez a táblához `log_lesson_edit`
+-- Tábla szerkezet ehhez a táblához `log__lessons`
 --
 
-CREATE TABLE `log_lesson_edit` (
+CREATE TABLE `log__lessons` (
   `id` int(11) NOT NULL,
-  `e_id` int(11) NOT NULL,
-  `classid` int(11) NOT NULL,
-  `name` tinytext COLLATE utf8_hungarian_ci NOT NULL,
-  `teacherid` int(11) NOT NULL,
-  `color` tinytext COLLATE utf8_hungarian_ci NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
+  `e_id` int(11) DEFAULT NULL,
+  `classid` int(11) DEFAULT NULL,
+  `name` tinytext COLLATE utf8_hungarian_ci,
+  `teacherid` int(11) DEFAULT NULL,
+  `color` tinytext COLLATE utf8_hungarian_ci
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
 -- --------------------------------------------------------
 
 --
--- Tábla szerkezet ehhez a táblához `log_login`
+-- Tábla szerkezet ehhez a táblához `log__login`
 --
 
-CREATE TABLE `log_login` (
+CREATE TABLE `log__login` (
   `id` int(11) NOT NULL,
   `username` tinytext COLLATE utf8_hungarian_ci NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
 -- --------------------------------------------------------
 
 --
--- Tábla szerkezet ehhez a táblához `log_user_add`
+-- Tábla szerkezet ehhez a táblához `log__mantis_users`
 --
 
-CREATE TABLE `log_user_add` (
+CREATE TABLE `log__mantis_users` (
   `id` int(11) NOT NULL,
-  `e_id` int(11) NOT NULL,
-  `username` tinytext COLLATE utf8_hungarian_ci NOT NULL,
-  `name` tinytext COLLATE utf8_hungarian_ci NOT NULL,
-  `classid` int(11) NOT NULL,
-  `role` tinytext COLLATE utf8_hungarian_ci NOT NULL,
-  `active` int(11) NOT NULL,
-  `email` tinytext COLLATE utf8_hungarian_ci NOT NULL,
-  `birthday` date NOT NULL,
-  `phone` tinytext COLLATE utf8_hungarian_ci NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
+  `e_id` int(11) DEFAULT NULL,
+  `userid` int(11) DEFAULT NULL,
+  `username` tinytext COLLATE utf8mb4_hungarian_ci,
+  `email` tinytext COLLATE utf8mb4_hungarian_ci,
+  `name` tinytext COLLATE utf8mb4_hungarian_ci
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
 -- --------------------------------------------------------
 
 --
--- Tábla szerkezet ehhez a táblához `log_user_del`
+-- Tábla szerkezet ehhez a táblához `log__roles`
 --
 
-CREATE TABLE `log_user_del` (
+CREATE TABLE `log__roles` (
   `id` int(11) NOT NULL,
-  `e_id` int(11) NOT NULL,
-  `username` tinytext COLLATE utf8_hungarian_ci NOT NULL,
-  `name` tinytext COLLATE utf8_hungarian_ci NOT NULL,
-  `classid` int(11) NOT NULL,
-  `role` tinytext COLLATE utf8_hungarian_ci NOT NULL,
-  `active` int(11) NOT NULL,
-  `email` tinytext COLLATE utf8_hungarian_ci NOT NULL,
-  `birthday` date NOT NULL,
-  `phone` tinytext COLLATE utf8_hungarian_ci NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
+  `e_id` int(11) DEFAULT NULL,
+  `role` tinytext COLLATE utf8mb4_hungarian_ci,
+  `userid` int(11) DEFAULT NULL,
+  `classid` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
 -- --------------------------------------------------------
 
 --
--- Tábla szerkezet ehhez a táblához `log_user_edit`
+-- Tábla szerkezet ehhez a táblához `log__teachers`
 --
 
-CREATE TABLE `log_user_edit` (
+CREATE TABLE `log__teachers` (
   `id` int(11) NOT NULL,
-  `e_id` int(11) NOT NULL,
-  `username` tinytext COLLATE utf8_hungarian_ci NOT NULL,
-  `name` tinytext COLLATE utf8_hungarian_ci NOT NULL,
-  `classid` int(11) NOT NULL,
-  `role` tinytext COLLATE utf8_hungarian_ci NOT NULL,
-  `active` int(11) NOT NULL,
-  `email` tinytext COLLATE utf8_hungarian_ci NOT NULL,
-  `birthday` date NOT NULL,
-  `phone` tinytext COLLATE utf8_hungarian_ci NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
+  `e_id` int(11) DEFAULT NULL,
+  `classid` int(11) DEFAULT NULL,
+  `short` tinytext COLLATE utf8mb4_hungarian_ci,
+  `name` tinytext COLLATE utf8mb4_hungarian_ci
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `log__timetable`
+--
+
+CREATE TABLE `log__timetable` (
+  `id` int(11) NOT NULL,
+  `classid` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `log__users`
+--
+
+CREATE TABLE `log__users` (
+  `id` int(11) NOT NULL,
+  `e_id` int(11) DEFAULT NULL,
+  `username` tinytext COLLATE utf8_hungarian_ci,
+  `name` tinytext COLLATE utf8_hungarian_ci,
+  `role` tinytext COLLATE utf8_hungarian_ci,
+  `active` int(11) DEFAULT NULL,
+  `email` tinytext COLLATE utf8_hungarian_ci,
+  `defaultSession` int(11) DEFAULT NULL,
+  `avatar_provider` tinytext COLLATE utf8_hungarian_ci,
+  `mantisAccount` int(11) DEFAULT NULL,
+  `invitation_id` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `mail_queue`
+--
+
+CREATE TABLE `mail_queue` (
+  `id` int(11) NOT NULL,
+  `title` tinytext COLLATE utf8mb4_hungarian_ci NOT NULL,
+  `name` tinytext COLLATE utf8mb4_hungarian_ci NOT NULL,
+  `address` tinytext COLLATE utf8mb4_hungarian_ci NOT NULL,
+  `body` mediumtext COLLATE utf8mb4_hungarian_ci NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
 -- --------------------------------------------------------
 
@@ -405,6 +458,32 @@ CREATE TABLE `sessions` (
 -- --------------------------------------------------------
 
 --
+-- Tábla szerkezet ehhez a táblához `settings_global`
+--
+
+CREATE TABLE `settings_global` (
+  `id` int(11) NOT NULL,
+  `key` tinytext COLLATE utf8_hungarian_ci NOT NULL,
+  `value` tinytext COLLATE utf8_hungarian_ci NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `settings_user`
+--
+
+CREATE TABLE `settings_user` (
+  `id` int(11) NOT NULL,
+  `userid` int(11) DEFAULT NULL,
+  `category` tinytext COLLATE utf8mb4_hungarian_ci,
+  `key` tinytext COLLATE utf8mb4_hungarian_ci,
+  `value` tinytext COLLATE utf8mb4_hungarian_ci
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Tábla szerkezet ehhez a táblához `teachers`
 --
 
@@ -414,6 +493,19 @@ CREATE TABLE `teachers` (
   `short` varchar(10) CHARACTER SET utf8 COLLATE utf8_hungarian_ci NOT NULL DEFAULT '',
   `name` tinytext CHARACTER SET utf8 COLLATE utf8_hungarian_ci NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `temporary_roles`
+--
+
+CREATE TABLE `temporary_roles` (
+  `id` int(11) NOT NULL,
+  `sessionid` int(11) NOT NULL,
+  `classid` int(11) NOT NULL,
+  `role` tinytext NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -448,7 +540,8 @@ CREATE TABLE `users` (
   `email` tinytext COLLATE utf8_hungarian_ci NOT NULL,
   `role` enum('systemadmin','none','admin') COLLATE utf8_hungarian_ci NOT NULL,
   `defaultSession` int(11) NOT NULL DEFAULT '0',
-  `avatar_provider` varchar(12) COLLATE utf8_hungarian_ci DEFAULT NULL
+  `avatar_provider` varchar(12) COLLATE utf8_hungarian_ci NOT NULL,
+  `mantisAccount` int(11) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
 --
@@ -483,12 +576,6 @@ ALTER TABLE `ext_connections`
 -- A tábla indexei `files`
 --
 ALTER TABLE `files`
-  ADD PRIMARY KEY (`id`);
-
---
--- A tábla indexei `global_settings`
---
-ALTER TABLE `global_settings`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -540,57 +627,81 @@ ALTER TABLE `lessons`
   ADD PRIMARY KEY (`id`);
 
 --
--- A tábla indexei `log_central`
+-- A tábla indexei `log__central`
 --
-ALTER TABLE `log_central`
+ALTER TABLE `log__central`
   ADD PRIMARY KEY (`id`);
 
 --
--- A tábla indexei `log_failed_login`
+-- A tábla indexei `log__events`
 --
-ALTER TABLE `log_failed_login`
+ALTER TABLE `log__events`
   ADD PRIMARY KEY (`id`);
 
 --
--- A tábla indexei `log_lesson_add`
+-- A tábla indexei `log__failed_login`
 --
-ALTER TABLE `log_lesson_add`
+ALTER TABLE `log__failed_login`
   ADD PRIMARY KEY (`id`);
 
 --
--- A tábla indexei `log_lesson_del`
+-- A tábla indexei `log__files`
 --
-ALTER TABLE `log_lesson_del`
+ALTER TABLE `log__files`
   ADD PRIMARY KEY (`id`);
 
 --
--- A tábla indexei `log_lesson_edit`
+-- A tábla indexei `log__homeworks`
 --
-ALTER TABLE `log_lesson_edit`
+ALTER TABLE `log__homeworks`
   ADD PRIMARY KEY (`id`);
 
 --
--- A tábla indexei `log_login`
+-- A tábla indexei `log__lessons`
 --
-ALTER TABLE `log_login`
+ALTER TABLE `log__lessons`
   ADD PRIMARY KEY (`id`);
 
 --
--- A tábla indexei `log_user_add`
+-- A tábla indexei `log__login`
 --
-ALTER TABLE `log_user_add`
+ALTER TABLE `log__login`
   ADD PRIMARY KEY (`id`);
 
 --
--- A tábla indexei `log_user_del`
+-- A tábla indexei `log__mantis_users`
 --
-ALTER TABLE `log_user_del`
+ALTER TABLE `log__mantis_users`
   ADD PRIMARY KEY (`id`);
 
 --
--- A tábla indexei `log_user_edit`
+-- A tábla indexei `log__roles`
 --
-ALTER TABLE `log_user_edit`
+ALTER TABLE `log__roles`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- A tábla indexei `log__teachers`
+--
+ALTER TABLE `log__teachers`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- A tábla indexei `log__timetable`
+--
+ALTER TABLE `log__timetable`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- A tábla indexei `log__users`
+--
+ALTER TABLE `log__users`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- A tábla indexei `mail_queue`
+--
+ALTER TABLE `mail_queue`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -612,9 +723,27 @@ ALTER TABLE `sessions`
   ADD PRIMARY KEY (`id`);
 
 --
+-- A tábla indexei `settings_global`
+--
+ALTER TABLE `settings_global`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- A tábla indexei `settings_user`
+--
+ALTER TABLE `settings_user`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- A tábla indexei `teachers`
 --
 ALTER TABLE `teachers`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- A tábla indexei `temporary_roles`
+--
+ALTER TABLE `temporary_roles`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -659,11 +788,6 @@ ALTER TABLE `ext_connections`
 ALTER TABLE `files`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
--- AUTO_INCREMENT a táblához `global_settings`
---
-ALTER TABLE `global_settings`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
---
 -- AUTO_INCREMENT a táblához `groups`
 --
 ALTER TABLE `groups`
@@ -704,49 +828,69 @@ ALTER TABLE `invitations`
 ALTER TABLE `lessons`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
--- AUTO_INCREMENT a táblához `log_central`
+-- AUTO_INCREMENT a táblához `log__central`
 --
-ALTER TABLE `log_central`
+ALTER TABLE `log__central`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
--- AUTO_INCREMENT a táblához `log_failed_login`
+-- AUTO_INCREMENT a táblához `log__events`
 --
-ALTER TABLE `log_failed_login`
+ALTER TABLE `log__events`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
--- AUTO_INCREMENT a táblához `log_lesson_add`
+-- AUTO_INCREMENT a táblához `log__failed_login`
 --
-ALTER TABLE `log_lesson_add`
+ALTER TABLE `log__failed_login`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
--- AUTO_INCREMENT a táblához `log_lesson_del`
+-- AUTO_INCREMENT a táblához `log__files`
 --
-ALTER TABLE `log_lesson_del`
+ALTER TABLE `log__files`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
--- AUTO_INCREMENT a táblához `log_lesson_edit`
+-- AUTO_INCREMENT a táblához `log__homeworks`
 --
-ALTER TABLE `log_lesson_edit`
+ALTER TABLE `log__homeworks`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
--- AUTO_INCREMENT a táblához `log_login`
+-- AUTO_INCREMENT a táblához `log__lessons`
 --
-ALTER TABLE `log_login`
+ALTER TABLE `log__lessons`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
--- AUTO_INCREMENT a táblához `log_user_add`
+-- AUTO_INCREMENT a táblához `log__login`
 --
-ALTER TABLE `log_user_add`
+ALTER TABLE `log__login`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
--- AUTO_INCREMENT a táblához `log_user_del`
+-- AUTO_INCREMENT a táblához `log__mantis_users`
 --
-ALTER TABLE `log_user_del`
+ALTER TABLE `log__mantis_users`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
--- AUTO_INCREMENT a táblához `log_user_edit`
+-- AUTO_INCREMENT a táblához `log__roles`
 --
-ALTER TABLE `log_user_edit`
+ALTER TABLE `log__roles`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT a táblához `log__teachers`
+--
+ALTER TABLE `log__teachers`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT a táblához `log__timetable`
+--
+ALTER TABLE `log__timetable`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT a táblához `log__users`
+--
+ALTER TABLE `log__users`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT a táblához `mail_queue`
+--
+ALTER TABLE `mail_queue`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT a táblához `pw_reset`
@@ -764,9 +908,24 @@ ALTER TABLE `school`
 ALTER TABLE `sessions`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
+-- AUTO_INCREMENT a táblához `settings_global`
+--
+ALTER TABLE `settings_global`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT a táblához `settings_user`
+--
+ALTER TABLE `settings_user`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
 -- AUTO_INCREMENT a táblához `teachers`
 --
 ALTER TABLE `teachers`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT a táblához `temporary_roles`
+--
+ALTER TABLE `temporary_roles`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT a táblához `timetable`
@@ -778,23 +937,6 @@ ALTER TABLE `timetable`
 --
 ALTER TABLE `users`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-  
---
--- `temporary_roles` szerkezete
---
-CREATE TABLE `temporary_roles` (
-  `id` int(11) NOT NULL,
-  `sessionid` int(11) NOT NULL,
-  `classid` int(11) NOT NULL,
-  `role` tinytext NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-ALTER TABLE `temporary_roles`
-  ADD PRIMARY KEY (`id`);
-  
-ALTER TABLE `temporary_roles`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

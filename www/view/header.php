@@ -10,6 +10,14 @@
 <meta property="og:url" content="<?=ABSPATH?>/">
 <meta property="og:description" content="A CuStudy Software Alliance által tanulók számára fejlesztett webes alkalmazás">
 <?php
+	if (!empty(DEFAULT_THEME_COLOR))
+		$color = DEFAULT_THEME_COLOR;
+	if (!empty($pages[$do]['theme-color']))
+		$color = $pages[$do]['theme-color'];
+
+	if (!empty($color))
+		print '<meta name="theme-color" content="'.$color.'">';
+
 	foreach ($css_list as $value)
 		echo "<link rel='stylesheet' href='{$rootdoc}resources/css/$value'>\n";
 
@@ -35,3 +43,16 @@
 </head>
 <body>
 	<script>var _USRGRP="<?=ROLE?>"</script>
+
+<?php if (isset($ENV['userSettings'])){ ?>
+	<!-- User settings -->
+	<script>
+		var userSettings = <?=json_encode($ENV['userSettings'])?>;
+	</script>
+<?php } ?>
+
+<?php
+	if (!empty($ENV['sidebar'])){
+		require dirname(__FILE__)."/sidebar.php";
+		echo "<main>";
+	}

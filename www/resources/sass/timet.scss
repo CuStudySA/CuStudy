@@ -37,7 +37,7 @@ h2 { margin-bottom: 10px }
 				border-radius: 2px;
 				padding: 1.8px 1.2px;
 
-				> .del { width: 16px }
+				> .del { display: inline-block }
 			}
 		}
 
@@ -60,11 +60,14 @@ h2 { margin-bottom: 10px }
 				margin-left: 0;
 			}
 			> .del {
-				width: 0;
+				width: 1em;
+				height: 1em;
 				overflow: hidden;
-				vertical-align: middle;
+				vertical-align: top;
 				text-decoration: none;
-				// white-space:nowrap;
+				display: none;
+				margin-left: 3px;
+				color: rgb(255, 220, 221);
 
 				&:before {
 					text-decoration: inherit;

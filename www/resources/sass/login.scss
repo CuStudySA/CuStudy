@@ -1,8 +1,16 @@
 @import "vars";
 
-$LoaderHide: 1s;
+// Amber flag
+main > #underDevelopment {
+	margin: 0;
+	font-weight: bold;
+	font-size: 1.1em;
+	color: #EBF0FD !important;
+}
+
+$LoaderHide: .4s;
 #main {
-	position: absolute;
+	position: fixed;
 	top: 0;
 	left: 0;
 	z-index: 4;
@@ -11,18 +19,19 @@ $LoaderHide: 1s;
 	width: 100%;
 	overflow-y: auto !important;
 	text-shadow: 0 2px 2px rgba(0,0,0,.2);
+	color: #EBF0FD!important;
 
 	cursor: default;
 	user-select:none;
 
 	&.loaded {
-		opacity: 0;
-		transform: scale(0);
-
-		transition-property: opacity, transform;
-		transition-duration: $LoaderHide;
-		transition-timing-function: cubic-bezier(0.165, 0.84, 0.44, 1);
+		animation: fadeout $LoaderHide linear;
+		animation-fill-mode: forwards;
+		pointer-events: none;
 	}
+}
+@keyframes fadeout {
+	to { opacity: 0 }
 }
 #wrap {
 	text-align: center;
@@ -47,19 +56,25 @@ $LoaderHide: 1s;
 	position: relative;
 	overflow: hidden;
 
-	background-color: rgba(255,255,255,.3);
-	box-shadow: 0 0 5px #fff, 0 0 15px rgba(255,255,255,.3);
+	background-color: rgba($LightBG,.3);
+	box-shadow: 0 0 5px $LightBG, 0 0 15px rgba($LightBG,.3);
 	border-radius: 10px;
-	border: 5px solid rgba(255,255,255,.35);
+	border: 5px solid rgba($LightBG,.35);
 	box-sizing: border-box;
 
+	h1, h3 {
+		margin: 0 0 10px;
+		line-height: 1em;
+		display: inline-block;
+	}
+
 	// Animation times
-	$ContentFadeOut: .1s;
+	$ContentFadeOut: .2s;
 	$FormShrink: .3s;
 
 	&.animate {
-		border: 10px solid #fff;
-		background: #fff url('../img/preloader.svg') no-repeat 9999px;
+		border: 10px solid $LightBG;
+		background: $LightBG url('../img/preloader.svg') no-repeat 9999px;
 		background-size: 350px 35px;
 		transition-property: background-color, border;
 		transition-duration: $FormShrink;
@@ -77,11 +92,8 @@ $LoaderHide: 1s;
 			transition: border-color $FormShrink $ContentFadeOut;
 		}
 		> * {
-			animation: fade $ContentFadeOut;
+			animation: fadeout $ContentFadeOut;
 			animation-fill-mode: forwards;
-			@keyframes fade {
-				to { opacity: 0 }
-			}
 		}
 	}
 	@keyframes shrinkNcolor {
@@ -113,13 +125,13 @@ $LoaderHide: 1s;
 		top: 0;
 		left: 0;
 		border-width: 35px 35px 0 0;
-		border-color: rgba(255,255,255,.4) transparent transparent transparent;
+		border-color: rgba($LightBG,.4) transparent transparent transparent;
 	}
 	&:after {
 		bottom: 0;
 		right: 0;
 		border-width: 0 0 35px 35px;
-		border-color: transparent transparent rgba(255,255,255,.4) transparent;
+		border-color: transparent transparent rgba($LightBG,.4) transparent;
 	}
 
 	> .logo {
@@ -149,28 +161,72 @@ $LoaderHide: 1s;
 		}
 	}
 }
+body:not(.sidebar-slide) { background-color: $LoginBG !important }
 
 /* Animation after login */
 body.sidebar-slide {
-	> #sidebar, > main {
-		animation-duration: .7s;
+	overflow-x: hidden;
+	background-color: $LoginBG;
+	animation-name: bgcolor;
+	animation-duration: 0s;
+	animation-delay: $LoaderHide;
+
+	&, > #sidebar, > main {
 		animation-fill-mode: forwards;
-		animation-delay: $LoaderHide/2;
 	}
 	> #sidebar {
-		left: -25%;
-		animation-name: slidein;
+		width: 100%;
+		background-color: $LoginBG;
+		opacity: 0;
+
+		animation-name: fadein, slidein;
+		animation-duration: 0s, $LoaderHide;
+		animation-delay: 0s, $LoaderHide;
+
+		> * {
+			opacity: 0;
+			animation-name: fadein;
+			animation-duration: .5s;
+			animation-delay: $LoaderHide*2;
+			animation-fill-mode: forwards;
+		}
 	}
-	> main { animation-name: shrink }
+	> main {
+		left: 100%;
+		width: 75%;
+		animation-name: shrink;
+		animation-duration: $LoaderHide;
+		animation-delay: $LoaderHide;
+
+		> * {
+			opacity: 0;
+			animation-name: fadein;
+			animation-duration: .5s;
+			animation-delay: $LoaderHide*2;
+			animation-fill-mode: forwards;
+		}
+	}
+}
+@keyframes bgcolor {
+	to { background-color: $LightBG }
 }
 @keyframes slidein {
-	to { left: 0 }
+	to {
+		background-color: $Link;
+		width: $SidebarWidth;
+	}
 }
 @keyframes shrink {
 	to {
-		width: 75%;
-		margin-left: 25%;
+		left: 0;
+		margin-left: $SidebarWidth;
 	}
+}
+@keyframes fadein {
+	to { opacity: 1 }
+}
+@keyframes fadeout {
+	to { opacity: 0 }
 }
 
 #loginform ~ p {
@@ -218,10 +274,12 @@ body.sidebar-slide {
 	bottom: 10px;
 	right: 10px;
 	z-index: 10;
+	color: #EBF0FD !important;
+	padding: 0;
 
 	a {
 		text-decoration: none;
-		color: $Link !important;
+		color: inherit !important;
 		font-weight: bold;
 	}
 }

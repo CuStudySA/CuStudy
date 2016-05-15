@@ -84,9 +84,7 @@
 				$dialog.find('[name=id]').attr('value',data.id);
 				$dialog.find('[name=teacherid]').append(opt_s).children('option[value='+data.teacherid+']').attr('selected', true);
 
-				$.Dialog.request(title,$dialog.prop('outerHTML'),'js_form','Mentés',function(){
-					var $urlap = $('#js_form');
-					
+				$.Dialog.request(title,$dialog.prop('outerHTML'),'js_form','Mentés',function($urlap){
 					$("#colorpicker").spectrum({
 					    showInput: true,
 					    showInitial: true,
@@ -98,13 +96,14 @@
 					
 					$urlap.on('submit',function(e){
 						e.preventDefault();
-						
+
+						var data = $urlap.serializeForm();
 						$.Dialog.wait(title);
 						
 						$.ajax({
 							method: "POST",
 							url: "/lessons/edit",
-							data: $urlap.serializeForm(),
+							data: data,
 							success: function(data2){
 								if (typeof data2 === 'string'){
 									console.log(data2);
@@ -170,11 +169,10 @@
 			return $.Dialog.fail(title, 'Tantárgyak felvétele előtt hozzá kell adnod tanárokat a <a href="/teachers">Tanárok</a> menüpontban!');
 
 		var $dialog = $formTempl.clone();
+		$dialog.find('[name=id]').remove();
 		$dialog.find('[name=teacherid]').append(opt_s);
 
-		$.Dialog.request(title,$dialog.prop('outerHTML'),'js_form','Mentés',function(){
-			var $urlap = $('#js_form');
-			$urlap.find('[name=id]').detach();
+		$.Dialog.request(title,$dialog,'js_form','Mentés',function($urlap){
 
 			$("#colorpicker").spectrum({
 				change: function(color) {
@@ -185,12 +183,13 @@
 			$urlap.on('submit',function(e){
 				e.preventDefault();
 
+				var data = $urlap.serializeForm();
 				$.Dialog.wait(title);
 
 				$.ajax({
 					method: "POST",
 					url: "/lessons/add",
-					data: $urlap.serializeForm(),
+					data: data,
 					success: function(data2){
 						if (typeof data2 === 'string'){
 							console.log(data2);

@@ -12,71 +12,59 @@
 <?php
 	switch (ROLE){
 		case 'systemadmin':
-			print "<div><p>Válasszon a menüsáv valamelyik adminisztrációs lehetősége közül!</p></div>";
+			print System::Notice('info','Válasszon a menüsáv valamelyik adminisztrációs lehetősége közül!');
 		break;
 
 		default: ?>
 			<div class='hWContent'>
-		<?php
+<?php
 				HomeworkTools::RenderHomeworksMainpage(); ?>
 			</div>
 
-		<?php
+<?php
 
 			// Következő tanítási napi órarend
-			$sort = Timetable::GetActualWeek(true);
-			$day = Timetable::GetDayNumber();
+			$day = Timetable::GetDay();
 
 			$minute = date('i');
 			$hour = date('H');
 			if (!($hour >= 8 && $minute >= 0))
 				$day = $day == 1 ? 7 : $day - 1;
 
-			$sorting = $day > 5 ? ($sort == 'ASC' ? 'DESC' : 'ASC') : $sort;
+			$groups = UserTools::GetClassGroupIDs();
+			$onlyGrp = "&& tt.groupid IN ($groups)";
 
+			$actualWeek = Timetable::GetWeekLetter(strtotime('+1 day'));
 
-			$grpmember = $db->rawQuery('SELECT `groupid`
-							FROM `group_members`
-							WHERE `classid` = ? && `userid` = ?',array($user['class'][0],$user['id']));
-
-			$ids = array(0);
-			foreach ($grpmember as $array)
-				$ids[] = $array['groupid'];
-
-			$dualWeek = Timetable::GetNumberOfWeeks() == 1 ? false : true;
-			$actualWeek = Timetable::GetActualWeek();
-
-			if ($dualWeek){
-				$timeTable = $db->rawQuery("SELECT tt.week, tt.day, tt.lesson, l.name, t.name as teacher, l.color, tt.groupid
+			switch(Timetable::GetNumberOfWeeks()){
+				case 1:
+					$timeTable = $db->rawQuery("SELECT tt.week, tt.day, tt.lesson, l.name, t.name as teacher, l.color, tt.groupid
+												FROM timetable tt
+												LEFT JOIN (lessons l, teachers t)
+												ON tt.lessonid = l.id && l.teacherid = t.id
+												WHERE tt.classid = ? && ((tt.week = ? && tt.day > ?) || tt.week = ?) $onlyGrp
+												ORDER BY tt.week ASC, tt.day, tt.lesson", array($user['class'][0], $actualWeek, $day, Timetable::GetUpcomingWeek($actualWeek)));
+				break;
+				case 2:
+					$timeTable_partWeek = $db->rawQuery("SELECT tt.week, tt.day, tt.lesson, l.name, t.name AS teacher, l.color, tt.groupid
+												FROM timetable tt
+												LEFT JOIN (lessons l, teachers t)
+												ON tt.lessonid = l.id && l.teacherid = t.id
+												WHERE tt.classid = ? && tt.day > ? $onlyGrp
+												ORDER BY tt.day, tt.lesson", array($user['class'][0], $day));
+					if (empty($timeTable_partWeek)){
+						$timeTable_entireWeek = $db->rawQuery("SELECT tt.week, tt.day, tt.lesson, l.name, t.name AS teacher, l.color, tt.groupid
 											FROM timetable tt
 											LEFT JOIN (lessons l, teachers t)
 											ON tt.lessonid = l.id && l.teacherid = t.id
-											WHERE tt.classid = ? && ((tt.week = ? && tt.day > ?) || tt.week = ?)
-											ORDER BY tt.week {$sorting}, tt.day, tt.lesson",
+											WHERE tt.classid = ? $onlyGrp
+											ORDER BY tt.day, tt.lesson", array($user['class'][0]));
+					}
+					else $timeTable_entireWeek = [];
 
-											array($user['class'][0],$actualWeek,$day,$actualWeek == 'A' ? 'b' : 'a'));
-			}
-			else {
-				$timeTable_partWeek = $db->rawQuery("SELECT tt.week, tt.day, tt.lesson, l.name, t.name as teacher, l.color, tt.groupid
-											FROM timetable tt
-											LEFT JOIN (lessons l, teachers t)
-											ON tt.lessonid = l.id && l.teacherid = t.id
-											WHERE tt.classid = ? && tt.day > ?
-											ORDER BY tt.day, tt.lesson",
-
-											array($user['class'][0],$day));
-				if (empty($timeTable_partWeek))
-					$timeTable_entireWeek = $db->rawQuery("SELECT tt.week, tt.day, tt.lesson, l.name, t.name as teacher, l.color, tt.groupid
-										FROM timetable tt
-										LEFT JOIN (lessons l, teachers t)
-										ON tt.lessonid = l.id && l.teacherid = t.id
-										WHERE tt.classid = ?
-										ORDER BY tt.day, tt.lesson",
-
-										array($user['class'][0]));
-				else $timeTable_entireWeek = [];
-
-				$timeTable = array_merge($timeTable_partWeek,$timeTable_entireWeek);
+					$timeTable = array_merge($timeTable_partWeek, $timeTable_entireWeek);
+				break;
+				default: trigger_error('Nem támogatott hétszám', E_USER_ERROR);
 			}
 
 			if (empty($timeTable)) echo "<h3>Következő napi órarend</h3><p>Nincs megjeleníthető óra.</p>";
@@ -90,22 +78,20 @@
 						$lessons[] = $entry;
 				}
 				if (!empty($lessons)){
-					$weekdays = ['Hétfő','Kedd','Szerda','Csütörtök','Péntek','Szombat','Vasárnap'];
+					echo "<h3>".System::$Days[$lessons[0]['day']]."i órarend</h3>"; ?>
 
-					echo "<h3>".$weekdays[$lessons[0]['day']-1]."i órarend</h3>"; ?>
-			<div class='lessonList'>
-		<?php       foreach ($lessons as $lesson){
-						if (!in_array($lesson['groupid'],$ids)) continue; ?>
-					<div>
-						<span class='lessonNumber'><?=$lesson['lesson']?>.</span> óra:
-						<span class='lessonName' style='background-color: <?=$lesson['color']?>'><?=$lesson['name']?></span>
-						(tanítja: <span class='lessonTeacher'><?=$lesson['teacher']?></span>)
+					<div class='lessonList'>
+<?php                   foreach ($lessons as $lesson){ ?>
+							<div>
+								<span class='lessonNumber'><?=$lesson['lesson']?>.</span> óra:
+								<span class='lessonName' style='background-color: <?=$lesson['color']?>'><?=$lesson['name']?></span>
+								(tanítja: <span class='lessonTeacher'><?=$lesson['teacher']?></span>)
+							</div>
+<?php	                } ?>
 					</div>
-		<?php	    } ?>
-			</div>
-		<?php   }
+<?php           }
 			}
 
 			EventTools::ListEvents();
-	break;
-}
+		break;
+	}?>

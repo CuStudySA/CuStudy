@@ -19,7 +19,6 @@ if (in_array(ROLE,array_keys($Perm['students']))){
 		array('globe','homeworks','Házi feladatok'),
 		array('flash','events','Események'),
 		array('document','files','Dokumentumok'),
-		array('user','profile','Profilom'),
 		array('contacts','teachers','Tanárok'),
 		array('th-menu','lessons','Tantárgyak'),
 	));
@@ -30,6 +29,7 @@ if (in_array(ROLE,array_keys($Perm))){
 		array('user','system.users','Felhasználók'),
 		array('group','system.classes','Osztályok'),
 		array('calendar','system.events','Események'),
+		array('document-text','logs','Rendszernapló'),
 	));
 }
 
@@ -37,8 +37,10 @@ if (ROLE == 'admin')
 	$Actions = array_merge($Actions,array(
 		array('th-large','groups','Csoportok'),
 		array('group','users','Felhasználók'),
-		//array('document-text','logs','Tevékenységnapló'),
+		array('document-text','logs','Tevékenységnapló'),
 	));
+
+$Actions[] = array('user','profile','Profilom');
 
 if (!isset($user['tempSession']))
 	$Actions[] = array('power','#logout','Kijelentkezés');
@@ -61,4 +63,3 @@ foreach ($Actions as $a){
 
 	<h1>CuStudy</h1>
 </div>
-<main>

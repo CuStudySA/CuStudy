@@ -5,7 +5,7 @@
 	header('Content-Type: text/html; charset=utf-8;');
 	
 	# Dok. gyökér meghatározása
-	$root = $_SERVER['DOCUMENT_ROOT'];
+	$root = isset($repRoot) ? $repRoot : $_SERVER['DOCUMENT_ROOT'];
 	if (substr($root,-1) !== '/') $root .= '/';
 	
 	$rootdoc = '/';
@@ -18,14 +18,24 @@
 	require $root.'resources/php/Cookie.php';
 	require $root.'resources/php/MysqliDb.php';
 
-	# Funkciótár és üzenettár betöltése
-	require $root.'resources/php/functions.php';
+	# Üzenettár betöltése
 	require $root.'resources/php/messages.php';
+
+	# Funkciótárolók betöltése
+	require $root.'resources/php/classes/System.php';
+	spl_autoload_register('System::LoadCoreClass');
+
+	# Segédfájlok betöltése
+	require $root.'resources/php/dBTitles.php';
+	require $root.'resources/php/EmailNotifications.php';
 
 	# Külső szolgáltatók API-jának betöltése
 	require $root.'resources/php/ExternalAPIs.php';
 
-	# Karbantartási állapot ellenörzése
+	# Egy üres MysqliDb instance, hogy a PhpStorm megtalálja
+	$db = System::ConnectToDatabase();
+
+	# Karbantartási állapot ellenörzése, kapcsolódás az adatbázishoz
 	System::LoadMaintenance();
 
 	# Scipt futattásának kezdeti idejének lekérése
@@ -38,7 +48,7 @@
 			$_SERVER['REMOTE_ADDR'] = $_SERVER['HTTP_CF_CONNECTING_IP'];
 	}
 
-	# POST és/vagy GET adatok ill. tevékenység lekérése
+	# POST és/vagy GET adatok ill. tevékenység lekérése, változók definiálása
 	if (!empty($_GET['do'])){
 		$ENV['do'] = $_GET['do'];
 		unset($_GET['do']);
@@ -47,7 +57,8 @@
 	$ENV['GET'] = $_GET;
 	$ENV['POST'] = $_POST;
 	$ENV['SERVER'] = $_SERVER;
-	
+
+	# URL szétbontása tömbbé
 	if (!empty($ENV['GET']['data'])){
 		if (!System::InputCheck($ENV['GET']['data'],'suburl')){
 			$ENV['URL'] = explode('/',$ENV['GET']['data']);
@@ -58,7 +69,7 @@
 	}
 	unset($_GET,$_POST);
 
-	# Jogosultsági szintek beállítása
+	# Jogosultsági szintek és felhasználói profil beállítása
 	$user = System::CheckLogin();
 
 	if (!is_array($user)) define('ROLE',$user);
@@ -67,8 +78,9 @@
 		$user = $user[1];
 	}
 
-	# Rendszerbeállítások lekérése
+	# Beállítások lekérése
 	GlobalSettings::Load();
+	UserSettings::Load(null,PUSH_TO_USERVAR);
 
 	# Tevékenység meghatározása
 	if (empty($ENV['do']))
@@ -88,10 +100,11 @@
 		else $do = $ENV['do'];
 	}
 
+	# URL fixálása
 	if (($do === "login" || $do === "fooldal") && empty($ENV['URL']))
 		System::FixPath('/');
 
-	# Kiléptetés
+	# Ha kilépésre van szükség...
 	if ($do === 'logout'){
 		if (empty($ENV['URL'][0]))
 			$status = !System::Logout();
@@ -111,20 +124,26 @@
 			$skipCSRF = true;
 		}
 
+
 	# Üzeneteket tartalmazó tömb áthelyezése
 	Message::$Messages = $ENV['Messages'];
-	unset($ENV['Messages']);
+
+	# MantisBT integráció alapért. értékének beállítása
+	$MantisDB = 1001;
 
 	# Jogosultságok előkészítése
 	System::CompilePerms();
 
+	# Frisstési szkript futtatása (ha frissítés történt a rendszeren)
+	System::RunUpdatingTasks();
+
 	// 'Executive' rész \\
 	if ($ENV['SERVER']['REQUEST_METHOD'] == 'POST'){
 		# Létező oldal?
-		if (!isset($pages[$do])) System::Respond();
+		if (!isset($pages[$do])) System::Respond('A kérés nem teljesíthető, mert nem található a kért oldal!');
 
 		# Jogosultság ellenörzése
-		if (System::PermCheck("{$do}.view")) System::Respond();
+		if (System::PermCheck("{$do}.view")) System::Respond('A kérés nem teljesíthető, mert az oldalhoz a hozzáférés megtagadva!');
 
 		# Létező fájl?
 		if (!file_exists("executive/{$pages[$do]['file']}.php")) System::Respond();
@@ -155,7 +174,20 @@
 			CSRF::Generate();
 		}
 
+		# Ha már be van jelentkezve...
+		if ($do == 'fooldal' && ROLE != 'guest' && empty($ENV['URL']))
+			System::Respond('A rendszerbe egy felhasználó már be van jelentkezve ezzel a böngészővel! Kérem, frissítse az oldalt...');
+
+		# Oldal betöltése
 		die(include "executive/{$pages[$do]['file']}.php");
+	}
+
+	# Hozzáférési jogosultság ellenörzése
+	if (System::PermCheck("$do.view")){
+		if (ROLE == 'guest')
+			Message::AccessDenied();
+		else
+			$do = 'access-denied';
 	}
 
 	// Fájlletöltés \\
@@ -168,20 +200,20 @@
 
 	# JS token generálása
 	CSRF::Generate();
-
+	
 	# Létezik a megjelenítésfájl?
-	$resc = "view/{$pages[$do]['file']}.php";
+	$resc = $root."view/{$pages[$do]['file']}.php";
 	if (!file_exists($resc))
 		Message::Missing($resc);
-
-	# Léteznek-e az erőforrások?
+		
+	# Erőforrások ellenörzése és előkészítése
 	if (ROLE !== 'guest') $js[] = 'signed_in.js';
 
-	$css_list = array_merge($css, $pages[$do]['css']);
-	$js_list = array_merge($js, $pages[$do]['js']);
+	$css_list = array_merge($css, !empty($pages[$do]['css']) ? $pages[$do]['css'] : array());
+	$js_list = array_merge($js, !empty($pages[$do]['js']) ? $pages[$do]['js'] : array());
 
-	if (!empty($pages[$do]['customjs'])){
-		foreach($pages[$do]['customjs'] as $key => $value){
+	if (!empty($pages[$do]['sub_js'])){
+		foreach($pages[$do]['sub_js'] as $key => $value){
 			if (empty($key) && empty($ENV['URL'][0])){
 				$js_list[] = $value;
 				break;
@@ -222,12 +254,12 @@
 
 	# HTTP státuszkód visszadaása
 	if (isset($pages[$do]['http_code'])) Message::StatusCode($pages[$do]['http_code']);
-	
-	# Hozzáférési jogosultság ellenörzése
-	if (System::PermCheck("$do.view")) Message::AccessDenied();
 
 	# Szükséges oldalak betöltése
 	$pages[$do]['addons'] = array_merge(!empty($pages[$do]['addons']) ? $pages[$do]['addons'] : array(),$addon);
+	if (!empty($pages[$do]['sub_addons'][!empty($ENV['URL'][0]) ? $ENV['URL'][0] : '']))
+			$pages[$do]['addons'][] = $pages[$do]['sub_addons'][$ENV['URL'][0]];
+
 	if (!empty($pages[$do]['addons'])){
 		foreach ($pages[$do]['addons'] as $addonName){
 			if (empty($addons[$addonName]['php'])) continue;
@@ -240,7 +272,7 @@
 		# Szükséges dokumentumok listájának előkészítése
 		$doc_list = ['header'];
 		if (ROLE !== 'guest' && empty($pages[$do]['withoutSidebar']))
-			$doc_list[] = 'sidebar';
+			$ENV['sidebar'] = true;
 		$doc_list[] = $pages[$do]['file'];
 		$doc_list[] = 'footer';
 
@@ -258,6 +290,10 @@
 			$respond['css'][] = "{$rootdoc}resources/css/$value";
 
 		$pages[$do]['addons'] = array_merge($pages[$do]['addons'],$addon);
+
+		if (!empty($pages[$do]['sub_addons'][!empty($ENV['URL'][0]) ? $ENV['URL'][0] : '']))
+			$pages[$do]['addons'][] = $pages[$do]['sub_addons'][$ENV['URL'][0]];
+
 		if (!empty($pages[$do]['addons'])){
 			foreach ($pages[$do]['addons'] as $addonName){
 				if (!empty($addons[$addonName]['css'])){

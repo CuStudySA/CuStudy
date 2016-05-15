@@ -69,7 +69,7 @@
 			return $return;
 		}
 
-		static function EditBasicInfos($data){
+		static private function _editBasicInfos($data){
 			global $db;
 
 			# Jog. ellenörzése
@@ -97,6 +97,27 @@
 
 			if ($action) return 0;
 			else return 5;
+		}
+
+		static function EditBasicInfos($data){
+			global $user;
+
+			$data = System::TrashForeignValues(['id','name','username','email'],$data);
+			$action = self::_editBasicInfos($data);
+
+			$eid = $data['id'];
+			unset($data['id']);
+
+			Logging::Insert(array_merge(array(
+				'action' => 'adminUserTools.editBasicInfos',
+				'user' => $user['id'],
+				'errorcode' => $action,
+				'db' => 'users',
+			),$data,array(
+				'e_id' => $eid,
+			)));
+
+			return $action;
 		}
 
 		private static function _ChangeDefaultRole($toRemoveRole,$User){
@@ -169,7 +190,7 @@
 			else return 5;
 		}
 
-		static function DeleteUser($id){
+		static private function _deleteUser($id){
 			global $db;
 
 			# Jog. ellenörzése
@@ -194,7 +215,32 @@
 			# Törlés a felhasználók táblájából
 			$db->where('id',$id)->delete('users');
 
-			return 0;
+			return $data;
+		}
+
+		static function DeleteUser($id){
+			global $db, $user;
+
+			$action = self::_deleteUser($id);
+
+			if (is_array($action)){
+				$data = System::TrashForeignValues(['username','name','role','active','email','defaultSession','avatar_provider','mantisAccount'],$action);
+
+				$action = is_array($action) ? 0 : $action;
+			}
+			else
+				$data = [];
+
+			Logging::Insert(array_merge(array(
+				'action' => 'adminUserTools.deleteUser',
+				'user' => $user['id'],
+				'errorcode' => $action,
+				'db' => 'users',
+			),$data,array(
+				'e_id' => $id,
+			)));
+
+			return $action;
 		}
 
 		static function ShowFilter($noSidebar = false){ ?>

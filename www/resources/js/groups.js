@@ -55,7 +55,7 @@ $(function(){
 		var title = 'Csoportkategória szerkesztése',
 			id = $(e.currentTarget).attr('href').substring(1);
 
-		$.Dialog.wait(title,'Információk lekérése a szerverről...');
+		$.Dialog.wait(title,'Információk lekérése a szerverről');
 
 		$.ajax({
 			method: "POST",
@@ -72,18 +72,18 @@ $(function(){
 
 				$dialog.find('[name=name]').attr('value',data.name);
 
-				$.Dialog.request(title,$dialog.prop('outerHTML'),'js_form','Mentés',function(){
-					var $urlap = $('#js_form');
-
+				$.Dialog.request(title,$dialog,'js_form','Mentés',function($urlap){
 					$urlap.on('submit',function(e){
 						e.preventDefault();
 
+						var data = $urlap.serializeForm();
+						data.id = id;
 						$.Dialog.wait(title);
 
-						$.ajax({
+						$.post({
 							method: "POST",
 							url: "/groups/theme/edit",
-							data: $urlap.clone().append($('<input name="id">').attr('value',id)).serializeForm(),
+							data: data,
 							success: function(data2){
 								if (typeof data2 === 'string'){
 									console.log(data2);
@@ -125,18 +125,17 @@ $(function(){
 		var title = 'Csoportkategória hozzáadása',
 			$dialog = $formTempl.clone();
 
-		$.Dialog.request(title,$dialog.prop('outerHTML'),'js_form','Mentés',function(){
-			var $urlap = $('#js_form');
-
+		$.Dialog.request(title,$dialog.prop('outerHTML'),'js_form','Mentés',function($urlap){
 			$urlap.on('submit',function(e){
 				e.preventDefault();
 
+				var data = $urlap.serializeForm();
 				$.Dialog.wait(title);
 
 				$.ajax({
 					method: "POST",
 					url: "/groups/theme/add",
-					data: $urlap.serializeForm(),
+					data: data,
 					success: function(data2){
 						if (typeof data2 === 'string'){
 							console.log(data2);
@@ -165,7 +164,7 @@ $(function(){
 							$elem.find('.js_thm_del').on('click', e_thm_del);
 
 							// Nincs csop.kat. üzenet eltávolítása
-							$('.missingThemes').hide();
+							$('.notice').hide();
 
 							// Csop.kat. hozzáadása a felülethez
 							var $templ = $listTempl.clone();

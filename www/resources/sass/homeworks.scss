@@ -56,9 +56,23 @@
 	margin-bottom: 14px;
 	margin-top: 30px;
 }
-.selectedLesson { border: #000 solid 3px !important }
+#lessonPicker {
+
+	.lesson {
+		cursor: pointer !important;
+		transition: all .1s linear;
+
+		&:not(.selectedLesson) {
+			margin-top: 5px;
+			margin-bottom: 5px;
+			opacity: .8;
+		}
+
+		.del { display: none }
+	}
+	.selectedLesson { border: #000 solid 3px !important }
+}
 .timet td { cursor: initial !important }
-.lesson { cursor: pointer !important }
 .weekPickerP {
 	margin-bottom: 6px;
 	text-align: center;

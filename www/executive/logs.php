@@ -1,13 +1,10 @@
 <?php
-	if (isset($ENV['URL'][0])) $case = $ENV['URL'][0];
-	else System::Respond();
+	$case  = isset($ENV['URL'][0]) ? $ENV['URL'][0] : 'def';
 
-	 switch ($case){
-		 case 'details':
-			if (!isset($ENV['URL'][1])) System::Respond();
-			$data = Logging::GetDetails($ENV['URL'][1]);
-			if (is_numeric($data)) System::Respond('A naplóbejegyzés lekérése nem sikerült, hibakód: '.$data.'!');
-			header('Content-Type: application/json');
-			print json_encode(($data));
-		 break;
-	 }
+	switch ($case){
+		case 'getDetails':
+			if (empty($ENV['POST']['id'])) System::Respond();
+
+			System::Respond('',1,Logging::GetDetails($ENV['POST']['id']));
+		break;
+	}

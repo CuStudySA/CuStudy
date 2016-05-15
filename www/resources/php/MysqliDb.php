@@ -325,8 +325,6 @@ class MysqliDb
      */
     public function rawQuery ($query, $bindParams = null)
     {
-        self::$numberOfExecution++;
-
         $params = array(''); // Create the empty 0 index
         $this->_query = $query;
         $stmt = $this->_prepareQuery();
@@ -468,7 +466,6 @@ class MysqliDb
      */
     public function get($tableName, $numRows = null, $columns = '*')
     {
-        self::$numberOfExecution++;
         if (empty ($columns))
             $columns = '*';
 
@@ -502,7 +499,6 @@ class MysqliDb
      */
     public function getOne($tableName, $columns = '*')
     {
-        self::$numberOfExecution++;
         $res = $this->get ($tableName, 1, $columns);
 
         if ($res instanceof MysqliDb)
@@ -551,7 +547,6 @@ class MysqliDb
      * @return boolean Boolean indicating whether the insert query was completed succesfully.
      */
     public function insert ($tableName, $insertData) {
-        self::$numberOfExecution++;
         return $this->_buildInsert ($tableName, $insertData, 'INSERT');
     }
 
@@ -577,7 +572,6 @@ class MysqliDb
      */
     public function has($tableName)
     {
-        self::$numberOfExecution++;
         $this->getOne($tableName, '1');
         return $this->count >= 1;
     }
@@ -592,7 +586,6 @@ class MysqliDb
      */
     public function update($tableName, $tableData)
     {
-        self::$numberOfExecution++;
         if ($this->isSubQuery)
             return;
 
@@ -618,7 +611,6 @@ class MysqliDb
      */
     public function delete($tableName, $numRows = null)
     {
-        self::$numberOfExecution++;
         if ($this->isSubQuery)
             return;
 
@@ -915,6 +907,8 @@ class MysqliDb
      */
     protected function _buildQuery($numRows = null, $tableData = null)
     {
+        self::$numberOfExecution++;
+
         $this->_buildJoin();
         $this->_buildInsertQuery ($tableData);
         $this->_buildWhere();
@@ -1531,5 +1525,9 @@ class MysqliDb
         $this->where ('table_name', $tables, 'IN');
         $this->get ('information_schema.tables', $count);
         return $this->count == $count;
+    }
+
+    public function runQuery($q){
+        return $this->mysqli()->query($q);
     }
 } // END class

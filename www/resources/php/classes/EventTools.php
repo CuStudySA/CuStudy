@@ -4,20 +4,31 @@
 		static function GetEvents($start, $end, $global = false){
 			global $db, $user;
 
-			$data = $db->where('classid', $global ? 0 : $user['class'][0])->get('events');
+			$start = date('c',strtotime($start));
+			$end = date('c',strtotime($end));
+
+			$data = $db->rawQuery('SELECT *
+									FROM `events`
+									WHERE start <= ? && end >= ? && classid = ?',array($end,$start,$global ? 0 : $user['class'][0]));
 
 			$output = [];
 			foreach ($data as $event){
-				if (!(strtotime('12 am',strtotime($start)) < strtotime('12 am',strtotime($event['end']))
-					&& strtotime('12 am',strtotime($event['start'])) < strtotime('12 am',strtotime($end))))
-						continue;
-				
+				$allday = (bool)$event['isFullDay'];
+
+				$endtime = strtotime($event['end']);
+				// A befejezés időpontja exklúzív, ezért ki kell bővíteni, ha megfelelően akarjuk, hogy megjelenjen
+				if ($allday)
+					$endtime = strtotime('+1 day', $endtime);
+				else $endtime = strtotime('+1 second', $endtime);
+
+				$starttime = strtotime($event['start']);
+
 				$output[] = array(
 					'id' => $event['id'],
 					'title' => $event['title'],
-					'start' => $event['start'],
-					'end' => $event['end'],
-					'allDay' => (bool)$event['isallday'],
+					'start' => date('c',$starttime),
+					'end' => date('c',$endtime),
+					'allDay' => $allday,
 				);
 			}
 
@@ -37,6 +48,26 @@
 		}
 
 		static function Add($data){
+			global $user;
+
+			$action = self::_add($data);
+			$data = System::TrashForeignValues(['interval','isFullDay','title','description'],$data);
+
+			Logging::Insert(array_merge(array(
+				'action' => 'events.add',
+				'errorcode' => is_array($action) ? 0 : $action,
+				'db' => 'events',
+			),$data,is_array($action) ? array(
+				'e_id' => $action[0],
+			) : array(),array(
+				'classid' => $user['class'][0],
+			)));
+
+			return is_array($action) ? 0 : $action;
+		}
+
+		/** @return int|array */
+		static private function _add($data){
 			global $db, $user;
 
 			# Jog. ellenörzése
@@ -59,16 +90,16 @@
 						continue 2;
 					break;
 				}
-				if (System::InputCheck($value,$type)) return 2;
+				if (System::InputCheck($value,$type)) return [3, $key];
 			}
 
 			# Dátum értelmezése
 			$range = trim($data['interval']);
 			$rangeParts = explode('~',$range);
-			if (count($rangeParts) != 2) return 3;
+			if (count($rangeParts) != 2) return 4;
 
 			$dates = self::ParseDates($rangeParts[0],$rangeParts[1],isset($data['isFullDay']));
-			if (!is_array($dates)) return 4;
+			if (!is_array($dates)) return 5;
 
 			$action = $db->insert('events',array(
 				'classid' => $user['class'][0],
@@ -76,29 +107,29 @@
 				'end' => date('c',$dates[1]),
 				'title' => $data['title'],
 				'description' => $data['description'],
-				'isallday' => isset($data['isFullDay']),
+				'isFullDay' => isset($data['isFullDay']),
 			));
 
-			if (!is_int($action)) return 5;
-			else return 0;
+			return !is_int($action) ? 6 : [$action];
 		}
 
 		static function GetEventInfos($id){
 			global $db,$user;
 
-			$data = $db->where('id',$id)->where('classid',$user['class'][0])->getOne('events');
-			if (empty($data)) return 1;
+			$data = $db->where('id',$id)->getOne('events');
+			if (empty($data) || ($data['classid'] !== 0 && $data['classid'] !== $user['class'][0])) return 1;
 
 			return array(
 				'Esemény címe' => $data['title'],
-				'Esemény kezdete' => date(!$data['isallday'] ? 'Y.m.d. H:i' : 'Y.m.d.',strtotime($data['start'])),
-				'Esemény vége' => date(!$data['isallday'] ? 'Y.m.d. H:i' : 'Y.m.d.',strtotime($data['end'])),
-				'Egész napos?' => $data['isallday'] ? 'igen' : 'nem',
+				'Esemény kezdete' => date(!$data['isFullDay'] ? 'Y.m.d. H:i' : 'Y.m.d.',strtotime($data['start'])),
+				'Esemény vége' => date(!$data['isFullDay'] ? 'Y.m.d. H:i' : 'Y.m.d.',strtotime($data['end'])),
+				'Egész napos?' => $data['isFullDay'] ? 'igen' : 'nem',
 				'Esemény leírása' => $data['description'],
 			);
 		}
 
-		static function Edit($data){
+		/** @return int|array */
+		static private function _edit($data){
 			global $db, $user;
 
 			# Értékek ellenörzése
@@ -123,30 +154,72 @@
 						continue 2;
 					break;
 				}
-				if (System::InputCheck($value,$type)) return 2;
+				if (System::InputCheck($value,$type)) return [3, $key];
 			}
 
 			# Dátum értelmezése
 			$range = trim($data['interval']);
 			$rangeParts = explode('~',$range);
-			if (count($rangeParts) != 2) return 3;
+			if (count($rangeParts) != 2) return 4;
 
 			$dates = self::ParseDates($rangeParts[0],$rangeParts[1],isset($data['isFullDay']));
-			if (!is_array($dates)) return 4;
+			if (!is_array($dates)) return 5;
 
 			$action = $db->where('id',$data['id'])->update('events',array(
 				'start' => date('c',$dates[0]),
 				'end' => date('c',$dates[1]),
 				'title' => $data['title'],
 				'description' => $data['description'],
-				'isallday' => isset($data['isFullDay']),
+				'isFullDay' => isset($data['isFullDay']),
 			));
 
-			if ($action) return 0;
-			else return 5;
+			return $action ? 0 : 6;
+		}
+
+		static function Edit($data){
+			global $user;
+
+			$action = self::_edit($data);
+			$data = System::TrashForeignValues(['interval','isFullDay','title','description','id'],$data);
+
+			if (!empty($data['id'])){
+				$data['e_id'] = $data['id'];
+				unset($data['id']);
+			}
+
+			Logging::Insert(array_merge(array(
+				'action' => 'events.edit',
+				'errorcode' => $action,
+				'db' => 'events',
+			),$data));
+
+			return $action;
 		}
 
 		static function Delete($id){
+			global $user, $db;
+
+			$data = $db->where('id',$id)->where('classid',$user['class'][0])->getOne('events');
+
+			if (!empty($data))
+				$data = System::TrashForeignValues(['start','isFullDay','title','description','end'],$data);
+			else
+				$data = [];
+
+			$action = self::_delete($id);
+
+			Logging::Insert(array_merge(array(
+				'action' => 'events.delete',
+				'errorcode' => $action,
+				'db' => 'events',
+
+				'e_id' => $id,
+			),$data));
+
+			return $action;
+		}
+
+		static private function _delete($id){
 			global $db;
 
 			# Jog. ellenörzése
@@ -175,16 +248,16 @@
 				$mp = date('i',  $starttime);
 				$mpint = intval($mp, 10);
 				$rag = ($mpint !== 10 && in_array($mpint % 10, [0,3,6,8])) ? 'tól': 'től';
-				$time = $ev['isallday'] ? '' : date('H', $starttime).":$mp-$rag ";
+				$time = $ev['isFullDay'] ? '' : date('H', $starttime).":$mp-$rag ";
 				$append = '';
 				if (!$sameMonthDay)
 					$append .= HomeworkTools::FormatMonthDay($endtime);
-				if (!$ev['isallday'])
+				if (!$ev['isFullDay'])
 					$append .= ' '.date('H:i',$endtime).'-ig';
 				else if (!$sameMonthDay) $append .= '-ig';
 				if (!empty($append))
 					$time .= $append;
-				if ($ev['isallday']){
+				if ($ev['isFullDay']){
 					$time .= ', egész nap';
 					$time = preg_replace('/^, eg/','Eg',$time);
 				}

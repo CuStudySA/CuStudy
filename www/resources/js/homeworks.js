@@ -2,18 +2,19 @@ $(function(){
 	var title = 'Házi feladat hozzáadása',
 		dispDays = typeof _dispDays !== 'object' ? '' : _dispDays.slice(),
 		showHidden = false,
-		files = [];
+		files = [], $lP = $('#lessonPicker'), $sDP = $('#startDatePicker');
 
-	$("textarea").eq(0).sceditor({
-		plugins: "bbcode",
-		toolbar: "bold,italic,underline|color,removeformat|cut,copy,paste|source",
-		style: '/resources/addons/sceditor/jquery.sceditor.default.min.css',
-		width: "80%",
-		height: "170px",
-		runWithoutWysiwygSupport: true,
-		locale: 'hu',
-		emoticonsEnabled: false,
-	});
+	if ($("textarea").length !== 0)
+		$("textarea").eq(0).sceditor({
+			plugins: "bbcode",
+			toolbar: "bold,italic,underline|color,removeformat|cut,copy,paste|source",
+			style: '/resources/addons/sceditor/jquery.sceditor.default.min.css',
+			width: "80%",
+			height: "170px",
+			runWithoutWysiwygSupport: true,
+			locale: 'hu',
+			emoticonsEnabled: false,
+		});
 
 	var deleteEmptyTd = function(){
 		var index = -1,
@@ -34,7 +35,7 @@ $(function(){
 		});
 	};
 
-	$('.lesson').on('click',function(){
+	$lP.on('click','.lesson',function(){
 		$('.selectedLesson').removeClass('selectedLesson');
 		$(this).addClass('selectedLesson');
 	});
@@ -54,7 +55,7 @@ $(function(){
 
 		$.ajax({
 			method: "POST",
-			data: pushToken({'id': id}),
+			data: {id: id},
 			url: '/homeworks/makeMarkedDone',
 			success: function(data){
 				if (typeof data !== 'object'){
@@ -68,7 +69,7 @@ $(function(){
 						deleteEmptyTd();
 
 						if ($('tbody').children().length == 0)
-							$('table').replaceWith('<p>Nincs megjelenítendő házi feladat! A kezdéshez adjon hozzá egyet, vagy váltson nézetet!</p>');
+							$('.notice').show();
 					}
 					else {
 						$(e.currentTarget).replaceWith("<a class='typcn typcn-times js_undoMarkedDone' title='Késznek jelölés visszavonása' href='#" + id + "'></a>");
@@ -94,7 +95,7 @@ $(function(){
 
 		$.ajax({
 			method: "POST",
-			data: pushToken({'id': id}),
+			data: {id: id},
 			url: '/homeworks/undoMarkedDone',
 			success: function(data){
 				if (typeof data !== 'object'){
@@ -124,8 +125,8 @@ $(function(){
 
 		$.ajax({
 			method: "POST",
-			data: pushToken({}),
 			url: '/homeworks/getDoneHomeworks',
+			dataType: 'html',
 			success: function(data){
 				$content.empty().append(data);
 				$('.js_hideMarkedDone').on('click',getNotDoneHW);
@@ -154,7 +155,7 @@ $(function(){
 		$.ajax({
 			method: "POST",
 			url: '/homeworks/getNotDoneHomeworks',
-			data: pushToken({}),
+			dataType: 'html',
 			success: function(data){
 				$content.empty().append(data);
 				$('.js_showMarkedDone').on('click',getDoneHW);
@@ -204,7 +205,11 @@ $(function(){
 			data.append('fileDesc',$('[name=fileDesc]').val());
 		}
 
-		$.each(pushToken({'lesson': $selLesson.find('.del').attr('data-id'), 'text': text, 'week': $selLesson.attr('data-week')}), function(key, value){
+		$.each({
+			lesson: $selLesson.find('.del').attr('data-ttid'),
+			text: text,
+			week: $selLesson.closest('td').attr('data-week')
+		}, function(key, value){
 			data.append(key, value);
 		});
 
@@ -235,7 +240,9 @@ $(function(){
 		});
 	});
 
-	var title2 = 'Órakiválasztó-felület frissítése',
+	var $bWButton = $('.backWeek').on('click',function(){ backNextWeek('back') }),
+		$nWButton = $('.nextWeek').on('click',function(){ backNextWeek('next') }),
+		title2 = 'Órakiválasztó-felület frissítése',
 		backNextWeek = function(button){
 			var $lP = $('#lessonPicker'),
 				$bWButton = $('.backWeek');
@@ -248,64 +255,46 @@ $(function(){
 			$.ajax({
 				method: "POST",
 				url: '/homeworks/getTimetable/nextBack',
-				data: pushToken({'move': button, 'dispDays': dispDays}),
+				data: {move: button, dispDays: dispDays},
 				success: function(data){
-					var $data = $(data);
-
-					dispDays = JSON.parse($data.filter('.dispDays').detach().text());
-					var lockBack = JSON.parse($data.filter('.lockBack').detach().text());
-
-					$lP.empty().append($data.prop('outerHTML'));
-
-					if (lockBack) $bWButton.attr('disabled','disabled');
-					else $bWButton.removeAttr('disabled');
-
-					$bWButton.blur();
-					$('.nextWeek').blur();
-
-					$('.lesson').on('click',function(){
-						$('.selectedLesson').removeClass('selectedLesson');
-						$(this).addClass('selectedLesson');
-					});
+					dispDays = data.dispDays;
+					$lP.children().html(data.timetable);
+					$bWButton.attr('disabled',data.lockBack).blur();
+					$nWButton.blur();
+					$sDP.val(dispDays[0]);
 
 					$.Dialog.close();
 				}
 			});
-		};
-	$('.backWeek').on('click',function(){
-		backNextWeek('back');
-	});
-	$('.nextWeek').on('click',function(){
-		backNextWeek('next');
-	});
+		},
+		sdrq;
+	$sDP.on('change',function(e){
+		e.preventDefault();
 
-	$('#startDatePicker').on('change',function(){
-		var $lP = $('#lessonPicker'),
-			$bWButton = $('.backWeek');
+		var date = $(this).val();
+		if (isNaN(Date.parse(date)))
+			return $.Dialog.fail('Léptetés', 'Érvénytelen dátum!');
 
-		$.Dialog.wait(title2);
+		if (typeof sdrq !== 'undefined'){
+			sdrq.abort();
+			sdrq = undefined;
+		}
+		if (!$.Dialog.open || $.Dialog.open.type !== 'wait')
+			$.Dialog.wait(title2);
 
-		$.ajax({
+		sdrq = $.ajax({
 			method: "POST",
 			url: '/homeworks/getTimetable/date',
-			data: pushToken({'date': $(this).val()}),
+			data: {date: date},
 			success: function(data){
-				var $data = $(data);
-
-				dispDays = JSON.parse($data.filter('.dispDays').detach().text());
-				var lockBack = JSON.parse($data.filter('.lockBack').detach().text());
-
-				$lP.empty().append($data.prop('outerHTML'));
-
-				if (lockBack) $bWButton.attr('disabled','disabled');
-				else $bWButton.removeAttr('disabled');
-
-				$('.lesson').on('click',function(){
-					$('.selectedLesson').removeClass('selectedLesson');
-					$(this).addClass('selectedLesson');
-				});
+				dispDays = data.dispDays;
+				$lP.children().html(data.timetable);
+				$bWButton.attr('disabled',data.lockBack).blur();
+				$nWButton.blur();
+				$sDP.val(dispDays[0]);
 
 				$.Dialog.close();
+				sdrq = undefined;
 			}
 		});
 	});
@@ -325,7 +314,7 @@ $(function(){
 			$.ajax({
 				method: "POST",
 				url: '/homeworks/delete',
-				data: pushToken({'id': id}),
+				data: {id: id},
 				success: function(data){
 					if (typeof data !== 'object'){
 						console.log(data);
@@ -336,6 +325,10 @@ $(function(){
 					if (data.status){
 						$elem.parent().remove();
 						deleteEmptyTd();
+
+						if ($('tbody').children().length == 0)
+							$('.notice').show();
+
 						$.Dialog.close();
 					}
 					else $.Dialog.fail(title,data.message);

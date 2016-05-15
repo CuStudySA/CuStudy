@@ -1,11 +1,5 @@
 @import "vars";
 
-#calendar {
-	margin-top: 12px;
-	background-color: #B1BFDE;
-	padding: 6px;
-	border-radius: 3px;
-}
 h1 { margin: 0 0 13px !important }
 .selectNotify {
 	margin-left: 4px;
@@ -15,21 +9,24 @@ h1 { margin: 0 0 13px !important }
 	color: white;
 	display: none;
 }
-.fc-day-grid-event {
-	padding: 1px !important;
-	border: 3px solid transparent !important;
-	transition: none !important;
-}
-.selectedEvent {
-	border-color: $Grey !important;
-}
-#dialogContent {
-	input[name=title] { width: 85% }
-	textarea {
-		resize: vertical;
-		width: 97%;
+#calendar {
+	margin-top: 5px;
+
+	.fc-event {
+		cursor: pointer;
+		background: $NBlue;
+
+		&.selectedEvent {
+			border-color: $Grey !important;
+		}
+		&.global-event { background-color: #3AAD3E }
+	}
+	.fc-day-grid-event {
+		padding: 1px !important;
+		border: 3px solid transparent !important;
+		transition: none !important;
 	}
 }
+
+#dialogContent textarea { resize: vertical }
 #dateRangePicker { width: 71% }
-// TODO Új calendar kinézethez igazítás mergeléskor
-.fc-event.global-event { background-color: #3AAD3E }

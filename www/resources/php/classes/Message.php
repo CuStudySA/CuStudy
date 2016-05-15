@@ -4,15 +4,16 @@
 		static $Messages = array();
 
 		// Hibakód feldolgozása (to string)
-		static function Respond($activity,$code = 0){
-			$array = explode('.',$activity);
+		static function Respond($activity,$code = 0,$errorMsg = null){
+			list($class,$action) = explode('.',$activity);
 
-			$class = $array[0];
-			$action = $array[1];
-
-			if ($code != 0){
-				$errorMsg = isset(self::$Messages[$class][$action]['errors'][$code]) ? self::$Messages[$class][$action]['errors'][$code] :
-					'ismeretlen hiba történt a művelet során';
+			if ($code){
+				if (!is_string($errorMsg)){
+					$errorMsg =
+						isset(self::$Messages[$class][$action]['errors'][$code])
+						? self::$Messages[$class][$action]['errors'][$code]
+						: 'ismeretlen hiba történt a művelet során';
+				}
 
 				return str_replace('@code',$code,str_replace('@msg',$errorMsg,self::$Messages[$class][$action]['messages'][1]));
 			}
@@ -80,7 +81,7 @@
 				System::Redirect("/not-found?path=$path");
 		}
 
-		static function SendNotify($activity,$address,$invocation = null,$parameters = array()){
+		static function SendNotify($activity,$addressOrId,$invocation = null,$parameters = array()){
 			global $db, $user, $Notifications;
 
 			$slices = explode('.',$activity,2);
@@ -91,8 +92,15 @@
 
 			$text = $Notifications['template']['header'].$template['body'].$Notifications['template']['footer'];
 
+			if (is_numeric($addressOrId)){
+				$data = $db->where('id',$addressOrId)->getOne('users');
+
+				if (empty($data)) return false;
+				else $addressOrId = $data['email'];
+			}
+
 			if (empty($invocation)){
-				$data = $db->where('email',$address)->getOne('users');
+				$data = $db->where('email',$addressOrId)->getOne('users');
 				if (!empty($data))
 					$invocation = $data['name'];
 			}
@@ -109,7 +117,7 @@
 				'title' => $template['title'],
 				'to' => array(
 					'name' => !empty($invocation) ? $invocation : 'CuStudy felhasználó',
-					'address' => $address,
+					'address' => $addressOrId,
 				),
 				'body' => $text,
 			));

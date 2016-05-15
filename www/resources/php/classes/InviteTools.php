@@ -42,6 +42,48 @@ STRING
 STRING
 );
 
+		static private function _enrollUser($userid, $classid){
+			global $db;
+
+			$data = $db->where('classid',$classid)->where('userid',$userid)->getOne('class_members');
+
+			if (!empty($data))
+				return 1;
+
+			$action = $db->insert('class_members',array(
+				'classid' => $classid,
+				'userid' => $userid,
+				'role' => 'visitor',
+			));
+
+			if ($action === false) return 2;
+			else return [$action];
+		}
+
+		static function EnrollUser($userid, $classid){
+			global $user;
+
+			$action = self::_enrollUser($userid,$classid);
+
+			Logging::Insert(array_merge(array(
+				'action' => 'users.enrollUser',
+				'errorcode' => is_array($action) ? 0 : $action,
+				'db' => 'roles',
+			),array(
+				'userid' => $userid,
+				'u_classid' => $classid,
+				'classid' => $classid,
+				'role' => 'visitor',
+			),is_array($action) ? array(
+				'e_id' => $action[0],
+			) : array(),
+			!is_array($user) ? array(
+				'user' => 0,
+			) : array()));
+
+			return $action;
+		}
+
 		static function Invite($email,$name){
 			global $db, $user, $ENV;
 
@@ -52,10 +94,10 @@ STRING
 
 			$data = $db->where('email',$email)->getOne('users');
 			if (!empty($data)){
-				$action = $db->insert('class_members',array(
-					'classid' => $user['class'][0],
-					'userid' => $data['id'],
-				));
+				$action = self::EnrollUser($data['id'],$user['class'][0]);
+
+				if (!is_array($action))
+					return 5;
 
 				Message::SendNotify('role.enrollment',$email,$data['name'],array(
 					'initiator' => $user['name'],
@@ -114,7 +156,7 @@ STRING
 			);
 		}
 
-		static function Registration($data){
+		static private function _registration($data){
 /*          array(
 				'token' (string)
 				'username' (string)
@@ -125,6 +167,7 @@ STRING
 			global $db;
 
 			$token = $data['token'];
+			
 			# Formátum ellenörzése
 			foreach ($data as $key => $value){
 				switch ($key){
@@ -170,11 +213,11 @@ STRING
 			));
 
 			# Hozzáadás a csoporthoz
-			$defSession = $db->insert('class_members',array(
-				'classid' => $token_d['classid'],
-				'userid' => $id,
-				'role' => 'visitor',
-			));
+			$defSession = self::EnrollUser($id,$token_d['classid']);
+			if (!is_array($defSession))
+				return 6;
+			else
+				$defSession = $defSession[0];
 
 			$db->where('id',$id)->update('users',array(
 				'defaultSession' => $defSession,
@@ -190,6 +233,9 @@ STRING
 
 			Cookie::set('PHPSESSID',$session,false);
 
+			// Mantis integráció
+			MantisTools::CreateUser($id,$data['password']);
+
 			$print = self::$groupChooser[0];
 
 			$group_data = $db->rawQuery('SELECT g.id, g.name, gt.id as `theme_id`, gt.name as `theme_name`
@@ -198,7 +244,7 @@ STRING
 											ON (g.theme = gt.id)
 											WHERE g.classid = ?',array($token_d['classid']));
 
-			if (empty($group_data)) return 10;
+			if (empty($group_data)) return [$id];
 
 			$groups = array();
 			$gt_names = array();
@@ -223,7 +269,36 @@ STRING
 				$print .= "</select></p>";
 			}
 
-			return [$print.self::$groupChooser[1]];
+			return [$print.self::$groupChooser[1],$id];
+		}
+
+		static function Registration($data){
+			global $db;
+
+			$action = self::_registration($data);
+
+			$uId = count($action) == 1 ? $action[0] : $action[1];
+
+			if (is_array($action)){
+				$User = $db->where('id',$uId)->getOne('users');
+				$User = System::TrashForeignValues(['username','name','role','active','email','defaultSession','avatar_provider','mantisAccount'],$User);
+			}
+			else
+				$User = [];
+
+			$token = $db->where('invitation',$data['token'])->getOne('invitations');
+
+			Logging::Insert(array_merge(array(
+				'action' => 'invitation.registration',
+				'user' => !empty($token['inviter']) ? $token['inviter'] : 0,
+				'errorcode' => is_array($action) ? 0 : $action,
+				'db' => 'users',
+			),$User,array(
+				'e_id' => $uId,
+				'invitation_id' => !empty($token['id']) ? $token['id'] : 0,
+			)));
+
+			return $action;
 		}
 
 		static function SetGroupMembers($data){

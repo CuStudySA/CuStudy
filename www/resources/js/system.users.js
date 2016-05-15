@@ -14,10 +14,11 @@ $(function(){
 	$('#filterForm').on('submit',function(e){
 		e.preventDefault();
 
-		$.Dialog.wait();
+		var data = $(this).serializeForm(),
+			title = 'Felhasználók szűrése';
 
-		var data = $('#filterForm').serializeForm();
 		data.noSidebar = noSidebar;
+		$.Dialog.wait();
 
 		$.ajax({
 			method: "POST",
@@ -73,7 +74,7 @@ $(function(){
 		var id = $(e.currentTarget).attr('data-id'),
 			title = 'Felhasználó alapadatainak szerkesztése';
 
-		$.Dialog.wait(title,'Alapadatok lekérdezése...');
+		$.Dialog.wait(title,'Alapadatok lekérdezése');
 
 		$.ajax({
 			method: "POST",
@@ -93,18 +94,17 @@ $(function(){
 					$form.find('[name=email]').attr('value',data.email);
 					$form.find('[name=id]').attr('value',id);
 
-					$.Dialog.request(title,$form,'js_form','Mentés',function(){
-						var $urlap = $('#js_form');
-
+					$.Dialog.request(title,$form,'js_form','Mentés',function($urlap){
 						$urlap.on('submit',function(e){
 							e.preventDefault();
 
+							var data = $urlap.serializeForm();
 							$.Dialog.wait(title);
 
 							$.ajax({
 								method: "POST",
 								url: "/system.users/editBasicInfos",
-								data: $urlap.serializeForm(),
+								data: data,
 								success: function(data2){
 									if (typeof data2 === 'string'){
 										console.log(data2);
@@ -169,7 +169,7 @@ $(function(){
 		var id = $(e.currentTarget).attr('data-id'),
 			title = 'Felhasználó szerepköreinek lekérdezése';
 
-		$.Dialog.wait(title,'Az elérhető szerepkörök lekérdezése folyamatban...');
+		$.Dialog.wait(title,'Az elérhető szerepkörök lekérdezése folyamatban');
 
 		$.ajax({
 			method: "POST",
@@ -244,7 +244,7 @@ $(function(){
 
 							// Módosítás esetén
 							else {
-								$.Dialog.wait(title,'Szerepkör adatainak lekérdezése...');
+								$.Dialog.wait(title,'Szerepkör adatainak lekérdezése');
 
 								$.ajax({
 									method: "POST",
@@ -267,7 +267,7 @@ $(function(){
 												$formEdit.on('submit',function(e){
 													e.preventDefault();
 
-													$.Dialog.wait(title,'Módosítások mentése...');
+													$.Dialog.wait(title,'Módosítások mentése');
 
 													$.ajax({
 														method: "POST",

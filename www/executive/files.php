@@ -17,6 +17,7 @@
 					'time' => 'Feltöltés ideje',
 					'uploader' => 'Feltöltő',
 					'filename' => 'Fájl neve',
+					'md5' => 'MD5 Hash',
 				);
 
 				foreach($data as $key => $value)
@@ -42,27 +43,19 @@
 				$infos[(int)$keys[0]][$keys[1]] = $value;
 			}
 
-			$classid = $user['class'][0];
 			foreach ($_FILES as $key => $file){
-				$action = FileTools::UploadFile($file);
+				$action = FileTools::Insert(array(
+					'file' => $file,
+					'name' => !empty($infos[$key]['title']) ? $infos[$key]['title'] : 'Feltöltött dokumentum',
+					'description' => !empty($infos[$key]['desc']) ? $infos[$key]['desc'] : 'Egy feltöltött dokumentum leírása',
+				));
 
 				if (is_int($action))
 					System::Respond(Message::Respond('files.uploadFiles',$action));
-
-				$db->insert('files',array(
-					'name' => !empty($infos[$key]['title']) ? $infos[$key]['title'] : 'Feltöltött dokumentum',
-					'description' => !empty($infos[$key]['desc']) ? $infos[$key]['desc'] : 'Egy feltöltött dokumentum leírása',
-					'lessonid' => 0,
-					'classid' => $classid,
-					'uploader' => $user['id'],
-					'size' => $file['size'],
-					'filename' => $file['name'],
-					'tempname' => $action[0],
-				));
 			}
 
 			System::Respond(array(
-				'filelist' => FileTools::RenderList($classid, false),
+				'filelist' => FileTools::RenderList($user['class'][0], false),
 				'storage' => FileTools::GetSpaceUsage(),
 			));
 		break;

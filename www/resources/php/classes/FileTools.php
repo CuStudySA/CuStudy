@@ -1,5 +1,4 @@
 <?php
-
 	class FileTools {
 		const CLASS_SPACE = 268435456;
 
@@ -45,7 +44,7 @@
 				return round(($byte/(1024*1024)),2).' MB';
 		}
 
-		static function UploadFile($file){
+		static function Upload($file){
 			// Sikerült-e a fájlfeltöltés?
 			if ($file['error'] != 0) return 1;
 			
@@ -57,11 +56,85 @@
 			
 			// Hely meghatározása
 			$fileName = Password::Generalas();
-			$path = "usr_uploads/{$fileName}";
+			global $root;
+			$path = "{$root}usr_uploads/{$fileName}";
 			
 			// Mozgatás a végleges helyre
-			if (move_uploaded_file($file['tmp_name'],$path)) return [$fileName];
+			if (move_uploaded_file($file['tmp_name'],$path)) return [$fileName, md5_file($path)];
 			else return 5;
+		}
+
+		/**
+		 * array(
+		 *    (req)'file' => array() //PHP File Array
+		 *    (req)'name'
+		 *    (req)'description'
+		 *    (opt)'classid'
+		 *    (opt)'uploader'
+		 *    (opt)'lessonid'
+		 * )
+		 * @param $data
+		 * @return int|array
+		 */
+		static function Insert($data){
+			global $user;
+
+			$action = self::_insert($data);
+			$isSuccess = is_array($action);
+
+			$basicData = System::TrashForeignValues(['name','description','classid','uploader','lessonid'],$data);
+
+			$fileInfo = [];
+			if (!empty($data['file']['size']))
+				$fileInfo['size'] = $data['file']['size'];
+			if (!empty($data['file']['name']))
+				$fileInfo['filename'] = $data['file']['name'];
+			if ($isSuccess){
+				$fileInfo['md5'] = $action['md5'];
+				$fileInfo['tempname'] = $action['tempname'];
+				$fileInfo['e_id'] = $action['file_id'];
+			}
+
+			Logging::Insert(array_merge(array(
+				'action' => 'files.uploadFile',
+				'errorcode' => $isSuccess ? 0 : $action,
+				'db' => 'files',
+			),$basicData,$fileInfo,array(
+				'time' => date('c'),
+				'lessonid' => !empty($data['lessonid']) ? $data['lessonid'] : 0,
+				'classid' => !empty($data['classid']) ? $data['classid'] : $user['class'][0],
+				'uploader' => !empty($data['uploader']) ? $data['uploader'] : $user['id'],
+			)));
+
+			return $data;
+		}
+
+		static private function _insert($data){
+			global $user,$db;
+
+			$file = FileTools::Upload($data['file']);
+
+			if (is_int($file))
+				return 1;
+
+			$action = $db->insert('files',array(
+				'name' => !empty($data['name']) ? $data['name'] : 'Feltöltött dokumentum',
+				'description' => !empty($data['description']) ? $data['description'] : 'Egy feltöltött dokumentum leírása',
+				'lessonid' => !empty($data['lessonid']) ? $data['lessonid'] : 0,
+				'classid' => !empty($data['classid']) ? $data['classid'] : $user['class'][0],
+				'uploader' => !empty($data['uploader']) ? $data['uploader'] : $user['id'],
+				'size' => $data['file']['size'],
+				'filename' => $data['file']['name'],
+				'tempname' => $file[0],
+				'md5' => $file[1],
+			));
+			if (!is_numeric($action)) return 2;
+
+			return array(
+				'file_id' => $action,
+				'tempname' => $file[0],
+				'md5' => $file[1],
+			);
 		}
 
 		static function DownloadFile($id){
@@ -87,6 +160,28 @@
 		}
 
 		static function DeleteFile($id){
+			global $db, $user;
+
+			$data = $db->where('id',$id)->where('classid',$user['class'][0])->getOne('files');
+
+			if (!empty($data))
+				$data = System::TrashForeignValues(['name','lessonid','description','classid','size','time','uploader','filename','tempname','md5'],$data);
+			else $data = [];
+
+			$action = self::_deleteFile($id);
+
+			Logging::Insert(array_merge(array(
+				'action' => 'files.delete',
+				'errorcode' => $action,
+				'db' => 'files',
+			),$data,array(
+				'e_id' => $id,
+			)));
+
+			return $action;
+		}
+
+		static private function _deleteFile($id){
 			global $db, $user, $root;
 
 			# Jog. ellenörzése
@@ -121,6 +216,7 @@
 				'time' => $data['time'],
 				'uploader' => empty($uploader) ? 'ismeretlen' : $uploader['name'].' (#'.$uploader['id'].')',
 				'filename' => $data['filename'],
+				'md5' => !empty($data['md5']) ? $data['md5'] : '(ismeretlen)',
 			);
 		}
 
@@ -134,6 +230,9 @@
 			}
 
 			$data = $db->where('classid', $classid)->orderBy('time')->get('files');
+
+			if (empty($data) && System::PermCheck('files.add'))
+				return '';
 
 			foreach ($data as $file) {
 				$deleteButton = !System::PermCheck('files.delete')

@@ -9,24 +9,6 @@
   font-style: normal;
 }
 
-span.typcn {
-  line-height: 1em;
-  width: 1em;
-  height: 1em;
-  display: inline-block;
-  position: relative;
-}
-
-span.typcn:before {
-  width: inherit;
-  height: inherit;
-  font-size: inherit;
-  line-height: inherit;
-  position: absolute;
-  top: 0;
-  left: 0;
-}
-
 .typcn {
 	user-select: none;
 }

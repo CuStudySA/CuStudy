@@ -159,7 +159,7 @@
 			# Függőségek feloldása (timetable)
 			$data = $db->where('classid',$user['class'][0])->where('groupid',$id)->get('timetable');
 			foreach ($data as $array)
-				Timetable::DeleteEntrys(array(array('id' => $array['id'])));
+				Timetable::DeleteEntries(array(array('id' => $array['id'])));
 
 			$action = $db->where('id',$id)->delete('groups');
 
