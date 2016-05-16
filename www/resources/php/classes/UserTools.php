@@ -148,7 +148,9 @@
 			$data_m = $data;
 			if (!empty($data_m['password']))
 				$data_m['password'] = $oPwd;
-			MantisTools::EditUser($user['mantisAccount'],$data_m);
+
+			if (!empty($user['mantisAccount']))
+				MantisTools::EditUser($user['mantisAccount'],$data_m);
 
 			$action = $db->where('id',$user['id'])->update('users',$data);
 			$success = $action ? 0 : 3;
