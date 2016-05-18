@@ -1,5 +1,5 @@
 <?php
-	$Log = Logging::GetLog(); ?>
+	$Log = Logging::GetLog(isset($ENV['GET']['userid']) ? $ENV['GET']['userid'] : null); ?>
 
 <h1>Rendszernapló</h1>
 

@@ -50,6 +50,28 @@
 						'role' => $role['role'],
 					));
 				break;
+
+				case 'bugTrackerStatus':
+					$action = MantisTools::GetUserMantisStatus($id);
+
+					$data = array(
+						'new' => 0,
+						'update' => 0,
+						'remove' => 0,
+					);
+
+					if (is_array($action)){
+						$data['update'] = $data['remove'] = 1;
+						$status = "Összekapcsolva (#{$action[0]})";
+					}
+
+					if (is_string($action)){
+						$data['new'] = 1;
+						$status = 'Nincs összekapcsolva';
+					}
+
+					System::Respond('',1,array('data' => $data, 'conn_status' => $status));
+				break;
 			}
 		break;
 
@@ -151,5 +173,30 @@
 				System::Respond();
 
 			System::Respond(Message::Respond('adminUserTools.deleteUser',$action),$action == 0 ? 1 : 0);
+		break;
+
+		case 'editBugTrackerStatus':
+			if (empty($ENV['POST']['action']) || !isset($ENV['POST']['id']))
+				System::Respond();
+
+			switch ($ENV['POST']['action']){
+				case 'remove':
+					$action = MantisTools::DeleteUser(null,$ENV['POST']['id']);
+
+					System::Respond(Message::Respond('mantis_users.delete',is_array($action) ? 0 : $action),is_array($action) ? 1 : 0);
+				break;
+
+				case 'update':
+					$action = MantisTools::UpdateUser(null,$ENV['POST']['id']);
+
+					System::Respond(Message::Respond('mantis_users.update',$action),$action == 0 ? 1 : 0);
+				break;
+
+				case 'new':
+					$action = MantisTools::CreateUser($ENV['POST']['id']);
+
+					System::Respond(Message::Respond('mantis_users.create',is_array($action) ? 0 : $action),is_array($action) ? 1 : 0);
+				break;
+			}
 		break;
 	}

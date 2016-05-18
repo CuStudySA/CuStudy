@@ -595,6 +595,8 @@
 					4 => 'már van a Mantis rendszerben azonos adatokkal rendelkező felh.',
 				),
 				'messages' => array(
+					0 => 'A BugTracker-felhasználó regisztrálása sikeresen befejeződött, átirányítjuk...',
+					1 => 'A BugTracker-felhasználó regisztrálása nem sikerült, mert @msg! (Hibakód: @code)',
 				),
 			),
 			'edit' => array(
@@ -605,6 +607,30 @@
 					4 => 'nem sikerült az adatbázisba írás',
 				),
 				'messages' => array(
+				),
+			),
+			'delete' => array(
+				'errors' => array(
+					1 => 'nincs jogosultsága a művelethez',
+					2 => 'a Mantis integráció ki van kapcsolva',
+					3 => "nem található a keresett bejegyzés",
+					4 => 'nem sikerült az adatbázisba írás',
+				),
+				'messages' => array(
+					0 => 'A BugTracker-felhasználó eltávolítása a rendszerből sikeresen befejeződött, átirányítjuk...',
+					1 => 'A BugTracker-felhasználó eltávolítása a rendszerből nem sikerült, mert @msg! (Hibakód: @code)',
+				),
+			),
+			'update' => array(
+				'errors' => array(
+					1 => 'nincs jogosultsága a művelethez',
+					2 => 'a Mantis integráció ki van kapcsolva',
+					3 => "nem található a keresett bejegyzés",
+					4 => 'nem sikerült az adatbázisba írás',
+				),
+				'messages' => array(
+					0 => 'A BugTracker-felhasználó frissítése a C.S. rendszer adataival sikeresen befejeződött, átirányítjuk...',
+					1 => ' BugTracker-felhasználó frissítése a C.S. rendszer adataival nem sikerült, mert @msg! (Hibakód: @code)',
 				),
 			),
 		),
