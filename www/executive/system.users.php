@@ -191,6 +191,12 @@
 
 					System::Respond(Message::Respond('mantis_users.update',$action),$action == 0 ? 1 : 0);
 				break;
+
+				case 'new':
+					$action = MantisTools::CreateUser($ENV['POST']['id']);
+
+					System::Respond(Message::Respond('mantis_users.create',is_array($action) ? 0 : $action),is_array($action) ? 1 : 0);
+				break;
 			}
 		break;
 	}

@@ -595,6 +595,8 @@
 					4 => 'már van a Mantis rendszerben azonos adatokkal rendelkező felh.',
 				),
 				'messages' => array(
+					0 => 'A BugTracker-felhasználó regisztrálása sikeresen befejeződött, átirányítjuk...',
+					1 => 'A BugTracker-felhasználó regisztrálása nem sikerült, mert @msg! (Hibakód: @code)',
 				),
 			),
 			'edit' => array(

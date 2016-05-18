@@ -128,6 +128,8 @@
 			'e_id' => array('Mantis felhasználó',function($x){
 				global $db, $MantisDB;
 
+				System::LoadLibrary('mantisIntegration');
+
 				if (is_int($MantisDB))
 					return "Ismeretlen (Mantis integr. kikapcs.)";
 

@@ -1,6 +1,6 @@
 <?php
 	class MantisTools {
-		static private function _createUser($User, $password){
+		static private function _createUser($User, $password = null){
 			global $db;
 
 			System::LoadLibrary('mantisIntegration');
@@ -26,7 +26,7 @@
 				'username' => $user['username'],
 				'realname' => $user['name'],
 				'email' => $user['email'],
-				'password' => Password::Kodolas($password),
+				'password' => empty($password) ? $user['password'] : Password::Kodolas($password),
 				'enabled' => 1,
 				'protected' => 1,
 				'access_level' => 25,
@@ -46,33 +46,33 @@
 			return [$action];
 		}
 
-		static function CreateUser($User, $password){
-			global $db;
+		static function CreateUser($User, $password = null){
+			global $db, $user;
 
 			$action = self::_createUser($User, $password);
 
 			$isSuccess = is_array($action);
 
 			if (!is_array($User))
-				$user = $db->where('id',$User)->getOne('users');
+				$profile = $db->where('id',$User)->getOne('users');
 			else
-				$user = $User;
+				$profile = $User;
 
-			if (is_array($user))
-				$user = System::TrashForeignValues(['username','name','email'],$user);
+			if (is_array($profile))
+				$profile = System::TrashForeignValues(['username','name','email'],$profile);
 
 			Logging::Insert(array_merge(array(
 				'action' => 'mantis_users.create',
 				'errorcode' => $isSuccess ? 0 : $action,
 				'db' => 'mantis_users',
-				'user' => $User,
+				'user' => !empty($user['id']) ? $user['id'] : $User,
 			),$isSuccess ? array(
 				'e_id' => $action[0],
 			) : array(),
 			$isSuccess ? array(
 				'userid' => is_array($User) ? $User['id'] : $User,
 			) : array(),
-			is_array($user) ? $user : array()));
+			is_array($profile) ? $profile : array()));
 
 			return $action;
 		}
@@ -265,6 +265,10 @@
 			$MantisDB->where('user_id',$id)->delete('mantis_project_user_list_table');
 
 			$action = $MantisDB->where('id',$id)->delete('mantis_user_table');
+
+			$db->where('id',$data['userid'])->update('users',array(
+				'mantisAccount' => 0,
+			));
 
 			if ($action) return $data;
 			else return 4;
