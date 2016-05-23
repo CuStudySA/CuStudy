@@ -55,6 +55,11 @@
 	$addon = [];
 
 	$pages = array(
+		'landing' => array(
+			'css' => 		['landing.css'],
+			'file' => 		'landing',
+		),
+
 		'fooldal' => array(
 			'title' => 		'Kezdőoldal',
 			'css' => 		['fooldal.css'],
@@ -242,6 +247,7 @@
 		'guest' => array(
 			'pw-reset' => ['view'],
 			'login' => ['view'],
+			'landing' => ['view'],
 			'not-found' => ['view'],
 			'invitation' => ['view'],
 			'mail.cron' => ['view'],
