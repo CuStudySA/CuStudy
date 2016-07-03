@@ -15,13 +15,40 @@
 		}
 
 		static function Add($data){
+			global $user;
+
+			$action = self::_add($data);
+
+			$data = System::TrashForeignValues(['lesson','year','week','text'],$data);
+
+			if (!empty($data['week'])){
+				$_match = array();
+				if (!empty($data['week']) && preg_match('/(\d{4})w(\d{2})/i', $data['week'], $_match)){
+					$data['week'] = $_match[2];
+					$data['year'] = $_match[1];
+				}
+			}
+
+			Logging::Insert(array_merge(array(
+				'action' => 'homeworks.add',
+				'errorcode' => is_array($action) ? 0 : $action,
+				'db' => 'homeworks',
+			),$data,array(
+				'classid' => $user['class'][0],
+				'e_id' => (is_array($action) ? $action[0] : 0),
+			)));
+
+			return $action;
+		}
+
+		static private function _add($data){
 			global $db, $user;
 
 			# Jog. ellenörzése
-			if (System::PermCheck('homeworks.add')) return 0x1;
+			if (System::PermCheck('homeworks.add')) return 1;
 
 			# Formátum ellenörzése
-			if (!System::ValuesExists($data,['lesson','text','week'])) return 0x2;
+			if (!System::ValuesExists($data,['lesson','text','week'])) return 2;
 			unset($data['JSSESSID']);
 			foreach ($data as $key => $value){
 				switch ($key){
@@ -47,14 +74,16 @@
 					break;
 
 					default:
-						return 0x2;
+						return 2;
 					break;
 				}
-				if (System::InputCheck($value,$type)) return 0x2;
+				if (System::InputCheck($value,$type)) return 2;
 			}
 
+			System::LoadLibrary('jbbcode');
+
 			$parser = new JBBCode\Parser();
-			$parser->addCodeDefinitionSet(new JBBCode\BlueSkyCodeDefSet());
+			$parser->addCodeDefinitionSet(new JBBCode\AmberCodeDefSet());
 
 			$parser->parse(nl2br($data['text']));
 
@@ -69,47 +98,60 @@
 										WHERE tt.classid = ? && tt.id = ? && t.name IS NOT NULL && l.name IS NOT NULL',
 							array($user['class'][0],$data['lesson']));
 
-			if (empty($dbdata)) return 0x3;
+			if (empty($dbdata)) return 3;
 
-			if (Timetable::GetWeekLetter($dateFromUI) != strtoupper($dbdata[0]['week'])) return 0x4;
+			if (Timetable::GetWeekLetter($dateFromUI) != strtoupper($dbdata[0]['week'])) return 4;
 
 			if ($db->where('week', $data['week'])->where('year', $data['year'])->where('classid', $user['class'][0])->where('lesson', $data['lesson'])->has('homeworks'))
-				return 0x5;
+				return 5;
 
 			// Mellékelt fájl feltöltése
-			$uploadStatus = 0;
 			if (!empty($_FILES)){
 				$file = reset($_FILES);
-				$uploadStatus = FileTools::UploadFile($file);
 
-				if (is_array($uploadStatus)){
-					$lessonId = $db->where('id', $data['lesson'])->getOne('timetable','lessonid')['lessonid'];
+				$lessonId = $db->where('id', $data['lesson'])->getOne('timetable','lessonid')['lessonid'];
 
-					$action = $db->insert('files',array(
-						'name' => isset($data['fileTitle']) ? $data['fileTitle'] : 'Házi feladathoz feltöltött fájl',
-						'description' => isset($data['fileDesc']) ? $data['fileDesc'] : 'Házi feladathoz feltöltött fájl',
-						'lessonid' => $lessonId,
-						'classid' => $user['class'][0],
-						'uploader' => $user['id'],
-						'size' => $file['size'],
-						'filename' => $file['name'],
-						'tempname' => $uploadStatus[0],
-					));
-					$uploadStatus = 0;
-					unset($data['fileTitle']);
-					unset($data['fileDesc']);
-				}
+				$uploadStatus = FileTools::Insert(array(
+					'file' => $file,
+					'name' => isset($data['fileTitle']) ? $data['fileTitle'] : 'Házi feladathoz feltöltött fájl',
+					'description' => isset($data['fileDesc']) ? $data['fileDesc'] : 'Házi feladathoz feltöltött fájl',
+					'lessonid' => $lessonId,
+					'classid' => $user['class'][0],
+					'uploader' => $user['id'],
+				));
+
+				unset($data['fileTitle']);
+				unset($data['fileDesc']);
 			}
 
-			$db->insert('homeworks',array_merge($data,array(
+			$action = $db->insert('homeworks',array_merge($data,array(
 				'author' => $user['id'],
 				'classid' => $user['class'][0],
 			)));
 
-			return $uploadStatus;
+			return $action !== false ? [$action] : 6;
 		}
 
 		static function Delete($id){
+			global $db, $user;
+
+			$data = $db->where('id',$id)->where('classid',$user['class'][0])->getOne('homeworks');
+			$data = System::TrashForeignValues(['lesson','year','week','text','classid','author'],!empty($data) ? $data : []);
+
+			$action = self::_delete($id);
+
+			Logging::Insert(array_merge(array(
+				'action' => 'homeworks.delete',
+				'errorcode' => $action,
+				'db' => 'homeworks',
+			),$data,array(
+				'e_id' => $id,
+			)));
+
+			return $action;
+		}
+
+		static private function _delete($id){
 			global $db,$user;
 
 			# Form. ellenörzése
@@ -270,7 +312,8 @@
 			$homeWorks = HomeworkTools::GetHomeworks($numberOfHomework,$onlyListActive);
 ?>
 
-<?php       if (empty($homeWorks)) print System::Notice('info','Nincs megjelenítendő házi feladat! A kezdéshez adjon hozzá egyet, vagy váltson nézetet!'); ?>
+<?php       if (empty($homeWorks)) print System::Notice('info','Nincs megjelenítendő házi feladat! A kezdéshez adjon hozzá egyet, vagy váltson nézetet!');
+			else print System::Notice('info','Nincs megjelenítendő házi feladat! A kezdéshez adjon hozzá egyet, vagy váltson nézetet!',null,false,true) ?>
 
 			<table class='homeworks'>
 		        <tbody>

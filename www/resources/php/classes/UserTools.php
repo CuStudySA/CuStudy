@@ -127,7 +127,7 @@
 				(opt)'verpasswd'
 			)                       */
 
-			global $db,$user,$MantisDB;
+			global $db,$user;
 
 			# Felhasználó jelszavának ellenörzése
 			if (!Password::Ellenorzes($data['oldpassword'],$user['password'])) return 1;
@@ -145,16 +145,12 @@
 			unset($data['verpasswd']);
 
 			# MantisBT integráció
-			if (!is_int($MantisDB)){
-				if (!empty($user['mantisAccount'])){
-					$data_m = $data;
+			$data_m = $data;
+			if (!empty($data_m['password']))
+				$data_m['password'] = $oPwd;
 
-					if (!empty($data_m['password']))
-						$data_m['password'] = $oPwd;
-
-					MantisTools::EditUser($user['mantisAccount'],$data_m);
-				}
-			}
+			if (!empty($user['mantisAccount']))
+				MantisTools::EditUser($user['mantisAccount'],$data_m);
 
 			$action = $db->where('id',$user['id'])->update('users',$data);
 			$success = $action ? 0 : 3;

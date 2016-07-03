@@ -4,16 +4,17 @@ $(function(){
 		showHidden = false,
 		files = [], $lP = $('#lessonPicker'), $sDP = $('#startDatePicker');
 
-	$("textarea").eq(0).sceditor({
-		plugins: "bbcode",
-		toolbar: "bold,italic,underline|color,removeformat|cut,copy,paste|source",
-		style: '/resources/addons/sceditor/jquery.sceditor.default.min.css',
-		width: "80%",
-		height: "170px",
-		runWithoutWysiwygSupport: true,
-		locale: 'hu',
-		emoticonsEnabled: false,
-	});
+	if ($("textarea").length !== 0)
+		$("textarea").eq(0).sceditor({
+			plugins: "bbcode",
+			toolbar: "bold,italic,underline|color,removeformat|cut,copy,paste|source",
+			style: '/resources/addons/sceditor/jquery.sceditor.default.min.css',
+			width: "80%",
+			height: "170px",
+			runWithoutWysiwygSupport: true,
+			locale: 'hu',
+			emoticonsEnabled: false,
+		});
 
 	var deleteEmptyTd = function(){
 		var index = -1,
@@ -68,7 +69,7 @@ $(function(){
 						deleteEmptyTd();
 
 						if ($('tbody').children().length == 0)
-							$('table').replaceWith('<p>Nincs megjelenítendő házi feladat! A kezdéshez adjon hozzá egyet, vagy váltson nézetet!</p>');
+							$('.notice').show();
 					}
 					else {
 						$(e.currentTarget).replaceWith("<a class='typcn typcn-times js_undoMarkedDone' title='Késznek jelölés visszavonása' href='#" + id + "'></a>");
@@ -324,6 +325,10 @@ $(function(){
 					if (data.status){
 						$elem.parent().remove();
 						deleteEmptyTd();
+
+						if ($('tbody').children().length == 0)
+							$('.notice').show();
+
 						$.Dialog.close();
 					}
 					else $.Dialog.fail(title,data.message);

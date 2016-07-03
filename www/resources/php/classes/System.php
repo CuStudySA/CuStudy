@@ -73,7 +73,7 @@
 					$preg = '/^[A-ZÖÜÓÚŐÉÁŰa-zéáűőúöüó.]{2,}$/';
 				break;
 				case 'lesson':
-					$preg = '/^[A-Za-zöüóőúéáűÖÜÓŐÚÉÁŰ.() ]{4,15}$/';
+					$preg = '/^[A-Za-zöüóőúéáűÖÜÓŐÚÉÁŰ.() ]{4,20}$/';
 				break;
 				case 'attack':
 					$preg = '/^[$<%>=\/\\:{}\[\]*+]+$/';
@@ -121,6 +121,25 @@
 				throw new Exception("Nem találom a {$className} osztályt!");
 
 			require $path;
+		}
+
+		static function LoadLibrary($libraryName){
+			global $ENV, $addons, $root;
+
+			if (in_array($libraryName,$ENV['loaded_addons']))
+				return;
+
+			if (empty($addons[$libraryName]['php']))
+				throw new Exception("Probléma a(z) {$libraryName} addon betöltése közben: nem találom az addont!");
+
+			foreach ($addons[$libraryName]['php'] as $file){
+				if (!file_exists($root."resources/addons/$file"))
+					throw new Exception("Probléma a(z) {$libraryName} addon betöltése közben: nem találom a(z) {$file} fájlt!");
+
+				require $root."resources/addons/$file";
+			}
+
+			$ENV['loaded_addons'][] = $libraryName;
 		}
 
 		static function UserIsStudent($role = null){
@@ -667,8 +686,7 @@
 				'body' (string)
 			) */
 
-			if (!class_exists('Swift_Message'))
-				trigger_error('Nincs betöltve a swiftMailer addon', E_USER_ERROR);
+			System::LoadLibrary('swiftMailer');
 
 			$message = Swift_Message::newInstance($mail['title']); // Üzenet objektum beállítása és tárgy létrehozása
 
@@ -777,7 +795,7 @@
 		}
 
 		// Figyelmeztető üzenet
-		static function Notice($type, $title, $text = null, $center = false){
+		static function Notice($type, $title, $text = null, $center = false, $hidden = false){
 			$NOTICE_TYPES = array('info','success','fail','warn','caution');
 
 			if (!in_array($type, $NOTICE_TYPES))
@@ -800,7 +818,9 @@
 
 			if ($center)
 				$type .= ' align-center';
-			return "<div class='notice $type'>$HTML</div>";
+
+			$hidden = $hidden ? 'style="display: none;"' : '';
+			return "<div class='notice $type' $hidden>$HTML</div>";
 		}
 
 		/**

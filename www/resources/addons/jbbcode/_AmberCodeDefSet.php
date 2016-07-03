@@ -7,7 +7,7 @@
 	require_once 'validators/CssColorValidator.php';
 
 
-	class BlueSkyCodeDefSet implements CodeDefinitionSet {
+	class AmberCodeDefSet implements CodeDefinitionSet {
 		protected $definitions = array();
 
 		public function __construct() {

@@ -31,9 +31,9 @@
 			'js' => ['sceditor/jquery.sceditor.bbcode.min.js','sceditor/hu.js'],
 		),
 		'jbbcode' => array(
-			'php' => ['jbbcode/Parser.php','jbbcode/_BlueSkyCodeDefSet.php'],
+			'php' => ['jbbcode/Parser.php','jbbcode/_AmberCodeDefSet.php'],
 		),
-		 'swiftMailer' => array(
+		'swiftMailer' => array(
 			'php' => ['swiftMailer/swift_required.php'],
 		),
 		'fullCalendar' => array(
@@ -52,7 +52,7 @@
 	# Menüpontok beállítása, JS, CSS és addonok tömbjeinek kezdeti értékadása
 	$css = ['theme.css'];
 	$js = ['jquery.functions.js','dialog.js'];
-	$addon = ['swiftMailer','mantisIntegration'];
+	$addon = [];
 
 	$pages = array(
 		'landing' => array(
@@ -114,7 +114,7 @@
 			'title' => 		'Órarend',
 			'css' => 		['timet.css','timetables.css'],
 			'js' => 		['jquery.powertip.min.js'],
-			'customjs' =>   ['' => 'timetables/tt-view.js', 'edit' => 'timetables/tt-edit.js','week' => 'timetables/tt-edit.js'],
+			'sub_js' =>     ['' => 'timetables/tt-view.js', 'edit' => 'timetables/tt-edit.js','week' => 'timetables/tt-edit.js'],
 			'file' => 		'timetables',
 		),
 
@@ -128,7 +128,7 @@
 		'groups' => array(
 			'title' => 		'Csoportok',
 			'css' => 		['groups.css'],
-			'customjs' =>   ['' => 'groups.js', 'edit' => 'groups.edit.js','add' => 'groups.add.js',],
+			'sub_js' =>     ['' => 'groups.js', 'edit' => 'groups.edit.js','add' => 'groups.add.js',],
 			'file' => 		'groups',
 		),
 
@@ -143,7 +143,7 @@
 			'title' => 		'Profilom szerkesztése',
 			'css' => 		['profile.css'],
 			'js' => 		[],
-			'customjs' =>   ['' => 'profile.js', 'settings' => 'profile.settings.js'],
+			'sub_js' =>     ['' => 'profile.js', 'settings' => 'profile.settings.js'],
 			'file' => 		'profile',
 		),
 
@@ -152,7 +152,7 @@
 			'css' => 		['homeworks.css','timet.css'],
 			'js' => 		['homeworks.js'],
 			'file' => 		'homeworks',
-			'addons' =>     ['sceditor','jbbcode'],
+			'sub_addons' => ['new' => 'sceditor'],
 		),
 
 		'invitation' => array(

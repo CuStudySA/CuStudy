@@ -1,6 +1,8 @@
 $(function(){
 	var $Form = $('form'),
-		title = 'Regisztráció a rendszerbe meghívóval';
+		title = 'Regisztráció a rendszerbe meghívóval',
+		$loginMain = $('#main').appendTo('body'),
+		isIE = navigator.userAgent.toLowerCase().indexOf('trident') !== -1 || navigator.userAgent.toLowerCase().indexOf('msie') !== -1;
 
 	// Patternek hozzácsatolása az űrlapelemekhez
 	if (typeof Patterns != undefined){
@@ -15,76 +17,76 @@ $(function(){
 	}
 
 	function goToMainpage(){
-		var $inner = $('#inner');
-
 		$.Dialog.close();
 
-		$inner
-			.width($inner.width()+1)
-			.height($inner.height()+1)
-			.addClass('animate');
+		if (isIE) return window.location.href = '/';
+		$.ajax({
+			url: '/?via-js',
+			dataType: 'json',
+			success: function(data){
+				var $body = $(document.body),
+					$head = $(document.head),
+					load = {css: [], js: []};
 
-		$.get('/fooldal?no-header-js',function(data){ setTimeout(function(){
-			var $data = $(data),
-				$scripts = $data.filter('script[src]'),
-				$styles = $data.filter('link[rel=stylesheet]'),
-				$body = $(document.body), $head = $(document.head),
-				load = {css: [], js: []};
-
-			$styles.each(function(){
-				var a = document.createElement('a');
-				a.href = this.href;
-				if ($head.children('style[data-href="'+a.pathname+'"]').length === 0)
-					load.css.push(a.pathname);
-			});
-
-			$scripts.each(function(){
-				var a = document.createElement('a');
-				a.href = this.src;
-				if ($body.children('script[src="'+a.pathname+'"]').length === 0)
-					load.js.push(a.pathname);
-			});
-
-			function done(){
-				$data.filter('#sidebar').prependTo($body);
-				$body.addClass('sidebar-slide');
-				$('title').text($data.filter('title').text());
-				$('main').prepend($data.filter('main').html());
-				$('#main').fadeOut(500,function(){
-					$(this).remove();
+				$.each(data.css,function(_,el){
+					var a = document.createElement('a');
+					a.href = el;
+					if ($head.children('style[data-href="'+a.pathname+'"]').length === 0)
+						load.css.push(a.pathname);
 				});
-				history.pushState('', {}, '/');
-				loadJS(0);
+
+				$.each(data.js, function(_,el){
+					var a = document.createElement('a');
+					a.href = el;
+					if ($body.children('script[src="'+a.pathname+'"]').length === 0)
+						load.js.push(a.pathname);
+				});
+
+				function done(){
+					$body.prepend(data.sidebar).addClass('sidebar-slide');
+					$('title').text(data.title);
+					history.replaceState({},'','/');
+					var $main = $('main');
+					$main.children(':not(#main)').remove();
+					$main.append(data.main);
+					$loginMain.addClass('loaded');
+					setTimeout(function(){ $loginMain.remove() }, 410);
+					loadJS(0);
+				}
+
+				function loadJS(i){
+					if (typeof load.js[i] === 'undefined')
+						return;
+
+					$.ajax({
+						url: load.js[i],
+						dataType: "script",
+						success: function(){
+							//JS auto. lefut
+							loadJS(i+1);
+						},
+						error: function(){ throw new Error('JS #'+i+' - '+load.js[i]) }
+					});
+				}
+
+				(function loadCSS(i){
+					if (typeof load.css[i] === 'undefined')
+						return done();
+					$.ajax({
+						url: load.css[i],
+						dataType: "text",
+						success: function(data){
+							if (typeof data !== 'string')
+								return window.location.href = '';
+							data = data.replace(/url\((['"])?\.\.\//g,'url($1/resources/');
+							$head.append($.mk('style').text(data));
+							loadCSS(i+1);
+						},
+						error: function(){ throw new Error('CSS #'+i+' - '+load.css[i]) }
+					});
+				})(0);
 			}
-
-			function loadJS(i){
-				if (typeof load.js[i] === 'undefined')
-					return;
-				$.ajax({
-					url: load.js[i],
-					dataType: "script",
-					success: function(){
-						//JS auto. lefut
-						loadJS(i+1);
-					},
-					error: function(){ window.location.href = '/'; }
-				});
-			}
-
-			(function loadCSS(i){
-				if (typeof load.css[i] === 'undefined')
-					return done();
-				$.ajax({
-					url: load.css[i],
-					success: function(data){
-						if (typeof data !== 'string') return window.location.href = '/';
-						$head.append($(document.createElement('style')).text(data));
-						loadCSS(i+1);
-					},
-					error: function(){ window.location.href = '/'; }
-				});
-			})(0);
-		},500) });
+		});
 	}
 
 	// baseDataForm elküldése esetén...
@@ -121,17 +123,16 @@ $(function(){
 							url: '/invitation/setGroupMembers',
 							data: data,
 							success: function(data){
-								if (data.status){
-									goToMainpage();
-								}
-								else $.Dialog.fail(title,data.message);
+								if (!data.status) return $.Dialog.fail(title,data.message);
+
+								goToMainpage();
 							}
 						});
 					});
 
 					$.Dialog.close();
 				}
-				else if (data.message != 'nogroup') $.Dialog.fail(title,data.message);
+				else if (data.nogroup !== true) $.Dialog.fail(title,data.message);
 				else goToMainpage();
 			}
 		});

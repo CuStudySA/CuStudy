@@ -30,6 +30,27 @@
 			'mantis_users' => array(
 				'create' => 'Mantis felhasználó létrehozása',
 				'edit' => 'Mantis felhasználó szerkesztése',
+				'delete' => 'Mantis felhasználó törlése',
+				'update' => 'Mantis felhasználó frissítése',
+			),
+			'homeworks' => array(
+				'add' => 'Házi feladat hozzáadása',
+				'delete' => 'Házi feladat törlése',
+			),
+			'events' => array(
+				'add' => 'Esemény hozzáadása',
+				'edit' => 'Esemény szerkesztése',
+				'delete' => 'Esemény törlése',
+			),
+			'timetables' => array(
+				'progressTable' => 'Órarend módosítása',
+			),
+			'adminUserTools' => array(
+				'deleteUser' => 'Felhasználó törlése',
+			),
+			'files' => array(
+				'uploadFile' => 'Fájl feltöltése',
+				'delete' => 'Fájl törlése',
 			),
 		);
 
@@ -69,6 +90,8 @@
 
 			$datab = $data['db'];
 			unset($data['db']);
+
+			if (empty($data)) return true;
 
 			return $db->insert('log__'.$datab,$data);
 		}
@@ -116,19 +139,20 @@
 
 			# Altábla bejegyzés ellenörzése
 			if ($action === false) return 2;
-			if ($action === true) $separated['central']['sublogid'] = 0;
-			$separated['central']['sublogid'] = $action;
+			else if ($action === true) $separated['central']['sublogid'] = 0;
+			else $separated['central']['sublogid'] = $action;
 
 			# Bejegyzés készítése a főtáblába
-			$action = $logclass->_insertCentral(array_merge($separated['central'],array(
+			$action = $logclass->_insertCentral(array_merge($separated['central'],
+				!empty($data['db']) ? array(
 				'db' => $data['db'],
-			)));
+			) : array()));
 
 			# Eredmény feldolgozása
 			return $action ? 0 : 3;
 		}
 
-		static function GetLog(){
+		static function GetLog($userid = null){
 			global $user, $db;
 
 			$fullReadable = array('teachers','lessons');
@@ -143,13 +167,23 @@
 										LIMIT 30',array($user['class'][0]));
 			}
 
-			else if (!System::PermCheck('logs.getAllUserLog'))
-				$Log = $db->rawQuery('SELECT lc.*, u.username
-										FROM log__central lc
-										LEFT JOIN users u
-										ON u.id = lc.user
-										ORDER BY lc.time DESC
-										LIMIT 30');
+			else if (!System::PermCheck('logs.getAllUserLog')){
+				if (empty($userid))
+					$Log = $db->rawQuery('SELECT lc.*, u.username
+											FROM log__central lc
+											LEFT JOIN users u
+											ON u.id = lc.user
+											ORDER BY lc.time DESC
+											LIMIT 30');
+				else
+					$Log = $db->rawQuery('SELECT lc.*, u.username
+											FROM log__central lc
+											LEFT JOIN users u
+											ON u.id = lc.user
+											WHERE lc.user = ?
+											ORDER BY lc.time DESC
+											LIMIT 30',array($userid));
+			}
 			else
 				return 1;
 

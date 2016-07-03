@@ -67,6 +67,22 @@ $(function(){
 								<input type='hidden' name='id'>\
 							</form>");
 
+	var $btEditForm = $("<form id='js_form'>\
+							<p class='actual'><strong>Aktuális állapot: </strong><span></span></p>\
+							<p>Válasszon műveletet:</p>\
+							\
+							<label style='text-align:left'>\
+								<input type='radio' name='action' value='new' required> <strong>Hozzáférés létrehozása</strong>\
+							</label>\
+							<label style='text-align:left'>\
+								<input type='radio' name='action' value='update' required> <strong>Meglévő hozzáférés frissítése</strong>\
+							</label>\
+							<label style='text-align:left'>\
+								<input type='radio' name='action' value='remove' required> <strong>Hozzáférés törlése</strong>\
+							</label>\
+							\
+						</form>");
+
 	// Actions
 	$('#js_editUserInfos').on('click',function(e){
 		e.preventDefault();
@@ -160,6 +176,86 @@ $(function(){
 					else $.Dialog.fail(title,data.message);
 				}
 			});
+		});
+	});
+
+	$("#js_btEdit").on('click',function(e){
+		e.preventDefault();
+
+		var id = $(e.currentTarget).attr('data-id'),
+			title = 'BugTracker állapot szerkesztése';
+
+		$.Dialog.wait(title,'Aktuális állapot lekérdezése');
+
+		$.ajax({
+			method: "POST",
+			url: "/system.users/get/bugTrackerStatus",
+			data: {'id': id},
+			success: function(data){
+				if (typeof data === 'string'){
+					console.log(data);
+					$(window).trigger('ajaxerror');
+					return false;
+				}
+				if (data.status){
+					var $form = $btEditForm.clone();
+
+					for (var k in data.data){
+						if (data.data.hasOwnProperty(k)){
+							var v = data.data[k];
+							$form.find('[value=' + k + ']').attr('disabled',!v);
+						}
+					}
+					$form.find('span').text(data.conn_status);
+
+					$.Dialog.request(title,$form,'js_form','Művelet végrehajtása',function(){
+						var $form = $('#js_form');
+
+						$form.on('submit',function(e){
+							e.preventDefault();
+
+							var labels = {
+								'new': 'Arra készül, hogy létrehoz egy új felhasználót a BugTracker rendszerben a kiválasztott CuStudy-felhasználó jelenlegi adataival! Folytatja?',
+								'update': 'Arra készül, hogy frissíti a kiválasztott CuStudy-felhasználóhoz kapcsolódó BugTracker felhasználó adatait a CuStudy rendszerben találhatóakkal! Folytatja?',
+								'remove': 'Arra készül, hogy törli a kiválasztott CuStudy-felhasználóhoz kapcsolódó BugTracker-felhasználót a rendszerből! A művelet nem visszavonható! Folytatja?',
+							};
+
+							$.each($form.find('input'),function(_,e){
+								var $e = $(e);
+
+								if ($e.prop('checked')){
+									var action = $e.attr('value');
+
+									$.Dialog.confirm(title,labels[action],['Igen','Nem'],function(sure){
+										if (!sure) return;
+
+										$.Dialog.wait(title);
+										$.ajax({
+											method: "POST",
+											url: "/system.users/editBugTrackerStatus",
+											data: {'id': id, 'action': action},
+											success: function(data){
+												if (typeof data === 'string'){
+													console.log(data);
+													$(window).trigger('ajaxerror');
+													return false;
+												}
+												if (data.status){
+													$.Dialog.success(title,data.message);
+													setTimeout(function(){
+														window.location.reload();
+													}, 1500)
+												}
+												else $.Dialog.fail(title,data.message);
+											}
+										});
+									});
+								}
+							});
+						});
+					});
+				}
+			}
 		});
 	});
 

@@ -111,6 +111,22 @@
 		}
 
 		static function ProcessTable($data){
+			global $user;
+
+			$action = self::_processTable($data);
+
+			Logging::Insert(array_merge(array(
+				'action' => 'timetables.progressTable',
+				'errorcode' =>$action,
+				'db' => 'timetable',
+
+				'classid' => $user['class'][0],
+			)));
+
+			return $action;
+		}
+
+		static private function _processTable($data){
 			# Jog. ellenörzése
 			if (System::PermCheck('timetables.edit')) return 2;
 
@@ -171,6 +187,8 @@ STRING;
 		static function CalcDays(&$TT, $count, $output = false){
 			$days = $TT['opt'];
 			unset($TT['opt']);
+			if (empty($TT))
+				return null;
 			sort($days,SORT_NUMERIC);
 			$days = array_splice($days,0,$count);
 			if ($output){
@@ -270,8 +288,11 @@ STRING;
 			$thisYear = strtotime("first monday 1 jan", $currDate);
 			$lastWeekdayDate = strtotime('this monday', $thisYear + $weeksPassedSeconds);
 			// Megfelelő napra ugrás
-			if ($lastWeekDay > 1)
-				$lastWeekdayDate += ($lastWeekDay-1 + ($lastWeekDay-1 > 5 ? 8-$lastWeekDay : 0)) * self::OneDayInSeconds;
+			if ($lastWeekDay > 1){
+				if ($lastWeekDay > 5)
+					$lastWeekDay -= 5-(8-$lastWeekDay);
+				$lastWeekdayDate += $lastWeekDay * self::OneDayInSeconds;
+			}
 			$firstWeekdayDate = $lastWeekdayDate - self::OneWeekInSeconds;
 
 			// Hét betűjele

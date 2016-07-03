@@ -9,42 +9,52 @@ $ZIndexBase: 1000;
 @media all and (max-width: $Breakpoint){
 	#dialogOverlay {
 		background-color: white;
+
+		> div {
+			width: 100%;
+			height: auto;
+			top: 0 !important;
+			left: 0 !important;
+		}
 	}
 	#dialogBox {
 		width: 100%;
 		height: auto;
-		top: 0 !important;
-		left: 0 !important;
 	}
 }
 // Desktop-only Styles
 @media all and (min-width: $Breakpoint){
 	#dialogOverlay {
 		background-color: rgba(white, .9);
-		display: flex;
-		padding: 10px;
 		transition: opacity .29s linear;
 
 		&.animating { overflow: hidden }
 	}
+	#dialogScroll {
+		display: table;
+		width: 100%;
+		height: 100%;
+	}
+	#dialogWrap {
+		padding: 10px;
+		display: table-cell;
+		vertical-align: middle;
+		text-align: center;
+	}
 	#dialogBox {
 		position: relative;
-		// http://stackoverflow.com/a/33455342/1344955
-		margin: auto;
 		min-width: 150px;
 		max-width: 700px;
 		width: auto;
-		overflow: hidden;
-		flex: 0 0 auto;
 		box-shadow: 0 0 20px rgba(0,0,0,.5);
 		background-color: rgba(255,255,255,.9);
+		display: inline-block;
+		text-align: left;
 
 		transition: top .29s linear, opacity .29s linear;
 	}
 	#dialogContent { overflow: auto }
 }
-
-
 
 body.dialog-open { overflow: hidden }
 #dialogOverlay {
@@ -55,11 +65,16 @@ body.dialog-open { overflow: hidden }
 	left: 0;
 	z-index: $ZIndexBase;
 	overflow: auto;
+	box-sizing: border-box;
+	padding: 0;
 }
-#dialogBox {
+#dialogWrap {
 	font-family: 'Segoe UI', sans-serif;
 	z-index: $ZIndexBase+1;
-	box-sizing: border-box;
+}
+#dialogBox {
+	min-width: 150px;
+	z-index: $ZIndexBase+2;
 
 	/* Colors */
 	.blue-bg     { background-color: $NBlue }
@@ -68,12 +83,6 @@ body.dialog-open { overflow: hidden }
 	.red-bg      { background-color: $NRed }
 	.orange-bg   { background-color: $NOrange }
 	//.yellow-bg   { background-color: $NYellow }
-	.blue-border     { border-color: $NBlue }
-	.darkblue-border { border-color: $NDarkBlue }
-	.green-border    { border-color: $NGreen }
-	.red-border      { border-color: $NRed }
-	.orange-border   { border-color: $NOrange }
-	//.yellow-border   { border-color: $NYellow }
 }
 //noinspection CssOptimizeSimilarProperties
 #dialogHeader {
