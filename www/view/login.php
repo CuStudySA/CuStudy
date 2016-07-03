@@ -3,25 +3,26 @@
 
 	switch ($case){
 		default: ?>
-			<div id="heading">
-				<div id="heading-content">
-					<a href="/" class="logo-link">
-						<img src="/resources/img/landing-logo-header.svg" alt="CuStudy logó"><h1>CuStudy<!-- Amber flag start --><span>Amber</span><!-- Amber flag end --></h1>
-					</a>
-					<!-- Amber flag start -->
-					<p id='underDevelopment'>Fejlesztés alatt álló szoftververzió!</p>
-					<!-- Amber flag end -->
-				</div>
-			</div>
 			<div id="links">
 				<a href='#' id='pw-forgot'>Elfelejtett jelszó?</a> |
 				<a href="mailto:mbalint987@pageloop.tk?subject=CuStudy%20Hibabejelentés">Hibabejelentés</a>
 			</div>
+			<!-- Amber flag start -->
+			<p id='underDevelopment'>Fejlesztés alatt álló szoftververzió!</p>
+			<!-- Amber flag end -->
 			<div id="main">
 				<div id="wrap">
 					<div id="mid">
 						<div id="inner">
-							<h2>Bejelentkezés</h2>
+							<div>
+								<a href="/" title="Vissza a főoldalra" class="logo">
+									<img src="/resources/img/logo-login.png">
+								</a>
+							</div>
+							<h1>CuStudy</h1>
+							<!-- Amber flag start -->
+							<h3> (Amber)</h3>
+							<!-- Amber flag end -->
 <?php       if (!empty($ENV['GET']['r'])){ ?>
 							<p class="redirect">A kért oldal megtekintéséhez be kell jelentkezned!</p>
 <?php       } ?>

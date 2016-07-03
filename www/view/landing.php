@@ -1,5 +1,5 @@
 <div id="heading">
-	<div id="heading-content" class="landing">
+	<div id="heading-content">
 		<a href="/" class="logo-link"><img src="/resources/img/landing-logo-header.svg" alt="CuStudy logó"><h1>CuStudy</h1></a>
 		<a href="/login" class="login-wrap" rel="nofollow"><span class="btn typcn typcn-key">Bejelentkezés</span></a>
 	</div>
