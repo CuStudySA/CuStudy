@@ -71,11 +71,14 @@
 		break;
 
 		case 'openExternalViewer':
-			if (!empty($ENV['POST']['id']))
-				$action = FileTools::GenerateViewingToken($ENV['POST']['id']);
-			else System::Respond();
+			if (empty($ENV['POST']['id']))
+				System::Respond();
+			
+			$fileid = $ENV['POST']['id'];
+			$file = FileTools::GetFileInfo($fileid);
+			$action = FileTools::GenerateViewingToken($file, $fileid);
 
-			System::Respond(Message::Respond('files.openExternalViewer',is_int($action) ? $action : 0),!is_int($action) ? 1 : 0, !is_int($action) ? array(
+			System::Respond(Message::Respond('files.openExternalViewer',is_int($action) ? $action : 0), !is_int($action), !is_int($action) ? array(
 				'url' => $action,
 			) : array());
 		break;

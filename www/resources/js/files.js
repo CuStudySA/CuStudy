@@ -226,7 +226,7 @@ $(function(){
 			return this.innerHTML.replace(/^.*<br>/,storage.Used+' ('+usedperc+'%) felhasználva az osztály számára elérhető '+storage.Available+'-ból.<br>');
 		});
 	}
-	$('.js_open_external_viewer').on('click',function(e){
+	$fileList.on('click','.js_open_external_viewer',function(e){
 		e.preventDefault();
 
 		var id = $(e.currentTarget).attr('href').substring(1),

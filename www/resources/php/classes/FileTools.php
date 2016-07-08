@@ -200,13 +200,13 @@
 		}
 
 		static function GetFileInfo($id){
-			global $db, $user, $root;
+			global $db, $user;
 
 			$data = $db->where('id',$id)->where('classid',$user['class'][0])->getOne('files');
 			if (empty($data)) return 1;
 
-			$lesson = $db->where('id',$data['lessonid'])->getOne('lessons');
-			$uploader = $db->where('id',$data['uploader'])->getOne('users');
+			$lesson = $db->where('id',$data['lessonid'])->getOne('lessons','name');
+			$uploader = $db->where('id',$data['uploader'])->getOne('users','name,id');
 
 			return array(
 				'name' => $data['name'],
@@ -299,7 +299,7 @@ HTML;
 			return preg_replace('/^(\d+)([GMk])$/', '$1 $2B', $workWith);
 		}
 
-		static function GenerateViewingToken($fileid){
+		static function GenerateViewingToken($file, $fileid){
 			global $db;
 
 			if (System::PermCheck('files.view',$fileid))
@@ -318,7 +318,54 @@ HTML;
 			if ($action === false)
 				return 3;
 
-			return str_replace('{{URL}}',urlencode(ABSPATH.'/files/getFileForViewer/'.$token),FILE_VIEWING_URL);
+			if (in_array(self::GetFileExtension($file['filename']), self::$OFFICE_EXTENSTIONS))
+				return OFFICE_VIEWING_URL.urlencode(ABSPATH."/files/getFileForViewer/$token");
+
+			return ABSPATH."/files/getFileForViewer/$token";
+		}
+
+		private static function GetFileExtension($name){
+			return array_slice(explode('.',$name), -1, 1)[0];
+		}
+
+		private static $OFFICE_EXTENSTIONS = ['doc','docx','xls','xlsx','ppt','pps','pptx','ppsx'];
+		private static function GetMimeType($fname){
+			$ext = self::GetFileExtension($fname);
+
+			switch ($ext){
+				case "html":
+					return "text/html";
+				case "txt":
+					return "text/plain";
+				case "svg":
+					return "image/svg+xml";
+				case "jpg":
+					$ext = 'jpeg';
+				case "jpeg":
+				case "gif":
+				case "png":
+					return "image/$ext";
+				case "doc":
+					return "application/msword";
+				case "docx":
+					return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+				case "xls":
+					return "application/vnd.ms-excel";
+				case "xlsx":
+					return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+				case "ppt":
+				case "pps":
+					return "application/vnd.ms-powerpoint";
+				case "pptx":
+					return "application/vnd.openxmlformats-officedocument.presentationml.presentation";
+				case "ppsx":
+					return "application/vnd.openxmlformats-officedocument.presentationml.slideshow";
+				case "pdf":
+					return "application/pdf";
+				default:
+					trigger_error("Nem található MIME típus a(z) $ext kiterjesztéshez", E_USER_WARNING);
+					return "text/plain";
+			}
 		}
 
 		static function OpenFileForViewing($token){
@@ -326,25 +373,30 @@ HTML;
 
 			$data = $db->where('token',$token)->getOne('files_external_viewing');
 			if (empty($data))
-				Message::StatusCode(404);
+				$header = 404;
+			else if (time() < strtotime($data['gen'])+10){
+				$data = $db->where('id',$data['file'])->getOne('files');
+				$fileName = $data['filename'];
 
-			$data = $db->where('id',$data['file'])->getOne('files');
-			$fileName = $data['filename'];
+				$path = "$root/usr_uploads/".$data['tempname'];
+				if (!file_exists($path)){
+					Message::StatusCode(500);
+					die();
+				}
 
-			$path = "$root/usr_uploads/".$data['tempname'];
-			if (!file_exists($path)) Message::StatusCode(500);
+				header("Content-Type: ".self::GetMimeType($fileName));
+				header('Content-Length: '.filesize($path));
 
-			$finfo = finfo_open(FILEINFO_MIME_ENCODING);
-			header('Content-Transfer-Encoding: utf-8');
-			header("Content-Description: File Transfer");
-			header("Content-Type: application/octet-stream");
-			header('Content-Length: '.filesize($path));
-			header("Content-Disposition: attachment; filename=\"$fileName\"");
+				readfile($path);
+				die();
+			}
+			else {
+				$db->where('token',$token)->delete('files_external_viewing');
+				$header = 410;
+			}
 
-			$db->where('token',$token)->delete('files_external_viewing');
-
-			readfile($path);
-			die();
+			Message::StatusCode($header);
+			die("<h1>$header</h1>");
 		}
 	}
 

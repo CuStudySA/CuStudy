@@ -180,8 +180,7 @@
 	}
 
 	// Fájl megnyitása token-nel \\
-	if (!isset($ENV['URL'][0])) $suburl = '';
-	else $suburl = $ENV['URL'][0];
+	$suburl = isset($ENV['URL'][0]) ? $ENV['URL'][0] : '';
 	if ($do == 'files' && $suburl == 'getFileForViewer')
 		FileTools::OpenFileForViewing($ENV['URL'][1]);
 
