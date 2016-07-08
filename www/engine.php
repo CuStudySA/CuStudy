@@ -179,6 +179,12 @@
 		die(include "executive/{$pages[$do]['file']}.php");
 	}
 
+	// Fájl megnyitása token-nel \\
+	if (!isset($ENV['URL'][0])) $suburl = '';
+	else $suburl = $ENV['URL'][0];
+	if ($do == 'files' && $suburl == 'getFileForViewer')
+		FileTools::OpenFileForViewing($ENV['URL'][1]);
+
 	# Hozzáférési jogosultság ellenörzése
 	if (System::PermCheck("$do.view")){
 		if (ROLE == 'guest')

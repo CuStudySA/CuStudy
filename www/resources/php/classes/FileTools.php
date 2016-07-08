@@ -248,6 +248,7 @@
 						<a class="typcn typcn-info-large js_more_info" href="#{$file['id']}" title="További információk"></a>
 						$deleteButton
 						<a class="typcn typcn-download" href="/files/download/{$file['id']}" title="Fájl letöltése" download></a>
+						<a class="typcn typcn-zoom js_open_external_viewer" href="#{$file['id']}" title="Fájl megnyitása a(z) Office Web segítségével"></a>
 					</div>
 				</li>
 HTML;
@@ -296,6 +297,54 @@ HTML;
 			}
 
 			return preg_replace('/^(\d+)([GMk])$/', '$1 $2B', $workWith);
+		}
+
+		static function GenerateViewingToken($fileid){
+			global $db;
+
+			if (System::PermCheck('files.view',$fileid))
+				return 1;
+
+			$token = Password::Generalas();
+
+			if (!defined('FILE_VIEWING_URL'))
+				return 2;
+
+			$action = $db->insert('files_external_viewing',array(
+				'file' => $fileid,
+				'token' => $token,
+			));
+
+			if ($action === false)
+				return 3;
+
+			return str_replace('{{URL}}',ABSPATH.'/files/getFileForViewer/'.$token,FILE_VIEWING_URL);
+		}
+
+		static function OpenFileForViewing($token){
+			global $db, $root;
+
+			$data = $db->where('token',$token)->getOne('files_external_viewing');
+			if (empty($data))
+				Message::StatusCode(404);
+
+			$data = $db->where('id',$data['file'])->getOne('files');
+			$fileName = $data['filename'];
+
+			$path = "$root/usr_uploads/".$data['tempname'];
+			if (!file_exists($path)) Message::StatusCode(500);
+
+			$finfo = finfo_open(FILEINFO_MIME_ENCODING);
+			header('Content-Transfer-Encoding: utf-8');
+			header("Content-Description: File Transfer");
+			header("Content-Type: application/octet-stream");
+			header('Content-Length: '.filesize($path));
+			header("Content-Disposition: attachment; filename=\"$fileName\"");
+
+			$db->where('token',$token)->delete('files_external_viewing');
+
+			readfile($path);
+			die();
 		}
 	}
 

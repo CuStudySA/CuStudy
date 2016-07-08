@@ -273,3 +273,6 @@
 		'timetables' => 'timetable',
 		'groupThemes' => 'group_themes',
 	);
+
+	# Viewing URL
+	define('FILE_VIEWING_URL','https://view.officeapps.live.com/op/view.aspx?src={{URL}}');

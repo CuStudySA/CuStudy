@@ -403,6 +403,17 @@
 					1 => 'A fájl törlése nem sikerült, mert @msg! (Hibakód: @code)',
 				),
 			),
+			'openExternalViewer' => array(
+				'errors' => array(
+					1 => 'nincs jogosultsága a művelethez',
+					2 => 'hiányzik a szolgáltatás elérhetősége',
+					3 => 'nem lehetett létrehozni a hozzáférési azonosítót',
+				),
+				'messages' => array(
+					1 => 'A hozzáférési azonostíó létrehozása nem sikerült, mert @msg! (Hibakód: @code)',
+					0 => 'A hozzáférési azonosítót lérehoztuk, most átirányítunk...',
+				),
+			),
 		),
 		'events' => array(
 			'add' => array(

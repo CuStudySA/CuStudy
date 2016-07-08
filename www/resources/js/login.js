@@ -86,11 +86,10 @@ $(function(){
 								$body.prepend(data.sidebar).addClass('sidebar-slide');
 								$('title').text(data.title);
 								history.replaceState({},'',formData.r ? formData.r : '/');
-								$('main').children(':not(#main)').remove();
 								$.mk('main').append(data.main).appendTo($body);
 								$loginMain.addClass('loaded');
 								setTimeout(function(){
-									$body.children('div:not(#sidebar):not(#main), #underDevelopment').remove();
+									$body.children('div:not(#sidebar):not(#main)').remove();
 									$loginMain.remove();
 								}, 410);
 								loadJS(0);

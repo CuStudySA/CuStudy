@@ -1,10 +1,12 @@
 @import "vars";
+@import "landing-header";
 
 // Amber flag
 #underDevelopment {
-	margin: 0;
+	margin: 0 0 0 10px;
 	font-weight: bold;
 	font-size: 1.1em;
+	line-height: $HeadingHeight;
 	color: #EBF0FD !important;
 }
 
@@ -62,7 +64,7 @@ $LoaderHide: .4s;
 	border: 5px solid rgba($LightBG,.35);
 	box-sizing: border-box;
 
-	h1, h3 {
+	h2, h3 {
 		margin: 0 0 15px;
 		line-height: 1.2em;
 		display: inline-block;
@@ -134,8 +136,10 @@ $LoaderHide: .4s;
 		border-color: transparent transparent rgba($LightBG,.4) transparent;
 	}
 
-	.logo img {
+	> .logo {
+		displaY: block;
 		width: 120px;
+		margin: 0 auto;
 	}
 	> h1 {
 		margin: 0 0 10px;

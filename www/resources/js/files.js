@@ -226,4 +226,31 @@ $(function(){
 			return this.innerHTML.replace(/^.*<br>/,storage.Used+' ('+usedperc+'%) felhasználva az osztály számára elérhető '+storage.Available+'-ból.<br>');
 		});
 	}
+	$('.js_open_external_viewer').on('click',function(e){
+		e.preventDefault();
+
+		var id = $(e.currentTarget).attr('href').substring(1),
+			title = 'Fájl megnyitása külső nézegetőben';
+
+		$.Dialog.wait(title,'Hozzáférési azonosító lérehozása, várjunk...');
+
+		$.ajax({
+			method: 'POST',
+			url: '/files/openExternalViewer',
+			data: pushToken({'id': id}),
+			success: function(data){
+				if (typeof data !== 'object'){
+					console.log(data);
+					$(window).trigger('ajaxerror');
+					return false;
+				}
+
+				if (data.status){
+					window.location.href = data.url;
+				}
+
+				else $.Dialog.fail(title,data.message);
+			}
+		});
+	});
 });
