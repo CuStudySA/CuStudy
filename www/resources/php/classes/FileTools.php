@@ -395,18 +395,14 @@ HTML;
 				}
 
 				header('Content-Transfer-Encoding: binary');
-				header('Content-Encoding: gzip');
+				header('Content-Length: '.filesize($path));
 				header('Cache-Control: private, no-cache, no-store, must-revalidate');
 				header('Pragma: no-cache');
 				header('Content-Type: '.self::GetMimeType($fileName));
 				header("Content-Disposition: attachment; filename=".preg_replace('/[a-z.\d]/i','_',$fileName)."; filename*= UTF-8''".urlencode($fileName));
 
-				// http://stackoverflow.com/a/4603514/1344955
-				ob_clean();
-				flush();
-
-				$fc = file_get_contents($path);
-				die(gzencode($fc));
+				readfile($path);
+				die();
 			}
 			else {
 				$db->where('token',$token)->delete('files_external_viewing');
