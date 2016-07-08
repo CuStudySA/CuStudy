@@ -388,14 +388,20 @@ HTML;
 				$data = $db->where('id',$data['file'])->getOne('files');
 				$fileName = $data['filename'];
 
-				$path = "$root/usr_uploads/".$data['tempname'];
+				$path = "$root/usr_uploads/{$data['tempname']}";
 				if (!file_exists($path)){
 					Message::StatusCode(500);
 					die();
 				}
 
-				header("Content-Type: ".self::GetMimeType($fileName));
-				header('Content-Length: '.filesize($path));
+				if (self::IsOfficeFile($fileName)){
+					header('Content-Transfer-Encoding: utf-8');
+					header("Content-Description: File Transfer");
+					header("Content-Type: application/octet-stream");
+					header('Content-Length: '.filesize($path));
+					header("Content-Disposition: attachment; filename=\"$fileName\"");
+				}
+				else header("Content-Type: ".self::GetMimeType($fileName));
 
 				readfile($path);
 				die();
