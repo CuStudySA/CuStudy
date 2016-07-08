@@ -321,14 +321,16 @@ HTML;
 			if ($action === false)
 				return 3;
 
-			if (self::IsOfficeFile($file['filename']))
+			$extension = self::GetFileExtension($file['filename']);
+			$token .= ".$extension";
+			if (self::IsOfficeFile($extension, true))
 				return OFFICE_VIEWING_URL.urlencode(ABSPATH."/files/getFileForViewer/$token");
 
 			return ABSPATH."/files/getFileForViewer/$token";
 		}
 
-		static function IsOfficeFile($name){
-			return in_array(self::GetFileExtension($name), self::$OFFICE_EXTENSTIONS);
+		static function IsOfficeFile($name, $extension = false){
+			return in_array($extension ? $name : self::GetFileExtension($name), self::$OFFICE_EXTENSTIONS);
 		}
 
 		private static function GetFileExtension($name){
@@ -376,6 +378,8 @@ HTML;
 
 		static function OpenFileForViewing($token){
 			global $db, $root;
+
+			$token = explode('.',$token)[0];
 
 			$data = $db->where('token',$token)->getOne('files_external_viewing');
 			if (empty($data))
