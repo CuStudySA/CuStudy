@@ -322,7 +322,7 @@ HTML;
 				return 3;
 
 			if (self::IsOfficeFile($file['filename']))
-				return OFFICE_VIEWING_URL.'?src='.urlencode(preg_replace('/^https/','http',ABSPATH)."/files/getFileForViewer/$token").'&title='.urlencode($file['name']);
+				return OFFICE_VIEWING_URL.'?src='.urlencode(preg_replace('/^https/','http',ABSPATH)."/files/getFileForViewer/$token");
 
 			return ABSPATH."/files/getFileForViewer/$token";
 		}
