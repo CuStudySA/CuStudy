@@ -126,7 +126,6 @@
 			$skipCSRF = true;
 		}
 
-
 	# Üzeneteket tartalmazó tömb áthelyezése
 	Message::$Messages = $ENV['Messages'];
 

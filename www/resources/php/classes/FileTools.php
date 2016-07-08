@@ -375,16 +375,14 @@ HTML;
 		}
 
 		static function OpenFileForViewing($param){
-			global $db, $root;
+			global $db, $root, $ENV;
 
 			$token = explode('.',$param)[0];
 
 
 			$data = $db->where('token',$token)->getOne('files_external_viewing');
-			if (empty($data)){
-				$header = 404;
-				$desc = 'A keresett fájl nem található vagy lajárt.';
-			}
+			if (empty($data))
+				Message::Missing($ENV['SERVER']['REQUEST_URI']);
 			else if (time() < strtotime($data['gen'])+60){
 				$data = $db->where('id',$data['file'])->getOne('files');
 				$fileName = $data['filename'];
@@ -405,7 +403,6 @@ HTML;
 			else {
 				$db->where('token',$token)->delete('files_external_viewing');
 				$header = 410;
-				header('Content-Disposition: attachment; filename=hiba.html;');
 				$desc = 'A fájl megtekintési ideje lejárt, nyisd meg újra a <a href="/files">Dokumentumok</a>. menüpontból.';
 			}
 

@@ -75,10 +75,10 @@
 
 		# 404-es hiba esetén
 		static function Missing($path = ''){
-			global $ENV, $Notifications;
+			global $ENV;
 
 			if ($ENV['do'] != 'not-found')
-				System::Redirect("/not-found?path=$path");
+				System::Redirect("/not-found?path=".urlencode($path));
 		}
 
 		static function SendNotify($activity,$addressOrId,$invocation = null,$parameters = array()){
