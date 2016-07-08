@@ -307,7 +307,7 @@ HTML;
 
 			$token = Password::Generalas();
 
-			if (!defined('FILE_VIEWING_URL'))
+			if (!defined('OFFICE_VIEWING_URL'))
 				return 2;
 
 			$action = $db->insert('files_external_viewing',array(
