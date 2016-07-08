@@ -318,7 +318,7 @@ HTML;
 			if ($action === false)
 				return 3;
 
-			return str_replace('{{URL}}',ABSPATH.'/files/getFileForViewer/'.$token,FILE_VIEWING_URL);
+			return str_replace('{{URL}}',urlencode(ABSPATH.'/files/getFileForViewer/'.$token),FILE_VIEWING_URL);
 		}
 
 		static function OpenFileForViewing($token){
