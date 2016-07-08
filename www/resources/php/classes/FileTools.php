@@ -384,7 +384,7 @@ HTML;
 			$data = $db->where('token',$token)->getOne('files_external_viewing');
 			if (empty($data))
 				$header = 404;
-			else if (time() < strtotime($data['gen'])+10){
+			else if (time() < strtotime($data['gen'])+3600){
 				$data = $db->where('id',$data['file'])->getOne('files');
 				$fileName = $data['filename'];
 
