@@ -97,6 +97,11 @@
 	}
 	else $do = $ENV['do'] == 'login' && ROLE != 'guest' ? 'fooldal' : $ENV['do'];
 
+	// Fájl megnyitása token-nel \\
+	$suburl = isset($ENV['URL'][0]) ? $ENV['URL'][0] : '';
+	if ($do == 'files' && $suburl == 'getFileForViewer')
+		FileTools::OpenFileForViewing($ENV['URL'][1]);
+
 	# URL fixálása
 	if (($do === "landing" || $do === "fooldal") && empty($ENV['URL']))
 		System::FixPath('/');
@@ -178,11 +183,6 @@
 		# Oldal betöltése
 		die(include "executive/{$pages[$do]['file']}.php");
 	}
-
-	// Fájl megnyitása token-nel \\
-	$suburl = isset($ENV['URL'][0]) ? $ENV['URL'][0] : '';
-	if ($do == 'files' && $suburl == 'getFileForViewer')
-		FileTools::OpenFileForViewing($ENV['URL'][1]);
 
 	# Hozzáférési jogosultság ellenörzése
 	if (System::PermCheck("$do.view")){

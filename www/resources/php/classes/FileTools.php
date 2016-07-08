@@ -321,9 +321,7 @@ HTML;
 			if ($action === false)
 				return 3;
 
-			$extension = self::GetFileExtension($file['filename']);
-			$token .= ".$extension";
-			if (self::IsOfficeFile($extension, true))
+			if (self::IsOfficeFile($file['filename']))
 				return OFFICE_VIEWING_URL.'?src='.urlencode(preg_replace('/^https/','http',ABSPATH)."/files/getFileForViewer/$token").'&title='.urlencode($file['name']);
 
 			return ABSPATH."/files/getFileForViewer/$token";
@@ -376,10 +374,11 @@ HTML;
 			}
 		}
 
-		static function OpenFileForViewing($token){
+		static function OpenFileForViewing($param){
 			global $db, $root;
 
-			$token = explode('.',$token)[0];
+			$token = explode('.',$param)[0];
+
 
 			$data = $db->where('token',$token)->getOne('files_external_viewing');
 			if (empty($data))
@@ -394,10 +393,7 @@ HTML;
 					die();
 				}
 
-				header('Content-Transfer-Encoding: binary');
 				header('Content-Length: '.filesize($path));
-				header('Cache-Control: private, no-cache, no-store, must-revalidate');
-				header('Pragma: no-cache');
 				header('Content-Type: '.self::GetMimeType($fileName));
 				header("Content-Disposition: attachment; filename=".preg_replace('/[a-z.\d]/i','_',$fileName)."; filename*= UTF-8''".urlencode($fileName));
 
