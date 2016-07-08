@@ -381,9 +381,11 @@ HTML;
 
 
 			$data = $db->where('token',$token)->getOne('files_external_viewing');
-			if (empty($data))
+			if (empty($data)){
 				$header = 404;
-			else if (time() < strtotime($data['gen'])+3600){
+				$desc = 'A keresett fájl nem található vagy lajárt.';
+			}
+			else if (time() < strtotime($data['gen'])+60){
 				$data = $db->where('id',$data['file'])->getOne('files');
 				$fileName = $data['filename'];
 
@@ -403,10 +405,12 @@ HTML;
 			else {
 				$db->where('token',$token)->delete('files_external_viewing');
 				$header = 410;
+				header('Content-Disposition: attachment; filename=hiba.html;');
+				$desc = 'A fájl megtekintési ideje lejárt, nyisd meg újra a <a href="/files">Dokumentumok</a>. menüpontból.';
 			}
 
 			Message::StatusCode($header);
-			die("<h1>$header</h1>");
+			die("<h1>$header</h1><p>$desc</p>");
 		}
 	}
 
