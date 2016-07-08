@@ -238,6 +238,9 @@
 				$deleteButton = !System::PermCheck('files.delete')
 					? "<a class='typcn typcn-trash js_delete' href='#{$file['id']}' title='Fájl törlése'></a>"
 					: '';
+
+				$mivel = System::Article(self::IsOfficeFile($file['filename']) ? 'Office Online' : 'böngésző');
+
 				$HTML .= <<<HTML
 				<li>
 					<div class="top">
@@ -248,7 +251,7 @@
 						<a class="typcn typcn-info-large js_more_info" href="#{$file['id']}" title="További információk"></a>
 						$deleteButton
 						<a class="typcn typcn-download" href="/files/download/{$file['id']}" title="Fájl letöltése" download></a>
-						<a class="typcn typcn-zoom js_open_external_viewer" href="#{$file['id']}" title="Fájl megnyitása a(z) Office Web segítségével"></a>
+						<a class="typcn typcn-zoom js_open_external_viewer" href="#{$file['id']}" title="Fájl megtekintése $mivel segítségével"></a>
 					</div>
 				</li>
 HTML;
@@ -318,16 +321,19 @@ HTML;
 			if ($action === false)
 				return 3;
 
-			if (in_array(self::GetFileExtension($file['filename']), self::$OFFICE_EXTENSTIONS))
+			if (self::IsOfficeFile($file['filename']))
 				return OFFICE_VIEWING_URL.urlencode(ABSPATH."/files/getFileForViewer/$token");
 
 			return ABSPATH."/files/getFileForViewer/$token";
 		}
 
+		static function IsOfficeFile($name){
+			return in_array(self::GetFileExtension($name), self::$OFFICE_EXTENSTIONS);
+		}
+
 		private static function GetFileExtension($name){
 			return array_slice(explode('.',$name), -1, 1)[0];
 		}
-
 		private static $OFFICE_EXTENSTIONS = ['doc','docx','xls','xlsx','ppt','pps','pptx','ppsx'];
 		private static function GetMimeType($fname){
 			$ext = self::GetFileExtension($fname);
