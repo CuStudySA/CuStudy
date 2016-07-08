@@ -275,4 +275,4 @@
 	);
 
 	# Viewing URL
-	define('OFFICE_VIEWING_URL','https://view.officeapps.live.com/op/view.aspx?src=');
+	define('OFFICE_VIEWING_URL','https://view.officeapps.live.com/op/view.aspx');

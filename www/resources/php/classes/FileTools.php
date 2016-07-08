@@ -324,7 +324,7 @@ HTML;
 			$extension = self::GetFileExtension($file['filename']);
 			$token .= ".$extension";
 			if (self::IsOfficeFile($extension, true))
-				return OFFICE_VIEWING_URL.urlencode(preg_replace('/^https/','http',ABSPATH)."/files/getFileForViewer/$token");
+				return OFFICE_VIEWING_URL.'?src='.urlencode(preg_replace('/^https/','http',ABSPATH)."/files/getFileForViewer/$token").'&title='.urlencode($file['name']);
 
 			return ABSPATH."/files/getFileForViewer/$token";
 		}
@@ -394,14 +394,11 @@ HTML;
 					die();
 				}
 
-				if (self::IsOfficeFile($fileName)){
-					header('Content-Transfer-Encoding: utf-8');
-					header("Content-Description: File Transfer");
-					header("Content-Type: application/octet-stream");
-					header('Content-Length: '.filesize($path));
-					header("Content-Disposition: attachment; filename=\"$fileName\"");
-				}
-				else header("Content-Type: ".self::GetMimeType($fileName));
+				header("Content-Type: ".self::GetMimeType($fileName));
+
+				// http://stackoverflow.com/a/4603514/1344955
+				ob_clean();
+				flush();
 
 				readfile($path);
 				die();
