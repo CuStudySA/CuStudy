@@ -324,7 +324,7 @@ HTML;
 			$extension = self::GetFileExtension($file['filename']);
 			$token .= ".$extension";
 			if (self::IsOfficeFile($extension, true))
-				return OFFICE_VIEWING_URL.urlencode(ABSPATH."/files/getFileForViewer/$token");
+				return OFFICE_VIEWING_URL.urlencode(preg_replace('/^https/','http',ABSPATH)."/files/getFileForViewer/$token");
 
 			return ABSPATH."/files/getFileForViewer/$token";
 		}
