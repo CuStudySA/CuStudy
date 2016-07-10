@@ -240,6 +240,9 @@
 					: '';
 
 				$mivel = System::Article(self::IsOfficeFile($file['filename']) ? 'Office Online' : 'böngésző');
+				$openBtn = FileTools::IsOpenableFile($file['filename']) ?
+							'<a class="typcn typcn-zoom js_open_external_viewer" href="#'.$file['id'].'" title="Fájl megtekintése '.$mivel.' segítségével"></a>' :
+							'';
 
 				$HTML .= <<<HTML
 				<li>
@@ -251,7 +254,7 @@
 						<a class="typcn typcn-info-large js_more_info" href="#{$file['id']}" title="További információk"></a>
 						$deleteButton
 						<a class="typcn typcn-download" href="/files/download/{$file['id']}" title="Fájl letöltése" download></a>
-						<a class="typcn typcn-zoom js_open_external_viewer" href="#{$file['id']}" title="Fájl megtekintése $mivel segítségével"></a>
+						$openBtn
 					</div>
 				</li>
 HTML;
@@ -327,14 +330,21 @@ HTML;
 			return ABSPATH."/files/getFileForViewer/$token";
 		}
 
+		private static $OFFICE_EXTENSTIONS = ['doc','docx','xls','xlsx','ppt','pps','pptx','ppsx'];
+		public static $OPENABLE_EXTENSIONS = ['txt','jpeg','gif','svg','html','png','jpg','pdf'];
+
 		static function IsOfficeFile($name, $extension = false){
 			return in_array($extension ? $name : self::GetFileExtension($name), self::$OFFICE_EXTENSTIONS);
+		}
+
+		static function IsOpenableFile($name, $extension = false){
+			return in_array($extension ? $name : self::GetFileExtension($name),array_merge(self::$OFFICE_EXTENSTIONS,self::$OPENABLE_EXTENSIONS));
 		}
 
 		private static function GetFileExtension($name){
 			return array_slice(explode('.',$name), -1, 1)[0];
 		}
-		private static $OFFICE_EXTENSTIONS = ['doc','docx','xls','xlsx','ppt','pps','pptx','ppsx'];
+
 		private static function GetMimeType($fname){
 			$ext = self::GetFileExtension($fname);
 
@@ -379,7 +389,6 @@ HTML;
 
 			$token = explode('.',$param)[0];
 
-
 			$data = $db->where('token',$token)->getOne('files_external_viewing');
 			if (empty($data))
 				Message::Missing($ENV['SERVER']['REQUEST_URI']);
@@ -395,7 +404,8 @@ HTML;
 
 				header('Content-Length: '.filesize($path));
 				header('Content-Type: '.self::GetMimeType($fileName));
-				header("Content-Disposition: attachment; filename=".preg_replace('/[a-z.\d]/i','_',$fileName)."; filename*= UTF-8''".urlencode($fileName));
+				header("Content-Disposition: ".(self::IsOfficeFile($fileName) ? 'attachment' : 'inline')."; filename={$fileName}");
+				//header("Content-Disposition: attachment; filename=".preg_replace('/[a-z.\d]/i','_',$fileName)."; filename*= UTF-8''".urlencode($fileName));
 
 				readfile($path);
 				die();
