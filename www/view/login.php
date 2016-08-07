@@ -3,12 +3,18 @@
 
 	switch ($case){
 		default: ?>
-			<div id="links">
+			<div id="heading">
+				<div id="heading-content">
+					<a href="/" class="logo-link"><img src="/resources/img/landing-logo-header.svg" alt="CuStudy logó"><h1>CuStudy</h1></a>
+					<div class="help-wrap"><span class="btn typcn typcn-support help-link">Segítség</span></div>
+				</div>
+			</div>
+			<div id="links" class="desktop-only">
 				<a href='#' id='pw-forgot'>Elfelejtett jelszó?</a> |
 				<a href="mailto:mbalint987@pageloop.tk?subject=CuStudy%20Hibabejelentés">Hibabejelentés</a>
 			</div>
 			<!-- Amber flag start -->
-			<p id='underDevelopment'>Fejlesztés alatt álló szoftververzió!</p>
+			<p id="underDevelopment" class="desktop-only">Fejlesztés alatt álló szoftververzió!</p>
 			<!-- Amber flag end -->
 			<div id="main">
 				<div id="wrap">
@@ -27,12 +33,19 @@
 							<p class="redirect">A kért oldal megtekintéséhez be kell jelentkezned!</p>
 <?php       } ?>
 							<form id="loginform">
-								<input type='text' name='username' placeholder='Felhasználónév' required tabindex=1 autocomplete="off">
-								<input type='password' name='password' placeholder='Jelszó' required tabindex=2>
+								<div class="input-wrap">
+									<input type='text' name='username' placeholder='Felhasználónév' required tabindex='1' autocomplete="off" spellcheck="false">
+									<input type='password' name='password' placeholder='Jelszó' required tabindex='2'>
+								</div>
 <?php       if (!empty($ENV['GET']['r'])){ ?>
-								<input type='hidden' name='r' value='<?=$ENV['GET']['r']?>'>
+								<input type='hidden' name='r' value='<?=htmlspecialchars($ENV['GET']['r'], ENT_HTML5 | ENT_QUOTES)?>'>
 <?php       } ?>
-								<p><button class='btn' tabindex=4>Belépés</button> <label><input type="checkbox" name="remember" tabindex=3 checked> Megjegyzés</label></p>
+								<div>
+									<button class='btn' tabindex=§4§>Belépés</button>&nbsp;
+									<label>
+										<input type="checkbox" name="remember" tabindex=3 checked> Megjegyzés
+									</label>
+								</div>
 							</form>
 							<p class="or"><span class="line"></span><span class="text">VAGY</span><span class="line"></span></p>
 							<p>Belépés külső szolgáltatóval:</p>
@@ -73,8 +86,8 @@
 
 				$action = System::ExternalLogin($remoteUser,$provider);
 
-				if ($action === 0) System::Redirect('/#');
-				else System::Redirect(ABSPATH.'/?error='.urlencode(str_replace('@provider',ucfirst($provider),Message::Respond('extConnTools.login',$action))));
+				if ($action === 0) System::TempRedirect('/#');
+				else System::TempRedirect(ABSPATH.'/?error='.urlencode(str_replace('@provider',ucfirst($provider),Message::Respond('extConnTools.login',$action))));
 			}
 		break;
 	}

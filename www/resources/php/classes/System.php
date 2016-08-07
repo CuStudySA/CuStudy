@@ -604,6 +604,9 @@
 			header("Location: $url",$die,$http);
 			if ($die) die();
 		}
+		static function TempRedirect($url, $die = true){
+			self::Redirect($url, $die, 302);
+		}
 
 		// Belépés külső szolgáltató segítségével
 		static function ExternalLogin($userData, $provider){

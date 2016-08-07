@@ -27,7 +27,7 @@ $(function(){
 						return false;
 					}
 					if (data.status){
-						$.Dialog.success(title,'Sikeresen kijelentkezett, átirányítjuk...'); // TODO üzenet visszaadása PHP-val
+						$.Dialog.success(title,data.message); // TODO üzenet visszaadása PHP-val
 						window.location.href = '/login';
 					}
 					else $.Dialog.fail(title,'Kijelentkezés nem sikerült, próbálja meg később, vagy törölje a böngésző sütijeit!');

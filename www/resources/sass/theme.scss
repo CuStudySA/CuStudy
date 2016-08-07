@@ -4,6 +4,15 @@
 @import "theme_forms";
 @import "typicons";
 
+// Mobil
+@media all and (max-width: $Breakpoint){
+	.desktop-only { display: none }
+}
+// Asztali
+@media all and (max-width: $Breakpoint){
+	.mobile-only { display: none }
+}
+
 // Colors
 .color-blue { color: $NBlue !important }
 .color-darkblue { color: $NDarkBlue !important }

@@ -1,4 +1,46 @@
 @import "vars";
+@import "landing-header";
+
+// Mobil
+@media all and (max-width: $Breakpoint){
+	#heading {
+		$padding: 5px;
+		.help-wrap {
+			position:absolute;
+			top: $padding;
+			right: $padding;
+			height: $MoileHeadingHeight - ($padding*2);
+
+			.btn {
+				display: block;
+				height: $MoileHeadingHeight - ($padding*2);
+				box-sizing: border-box;
+				font-size: 1.2em;
+			}
+		}
+	}
+	#wrap {
+    padding-top: 50px !important;
+	}
+	#loginform {
+		.input-wrap {
+			> * {
+				display: block;
+			}
+			input[name] {
+				-webkit-appearance: none;
+				width: 150px;
+				margin: 0 auto 8px !important;
+			}
+		}
+	}
+}
+// Asztali
+@media all and (min-width: $Breakpoint){
+	#heading {
+		display: none;
+	}
+}
 
 // Amber flag
 #underDevelopment {
@@ -145,17 +187,9 @@ $LoaderHide: .4s;
 		margin: 10px 0;
 		font-weight: normal;
 	}
-	form {
-		> input[name] {
-			-webkit-appearance: none;
-			width: 150px;
-		}
-		p {
-			margin: 10px 0 0;
-
-			label {
-				margin-left: 10px;
-			}
+	#loginform {
+		p label {
+			margin-left: 10px;
 		}
 	}
 }

@@ -86,7 +86,7 @@
 									WHERE `classid` = ?',array($user['class'][0]));
 
 			$thmid = $ENV['URL'][1];
-			if (System::InputCheck($thmid,'numeric')) die(header('Location: /groups')); ?>
+			if (System::InputCheck($thmid,'numeric')) System::Redirect('/groups'); ?>
 
 			<h1>Új csoport hozzáadása</h1>
 			<p class='ptag'>Csoport neve: <input type='text' id='name' placeholder='Csoportnév'></p>
@@ -128,7 +128,7 @@
 			$group = $db->rawQuery('SELECT *
 									FROM `groups`
 									WHERE `classid` = ? AND `id` = ?',array($user['class'][0],$ENV['URL'][1]));
-			if (empty($group)) die(header('Location: /groups'));
+			if (empty($group)) System::Redirect('/groups');
 			else $group = $group[0];
 
 			$members = $db->rawQuery('SELECT group_members.id AS id, users.name as `name`, users.id as uid

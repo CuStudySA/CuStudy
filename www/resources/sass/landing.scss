@@ -1,9 +1,167 @@
 @import "vars";
 @import "landing-header";
 
+// Mobil
+@media all and (max-width: $Breakpoint){
+	#heading-content {
+		$padding: 5px;
+
+		.login-wrap {
+			z-index: 2;
+			top: $padding;
+			right: $padding;
+
+			.btn {
+				display: block !important;
+				font-size: 0 !important;
+				padding: 5px !important;
+				margin: 0 !important;
+				text-align: center;
+
+				$height: $MoileHeadingHeight - ($padding*2);
+				height: $height !important;
+				width: $height !important;
+				box-sizing: border-box !important;
+
+
+				&:before {
+					font-size: 28px !important;
+				}
+		}
+		}
+	}
+	#cliche-cover {
+		max-height: 100%;
+		max-height: 100vh;
+
+		.content {
+			padding-top: $MoileHeadingHeight;
+
+			.content-container {
+				padding: 7px;
+				background-size: 80% !important;
+
+				h2 {
+					font-size: 1.9em;
+				}
+
+				.btn {
+					font-size: 32px;
+					width: 32px;
+					height: 32px;
+					line-height: .7em;
+					transform: none !important;
+					transition: none !important;
+					padding: 5px !important;
+					margin-top: 10px !important;
+
+					animation: flip 2s infinite ease-in-out;
+					transform-origin: 50% 100%;
+					@keyframes flip {
+						From, to {
+							transform: scale(0.9, 1.1);
+						}
+						50% {
+							transform: scale(1.1, 0.9);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	#main-content {
+		section {
+			.margin {
+				display: flex;
+				flex-flow: column wrap;
+				padding: 0 10px;
+				text-align: center;
+
+				> * {
+					display: block;
+					width: 100%;
+					flex-basis: 100%;
+				}
+
+				.image {
+					order: 1;
+					margin-bottom: 10px;
+
+					img {
+						max-width: 250px;
+						max-height: 250px;
+					}
+					.typcn {
+						font-size: 64px;
+					}
+				}
+				.text {
+					order: 2;
+
+					h3 {
+						font-size: 1.8em;
+					}
+					p {
+						font-size: .95em;
+					}
+				}
+			}
+		}
+	}
+
+	footer {
+		font-size: .8em;
+	}
+}
+// Asztali
+@media all and (min-width: $Breakpoint){
+	#cliche-cover {
+		max-height: 65vh;
+
+		.content {
+			padding-top: $DesktopHeadingHeight;
+
+			.content-container {
+				background-size: 50% !important;
+
+				h2 {
+					font-size: 2.5em;
+				}
+
+				.btn { display: none }
+			}
+		}
+	}
+
+	#main-content {
+		section {
+			.margin {
+				display: table;
+				margin: 0 auto;
+				max-width: 960px;
+
+				> * {
+					width: 50%;
+					display: table-cell;
+					vertical-align: middle;
+					box-sizing: border-box;
+					padding: 0 15px;
+				}
+
+				.text h3 {
+					font-size: 2.25em;
+				}
+				.image .typcn {
+					font-size: 128px;
+				}
+			}
+		}
+	}
+}
+
 #cliche-cover {
 	height: 100%;
-	max-height: 65vh;
 	width: 100%;
 	padding: 0;
 	$GradientBase: adjust_hue($LoginBG, 180);
@@ -14,7 +172,6 @@
 		display: table;
 		height: 100%;
 		width: 100%;
-		padding-top: $HeadingHeight;
 		margin: 0 auto;
 		max-width: 960px;
 
@@ -25,10 +182,8 @@
 			color: #fff;
 			text-shadow: 0 1px 2px #000;
 			background: url('../img/clock.svg') no-repeat center center;
-			background-size: 50%;
 
 			h2 {
-				font-size: 2.5em;
 				font-weight: normal;
 				letter-spacing: -2px;
 			}
@@ -60,37 +215,30 @@
 	section {
 		padding: 30px 0;
 
-		.margin {
-			display: table;
-			margin: 0 auto;
-			max-width: 960px;
 
-			> * {
-				width: 50%;
-				display: table-cell;
-				vertical-align: middle;
-				box-sizing: border-box;
-				padding: 0 15px;
+		&:not(.noimgshadow) img { box-shadow: 0 2px 4px $LoginBG }
+		.image {
+			img {
+				width: 100%;
+			}
+
+			.typcn {
+				display: inline-block;
+				line-height: .8em;
+				height: 1em;
 			}
 		}
 
-		h3 {
-			font-size: 2.25em;
-			font-weight: normal;
-			letter-spacing: -1px;
-			margin: 0 0 0.5em;
-		}
+		.text {
+			h3 {
+				font-weight: normal;
+				letter-spacing: -1px;
+				margin: 0 0 0.5em;
+			}
 
-		&:not(.noimgshadow) img { box-shadow: 0 2px 4px $LoginBG }
-		img {
-			width: 100%;
-		}
+			p {
 
-		.typcn {
-			display: inline-block;
-			font-size: 128px;
-			line-height: .8em;
-			height: 1em;
+			}
 		}
 	}
 

@@ -104,7 +104,7 @@
 
 	# URL fixálása
 	if (($do === "landing" || $do === "fooldal") && empty($ENV['URL']))
-		System::FixPath('/');
+		System::FixPath('/', 302);
 
 	# Ha kilépésre van szükség...
 	if ($do === 'logout'){
@@ -115,8 +115,8 @@
 		else
 			System::Respond();
 
-		if ($_SERVER['REQUEST_METHOD'] === 'GET') System::Redirect('/');
-		else System::Respond(true);
+		if ($_SERVER['REQUEST_METHOD'] === 'GET') System::TempRedirect('/');
+		else System::Respond('Sikeresen kijelentkezett, átirányítjuk...', 1);
 	}
 
 	# Események lekérésénél 'Executive' végrehajtása

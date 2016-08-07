@@ -56,7 +56,8 @@
 
 	$pages = array(
 		'landing' => array(
-			'css' => 		['landing.css'],
+			'css' =>        ['landing.css'],
+			'js' =>         ['landing.js'],
 			'file' => 		'landing',
 		),
 

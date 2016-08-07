@@ -67,9 +67,9 @@
 			else {
 				if (ROLE == 'guest'){
 					global $ENV;
-					System::Redirect('/login?r='.urlencode($ENV['SERVER']['REQUEST_URI']));
+					System::TempRedirect('/login?r='.urlencode($ENV['SERVER']['REQUEST_URI']));
 				}
-				else System::Redirect('/not-found');
+				else System::TempRedirect('/not-found');
 			}
 		}
 

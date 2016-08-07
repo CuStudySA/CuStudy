@@ -9,8 +9,9 @@
 <meta property="og:title" content="CuStudy">
 <meta property="og:url" content="<?=ABSPATH?>/">
 <meta property="og:description" content="A CuStudy Software Alliance által tanulók számára fejlesztett webes alkalmazás">
+<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=no">
 <?php
-	if (!empty(DEFAULT_THEME_COLOR))
+	if (defined('DEFAULT_THEME_COLOR'))
 		$color = DEFAULT_THEME_COLOR;
 	if (!empty($pages[$do]['theme-color']))
 		$color = $pages[$do]['theme-color'];
@@ -49,9 +50,15 @@
 	<script>
 		var userSettings = <?=json_encode($ENV['userSettings'])?>;
 	</script>
-<?php } ?>
+<?php }
 
-<?php
+	if ($do !== 'landing' && $do !== 'login'){ ?>
+	<header class="mobile-header">
+		<div class="sidebar-toggle"></div>
+		<h1>CuStudy</h1>
+	</header>
+<?php }
+
 	if (!empty($ENV['sidebar'])){
 		require dirname(__FILE__)."/sidebar.php";
 		echo "<main>";
