@@ -61,5 +61,5 @@ foreach ($Actions as $a){
 }
 	?></nav>
 
-	<h1>CuStudy</h1>
+	<h1 class="desktop-only">CuStudy</h1>
 </div>

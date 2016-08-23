@@ -13,12 +13,12 @@
 				<p><b>1. lépés:</b> Kattintással <b>válaszd ki azt az órát</b>, ahova szeretnéd hozzáadni a házi feladatot!</p>
 
 				<p class='weekPickerP'>
-					<button class='btn backWeek' disabled><< Vissza az előző napokra</button>
+					<button class='btn backWeek' disabled>&laquo; Vissza<span class="desktop-only"> az előző napokra</span></button>
 					<span class='startDate'>
-						Kezdő nap megadása:
+						<span class="desktop-only">Kezdő nap megadása:</span>
 						<input type='date' value='<?=date('Y-m-d',$days[0])?>' id='startDatePicker'>
 					</span>
-					<button class='btn nextWeek'>Előre a következő napokhoz >></button>
+					<button class='btn nextWeek'>Előre<span class="desktop-only"> a következő napokhoz</span> &raquo;</button>
 				</p>
 
 				<div id='lessonPicker'><?=Timetable::Render(null, $TT, $days, true, true)?></div>

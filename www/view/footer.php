@@ -1,8 +1,7 @@
 </main>
 <?php
-	foreach ($js_list as $value){
-		print '<script src="'.$rootdoc.'resources/js/'.$value.'"></script>'."\n";
-	}
+	foreach ($js_list as $value)
+		echo "<script src='$value'></script>\n";
 
 	# Script futtatás összidejének meghatározása
 	$ENV['EXECTIME']['end'] = microtime(true);

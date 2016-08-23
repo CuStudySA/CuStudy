@@ -234,23 +234,17 @@
 	}
 
 	foreach ($css_list as $i => $value){
-		$resc = "resources/css/";
-		$minvalue = preg_replace('~\.css$~', '.min.css', $value);
-		if (file_exists($root.$resc.$minvalue))
-			$value = $minvalue;
-		else if (!file_exists($root.$resc.$value))
+		$resc = "resources/sass/min/";
+		if (!file_exists($root.$resc.$value))
 			Message::Missing($rootdoc.$resc.$value);
-		$css_list[$i] = $value.'?'.filemtime($root.$resc.$value);
+		$css_list[$i] = $rootdoc.$resc.$value.'?'.filemtime($root.$resc.$value);
 	}
 
 	foreach ($js_list as $i => $value){
-		$resc = "resources/js/";
-		$minvalue = preg_replace('~\.js$~', '.min.js', $value);
-		if (file_exists($root.$resc.$minvalue))
-			$value = $minvalue;
-		else if (!file_exists($root.$resc.$value))
+		$resc = "resources/js/min/";
+		if (!file_exists($root.$resc.$value))
 			Message::Missing($rootdoc.$resc.$value);
-		$js_list[$i] = $value.'?'.filemtime($root.$resc);
+		$js_list[$i] = $rootdoc.$resc.$value.'?'.filemtime($root.$resc);
 	}
 
 	# HTTP státuszkód visszadaása
@@ -288,7 +282,7 @@
 		);
 
 		foreach ($css_list as $value)
-			$respond['css'][] = "{$rootdoc}resources/css/$value";
+			$respond['css'][] = $value;
 
 		$pages[$do]['addons'] = array_merge($pages[$do]['addons'],$addon);
 
@@ -309,7 +303,7 @@
 		}
 
 		foreach ($js_list as $value)
-			$respond['js'][] = "{$rootdoc}resources/js/$value";
+			$respond['js'][] = $value;
 
 		ob_start();
 		require "view/{$pages[$do]['file']}.php";

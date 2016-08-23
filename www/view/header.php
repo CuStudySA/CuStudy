@@ -20,7 +20,7 @@
 		print '<meta name="theme-color" content="'.$color.'">';
 
 	foreach ($css_list as $value)
-		echo "<link rel='stylesheet' href='{$rootdoc}resources/css/$value'>\n";
+		echo "<link rel='stylesheet' href='$value'>\n";
 
 	# Beépülő modulok betöltése
 	if (!empty($pages[$do]['addons'])){
@@ -31,7 +31,7 @@
 		}
 	} ?>
 
-	<script src='<?=$rootdoc?>resources/js/jquery.min.js'></script>
+	<script src='<?=$rootdoc?>resources/js/min/jquery-1.11.2.js'></script>
 <?php
 	# Beépülő modulok betöltése
 	if (!empty($pages[$do]['addons'])){
@@ -53,7 +53,7 @@
 <?php }
 
 	if ($do !== 'landing' && $do !== 'login'){ ?>
-	<header class="mobile-header">
+	<header id="mobile-header">
 		<div class="sidebar-toggle"></div>
 		<h1>CuStudy</h1>
 	</header>

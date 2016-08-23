@@ -77,8 +77,11 @@
 		static function Missing($path = ''){
 			global $ENV;
 
-			if ($ENV['do'] != 'not-found')
+			if ($ENV['do'] != 'not-found'){
+				die(var_dump((new Exception())->getTraceAsString()));
+
 				System::Redirect("/not-found?path=".urlencode($path));
+			}
 		}
 
 		static function SendNotify($activity,$addressOrId,$invocation = null,$parameters = array()){

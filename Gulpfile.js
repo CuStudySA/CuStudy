@@ -28,7 +28,6 @@ if (['js','scss','default'].indexOf(toRun) !== -1){
 		'gulp-plumber',
 		'gulp-duration',
 		'gulp-sourcemaps',
-		'gulp-rename',
 	]);
 
 	if (toRun === 'scss' || toRun === 'default')
@@ -72,7 +71,7 @@ function Logger(prompt){
 
 var SASSL = new Logger('scss');
 gulp.task('scss', function() {
-	gulp.src('www/resources/sass/*.scss')
+	gulp.src('www/resources/sass/src/*.scss')
 		.pipe(plumber(function(err){
 			SASSL.error('A(z) '+err.relativePath+'\n'+' fájl '+err.line+'. sorában: '+err.messageOriginal);
 			this.emit('end');
@@ -83,23 +82,22 @@ gulp.task('scss', function() {
 				errLogToConsole: true,
 			}))
 			.pipe(autoprefixer('last 2 version'))
-			.pipe(rename({suffix: '.min' }))
 			.pipe(minify({
 				processImport: false,
 				compatibility: '-units.pc,-units.pt'
 			}))
 		.pipe(sourcemaps.write('.', {
 			includeContent: false,
-			sourceRoot: '/resources/sass',
+			sourceRoot: '/resources/sass/src',
 		}))
 		.pipe(duration('scss'))
-		.pipe(gulp.dest('www/resources/css'));
+		.pipe(gulp.dest('www/resources/sass/min'));
 });
 
 var JSL = new Logger('js'),
 	JSWatch = [
-		'www/resources/js/*.js', '!www/resources/js/*.min.js',
-		'www/resources/js/*/*.js', '!www/resources/js/*/*.min.js',
+		'www/resources/js/src/*.js',
+		'www/resources/js/src/*/*.js',
 	];
 gulp.task('js', function(){
 	gulp.src(JSWatch)
@@ -123,20 +121,19 @@ gulp.task('js', function(){
 			.pipe(babel({
 				presets: ['es2015']
 			}))
-			.pipe(rename({suffix: '.min' }))
 			.pipe(uglify({
 				preserveComments: function(_, comment){ return /^!/m.test(comment.value) },
 			}))
 		.pipe(sourcemaps.write('.', {
 			includeContent: false,
-			sourceRoot: '/resources/js',
+			sourceRoot: '/resources/js/src',
 		}))
-		.pipe(gulp.dest('www/resources/js'));
+		.pipe(gulp.dest('www/resources/js/min'));
 });
 
 gulp.task('default', ['js', 'scss'], function(){
 	gulp.watch(JSWatch, {debounceDelay: 2000}, ['js']);
 	JSL.log("Fáljfigyelő aktív");
-	gulp.watch('www/resources/sass/*.scss', {debounceDelay: 2000}, ['scss']);
+	gulp.watch('www/resources/sass/src/*.scss', {debounceDelay: 2000}, ['scss']);
 	SASSL.log("Fáljfigyelő aktív");
 });

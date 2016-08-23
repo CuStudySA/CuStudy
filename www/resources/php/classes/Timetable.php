@@ -60,7 +60,7 @@
 		 * @return int
 		 */
 		static function GetDay($timestamp = null) {
-			$ts = date('w' ,empty($timestamp) ? time() : $timestamp);
+			$ts = date('w' ,!isset($timestamp) ? time() : $timestamp);
 			return $ts == 0 ? 7 : (int)$ts;
 		}
 
@@ -212,7 +212,6 @@ STRING;
 			if (is_array($dispDays))
 				$dispDays = array_map('strtotime', $dispDays);
 			else $dispDays = strtotime($dispDays);
-
 			$date = is_array($dispDays) ? $dispDays[0] : $dispDays;
 
 			$targetWeekdays = null;
@@ -220,7 +219,7 @@ STRING;
 				$mult = $move === 'next' ? 1 : -1;
 				$targetWeekdays = count($dispDays);
 				$foundWeekdays = 0;
-				$moved = 0;
+				$moved = min(0, $mult);
 				$currentDate = $date;
 				while (abs($foundWeekdays) < $targetWeekdays){
 					$currentDate += self::OneDayInSeconds*$mult;
@@ -234,9 +233,11 @@ STRING;
 			}
 
 			$today = strtotime('today');
-			$todayWeekday = self::GetDay($today);
+			$switchOn = strtotime('8 am', $today);
 			if ($date < $today)
 				$date = $today;
+			if (is_string($move) && ($date-$switchOn) < self::OneDayInSeconds)
+				$date = strtotime('+1 day', $date);
 
 			$week = (int)date('W', $date);
 			$day = Timetable::GetDay($date);
@@ -247,7 +248,7 @@ STRING;
 			$timetable = Timetable::Render(null, $TT, $days, false, $dataAttributes);
 
 			$firstDay = strtotime('midnight',$days[0]);
-			$lockBack = $firstDay <= $today + ($todayWeekday >= 6 ? (8-$todayWeekday)*self::OneDayInSeconds : 0);
+			$lockBack = ($firstDay-$switchOn) < self::OneDayInSeconds;
 
 			foreach ($days as $k => $day)
 				$days[$k] = date('Y-m-d', $day);
@@ -279,19 +280,24 @@ STRING;
 			// Hiányzó értékek esetén jelenlegi dátum használata
 			if (empty($week) && empty($lastWeekDay)){
 				$week = (int)date('W');
-				$lastWeekDay = (int)self::GetDay()+(is_int($maxDays) ? $maxDays : 5);
+				$lastWeekDay = self::GetDay()+(is_int($maxDays) ? $maxDays : 5);
+				if ($lastWeekDay > 5)
+					$lastWeekDay += 2;
 			}
 
 			// Megfelelő hétre ugrás
 			$weeksPassed = (int)$week;
 			$weeksPassedSeconds = self::OneWeekInSeconds * $weeksPassed;
 			$thisYear = strtotime("first monday 1 jan", $currDate);
-			$lastWeekdayDate = strtotime('this monday', $thisYear + $weeksPassedSeconds);
+			$lastWeekdayDate = strtotime('this week', $thisYear + $weeksPassedSeconds);
 			// Megfelelő napra ugrás
 			if ($lastWeekDay > 1){
-				if ($lastWeekDay > 5)
-					$lastWeekDay -= 5-(8-$lastWeekDay);
-				$lastWeekdayDate += $lastWeekDay * self::OneDayInSeconds;
+				if ($lastWeekDay > 5){
+					if ($lastWeekDay < 8)
+						$lastWeekDay = 5;
+					else $lastWeekDay -= 5-(8-$lastWeekDay);
+				}
+				$lastWeekdayDate = strtotime('+'.($lastWeekDay-1).' days', $lastWeekdayDate);
 			}
 			$firstWeekdayDate = $lastWeekdayDate - self::OneWeekInSeconds;
 

@@ -13,16 +13,16 @@
 			$table = Timetable::Render(null, $TT, $days);  ?>
 
 			<h1 id=h1cim>A személyre szabott órarendem</h1>
-			<a class='btn typcn typcn-pencil' href='/timetables/edit'>Szerkesztői nézet</a>
-			<a class='btn js_fullPersonalToggle typcn typcn-group'>Teljes nézet</a>
-			<a class='btn typcn typcn-eye' id='js_switchView' style='float: right;'>Kompakt nézet</a>
+			<a class='btn typcn typcn-pencil' href='/timetables/edit'>Szerk<span class="mobile-only">.</span><span class="desktop-only">esztői nézet</span></a>
+			<a class='btn js_fullPersonalToggle typcn typcn-group'>Teljes<span class="desktop-only"> nézet</span></a>
+			<a class='btn typcn typcn-eye' id='js_switchView' style='float: right;'>Kompakt<span class="desktop-only"> nézet</span></a>
 			<p class='weekPickerP'>
-				<button class='btn backWeek' disabled>&lt;&lt; Vissza az előző napokra</button>
+				<button class='btn backWeek' disabled>&laquo; Vissza<span class="desktop-only"> az előző napokra</span></button>
 				<span class='startDate'>
-					Kezdő nap megadása:
+					<span class="desktop-only">Kezdő nap megadása:</span>
 					<input type='date' value='<?=date('Y-m-d',$days[0])?>' id='startDatePicker'>
 				</span>
-				<button class='btn nextWeek'>Előre a következő napokhoz &gt;&gt;</button>
+				<button class='btn nextWeek'>Előre<span class="desktop-only"> a következő napokhoz</span> &raquo;</button>
 			</p>
 
 			<div id='lessonPicker'><?=$table?></div>
@@ -32,12 +32,12 @@
 		case 'edit':
 			print "<h1 id=h1cim>".System::Article($ENV['class']['classid'],true)." osztály órarendje</h1>"; ?>
 
-			<p>Órarend választása: <select id='select_tt'>
+			<p>Órarend<span class="desktop-only"> választása</span>: <select id='select_tt'>
 <?php       foreach (Timetable::$TT_Types as $key => $value){
 				$selected = $key == 'a' ? ' selected' : '';
 				print "<option value='{$key}'".$selected.">{$value} órarend</option>";
 			} ?>
-			</select> <a class='btn goToMyTT' href='/timetables'><< Visszalépés a saját órarendemhez</a></p>
+			</select> <a class='btn goToMyTT' href='/timetables'>&laquo; Visszalépés<span class="desktop-only"> a saját órarendemhez</span></a></p>
 
 			<h2>'A' órarend</h2>
 

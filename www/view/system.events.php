@@ -19,7 +19,7 @@
 				</tr>
 				<tr>
 					<td>Ált. tulajdonságok</td>
-					<td><label><input type="checkbox" name='evt_isactive'> Éppen tart</label>
+					<td class="filter-checkbox-labels"><label><input type="checkbox" name='evt_isactive'> Éppen tart</label>
 						<label><input type="checkbox" name='evt_isallday'> Egész napos</label>
 						<label><input type="checkbox" name='evt_isglobal'> Globális esemény</label></td>
 				</tr>

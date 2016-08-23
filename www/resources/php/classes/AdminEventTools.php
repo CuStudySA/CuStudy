@@ -82,7 +82,7 @@
 				'end' => date('c',$dates[1]),
 				'title' => $data['title'],
 				'description' => $data['description'],
-				'isFullDay' => isset($data['isFullDay']),
+				'isallday' => isset($data['isFullDay']),
 			);
 
 			if (isset($data['isGlobal']))

@@ -113,8 +113,8 @@
 					<input type='password' name='oldpassword' placeholder='Jelenlegi jelszó' required pattern='^[\w\d]{6,20}$'>
 				</label>
 
-				<button class="btn">Adatok mentése</button>
-				<a class='btn typcn typcn-spanner' href='/profile/settings' style='margin-left: 4px;'>Személyes beállításaim >></a>
+				<button class="btn"><span class="mobile-only">Mentés</span><span class="desktop-only">Adatok mentése</span></button>
+				<a class='btn typcn typcn-spanner' href='/profile/settings'>Személyes beáll<span class="mobile-only">.</span><span class="desktop-only">ításaim</span> &raquo;</a>
 			</form>
 			<h1 style='margin-top: 25px !important;'>Összekapcsolt fiókok</h1>
 <?php       $diff = array_diff(array_keys(ExtConnTools::$apiDisplayName),$AvailProviderNames);
