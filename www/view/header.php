@@ -52,12 +52,7 @@
 	</script>
 <?php }
 
-	if ($do !== 'landing' && $do !== 'login'){ ?>
-	<header id="mobile-header">
-		<div class="sidebar-toggle"></div>
-		<h1>CuStudy</h1>
-	</header>
-<?php }
+	echo System::GetMobileHeader($do);
 
 	if (!empty($ENV['sidebar'])){
 		require dirname(__FILE__)."/sidebar.php";

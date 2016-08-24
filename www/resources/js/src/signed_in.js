@@ -69,7 +69,7 @@ $(function(){
 	var isOpenedBefore = false,
 		$text = $('<form id="js_form"><p>Kérem válasszon az elérhető szerepkörök közül:</p></form>');
 
-	$('.avatar').children('.sessionswitch').on('click',function(e){
+	$('.avatar').children('.sessionswitch').on('click',function(){
 		var $listElement = $('<label style="text-align:left"><input type="radio" name="role" required> <b class="intezmeny"></b>: <span class="szerep"></span></label>');
 		var title = "Szerepkör-választás",
 			run = function(){

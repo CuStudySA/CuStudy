@@ -315,5 +315,7 @@
 			$respond['sidebar'] = ob_get_clean();
 		}
 
+		$respond['mobile_header'] = System::GetMobileHeader($do);
+
 		System::Respond($respond);
 	}

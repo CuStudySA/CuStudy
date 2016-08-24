@@ -64,7 +64,10 @@ $(function(){
 						catch(e){}
 					}
 
-					if (isIE) return formData.r ? window.location.href = formData.r : window.location.reload();
+					if (isIE){
+						try{ console.log('Internet Explorer érzékelve, átirányítás...'); }catch(_){}
+						return formData.r ? window.location.href = formData.r : window.location.reload();
+					}
 					$.ajax({
 						url: (formData.r||'')+'?via-js',
 						dataType: 'json',
@@ -94,10 +97,17 @@ $(function(){
 								$('main').children(':not(#main)').remove();
 								$.mk('main').append(data.main).appendTo($body);
 								$loginMain.addClass('loaded');
+								if (data.mobile_header)
+									$(data.mobile_header).insertBefore('#sidebar');
+								else $('#mobile-header').remove();
 								setTimeout(function(){
-									$body.children('div:not(#sidebar):not(#main), #underDevelopment').remove();
+									$body.children('div:not(#sidebar):not(#main):not(#mobile-header):not(#heading), #underDevelopment').remove();
 									$loginMain.remove();
 								}, 410);
+								setTimeout(function(){
+									$('link[href*="login.css"], #heading').remove();
+									$body.removeClass('sidebar-slide');
+								},2000);
 								loadJS(0);
 							}
 
@@ -125,7 +135,7 @@ $(function(){
 									success: function(data){
 										if (typeof data !== 'string')
 											return formData.r ? window.location.href = r : window.location.reload();
-										data = data.replace(/url\((['"])?\.\.\//g,'url($1/resources/');
+										data = data.replace(/url\((['"])?\.\.\/\.\.\//g,'url($1/resources/');
 										$head.append($.mk('style').text(data));
 										loadCSS(i+1);
 									},

@@ -1,12 +1,12 @@
 // Mobil
 @media all and (max-width: $Breakpoint){
 	#heading {
-		height: $MoileHeadingHeight;
+		height: $MobileHeadingHeight;
 	}
 	#heading-content {
 		> * {
-			height: $MoileHeadingHeight;
-			line-height: $MoileHeadingHeight;
+			height: $MobileHeadingHeight;
+			line-height: $MobileHeadingHeight;
 		}
 
 		$padding: 5px;
@@ -15,7 +15,7 @@
 			z-index: 1;
 
 			img {
-				height: $MoileHeadingHeight - ($padding*2);
+				height: $MobileHeadingHeight - ($padding*2);
 				padding: $padding;
 			}
 

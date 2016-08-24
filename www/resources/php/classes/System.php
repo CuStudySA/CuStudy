@@ -863,4 +863,19 @@
 			# Figyelmeztető üzenet a felhasználónak, funckió vége!
 			die("A CuStudy frissítése befejeződött, a frissítési utómunkálatok végrehajtódtak! Kérem, frissítse ezt az oldalt a CuStudy betöltéséhez!");
 		}
+
+		/**
+		 * @param string $do
+		 * @return string
+		 */
+		static function GetMobileHeader($do){
+			if ($do === 'landing' || $do === 'login')
+				return '';
+			return <<<HTML
+<header id="mobile-header">
+	<div class="sidebar-toggle"></div>
+	<h1>CuStudy</h1>
+</header>
+HTML;
+		}
 	}

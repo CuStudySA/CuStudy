@@ -1,5 +1,6 @@
 @import "vars";
 @import "landing-header";
+$LoaderHide: .4s;
 
 // Mobil
 @media all and (max-width: $Breakpoint){
@@ -9,11 +10,11 @@
 			position:absolute;
 			top: $padding;
 			right: $padding;
-			height: $MoileHeadingHeight - ($padding*2);
+			height: $MobileHeadingHeight - ($padding*2);
 
 			.btn {
 				display: block;
-				height: $MoileHeadingHeight - ($padding*2);
+				height: $MobileHeadingHeight - ($padding*2);
 				box-sizing: border-box;
 				font-size: 1.2em;
 			}
@@ -34,11 +35,56 @@
 			}
 		}
 	}
+	body.sidebar-slide {
+		> main {
+			animation-name: shrink-mobile;
+		}
+
+		#heading, #mobile-header {
+			animation-fill-mode: forwards;
+			animation-delay: $LoaderHide;
+			animation-duration: $LoaderHide;
+		}
+
+		#heading {
+			animation-name: fadeout;
+		}
+
+		#mobile-header {
+			top: -$MobileHeadingHeight*1.5;
+			animation-name: slidein-top;
+		}
+	}
 }
 // Asztali
 @media all and (min-width: $Breakpoint){
 	#heading {
 		display: none;
+	}
+	#loginform .input-wrap {
+		margin-bottom: 5px;
+	}
+
+	body.sidebar-slide {
+		> main {
+			animation-name: shrink;
+		}
+		> #sidebar {
+			width: 100%;
+			opacity: 0;
+			animation-name: fadein, slidein, bgcolor-sidebar;
+			animation-duration: 0s, $LoaderHide, 1s;
+			animation-delay: 0s, $LoaderHide, 0s;
+			animation-fill-mode: forwards;
+
+			> * {
+				opacity: 0;
+				animation-name: fadein;
+				animation-duration: $LoaderHide;
+				animation-delay: $LoaderHide*2;
+				animation-fill-mode: forwards;
+			}
+		}
 	}
 }
 
@@ -50,7 +96,6 @@
 	color: #EBF0FD !important;
 }
 
-$LoaderHide: .4s;
 #main {
 	position: fixed;
 	top: 0;
@@ -71,9 +116,6 @@ $LoaderHide: .4s;
 		animation-fill-mode: forwards;
 		pointer-events: none;
 	}
-}
-@keyframes fadeout {
-	to { opacity: 0 }
 }
 #wrap {
 	text-align: center;
@@ -120,7 +162,7 @@ $LoaderHide: .4s;
 		background-size: 350px 35px;
 		transition-property: background-color, border;
 		transition-duration: $FormShrink;
-		transition-delay: $ContentFadeOut;
+		transition-delay: $ContentFadeOut/2;
 
 		animation:
 			shrinkNcolor $FormShrink $ContentFadeOut                cubic-bezier(0.165, 0.84, 0.44, 1),
@@ -167,13 +209,13 @@ $LoaderHide: .4s;
 		top: 0;
 		left: 0;
 		border-width: 35px 35px 0 0;
-		border-color: rgba($LightBG,.4) transparent transparent transparent;
+		border-color: rgba($LightBG,.35) transparent transparent transparent;
 	}
 	&:after {
 		bottom: 0;
 		right: 0;
 		border-width: 0 0 35px 35px;
-		border-color: transparent transparent rgba($LightBG,.4) transparent;
+		border-color: transparent transparent rgba($LightBG,.35) transparent;
 	}
 
 	.logo img {
@@ -200,33 +242,14 @@ body.sidebar-slide {
 	overflow-x: hidden;
 	background-color: $LoginBG;
 	animation-name: bgcolor;
-	animation-duration: 0s;
+	animation-duration: .5s;
 	animation-delay: $LoaderHide;
 
 	&, > #sidebar, > main {
 		animation-fill-mode: forwards;
 	}
-	> #sidebar {
-		width: 100%;
-		background-color: $LoginBG;
-		opacity: 0;
-
-		animation-name: fadein, slidein;
-		animation-duration: 0s, $LoaderHide;
-		animation-delay: 0s, $LoaderHide;
-
-		> * {
-			opacity: 0;
-			animation-name: fadein;
-			animation-duration: .5s;
-			animation-delay: $LoaderHide*2;
-			animation-fill-mode: forwards;
-		}
-	}
 	> main {
 		left: 100%;
-		width: 75%;
-		animation-name: shrink;
 		animation-duration: $LoaderHide;
 		animation-delay: $LoaderHide;
 
@@ -242,17 +265,27 @@ body.sidebar-slide {
 @keyframes bgcolor {
 	to { background-color: $LightBG }
 }
+@keyframes bgcolor-sidebar {
+	from { background-color: $LoginBG }
+	to { background-color: rgba($Link, .95) }
+}
 @keyframes slidein {
 	to {
 		background-color: $Link;
 		width: $SidebarWidth;
 	}
 }
+@keyframes slidein-top {
+	to { top: 0 }
+}
 @keyframes shrink {
 	to {
 		left: 0;
 		margin-left: $SidebarWidth;
 	}
+}
+@keyframes shrink-mobile {
+	to { left: 0 }
 }
 @keyframes fadein {
 	to { opacity: 1 }

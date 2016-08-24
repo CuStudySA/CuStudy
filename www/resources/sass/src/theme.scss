@@ -18,9 +18,9 @@
 		position: fixed;
 		top: 0;
 		left: 0;
-		height: $MoileHeadingHeight;
+		height: $MobileHeadingHeight;
 		width: 100%;
-		z-index: 5;
+		z-index: 6;
 		font-size: 18px;
 		padding: 0;
 		color: $LightBG;
@@ -30,11 +30,11 @@
 			position: absolute;
 			top: 0;
 			left: 0;
-			height: $MoileHeadingHeight;
-			width: $MoileHeadingHeight;
-			font-size: $MoileHeadingHeight*.75;
+			height: $MobileHeadingHeight;
+			width: $MobileHeadingHeight;
+			font-size: $MobileHeadingHeight*.75;
 			text-align: center;
-			line-height: $MoileHeadingHeight*.85;
+			line-height: $MobileHeadingHeight*.85;
 
 			&:before {
 				font-family: 'typicons';
@@ -49,13 +49,13 @@
 		h1 {
 			margin: 0;
 			font-size: 1.3em;
-			line-height: $MoileHeadingHeight*.9;
+			line-height: $MobileHeadingHeight*.9;
 		}
 	}
 
 	#sidebar, main {
-		height: calc(100% - #{$MoileHeadingHeight});
-		top: $MoileHeadingHeight;
+		height: calc(100% - #{$MobileHeadingHeight});
+		top: $MobileHeadingHeight;
 	}
 
 	#sidebar {
@@ -101,6 +101,7 @@
 	}
 
 	main {
+		min-height: 100vh;
 		padding: 20px 10px 10px 20px;
 	}
 }
@@ -159,7 +160,6 @@ header > h1 { text-align: center }
 			margin-right: 10px;
 			width: 70px;
 			height: 70px;
-			overflow: hidden;
 			position: relative;
 
 			&:hover {
@@ -267,7 +267,6 @@ main {
 	z-index: 1;
 	color: $Link;
 	overflow: auto;
-	min-height: 100vh;
 	width: 100%;
 	position: absolute;
 
