@@ -313,7 +313,8 @@
 			$envInfos = self::GetBrowserEnvInfo();
 			if (!is_array($envInfos)) return 6;
 
-			self::_clearSessions($data);
+			if (UserSettings::Get('security.enableMultiSession',$data['id']) == 'false')
+				self::_clearSessions($data);
 
 			$db->insert('sessions',array(
 				'session' => md5($session),

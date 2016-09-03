@@ -38,6 +38,15 @@
 					'type' => 'select',
 					'defaultValue' => 'true',
 				),
+				'enableMultiSession' => array(
+					'name' => 'Bejelentkezéskor a többi böngészőben maradjak bejelentkezve',
+					'options' => array(
+						'true' => 'Engedélyezve',
+						'false' => 'Letiltva',
+					),
+					'type' => 'select',
+					'defaultValue' => 'false',
+				),
 			),
 		);
 
