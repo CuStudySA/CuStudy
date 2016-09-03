@@ -34,11 +34,11 @@
 				$year--;
 			$sept1 = strtotime("1 sept $year");
 			$sept1day = self::GetDay($sept1);
-			// Ha szept. 1 hétfő/kedd/szerda akkor az az első nap
-			if ($sept1day < 4)
-				$firstDay = strtotime('this monday', $sept1);
-			// Ha szept. 1 csüt./péntek/szombat/vas. akkor jövő hétfő az első nap
-			else $firstDay = strtotime('next monday', $sept1);
+			// Ha szept. 1 hétfő/kedd/szerda/csüt. akkor az az első nap
+			if ($sept1day < 5)
+				$firstDay = strtotime('this week', $sept1);
+			// Ha szept. 1 péntek/szombat/vas. akkor jövő hétfő az első nap
+			else $firstDay = strtotime('next week', $sept1);
 
 			$weeksPassed = floor(($today - $firstDay) / self::OneWeekInSeconds);
 			return self::$weekLetters[$weeksPassed % $weeekcnt];
