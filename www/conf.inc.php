@@ -77,7 +77,6 @@
 			'css' => 		['login.css'],
 			'js' => 		['login.js'],
 			'file' => 		'login',
-			'theme-color' =>'#71151F', //Amber flag
 		),
 
 		'not-found' => array(
