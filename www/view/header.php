@@ -9,8 +9,9 @@
 <meta property="og:title" content="CuStudy">
 <meta property="og:url" content="<?=ABSPATH?>/">
 <meta property="og:description" content="A CuStudy Software Alliance által tanulók számára fejlesztett webes alkalmazás">
+<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=no">
 <?php
-	if (!empty(DEFAULT_THEME_COLOR))
+	if (defined('DEFAULT_THEME_COLOR'))
 		$color = DEFAULT_THEME_COLOR;
 	if (!empty($pages[$do]['theme-color']))
 		$color = $pages[$do]['theme-color'];
@@ -19,7 +20,7 @@
 		print '<meta name="theme-color" content="'.$color.'">';
 
 	foreach ($css_list as $value)
-		echo "<link rel='stylesheet' href='{$rootdoc}resources/css/$value'>\n";
+		echo "<link rel='stylesheet' href='$value'>\n";
 
 	# Beépülő modulok betöltése
 	if (!empty($pages[$do]['addons'])){
@@ -30,7 +31,7 @@
 		}
 	} ?>
 
-	<script src='<?=$rootdoc?>resources/js/jquery.min.js'></script>
+	<script src='<?=$rootdoc?>resources/js/min/jquery-1.11.2.js'></script>
 <?php
 	# Beépülő modulok betöltése
 	if (!empty($pages[$do]['addons'])){
@@ -49,9 +50,10 @@
 	<script>
 		var userSettings = <?=json_encode($ENV['userSettings'])?>;
 	</script>
-<?php } ?>
+<?php }
 
-<?php
+	echo System::GetMobileHeader($do);
+
 	if (!empty($ENV['sidebar'])){
 		require dirname(__FILE__)."/sidebar.php";
 		echo "<main>";

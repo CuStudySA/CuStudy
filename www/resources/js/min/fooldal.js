@@ -1,0 +1,2 @@
+"use strict";$(function(){var e=$(".hWContent"),a=function t(a){a.preventDefault();var n=$(a.currentTarget),r=n.attr("href").substring(1),i="Házi feladat késznek jelölése";$.Dialog.wait(i),$.ajax({method:"POST",data:{id:r},url:"/homeworks/makeMarkedDone/mainPage",dataType:"html",success:function(a){e.empty().append(a),$(".js_makeMarkedDone").click(t),$.Dialog.close()}})};$(".js_makeMarkedDone").click(a)});
+//# sourceMappingURL=fooldal.js.map

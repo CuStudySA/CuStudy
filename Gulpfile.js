@@ -1,116 +1,139 @@
-var cl = console.log;
+// jshint ignore: start
+var cl = console.log,
+	chalk = require('chalk');
 console.log = console.writeLine = function () {
-	var args = [].slice.call(arguments);
-	if (args.length && /^(\[\d{2}:\d{2}:\d{2}]|Using|Starting|Finished)/.test(args[0]))
-		return;
+	var args = [].slice.call(arguments), match;
+	if (args.length){
+		if (/^(\[\d{2}:\d{2}:\d{2}]|Using|Finished)/.test(args[0]))
+			return;
+		else if (args[0] == 'Starting' && (match = args[1].match(/^'.*((?:dist-)?js|scss|default|md).*'...$/))){
+			args = ['[' + chalk.green('gulp') + '] ' + match[1] + ': ' + chalk.magenta('start')];
+		}
+	}
 	return cl.apply(console, args);
 };
 var stdoutw = process.stdout.write;
 process.stdout.write = console.write = function(str){
 	var out = [].slice.call(arguments).join(' ');
-	if (/\[.*\d.*]/g.test(out)) return;
+	if (/\[.*?\d{2}.*?:.*?]/.test(out))
+		return;
 	stdoutw.call(process.stdout, out);
 };
 
-var _sep = '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~';
-console.writeLine('Gulp modulok betöltése...');
-var stuff = [
-	'gulp',
-	'gulp-sourcemaps',
-	'gulp-autoprefixer',
-	'gulp-minify-css',
-	'gulp-rename',
-	'gulp-sass',
-	'gulp-uglify',
-	'gulp-plumber',
-	'gulp-util',
-];
-console.write('> ');
-for (var i= 0,l=stuff.length;i<l;i++){
-	var v = stuff[i];
+var toRun = process.argv.slice(2).slice(-1)[0] || 'default'; // Works only if task name is the last param
+console.writeLine('Starting Gulp task "'+toRun+'"');
+var require_list = ['gulp'];
+if (['js','scss','default'].indexOf(toRun) !== -1){
+	require_list.push.apply(require_list, [
+		'gulp-plumber',
+		'gulp-duration',
+		'gulp-sourcemaps',
+	]);
+
+	if (toRun === 'scss' || toRun === 'default')
+		require_list.push.apply(require_list, [
+			'gulp-sass',
+			'gulp-autoprefixer',
+			'gulp-minify-css',
+		]);
+	if (toRun === 'js' || toRun === 'default')
+		require_list.push.apply(require_list, [
+			'gulp-uglify',
+			'gulp-babel',
+			'gulp-cached'
+		]);
+}
+console.write('(');
+for (var i= 0,l=require_list.length; i<l; i++){
+	var v = require_list[i];
 	global[v.replace(/^gulp-([a-z]+).*$/, '$1')] = require(v);
 	console.write(' '+v);
 }
-console.writeLine("\n> OK\n"+_sep);
+console.writeLine(" )\n");
 
 var workingDir = __dirname;
 
-function Personality(prompt, onerror){
-	if (typeof onerror !== 'object' || typeof onerror.length !== 'number' )
-		onerror = false;
-	var $p = '['+prompt+'] ';
+function Logger(prompt){
+	var $p = '['+chalk.blue(prompt)+'] ';
 	this.log = function(message){
 		console.writeLine($p+message);
 	};
-	var getErrorMessage = function(){
-		return onerror[Math.floor(Math.random()*onerror.length)];
-	};
 	this.error = function(message){
-		if (typeof message === 'string') message = message.trim();
-		else console.log(message);
-		console.error((onerror?$p+getErrorMessage()+'\n':'')+$p+message);
+		if (typeof message === 'string'){
+			message = message.trim()
+				.replace(/[\/\\]?www/,'');
+			console.error($p+'Hiba: '+message);
+		}
+		else console.log(JSON.stringify(message,null,'4'));
 	};
 	return this;
 }
 
-var SCSSP = new Personality(
-	'sass',
-	['HIBA']
-);
-gulp.task('sass', function() {
-	gulp.src('www/resources/sass/*.scss')
+var SASSL = new Logger('scss');
+gulp.task('scss', function() {
+	gulp.src('www/resources/sass/src/*.scss')
 		.pipe(plumber(function(err){
-			SCSSP.error(err.messageFormatted || err);
+			SASSL.error('A(z) '+err.relativePath+'\n'+' fájl '+err.line+'. sorában: '+err.messageOriginal);
 			this.emit('end');
 		}))
 		.pipe(sourcemaps.init())
-		.pipe(sass({
-			outputStyle: 'expanded',
-			errLogToConsole: true,
-		}))
-		.pipe(autoprefixer('last 2 version'))
-		.pipe(rename({suffix: '.min' }))
-		.pipe(minify({
-			processImport: false,
-			compatibility: '-units.pc,-units.pt'
-		}))
+			.pipe(sass({
+				outputStyle: 'expanded',
+				errLogToConsole: true,
+			}))
+			.pipe(autoprefixer('last 2 version'))
+			.pipe(minify({
+				processImport: false,
+				compatibility: '-units.pc,-units.pt'
+			}))
 		.pipe(sourcemaps.write('.', {
 			includeContent: false,
-			sourceRoot: '/resources/sass',
+			sourceRoot: '/resources/sass/src',
 		}))
-		.pipe(gulp.dest('www/resources/css'));
+		.pipe(duration('scss'))
+		.pipe(gulp.dest('www/resources/sass/min'));
 });
 
-var JSP = new Personality(
-	'js',
-	['HIBA']
-), JSWatch = [
-	'www/resources/js/*.js', '!www/resources/js/*.min.js',
-	'www/resources/js/*/*.js', '!www/resources/js/*/*.min.js',
-];
+var JSL = new Logger('js'),
+	JSWatch = [
+		'www/resources/js/src/*.js',
+		'www/resources/js/src/*/*.js',
+	];
 gulp.task('js', function(){
 	gulp.src(JSWatch)
+		.pipe(duration('js'))
+		.pipe(cached('js', { optimizeMemory: true }))
 		.pipe(plumber(function(err){
 			err =
 				err.fileName
-					? err.fileName.replace(workingDir,'')+'\n  line '+err.lineNumber+': '+err.message.replace(/^[\/\\]/,'').replace(err.fileName+': ','')
-					: err;
-			JSP.error(err);
+				? 'A(z) '+err.fileName.replace(workingDir,'')+'\n  fájl '+(
+					err._babel === true
+					? err.loc.line
+					: err.lineNumber
+				)+'. sorában: '+err.message.replace(/^[\/\\]/,'')
+				                  .replace(err.fileName.replace(/\\/g,'/')+': ','')
+				                  .replace(/\(\d+(:\d+)?\)$/, '')
+				: err;
+			JSL.error(err);
 			this.emit('end');
 		}))
 		.pipe(sourcemaps.init())
-		.pipe(uglify())
-		.pipe(rename({suffix: '.min' }))
+			.pipe(babel({
+				presets: ['es2015']
+			}))
+			.pipe(uglify({
+				preserveComments: function(_, comment){ return /^!/m.test(comment.value) },
+			}))
 		.pipe(sourcemaps.write('.', {
 			includeContent: false,
-			sourceRoot: '/resources/js',
+			sourceRoot: '/resources/js/src',
 		}))
-		.pipe(gulp.dest('www/resources/js'));
+		.pipe(gulp.dest('www/resources/js/min'));
 });
 
-gulp.task('default', ['js', 'sass'], function(){
+gulp.task('default', ['js', 'scss'], function(){
 	gulp.watch(JSWatch, {debounceDelay: 2000}, ['js']);
-	JSP.log("Fáljfigyelő aktív");
-	gulp.watch('www/resources/sass/*.scss', {debounceDelay: 2000}, ['sass']);
-	SCSSP.log("Fáljfigyelő aktív");
+	JSL.log("Fáljfigyelő aktív");
+	gulp.watch('www/resources/sass/src/*.scss', {debounceDelay: 2000}, ['scss']);
+	SASSL.log("Fáljfigyelő aktív");
 });

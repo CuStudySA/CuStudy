@@ -604,6 +604,9 @@
 			header("Location: $url",$die,$http);
 			if ($die) die();
 		}
+		static function TempRedirect($url, $die = true){
+			self::Redirect($url, $die, 302);
+		}
 
 		// Belépés külső szolgáltató segítségével
 		static function ExternalLogin($userData, $provider){
@@ -859,5 +862,20 @@
 
 			# Figyelmeztető üzenet a felhasználónak, funckió vége!
 			die("A CuStudy frissítése befejeződött, a frissítési utómunkálatok végrehajtódtak! Kérem, frissítse ezt az oldalt a CuStudy betöltéséhez!");
+		}
+
+		/**
+		 * @param string $do
+		 * @return string
+		 */
+		static function GetMobileHeader($do){
+			if ($do === 'landing' || $do === 'login')
+				return '';
+			return <<<HTML
+<header id="mobile-header">
+	<div class="sidebar-toggle"></div>
+	<h1>CuStudy</h1>
+</header>
+HTML;
 		}
 	}

@@ -47,6 +47,10 @@
 		'mantisIntegration' => array(
 			'php' => ['mantisIntegration/dataBaseConnect.php'],
 		),
+		'powertip' => array(
+			'css' => ['powertip/jquery.powertip.css'],
+			'js' => ['powertip/jquery.powertip.js'],
+		),
 	);
 
 	# Menüpontok beállítása, JS, CSS és addonok tömbjeinek kezdeti értékadása
@@ -56,7 +60,8 @@
 
 	$pages = array(
 		'landing' => array(
-			'css' => 		['landing.css'],
+			'css' =>        ['landing.css'],
+			'js' =>         ['landing.js'],
 			'file' => 		'landing',
 		),
 
@@ -72,7 +77,6 @@
 			'css' => 		['login.css'],
 			'js' => 		['login.js'],
 			'file' => 		'login',
-			'theme-color' =>'#71151F', //Amber flag
 		),
 
 		'not-found' => array(
@@ -113,9 +117,10 @@
 		'timetables' => array(
 			'title' => 		'Órarend',
 			'css' => 		['timet.css','timetables.css'],
-			'js' => 		['jquery.powertip.min.js'],
+			'js' => 		[],
 			'sub_js' =>     ['' => 'timetables/tt-view.js', 'edit' => 'timetables/tt-edit.js','week' => 'timetables/tt-edit.js'],
 			'file' => 		'timetables',
+			'addons' =>     ['powertip'],
 		),
 
 		'teachers' => array(

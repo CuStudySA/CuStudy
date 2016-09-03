@@ -67,9 +67,9 @@
 			else {
 				if (ROLE == 'guest'){
 					global $ENV;
-					System::Redirect('/login?r='.urlencode($ENV['SERVER']['REQUEST_URI']));
+					System::TempRedirect('/login?r='.urlencode($ENV['SERVER']['REQUEST_URI']));
 				}
-				else System::Redirect('/not-found');
+				else System::TempRedirect('/not-found');
 			}
 		}
 
@@ -77,8 +77,11 @@
 		static function Missing($path = ''){
 			global $ENV;
 
-			if ($ENV['do'] != 'not-found')
+			if ($ENV['do'] != 'not-found'){
+				die(var_dump((new Exception())->getTraceAsString()));
+
 				System::Redirect("/not-found?path=".urlencode($path));
+			}
 		}
 
 		static function SendNotify($activity,$addressOrId,$invocation = null,$parameters = array()){

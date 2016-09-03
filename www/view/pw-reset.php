@@ -1,6 +1,6 @@
 <?php
 	if (empty($ENV['GET']['key']))
-		System::Redirect('/');
+		System::TempRedirect('/');
 
 	$Reset = PasswordReset::GetRow($ENV['GET']['key']);
 	if (!$Reset['expired']){

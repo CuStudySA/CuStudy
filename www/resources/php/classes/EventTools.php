@@ -13,7 +13,7 @@
 
 			$output = [];
 			foreach ($data as $event){
-				$allday = (bool)$event['isFullDay'];
+				$allday = (bool)$event['isallday'];
 
 				$endtime = strtotime($event['end']);
 				// A befejezés időpontja exklúzív, ezért ki kell bővíteni, ha megfelelően akarjuk, hogy megjelenjen
@@ -107,7 +107,7 @@
 				'end' => date('c',$dates[1]),
 				'title' => $data['title'],
 				'description' => $data['description'],
-				'isFullDay' => isset($data['isFullDay']),
+				'isallday' => isset($data['isFullDay']),
 			));
 
 			return !is_int($action) ? 6 : [$action];
@@ -121,9 +121,9 @@
 
 			return array(
 				'Esemény címe' => $data['title'],
-				'Esemény kezdete' => date(!$data['isFullDay'] ? 'Y.m.d. H:i' : 'Y.m.d.',strtotime($data['start'])),
-				'Esemény vége' => date(!$data['isFullDay'] ? 'Y.m.d. H:i' : 'Y.m.d.',strtotime($data['end'])),
-				'Egész napos?' => $data['isFullDay'] ? 'igen' : 'nem',
+				'Esemény kezdete' => date(!$data['isallday'] ? 'Y.m.d. H:i' : 'Y.m.d.',strtotime($data['start'])),
+				'Esemény vége' => date(!$data['isallday'] ? 'Y.m.d. H:i' : 'Y.m.d.',strtotime($data['end'])),
+				'Egész napos?' => $data['isallday'] ? 'igen' : 'nem',
 				'Esemény leírása' => $data['description'],
 			);
 		}
@@ -170,7 +170,7 @@
 				'end' => date('c',$dates[1]),
 				'title' => $data['title'],
 				'description' => $data['description'],
-				'isFullDay' => isset($data['isFullDay']),
+				'isallday' => isset($data['isFullDay']),
 			));
 
 			return $action ? 0 : 6;
@@ -248,16 +248,16 @@
 				$mp = date('i',  $starttime);
 				$mpint = intval($mp, 10);
 				$rag = ($mpint !== 10 && in_array($mpint % 10, [0,3,6,8])) ? 'tól': 'től';
-				$time = $ev['isFullDay'] ? '' : date('H', $starttime).":$mp-$rag ";
+				$time = $ev['isallday'] ? '' : date('H', $starttime).":$mp-$rag ";
 				$append = '';
 				if (!$sameMonthDay)
 					$append .= HomeworkTools::FormatMonthDay($endtime);
-				if (!$ev['isFullDay'])
+				if (!$ev['isallday'])
 					$append .= ' '.date('H:i',$endtime).'-ig';
 				else if (!$sameMonthDay) $append .= '-ig';
 				if (!empty($append))
 					$time .= $append;
-				if ($ev['isFullDay']){
+				if ($ev['isallday']){
 					$time .= ', egész nap';
 					$time = preg_replace('/^, eg/','Eg',$time);
 				}

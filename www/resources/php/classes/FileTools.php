@@ -142,7 +142,7 @@
 
 			$data = $db->where('id',$id)->where('classid',$user['class'][0])->getOne('files');
 
-			if (empty($data)) die(header('Location: /files'));
+			if (empty($data)) System::Redirect('/files');
 			$fileName = $data['filename'];
 
 			$path = "$root/usr_uploads/".$data['tempname'];
