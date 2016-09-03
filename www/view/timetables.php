@@ -61,7 +61,6 @@
 
 <?php		print "<h2>'".strtoupper($week)."' órarend</h2>";
 			echo '<div class="template" id="form-template">'.Timetable::ADD_FORM_HTML.'</div>';
-			// FIXME Paraméter-szám eltérées - a funkció 3 paramétert fogad, de 4-el van meghívva
-			echo Timetable::Render($week, Timetable::GetForWeek($week), null, true);
+			echo Timetable::Render($week, Timetable::GetForWeek($week), null, true, true);
 		break;
 	}

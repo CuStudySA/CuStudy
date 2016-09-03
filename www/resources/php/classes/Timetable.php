@@ -280,9 +280,12 @@ STRING;
 			// Hiányzó értékek esetén jelenlegi dátum használata
 			if (empty($week) && empty($lastWeekDay)){
 				$week = (int)date('W');
-				$lastWeekDay = self::GetDay()+(is_int($maxDays) ? $maxDays : 5);
-				if ($lastWeekDay > 5)
-					$lastWeekDay += 2;
+				$thisDay = self::GetDay();
+				$addDays = (is_int($maxDays) ? $maxDays : 5);
+
+				$lastWeekDay = ($thisDay + $addDays) % 7;
+				if ($thisDay > 5)
+					$lastWeekDay += 8-$thisDay;
 			}
 
 			// Megfelelő hétre ugrás
@@ -291,14 +294,8 @@ STRING;
 			$thisYear = strtotime("first monday 1 jan", $currDate);
 			$lastWeekdayDate = strtotime('this week', $thisYear + $weeksPassedSeconds);
 			// Megfelelő napra ugrás
-			if ($lastWeekDay > 1){
-				if ($lastWeekDay > 5){
-					if ($lastWeekDay < 8)
-						$lastWeekDay = 5;
-					else $lastWeekDay -= 5-(8-$lastWeekDay);
-				}
-				$lastWeekdayDate = strtotime('+'.($lastWeekDay-1).' days', $lastWeekdayDate);
-			}
+			if ($lastWeekDay > 1)
+				$lastWeekdayDate = $lastWeekdayDate + (($lastWeekDay-1)*self::OneDayInSeconds);
 			$firstWeekdayDate = $lastWeekdayDate - self::OneWeekInSeconds;
 
 			// Hét betűjele
@@ -497,7 +494,6 @@ STRING;
 					if ($count === 0)
 						$emptyWeekdays[$weekday] = true;
 				}
-				//var_dump($emptyWeekdays);
 			}
 
 			if (!empty($weekdays)){
