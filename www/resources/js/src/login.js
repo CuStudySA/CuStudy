@@ -26,7 +26,7 @@ $(function(){
 	catch(e){}
 
 	$('#heading').find('.help-link').on('click',function(){
-		var $links = $('#links').children().addClass('btn');
+		var $links = $('#links').children().clone().addClass('btn');
 		$.Dialog.info('Segítség', $.mk('div').addClass('align-center').append($links.eq(0),' ',$links.eq(1)));
 	});
 
