@@ -38,7 +38,7 @@
 
 				<button class='btn sendForm'>Adatok mentése</button> vagy <a href='/homeworks'>visszatérés a házi feladatokhoz</a>
 <?php       }
-			else print System::Notice('info','Úgy néz ki, hogy az osztály órarendje üres. Kérjük, töltsd fel azt az <a href="/timetables">Órarend menüpont</a> segítségével!');
+			else print System::Notice('info','Úgy néz ki, hogy az osztály órarendje üres. Kérük, töltsd fel azt az <a href="/timetables">Órarend menüpont</a> segítségével!');
 
 		break;
 

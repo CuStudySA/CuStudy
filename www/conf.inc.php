@@ -218,6 +218,13 @@
 			'js' => 		[],
 			'file' => 		'mail.cron',
 		),
+
+		'amber' => array(
+			'title' => 		'Amber',
+			'css' => 		['amber.css'],
+			'js' => 		[],
+			'file' => 		'amber',
+		),
 	);
 
 	# Jogosultsági szintek definiálása
@@ -230,6 +237,7 @@
 				'files' => ['view'],
 				'teachers' => ['view'],
 				'lessons' => ['view'],
+				'amber' => ['view'],
 			),
 			'editor' => array(
 				'homeworks' => ['add'],
