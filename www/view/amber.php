@@ -24,3 +24,5 @@
 
 <p>Mészáros Bálint<br>
 a CuStudy Software Alliance elnöke</p>
+
+<p style='font-size: 0.9em'>(Az oldalon szereplő szöveg és kép forrása: <a href='http://house.wikia.com/wiki/Amber_Volakis'>house.wikia.com</a>)</p>
