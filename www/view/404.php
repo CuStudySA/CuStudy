@@ -3,7 +3,9 @@
 		echo "</main>";
 	if (isset($ENV['GET']['path'])) $reqfile = $ENV['GET']['path'];
 	else if (!empty($ENV['do'])) $reqfile = '/'.$ENV['do'];
-	else $reqfile = '(ismeretlen)'; ?>
+	else $reqfile = '(ismeretlen)';
+
+	if ($reqfile == '404') $reqfile = '(ismeretlen)'; ?>
 
 <div id="wrap">
 	<div id="mid">

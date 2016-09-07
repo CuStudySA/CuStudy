@@ -71,7 +71,7 @@
 			}
 			var buttons = {};
 			if (formid)
-				buttons[confirmBtn||'Submit'] = {
+				buttons[confirmBtn||'Elküldés'] = {
 					'submit': true,
 					'form': formid,
 				};
