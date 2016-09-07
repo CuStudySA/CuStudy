@@ -11,11 +11,8 @@
 			</div>
 			<div id="links" class="desktop-only">
 				<a href='#' id='pw-forgot'>Elfelejtett jelszó?</a> |
-				<a href="mailto:mbalint987@pageloop.tk?subject=CuStudy%20Hibabejelentés">Hibabejelentés</a>
+				<a href="https://support.custudy.hu">Online ügyfélszolgálat</a>
 			</div>
-			<!-- Amber flag start -->
-			<p id="underDevelopment" class="desktop-only">Fejlesztés alatt álló szoftververzió!</p>
-			<!-- Amber flag end -->
 			<div id="main">
 				<div id="wrap">
 					<div id="mid">
@@ -26,9 +23,6 @@
 								</a>
 							</div>
 							<h1>CuStudy</h1>
-							<!-- Amber flag start -->
-							<h3> (Amber)</h3>
-							<!-- Amber flag end -->
 <?php       if (!empty($ENV['GET']['r'])){ ?>
 							<p class="redirect">A kért oldal megtekintéséhez be kell jelentkezned!</p>
 <?php       } ?>
