@@ -164,7 +164,7 @@ $(function(){
 					return false;
 				}
 				if (data.status){
-					timeEnabled = data.isFullDay != 1;
+					timeEnabled = data.isallday != 1;
 					$dialog.find('input[name=isFullDay]').attr('checked',!timeEnabled);
 					$dialog.find('input[name=interval]').attr('value',data.start + ' ~ ' + data.end);
 					$dialog.find('input[name=title]').attr('value',data.title);

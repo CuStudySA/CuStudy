@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Gép: 127.0.0.1
--- Létrehozás ideje: 2016. Máj 12. 23:07
+-- Létrehozás ideje: 2016. Sze 08. 09:38
 -- Kiszolgáló verziója: 5.6.26
 -- PHP verzió: 5.6.12
 
@@ -60,7 +60,7 @@ CREATE TABLE `events` (
   `end` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
   `title` tinytext COLLATE utf8_hungarian_ci NOT NULL,
   `description` text COLLATE utf8_hungarian_ci NOT NULL,
-  `isFullDay` int(11) NOT NULL
+  `isallday` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
 -- --------------------------------------------------------
@@ -99,6 +99,19 @@ CREATE TABLE `files` (
   `tempname` tinytext COLLATE utf8_hungarian_ci NOT NULL,
   `md5` tinytext COLLATE utf8_hungarian_ci
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `files_external_viewing`
+--
+
+CREATE TABLE `files_external_viewing` (
+  `id` int(11) NOT NULL,
+  `token` tinytext COLLATE utf8mb4_hungarian_ci NOT NULL,
+  `file` int(11) NOT NULL,
+  `gen` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
 -- --------------------------------------------------------
 
@@ -579,6 +592,12 @@ ALTER TABLE `files`
   ADD PRIMARY KEY (`id`);
 
 --
+-- A tábla indexei `files_external_viewing`
+--
+ALTER TABLE `files_external_viewing`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- A tábla indexei `groups`
 --
 ALTER TABLE `groups`
@@ -786,6 +805,11 @@ ALTER TABLE `ext_connections`
 -- AUTO_INCREMENT a táblához `files`
 --
 ALTER TABLE `files`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT a táblához `files_external_viewing`
+--
+ALTER TABLE `files_external_viewing`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT a táblához `groups`

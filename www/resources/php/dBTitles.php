@@ -173,7 +173,7 @@
 			'title' => 'Cím',
 			'description' => 'Rövid leírás',
 			'interval' => 'Megadott intervallum',
-			'isFullDay' => array('Egész napos-e',function($x){
+			'isallday' => array('Egész napos-e',function($x){
 				return $x == 1 ? 'Igen' : 'Nem';
 			}),
 			'start' => 'Kezdete',

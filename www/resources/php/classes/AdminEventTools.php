@@ -8,7 +8,7 @@
 			if (System::PermCheck('system.events.view')) return 1;
 
 			if (!empty($data['evt_isallday']))
-				$db->where('isFullDay',1);
+				$db->where('isallday',1);
 			if (!empty($data['evt_isactive']))
 				$db->where('start <= NOW()')->where('NOW() < end');
 			if (!empty($data['evt_startdate'])){
