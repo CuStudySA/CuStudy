@@ -237,7 +237,9 @@ STRING;
 
 			$switchOn = strtotime('8 am');
 			$firstDay = strtotime('midnight',$days[0]);
-			$lockBack = ($firstDay-$switchOn) < self::OneDayInSeconds;
+			$lockBack = strtotime('midnight') >= $firstDay
+				? ($firstDay-$switchOn) < self::OneDayInSeconds
+				: strtotime('-1 weekday', $firstDay) < $switchOn;
 
 			foreach ($days as $k => $day)
 				$days[$k] = date('Y-m-d', $day);
@@ -306,14 +308,10 @@ STRING;
 							ELSE NULL
 						END) as group_name
 					FROM timetable
-					WHERE classid = ? && day >= ? && week = ? $onlyGrp
-					ORDER BY week, day, lesson
-					LIMIT ?",array($user['class'][0], $firstWeekday, $currWeekLetter, $dispDays));
+					WHERE classid = ? && day >= ? && day <= ? && week = ? $onlyGrp
+					ORDER BY week, day, lesson",array($user['class'][0], $firstWeekday, $firstWeekday+$dispDays, $currWeekLetter));
 			}
 			else {
-				// Következő hét betűjele
-				$nextWeekLetter = self::GetUpcomingWeek($currWeekLetter);
-
 				$tt_thisWeek = $db->rawQuery(
 					"SELECT
 						id, lesson, lessonid, day, week,
@@ -323,9 +321,16 @@ STRING;
 							ELSE NULL
 						END) as group_name
 					FROM timetable
-					WHERE classid = ? && day >= ? && week = ? $onlyGrp
-					ORDER BY day, lesson
-					LIMIT ?", array($user['class'][0], $firstWeekday, $currWeekLetter, $dispDays));
+					WHERE classid = ? && day >= ? && day <= ? && week = ? $onlyGrp
+					ORDER BY day, lesson", array($user['class'][0], $firstWeekday, $firstWeekday+$dispDays, $currWeekLetter));
+				$gotDays = array();
+				foreach ($tt_thisWeek as $r){
+					if (!isset($gotDays[$r['day']]))
+						$gotDays[$r['day']] = true;
+				}
+
+				// Következő hét betűjele
+				$nextWeekLetter = self::GetUpcomingWeek($currWeekLetter);
 				$tt_nextWeek = $db->rawQuery(
 					"SELECT
 						id, lesson, lessonid, day, week,
@@ -336,8 +341,7 @@ STRING;
 						END) as group_name
 					FROM timetable
 					WHERE classid = ? && day < ? && week = ? $onlyGrp
-					ORDER BY day, lesson
-					LIMIT ?", array($user['class'][0], $firstWeekday, $nextWeekLetter, $dispDays-count($tt_thisWeek)));
+					ORDER BY day, lesson", array($user['class'][0], min($firstWeekday,$firstWeekday+($dispDays-count($gotDays))), $nextWeekLetter));
 
 				$ttentries = array_merge($tt_thisWeek,$tt_nextWeek);
 			}

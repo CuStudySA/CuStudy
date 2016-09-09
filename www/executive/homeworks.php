@@ -57,7 +57,7 @@
 			if (!isset($ENV['URL'][1]))
 				System::Respond();
 
-			$showAllGroups = isset($ENV['POST']['showAllGroups']) ? $ENV['POST']['showAllGroups'] !== 0 : true;
+			$showAllGroups = !empty($ENV['POST']['showAllGroups']);
 
 			switch ($ENV['URL'][1]){
 				case 'nextBack':
