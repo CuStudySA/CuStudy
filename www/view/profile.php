@@ -114,7 +114,7 @@
 				</label>
 
 				<button class="btn"><span class="mobile-only">Mentés</span><span class="desktop-only">Adatok mentése</span></button>
-				<a class='btn typcn typcn-spanner' href='/profile/settings'>Személyes beáll<span class="mobile-only">.</span><span class="desktop-only">ításaim</span> &raquo;</a>
+				<a class='btn typcn typcn-spanner' href='/profile/settings'>Személyes beáll<span class="mobile-only">.</span><span class="desktop-only">ításaim</span></a>
 			</form>
 			<h1 style='margin-top: 25px !important;'>Összekapcsolt fiókok</h1>
 <?php       $diff = array_diff(array_keys(ExtConnTools::$apiDisplayName),$AvailProviderNames);

@@ -12,7 +12,7 @@
 			<p>A keresett oldalhoz nincs hozzáférése.<br><strong>Elérési útvonal: </strong><?=$reqfile?></p>
 			<p>
 				<a href="/" class="btn typcn typcn-home">Vissza a főodalra</a>
-				<a href="mailto:mbalint987@pageloop.tk?subject=CuStudy%20Hibabejelentés" class="btn typcn typcn-mail">Hibabejelentés</a>
+				<a href="https://support.custudy.hu" class="btn typcn typcn-world">Hibabejelentés</a>
 			</p>
 		</div>
 	</div>
