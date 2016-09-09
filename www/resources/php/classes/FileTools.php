@@ -205,6 +205,8 @@
 			$data = $db->where('id',$id)->where('classid',$user['class'][0])->getOne('files');
 			if (empty($data)) return 1;
 
+			self::_checkMD5($id, $user['class'][0], $data);
+
 			$lesson = $db->where('id',$data['lessonid'])->getOne('lessons','name');
 			$uploader = $db->where('id',$data['uploader'])->getOne('users','name,id');
 
@@ -218,6 +220,15 @@
 				'filename' => $data['filename'],
 				'md5' => !empty($data['md5']) ? $data['md5'] : '(ismeretlen)',
 			);
+		}
+
+		private static function _checkMD5($fileid, $classid, &$data){
+			global $db;
+			if (empty($data['md5'])){
+				global $root;
+				$data['md5'] = md5_file("{$root}usr_uploads/{$data['tempname']}");
+				$db->where('id',$fileid)->where('classid',$classid)->update('files',array('md5' => $data['md5']));
+			}
 		}
 
 		static function RenderList($classid = null, $wrap = true){
@@ -235,6 +246,8 @@
 				return '';
 
 			foreach ($data as $file) {
+				self::_checkMD5($file['id'], $classid, $file);
+
 				$deleteButton = !System::PermCheck('files.delete')
 					? "<a class='typcn typcn-trash js_delete' href='#{$file['id']}' title='Fájl törlése'></a>"
 					: '';
