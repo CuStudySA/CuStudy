@@ -4,19 +4,8 @@
 	switch($action){
 		case 'new':
 			//Timetable előkészítése renderléshez
-			$TT = Timetable::GetHWTimeTable();
-
-			$days = $TT['opt'];
-			unset($TT['opt']);
-
-			sort($days,SORT_NUMERIC);
-			$days = array_splice($days,0,3);
-
-			function RenderTT() { global $TT, $days; return Timetable::Render(null, $TT, $days); } ?>
-
-			<script>
-				var _dispDays = <?=json_encode($days)?>;
-			</script>
+			$TT = Timetable::Get(null,null,true,3);
+			$days = Timetable::CalcDays($TT, 3, true); ?>
 
 			<h1>Új házi feladat hozzáadása</h1>
 
@@ -24,15 +13,15 @@
 				<p><b>1. lépés:</b> Kattintással <b>válaszd ki azt az órát</b>, ahova szeretnéd hozzáadni a házi feladatot!</p>
 
 				<p class='weekPickerP'>
-					<button class='btn backWeek' disabled><< Vissza az előző napokra</button>
+					<button class='btn backWeek' disabled>&laquo; Vissza<span class="desktop-only"> az előző napokra</span></button>
 					<span class='startDate'>
-						Kezdő nap megadása:
-						<input type='date' value='<?=date('Y-m-d')?>' id='startDatePicker'>
+						<span class="desktop-only">Kezdő nap megadása:</span>
+						<input type='date' value='<?=date('Y-m-d',$days[0])?>' id='startDatePicker'>
 					</span>
-					<button class='btn nextWeek'>Előre a következő napokhoz >></button>
+					<button class='btn nextWeek'>Előre<span class="desktop-only"> a következő napokhoz</span> &raquo;</button>
 				</p>
 
-				<div id='lessonPicker'><?=RenderTT()?></div>
+				<div id='lessonPicker'><?=Timetable::Render(null, $TT, $days, true, true)?></div>
 				<p class='step2p'><b>2. lépés:</b> <b>Add meg</b> a feladat <b>szövegét</b>!</p>
 				<p style='margin-top: 0'><textarea class='BBCodeEditor'></textarea></p>
 
@@ -49,7 +38,7 @@
 
 				<button class='btn sendForm'>Adatok mentése</button> vagy <a href='/homeworks'>visszatérés a házi feladatokhoz</a>
 <?php       }
-			else print "<p>Úgy néz ki, hogy az osztály órarendje üres. Kérjük, tölstd fel azt az <a href='/timetables'>Órarend menüpont</a> segítségével!</p>";
+			else print System::Notice('info','Úgy néz ki, hogy az osztály órarendje üres. Kérük, töltsd fel azt az <a href="/timetables">Órarend menüpont</a> segítségével!');
 
 		break;
 

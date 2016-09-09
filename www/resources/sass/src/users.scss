@@ -1,0 +1,170 @@
+@import "vars";
+
+#h1cim {
+	margin-bottom: 20px;
+	margin-left: 4px;
+}
+
+.customers {
+	display: block;
+	list-style: none;
+	padding: 0;
+	margin: 10px 0 0;
+	font-size: 0;
+
+	li {
+		display: inline-block;
+		padding: 5px;
+		margin: 5px;
+		border-radius: 5px;
+		color: #fff;
+		overflow: hidden;
+		/* background-color: #AEC1EB; */
+		@extend %color-palette;
+
+		&:last-child { background-color: $Grey }
+
+		> div {
+			font-size: 18px;
+			text-shadow: 0 0 5px rgba(0, 0, 0, .5);
+		}
+		> .top {
+			margin-bottom: 5px;
+
+			> div {
+				height: 50px;
+				float: left;
+			}
+			> .left {
+				width: 50px;
+				position: relative;
+
+				.typcn {
+					font-size: 55px;
+					line-height: 50px;
+					height: inherit;
+				}
+				.picture {
+					display: block;
+					height: inherit;
+				}
+				.id {
+					position: absolute;
+					right: 0;
+					bottom: 0;
+					font-size: .7em;
+					text-shadow:
+						0 0 5px rgba(0, 0, 0, .5),
+						0 0 5px rgba(0, 0, 0, .5),
+						0 0 5px rgba(0, 0, 0, .5),
+						0 0 5px rgba(0, 0, 0, .5),
+						0 0 15px rgba(0, 0, 0, .75);
+				}
+			}
+			> .right {
+				width: calc(100% - 65px);
+				padding-left: 15px;
+				font-size: 25px;
+
+				> span {
+					display: block;
+					width: 100%;
+					text-align: left;
+					text-overflow: ellipsis;
+					white-space: nowrap;
+					overflow: hidden;
+
+					&:first-child {
+						padding-top: .1em;
+						height: .9em;
+						font-size: .7em;
+						line-height: .8em;
+					}
+					&:last-child {
+						margin-top: .2em;
+						margin-right: .2em;
+						height: 1.1em;
+						font-size: 1em;
+						line-height: 1.1em;
+					}
+				}
+			}
+		}
+		> .bottom a {
+			color: #fff !important;
+			font-size: 24px;
+			opacity: .8;
+			transition: opacity .1s linear !important;
+
+			&:hover { opacity: 1 }
+		}
+	}
+}
+
+/* Hozzáadás */
+.add_lesson {
+	background-color: rgba(0, 0, 0, 0.1);
+	border-radius: 8px;
+	/*color: #DFE5F5;*/
+	padding: 11px 14px 11px 11px;
+
+	> p {
+		margin: 0;
+		margin-bottom: 5px !important;
+		padding: 0;
+	}
+}
+.addlesson {
+	padding: 6px !important;
+	font-size: .9em !important;
+}
+
+.lesson_list {
+	background-color: rgba(0, 0, 0, 0.1);
+	margin-bottom: 8px;
+	padding: 5px;
+	padding-right: 20px;
+	border-radius: 7px;
+	/* color: #DFE5F5;*/
+}
+.l_l_utag {
+	list-style-type: circle;
+	margin: 0;
+	padding-left: 32px;
+
+	> li {
+		margin-bottom: 3px;
+	}
+}
+.l_l_addedtext {
+	margin: 3px 0 4px 4px;
+}
+.l_l_deleteopt {
+	vertical-align: middle;
+	margin-left: 2px;
+	margin-bottom: 1px;
+
+	&:hover:before {
+		text-decoration: underline !important;
+	}
+}
+.l_l_textspan {
+	background-color: #dbe1ff;
+}
+
+/* Tanár hozzáadás form */
+.a_t_f_sendButton, .a_t_f_firstParagraph {
+	margin-top: 11px;
+}
+.invite_form {
+	background-color: rgba(0, 0, 0, 0.1);
+	padding: 12px;
+	width: 42%;
+	margin-top: 9px;
+	margin-left: 4px;
+	border-radius: 6px;
+}
+h3 {
+	margin-top: 0;
+	margin-bottom: 8px;
+}

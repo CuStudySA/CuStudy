@@ -1,27 +1,34 @@
 <?php
 
 	class InviteTools {
-		/*
-			TODO Meghívó e-mail HTML javítása
-
-			A felesleges HTML-t kiszedtem, ha el akarod távolitani
-			a linkekről az aláhúzást, mindegyik linkre tegyél egy
-			              style="text-decoration:none"
-			attribútumot.
-		*/
 		static $inviteBody = <<<STRING
-		<h2>CuStudy - Meghívó a CuStudy rendszerbe</h2>
+			<h2>CuStudy - Meghívó a CuStudy rendszerbe</h2>
 
-		<h3>Tisztelt ++NAME++!</h3>
+			<h3>Tisztelt ++NAME++!</h3>
 
-		<p>Örömmel értesítünk, hogy meghívót kaptál a CuStudy rendszerbe a(z) <b>++SCHOOL++</b> iskola <b>++CLASS++</b> osztálya által. A meghívót <b>++SENDER++</b> csoportadminisztrátor küldte neked.</p>
+			<p>Örömmel értesítünk, hogy meghívót kaptál a CuStudy rendszerbe a(z) <b>++SCHOOL++</b> iskola <b>++CLASS++</b> osztálya által. A meghívót <b>++SENDER++</b> csoportadminisztrátor küldte neked.</p>
 
-		<p><b>Mi is az a CuStudy?</b> A CuStudy a BetonHomeWork utódjaként továbbra is egy kellemetlen, de kötelező feladatra koncentrál: a házi feladatokra. A CuStudy - a BHW méltó utódjaként - teszi lehetővé számodra, hogy értesülhess a házi feladataidról és egyéb kötelességeidről, sőt a program használatával akutális és frissülő órarended is láthatod. Az elődünkhöz képest azonban jócskán fejlődtünk: mostantól <b>webes felületen</b> érheted el az információkat, illetve új felületet és számos izgalmas, funkcionalitást érintő fejlesztést is eszközöltünk, így az alapötlet egy remek felülettel és sok funkcióval párosul.</p>
+			<p><b>Mi is az a CuStudy?</b> A CuStudy a BetonHomeWork utódjaként továbbra is egy kellemetlen, de kötelező feladatra koncentrál: a házi feladatokra. A CuStudy - a BHW méltó utódjaként - teszi lehetővé számodra, hogy értesülhess a házi feladataidról és egyéb kötelességeidről, sőt a program használatával akutális és frissülő órarended is láthatod. Az elődünkhöz képest azonban jócskán fejlődtünk: mostantól <b>webes felületen</b> érheted el az információkat, illetve új felületet és számos izgalmas, funkcionalitást érintő fejlesztést is eszközöltünk, így az alapötlet egy remek felülettel és sok funkcióval párosul.</p>
 
-		  <p>A meghívás elfogadásához <a href="https://custudy.tk/invitation/++ID++">kattints ide</a>! A linkre kattintva meg kell adnod néhány adatot magadról, be kell állítanod a jelszavad, és az űrlap elküldése után automatikusan átirányítunk a program főoldalára.</p><p>Ha a fenti gomb valamilyen okból kifolyólag nem működne, másold be az alábbi URL-t a böngésződ címsoráva:<br><a href="https://custudy.tk/invitation/++ID++">https://custudy.tk/invitation/++ID++</a></p><p>Bízunk benne, hogy a CuStudy a Te tetszésedet is elnyeri majd!</p>
+			<p>A meghívás elfogadásához <a href="https://custudy.tk/invitation/++ID++">kattints ide</a>! A linkre kattintva meg kell adnod néhány adatot magadról, be kell állítanod a jelszavad, és az űrlap elküldése után automatikusan átirányítunk a program főoldalára.</p><p>Ha a fenti gomb valamilyen okból kifolyólag nem működne, másold be az alábbi URL-t a böngésződ címsoráva:<br><a href="https://custudy.tk/invitation/++ID++">https://custudy.tk/invitation/++ID++</a></p><p>Bízunk benne, hogy a CuStudy a Te tetszésedet is elnyeri majd!</p>
 
-		<p>Üdvözlettel,<br>
-		CuStudy Software Alliance</p>
+			<p>Üdvözlettel,<br>
+			CuStudy Software Alliance</p>
+STRING;
+
+		static $addBody = <<<STRING
+			<h2>CuStudy - Új szerepkör hozzáadva</h2>
+
+			<h3>Tisztelt felhasználónk!</h3>
+
+			<p>A(z) <b><++SCHOOL++/b> iskola ++CLASS++ osztályának adminisztrátora felvett a CuStudy-ban létrehozott osztályába. Ez azt jelenti, hogy hozzáférhetsz az osztály órarendjéhez, házi feladatihoz és eseményeihez. Az osztályba történő felvételkor a jogosultsági szinted itt Tanuló, ha ezt az adminisztrátor módosítja a későbbiekben, arról értesítést küldünk neked!</p>
+
+			<p>Az alapértelmezett szerepköröd ezzel a művelettel nem módosult, ám amennyiben a most felvett szerepkört szeretnéd alapértelmezettként beállítani, arra lehetőséged van a 'Profilom' oldalon!</p>
+
+			<p>Amennyiben ez a szerepkör felvétele váratlanul ért, vagy úgy gondolod, hogy tévedés történt, a szerepkört bármikor leválaszthatod a 'Profilom' oldalon!</p>
+
+			<p>Üdvözlettel,<br>
+			CuStudy Software Alliance</p>
 STRING;
 
 	static $groupChooser = array(<<<STRING
@@ -35,6 +42,48 @@ STRING
 STRING
 );
 
+		static private function _enrollUser($userid, $classid){
+			global $db;
+
+			$data = $db->where('classid',$classid)->where('userid',$userid)->getOne('class_members');
+
+			if (!empty($data))
+				return 1;
+
+			$action = $db->insert('class_members',array(
+				'classid' => $classid,
+				'userid' => $userid,
+				'role' => 'visitor',
+			));
+
+			if ($action === false) return 2;
+			else return [$action];
+		}
+
+		static function EnrollUser($userid, $classid){
+			global $user;
+
+			$action = self::_enrollUser($userid,$classid);
+
+			Logging::Insert(array_merge(array(
+				'action' => 'users.enrollUser',
+				'errorcode' => is_array($action) ? 0 : $action,
+				'db' => 'roles',
+			),array(
+				'userid' => $userid,
+				'u_classid' => $classid,
+				'classid' => $classid,
+				'role' => 'visitor',
+			),is_array($action) ? array(
+				'e_id' => $action[0],
+			) : array(),
+			!is_array($user) ? array(
+				'user' => 0,
+			) : array()));
+
+			return $action;
+		}
+
 		static function Invite($email,$name){
 			global $db, $user, $ENV;
 
@@ -44,7 +93,19 @@ STRING
 			if (System::InputCheck($email,'email')) return 2;
 
 			$data = $db->where('email',$email)->getOne('users');
-			if (!empty($data)) return 5;
+			if (!empty($data)){
+				$action = self::EnrollUser($data['id'],$user['class'][0]);
+
+				if (!is_array($action))
+					return 5;
+
+				Message::SendNotify('role.enrollment',$email,$data['name'],array(
+					'initiator' => $user['name'],
+					'role' => UserTools::$roleLabels['visitor']." a(z) {$ENV['school']['name']} iskola {$ENV['class']['classid']} osztályában",
+				));
+
+				return $data;
+			}
 
 			$invId = Password::Generalas(12);
 			$action = $db->insert('invitations',array(
@@ -57,21 +118,12 @@ STRING
 
 			if (!$action) return 3;
 
-			$body = self::$inviteBody;
-
-			$body = str_replace('++NAME++',$name,$body);
-			$body = str_replace('++SCHOOL++',$ENV['school']['name'],$body);
-			$body = str_replace('++CLASS++',$ENV['class']['classid'],$body);
-			$body = str_replace('++ID++',$invId,$body);
-			$body = str_replace('++SENDER++',$user['name'],$body);
-
-			$action = System::SendMail(array(
-				'title' => 'CuStudy - Meghívásod érkezett',
-				'to' => array(
-					'name' => $name,
-					'address' => $email,
-				),
-				'body' => $body,
+			$action = Message::SendNotify('invitation',$email,$name,array(
+				'SCHOOL' => $ENV['school']['name'],
+				'CLASS' => $ENV['class']['classid'],
+				'ID' => $invId,
+				'SENDER' => $user['name'],
+				'ABSPATH' => ABSPATH,
 			));
 
 			if ($action) return 4;
@@ -83,18 +135,28 @@ STRING
 			# Jog. ellenörzése
 			if (System::PermCheck('users.invite')) return 1;
 
-			$invalidEntrys = [];
+			$invalidEntrys = $enrolledUsers = [];
 			foreach ($emails as $array){
 				$action = self::Invite($array['email'],$array['name']);
 
-				if ($action != 0) $invalidEntrys[] = array_merge(array('error' => $action),$array);
+				if (is_int($action)){
+					if ($action != 0)
+						$invalidEntrys[] = array_merge(array('error' => $action),$array);
+				}
+				else
+					$enrolledUsers[] = array(
+						'id' => $action['id'],
+						'name' => $action['name'],
+					);
 			}
 
-			if (empty($invalidEntrys)) return 0;
-			else return 2;
+			return array(
+				'invalidEntrys' => $invalidEntrys,
+				'enrolledUsers' => $enrolledUsers,
+			);
 		}
 
-		static function Registration($data){
+		static private function _registration($data){
 /*          array(
 				'token' (string)
 				'username' (string)
@@ -105,6 +167,7 @@ STRING
 			global $db;
 
 			$token = $data['token'];
+			
 			# Formátum ellenörzése
 			foreach ($data as $key => $value){
 				switch ($key){
@@ -145,14 +208,19 @@ STRING
 				'password' => Password::Kodolas($data['password']),
 				'name' => $data['name'],
 				'email' => $token_d['email'],
-				'role' => 'visitor',
+				'role' => 'none',
 				'active' => 1,
 			));
 
 			# Hozzáadás a csoporthoz
-			$db->insert('class_members',array(
-				'classid' => $token_d['classid'],
-				'userid' => $id,
+			$defSession = self::EnrollUser($id,$token_d['classid']);
+			if (!is_array($defSession))
+				return 6;
+			else
+				$defSession = $defSession[0];
+
+			$db->where('id',$id)->update('users',array(
+				'defaultSession' => $defSession,
 			));
 
 			$db->insert('sessions',array(
@@ -160,9 +228,13 @@ STRING
 				'userid' => $id,
 				'ip' => $envInfos['ip'],
 				'useragent' => $envInfos['useragent'],
+				'activeSession' => $defSession
 			));
 
 			Cookie::set('PHPSESSID',$session,false);
+
+			// Mantis integráció
+			MantisTools::CreateUser($id,$data['password']);
 
 			$print = self::$groupChooser[0];
 
@@ -172,7 +244,7 @@ STRING
 											ON (g.theme = gt.id)
 											WHERE g.classid = ?',array($token_d['classid']));
 
-			if (empty($group_data)) return 10;
+			if (empty($group_data)) return [$id];
 
 			$groups = array();
 			$gt_names = array();
@@ -197,7 +269,36 @@ STRING
 				$print .= "</select></p>";
 			}
 
-			return [$print.self::$groupChooser[1]];
+			return [$print.self::$groupChooser[1],$id];
+		}
+
+		static function Registration($data){
+			global $db;
+
+			$action = self::_registration($data);
+
+			$uId = count($action) == 1 ? $action[0] : $action[1];
+
+			if (is_array($action)){
+				$User = $db->where('id',$uId)->getOne('users');
+				$User = System::TrashForeignValues(['username','name','role','active','email','defaultSession','avatar_provider','mantisAccount'],$User);
+			}
+			else
+				$User = [];
+
+			$token = $db->where('invitation',$data['token'])->getOne('invitations');
+
+			Logging::Insert(array_merge(array(
+				'action' => 'invitation.registration',
+				'user' => !empty($token['inviter']) ? $token['inviter'] : 0,
+				'errorcode' => is_array($action) ? 0 : $action,
+				'db' => 'users',
+			),$User,array(
+				'e_id' => $uId,
+				'invitation_id' => !empty($token['id']) ? $token['id'] : 0,
+			)));
+
+			return $action;
 		}
 
 		static function SetGroupMembers($data){

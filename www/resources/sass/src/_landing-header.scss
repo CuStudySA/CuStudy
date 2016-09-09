@@ -1,0 +1,100 @@
+// Mobil
+@media all and (max-width: $Breakpoint){
+	#heading {
+		height: $MobileHeadingHeight;
+	}
+	#heading-content {
+		> * {
+			height: $MobileHeadingHeight;
+			line-height: $MobileHeadingHeight;
+		}
+
+		$padding: 5px;
+		.logo-link {
+			position: relative;
+			z-index: 1;
+
+			img {
+				height: $MobileHeadingHeight - ($padding*2);
+				padding: $padding;
+			}
+
+			h1 {
+				font-size: 1.4em;
+			}
+		}
+	}
+}
+// Asztali
+@media all and (min-width: $Breakpoint){
+	#heading {
+		height: $DesktopHeadingHeight;
+	}
+	#heading-content {
+		> * {
+			height: $DesktopHeadingHeight;
+			line-height: $DesktopHeadingHeight;
+		}
+
+		.logo-link {
+			img {
+				height: 64px;
+				margin-right: 10px;
+			}
+		}
+		.login-wrap {
+			right: 0;
+			font-size: 1.3em;
+
+			.btn {
+				padding: 4px 5px !important;
+			}
+		}
+	}
+}
+
+#heading, #cliche-cover, #main-content {
+	.btn {
+		border: 2px solid;
+		box-shadow: none !important;
+		background: transparent !important;
+		border-color: currentColor !important;
+	}
+}
+
+#heading {
+	position: fixed;
+	top: 0;
+	z-index: 5;
+	width: 100%;
+	padding: 0;
+	background: $LoginBG;
+}
+
+#heading-content {
+	width: 100%;
+	height: 100%;
+	position: relative;
+	max-width: 960px;
+	margin: 0 auto;
+
+	> * {
+		display: inline-block;
+		white-space: nowrap;
+		vertical-align: top;
+	}
+
+	.logo-link {
+		&, & a { color: $LightBG }
+
+		> * { vertical-align: middle }
+		h1 {
+			display: inline-block;
+			margin: 0;
+		}
+	}
+
+	.login-wrap {
+		position: absolute;
+	}
+}

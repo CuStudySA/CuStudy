@@ -5,7 +5,13 @@
 							WHERE le.classid = ?
 							ORDER BY le.name",array($user['class'][0])); ?>
 
-	<h1 id="h1cim">A(z) <?=$ENV['class']['classid']?> osztály tantárgyai</h1>
+	<h1 id="h1cim"><?=System::Article($ENV['class']['classid'], true)?> osztály tantárgyai</h1>
+
+<?php
+	if (empty($data) && System::PermCheck('lessons.add'))
+		print System::Notice('info','Nem találhatóak az osztályhoz kapcsolódó tantárgyak!');
+?>
+
 	<ul class='lessons flex'>
 <?php foreach ($data as $subarray){
 		if ($subarray['color'] == 'default')

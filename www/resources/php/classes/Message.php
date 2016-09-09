@@ -4,15 +4,16 @@
 		static $Messages = array();
 
 		// Hibakód feldolgozása (to string)
-		static function Respond($activity,$code = 0){
-			$array = explode('.',$activity);
+		static function Respond($activity,$code = 0,$errorMsg = null){
+			list($class,$action) = explode('.',$activity);
 
-			$class = $array[0];
-			$action = $array[1];
-
-			if ($code != 0){
-				$errorMsg = isset(self::$Messages[$class][$action]['errors'][$code]) ? self::$Messages[$class][$action]['errors'][$code] :
-					'ismeretlen hiba történt a művelet során';
+			if ($code){
+				if (!is_string($errorMsg)){
+					$errorMsg =
+						isset(self::$Messages[$class][$action]['errors'][$code])
+						? self::$Messages[$class][$action]['errors'][$code]
+						: 'ismeretlen hiba történt a művelet során';
+				}
 
 				return str_replace('@code',$code,str_replace('@msg',$errorMsg,self::$Messages[$class][$action]['messages'][1]));
 			}
@@ -64,10 +65,11 @@
 			if ($json)
 				System::Respond();
 			else {
-				if (USRGRP == 'guest')
-					die(header('Location: /login'));
-				else
-					die(header('Location: /not-found'));
+				if (ROLE == 'guest'){
+					global $ENV;
+					System::TempRedirect('/login?r='.urlencode($ENV['SERVER']['REQUEST_URI']));
+				}
+				else System::TempRedirect('/not-found');
 			}
 		}
 
@@ -75,8 +77,57 @@
 		static function Missing($path = ''){
 			global $ENV;
 
-			if ($ENV['do'] != 'not-found')
-				die(header('Location: /not-found?path='.$path));
+			if ($ENV['do'] != 'not-found'){
+				die(var_dump((new Exception())->getTraceAsString()));
+
+				System::Redirect("/not-found?path=".urlencode($path));
+			}
+		}
+
+		static function SendNotify($activity,$addressOrId,$invocation = null,$parameters = array()){
+			global $db, $user, $Notifications;
+
+			$slices = explode('.',$activity,2);
+			if (count($slices) == 1)
+				$template = $Notifications[$activity];
+			else
+				$template = $Notifications[$slices[0]][$slices[1]];
+
+			$text = $Notifications['template']['header'].$template['body'].$Notifications['template']['footer'];
+
+			if (is_numeric($addressOrId)){
+				$data = $db->where('id',$addressOrId)->getOne('users');
+
+				if (empty($data)) return false;
+				else $addressOrId = $data['email'];
+			}
+
+			if (empty($invocation)){
+				$data = $db->where('email',$addressOrId)->getOne('users');
+				if (!empty($data))
+					$invocation = $data['name'];
+			}
+
+			$toReplace = array(
+				'title' => $template['title'],
+				'name' => !empty($invocation) ? $invocation : 'felhasználónk',
+			);
+
+			foreach (array_merge($toReplace,$parameters) as $key => $value)
+				$text = str_replace('++'.strtoupper($key).'++',$value,$text);
+
+			$action = System::SendMail(array(
+				'title' => $template['title'],
+				'to' => array(
+					'name' => !empty($invocation) ? $invocation : 'CuStudy felhasználó',
+					'address' => $addressOrId,
+				),
+				'body' => $text,
+			));
+
+			if ($action) return true;
+
+			return false;
 		}
 
 		static $DB_FAIL = "Hiba történt az adatbázisba mentés során";

@@ -7,60 +7,50 @@
 	switch ($case){
 		default:
 			// Órarend előkészítése
-			$TT = Timetable::GetHWTimeTable(null,null,false);
+			$TT = Timetable::Get(null,null,false);
+			$days = Timetable::CalcDays($TT, 5, true);
 
-			$days = $TT['opt'];
-			unset($TT['opt']);
+			$table = Timetable::Render(null, $TT, $days);  ?>
 
-			// Ha nincs elérhető óra, akkor irányítson át a Szerkesztői nézethez
-			if (empty($days))
-				System::Redirect('/timetables/edit');
-
-			sort($days,SORT_NUMERIC);
-			$days = array_splice($days,0,5);
-
-			function RenderTT() { global $TT, $days; return Timetable::Render(null, $TT, $days); }
-
-			print "<h1 id=h1cim>A személyre szabott órarendem</h1>"; ?>
-			<script>var _dispDays = <?=json_encode($days)?></script>
-			<a class='btn typcn typcn-pencil' href='/timetables/edit'>Szerkesztői nézet</a>
-			<a class='btn js_showAllTT typcn typcn-group' href='#'>Teljes nézet</a>
-			<a class='btn typcn typcn-eye' id='js_switchView' style='float: right;'>Kompakt nézet</a>
+			<h1 id=h1cim>A személyre szabott órarendem</h1>
+			<a class='btn typcn typcn-pencil' href='/timetables/edit'>Szerk<span class="mobile-only">.</span><span class="desktop-only">esztői nézet</span></a>
+			<a class='btn js_fullPersonalToggle typcn typcn-group'>Teljes<span class="desktop-only"> nézet</span></a>
+			<a class='btn typcn typcn-eye' id='js_switchView' style='float: right;'>Kompakt<span class="desktop-only"> nézet</span></a>
 			<p class='weekPickerP'>
-				<button class='btn backWeek' disabled><< Vissza az előző napokra</button>
+				<button class='btn backWeek' disabled>&laquo; Vissza<span class="desktop-only"> az előző napokra</span></button>
 				<span class='startDate'>
-					Kezdő nap megadása:
-					<input type='date' value='<?=date('Y-m-d')?>' id='startDatePicker'>
+					<span class="desktop-only">Kezdő nap megadása:</span>
+					<input type='date' value='<?=date('Y-m-d',$days[0])?>' id='startDatePicker'>
 				</span>
-				<button class='btn nextWeek'>Előre a következő napokhoz >></button>
+				<button class='btn nextWeek'>Előre<span class="desktop-only"> a következő napokhoz</span> &raquo;</button>
 			</p>
 
-			<div id='lessonPicker'><?=RenderTT()?></div>
+			<div id='lessonPicker'><?=$table?></div>
 <?php
 		break;
 
 		case 'edit':
-			print "<h1 id=h1cim>".System::Nevelo($ENV['class']['classid'],true)." osztály órarendje</h1>"; ?>
+			print "<h1 id=h1cim>".System::Article($ENV['class']['classid'],true)." osztály órarendje</h1>"; ?>
 
-			<p>Órarend választása: <select id='select_tt'>
+			<p>Órarend<span class="desktop-only"> választása</span>: <select id='select_tt'>
 <?php       foreach (Timetable::$TT_Types as $key => $value){
 				$selected = $key == 'a' ? ' selected' : '';
 				print "<option value='{$key}'".$selected.">{$value} órarend</option>";
 			} ?>
-			</select> <a class='btn goToMyTT' href='/timetables'><< Visszalépés a saját órarendemhez</a></p>
+			</select> <a class='btn goToMyTT' href='/timetables'>&laquo; Visszalépés<span class="desktop-only"> a saját órarendemhez</span></a></p>
 
 			<h2>'A' órarend</h2>
 
 <?php		echo '<div class="template" id="form-template">'.Timetable::ADD_FORM_HTML.'</div>';
 
-			Timetable::Render('a', Timetable::GetTimeTable('a',true), null, true);
+			echo Timetable::Render('a', Timetable::GetForWeek('a'), null, true, true);
 		break;
 
 		case 'week':
 			if (!isset($ENV['URL'][1])) System::Redirect('/timetables');
 			$week = $ENV['URL'][1];
 			if ($week != 'a' && $week != 'b') System::Redirect('/timetables');
-			print "<h1 id=h1cim>".System::Nevelo($ENV['class']['classid'],true)." osztály órarendje</h1>"; ?>
+			print "<h1 id=h1cim>".System::Article($ENV['class']['classid'],true)." osztály órarendje</h1>"; ?>
 
 			<p>Órarend választása: <select id='select_tt'>
 <?php       foreach (Timetable::$TT_Types as $key => $value){
@@ -71,6 +61,6 @@
 
 <?php		print "<h2>'".strtoupper($week)."' órarend</h2>";
 			echo '<div class="template" id="form-template">'.Timetable::ADD_FORM_HTML.'</div>';
-			Timetable::Render($week, Timetable::GetTimeTable($week,true), null, true);
+			echo Timetable::Render($week, Timetable::GetForWeek($week), null, true, true);
 		break;
 	}

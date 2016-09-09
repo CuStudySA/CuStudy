@@ -1,35 +1,51 @@
-<?php
-	define('ABSPATH_',str_replace('.lc','.hu',ABSPATH));
-?>
-
 <div id="sidebar">
 	<div class="userdata clearfix">
 		<div class="avatar">
-			<img src="https://www.gravatar.com/avatar/<?=md5($user['email'])?>?s=70&r=g&d=<?=urlencode(ABSPATH_.'/resources/img/user.png')?>">
+			<img src="<?=UserTools::GetAvatarUrl($user)?>">
+			<a class="typcn typcn-cog sessionswitch"></a>
 		</div>
 		<h2 class="name"><?=$user['name']?></h2>
 		<span class="email"><?=$user['email']?></span>
 	</div>
 	<nav class="options"><?php
+
 $Actions = array(
 	array('home','','Főoldal'),
-	array('calendar','timetables','Órarend'),
-	array('globe','homeworks','Házi feladatok'),
-	array('flash','events','Események'),
-	array('document','files','Dokumentumok'),
-	array('user','profile','Profilom'),
-	array('contacts','teachers','Tanárok'),
-	array('th-menu','lessons','Tantárgyak'),
 );
+
+if (in_array(ROLE,array_keys($Perm['students']))){
+	$Actions = array_merge($Actions,array(
+		array('calendar','timetables','Órarend'),
+		array('globe','homeworks','Házi feladatok'),
+		array('flash','events','Események'),
+		array('document','files','Dokumentumok'),
+		array('contacts','teachers','Tanárok'),
+		array('th-menu','lessons','Tantárgyak'),
+	));
+}
+
+if (in_array(ROLE,array_keys($Perm))){
+	$Actions = array_merge($Actions,array(
+		array('user','system.users','Felhasználók'),
+		array('group','system.classes','Osztályok'),
+		array('calendar','system.events','Események'),
+		array('document-text','logs','Rendszernapló'),
+	));
+}
 
 if (ROLE == 'admin')
 	$Actions = array_merge($Actions,array(
 		array('th-large','groups','Csoportok'),
 		array('group','users','Felhasználók'),
-		//array('document-text','logs','Tevékenységnapló'),
+		array('document-text','logs','Tevékenységnapló'),
 	));
 
-$Actions[] = array('power','#logout','Kijelentkezés');
+$Actions[] = array('user','profile','Profilom');
+
+if (!isset($user['tempSession']))
+	$Actions[] = array('power','#logout','Kijelentkezés');
+else
+	$Actions[] = array('arrow-back','#exit','Kilépés az osztályból');
 
 foreach ($Actions as $a){
 	list($icon, $link, $text) = $a;
@@ -45,6 +61,5 @@ foreach ($Actions as $a){
 }
 	?></nav>
 
-	<h1>CuStudy</h1>
+	<h1 class="desktop-only">CuStudy</h1>
 </div>
-<main>

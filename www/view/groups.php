@@ -17,12 +17,12 @@
 			echo "<h1 id=h1cim>".System::Article($ENV['class']['classid'], true)." osztály csoportjai</h1>";
 
 			if (empty($themes))
-				print "<p class='missingThemes' style='margin-left: 4px;'>Az osztályhoz még nincs felvéve csoportkategória. A kezdéshez vegyen fel egy kategóriát...</p>";
+				print System::Notice('info','Az osztályhoz még nincs felvéve csoportkategória. A kezdéshez vegyen fel egy kategóriát...');
 
 			print "<div id='groupContainer'>";
-
 			foreach ($themes as $thm){
 				print "<div data-thm='{$thm['id']}'><h2 class='grouptitle' data-thm='{$thm['id']}'>{$thm['name']} csoportok</h2><ul class='groups colorli'>";
+
 				foreach($groups as $grp){
 					if ($grp['theme'] != $thm['id']) continue; ?>
 
@@ -86,7 +86,7 @@
 									WHERE `classid` = ?',array($user['class'][0]));
 
 			$thmid = $ENV['URL'][1];
-			if (System::InputCheck($thmid,'numeric')) die(header('Location: /groups')); ?>
+			if (System::InputCheck($thmid,'numeric')) System::Redirect('/groups'); ?>
 
 			<h1>Új csoport hozzáadása</h1>
 			<p class='ptag'>Csoport neve: <input type='text' id='name' placeholder='Csoportnév'></p>
@@ -128,7 +128,7 @@
 			$group = $db->rawQuery('SELECT *
 									FROM `groups`
 									WHERE `classid` = ? AND `id` = ?',array($user['class'][0],$ENV['URL'][1]));
-			if (empty($group)) die(header('Location: /groups'));
+			if (empty($group)) System::Redirect('/groups');
 			else $group = $group[0];
 
 			$members = $db->rawQuery('SELECT group_members.id AS id, users.name as `name`, users.id as uid

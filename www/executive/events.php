@@ -1,25 +1,34 @@
 <?php
 	switch ($ENV['URL'][0]){
 		case 'getEvents':
-			echo json_encode(EventTools::GetEvents($ENV['GET']['start'],$ENV['GET']['end']));
+			if (!empty($ENV['GET']['start']) && !empty($ENV['GET']['end']))
+				die(json_encode(EventTools::GetEvents($ENV['GET']['start'],$ENV['GET']['end'])));
+		break;
+		case 'getGlobalEvents':
+			if (!empty($ENV['GET']['start']) && !empty($ENV['GET']['end']))
+				die(json_encode(EventTools::GetEvents($ENV['GET']['start'],$ENV['GET']['end'],true)));
 		break;
 
 		case 'add':
-			if (!empty($ENV['POST']))
-				$action = EventTools::Add($ENV['POST']);
-			else
-				System::Respond();
-
-			System::Respond(Message::Respond('events.add',$action), $action == 0 ? 1 : 0);
-		break;
-
 		case 'edit':
-			if (!empty($ENV['POST']))
-				$action = EventTools::Edit($ENV['POST']);
-			else
+			if (empty($ENV['POST']))
 				System::Respond();
 
-			System::Respond(Message::Respond('events.edit',$action), $action == 0 ? 1 : 0);
+			$method = $ENV['URL'][0] === 'add' ? 'Add' : 'Edit';
+			$action = EventTools::$method($ENV['POST']);
+			$message = null;
+			if (is_array($action)){
+				$field = $action[1];
+				$action = $action[0];
+				$names = array(
+					'isFullDay' => 'Egész napos',
+					'title' => 'Cím',
+					'description' => 'Rövid leírás',
+				);
+				$message = System::Article(isset($names[$field]) ? "\"$names[$field]\"" : 'egyik').'  mező formátuma hibás';
+			}
+
+			System::Respond(Message::Respond("events.{$ENV['URL'][0]}",$action,$message), $action == 0 ? 1 : 0);
 		break;
 
 		case 'delete':
@@ -44,19 +53,20 @@
 						$html .= "<p><b>{$key}{$kettosPont}</b> {$value}</p>";
 					}
 
-					System::Respond('',1,array('html' => $html));
+					System::Respond(array('html' => $html));
 				}
 				else {
 					$data = $db->where('id',$ENV['POST']['id'])->where('classid',$user['class'][0])->getOne('events');
 
 					if (!empty($data)){
-						$data['start'] = str_replace('.','-',$data['start']);
-						$data['end'] = str_replace('.','-',$data['end']);
+						$dates = EventTools::ParseDates($data['start'], $data['end'], $data['isallday']);
+						$format = 'Y.m.d.'.(!$data['isallday']?' H:i:s':'');
+						$data['start'] = date($format, $dates[0]);
+						$data['end'] = date($format, $dates[1]);
 
-						System::Respond('',1,$data);
+						System::Respond($data);
 					}
-					else
-						System::Respond();
+					else System::Respond();
 				}
 			}
 			else

@@ -1,0 +1,29 @@
+@import "vars";
+@import "filter_form";
+
+#filterTitle {
+	margin-bottom: 9px;
+
+	.userName {
+		font-weight: normal !important;
+	}
+}
+
+.dataTitle {
+	margin-bottom: 0;
+}
+.dataList {
+	margin-top: 7px;
+	list-style-type: circle;
+
+	.entry {
+		line-height: 1.6em;
+
+		span {
+			font-weight: bold;
+		}
+	}
+}
+.actions a {
+	color: #2C3B81;
+}

@@ -15,7 +15,7 @@
 				var Patterns = <?=json_encode(System::GetHtmlPatterns())?>;
 			</script>
 
-			<h1 id=h1cim>A(z) <?=$ENV['class']['classid']?> felhasználóinak kezelése</h1>
+			<h1 id=h1cim><?=System::Article($ENV['class']['classid'], true)?> osztály felhasználóinak kezelése</h1>
 			<ul class="customers flex">
 <?php		foreach ($data as $subarray){
 				$nev = explode(' ',$subarray['name']);
@@ -24,7 +24,7 @@
 				<li data-id='<?=$subarray['id']?>'>
 					<div class="top clearfix">
 						<div class="left">
-							<span class="typcn typcn-user"></span>
+							<img class="picture" src="<?=UserTools::GetAvatarURL($subarray)?>">
 							<span class="id">#<?=$subarray['id']?></span>
 						</div>
 						<div class="right">
@@ -33,34 +33,30 @@
 					</div>
 					<div class="bottom">
 <?php                   if ($subarray['id'] != $user['id']){ ?>
-							<a class="typcn typcn-pencil js_user_edit" href="#<?=$subarray['id']?>" title="Adatok módosítása"></a>
-							<a class="typcn typcn-key js_user_editAccessData" href="#<?=$subarray['id']?>" title="Hozzáférési adatok módosítása"></a>
-							<a class="typcn typcn-user-delete js_user_delete" href="#<?=$subarray['id']?>" title="Törlés"></a>
-<?php                   }
-						else { ?>
-							<a class="typcn typcn-times" href="#" title="Nincs engedélyezett művelet!"></a>
-<?php                   }   ?>
+							<a class="typcn typcn-edit js_user_edit" href="#<?=$subarray['id']?>" title="Adatok módosítása"></a>
+							<a class="typcn typcn-media-eject js_user_eject" href="#<?=$subarray['id']?>" title="Felhasználó osztálybeli szerepkörének törlése"></a>
+<?php                   } ?>
 					</div>
 				</li>
 <?php		} ?>
 				<li class='new'>
 					<div class="top clearfix">
 						<div class="left">
-							<span class="typcn typcn-user"></span>
-							<span class="id">*</span>
+							<span class="typcn typcn-starburst"></span>
 						</div>
 						<div class="right">
-							<span class="vnev">Új</span> <span class="knev">felhasz.</span>
+							<span class="vnev">Felhasználó</span> <span class="knev">hozzáadás</span>
 						</div>
 					</div>
 					<div class="bottom">
-						<a class="typcn typcn-group js_invite" href="#" title="Felhasználók meghívása"></a>
-						<a class="typcn typcn-user-add js_user_add" href="/users/add" title="Új felh. hozzáadása"></a>
+						<a class="typcn typcn-mail js_invite" href="#" title="Felhasználók meghívása"></a>
 					</div>
 				</li>
 			</ul>
 			<div class='invite_form' style='display: none;'>
 				<h3>Felhasználók meghívása</h3>
+
+				<p>A meghívás módja megváltozott! A már létező felhasználók esetében <strong>csak egy új szerepkör kerül hozzáadásra a fiókhoz</strong>, és nem hozunk létre új fiókot!</p>
 
 				<div class="lesson_list">
 					<p class="l_l_addedtext">Meghívásra jelölt felhasználók:</p>
@@ -70,8 +66,12 @@
 				</div>
 
 				<div class='add_lesson'>
-					<p>Felhasználó neve: <input type='text' name='name' pattern='^[A-ZÁÉÍÓÖŐÚÜŰ][a-záéíóöőúüű]+[ ][A-ZÁÉÍÓÖŐÚÜŰ][a-záéíóöőúüű]+[ a-zA-ZáéíóöőúüűÁÉÍÓÖŐÚÜŰ]*$' autocomplete="off" required></p>
-					<p>Felhasználó e-mail címe: <input type='text' name='email' pattern='^[a-zA-Z0-9.-_]+(\+[a-zA-Z0-9])?@[a-z0-9]+\.[a-z]{2,4}$' autocomplete="off" required></p>
+					<p title="A rendszer ezt az értéket csak akkor veszi figyelmebe, ha a felhasználó még nem létezik a CuStudy rendszerben!">
+						Felhasználó neve: <input type='text' name='name' pattern='^[A-ZÁÉÍÓÖŐÚÜŰ][a-záéíóöőúüű]+[ ][A-ZÁÉÍÓÖŐÚÜŰ][a-záéíóöőúüű]+[ a-zA-ZáéíóöőúüűÁÉÍÓÖŐÚÜŰ]*$' autocomplete="off" required>
+					</p>
+					<p title="Új felhasználó esetén ide küldjük ki a meghívót, meglévő felhasználót pedig ezen cím alapján azonosítjuk!">
+						Felhasználó e-mail címe: <input type='text' name='email' pattern='^[a-zA-Z0-9.-_]+(\+[a-zA-Z0-9])?@[a-z0-9]+\.[a-z]{2,4}$' autocomplete="off" required>
+					</p>
 					<a href='#' class='btn addlesson'>Hozzáadás</a>
 				</div>
 				<button class='btn a_t_f_sendButton'>Felhasználók meghívása</button>

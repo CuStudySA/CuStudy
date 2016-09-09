@@ -20,12 +20,12 @@
 					$Auth = $api->getTokens($code, 'authorization_code');
 				}
 				catch(oAuthRequestException $e){
-					die(header(ABSPATH."/?errtype=remote&prov={$provider}"));
+					System::Redirect("?error=Ismeretlen hiba lépett fel az összekapcsolás során, így az nem sikerült!");
 				}
 				$aToken = $Auth['access_token'];
 				$remUser = $api->getUserInfo($aToken);
 
-				$data = $db->where('account_id',$remUser['id'])->where('provider',$provider)->getOne('ext_connections');
+				$data = $db->where('account_id',$remUser['account_id'])->where('provider',$provider)->getOne('ext_connections');
 
 				if (!empty($data)){
 					if ($data['userid'] == $user['userid']) System::Redirect('/profile?error=A fiók összekapcsolása nem sikerült, mert ez a fiók már össze van kapcsolva az ön CuStudy fiókjával!');
@@ -35,61 +35,156 @@
 				$data = $db->where('provider',$provider)->where('userid',$user['id'])->getOne('ext_connections');
 				if (!empty($data)) System::Redirect('/profile?error=A fiók összekapcsolása nem sikerült, mert ez a fiók már össze van kapcsolva a kiválasztott szolgáltató valamely fiókjával!');
 
-				$insertData = array();
-				if ($provider == 'google')
-					$insertData = array(
-						'email' => $remUser['emails'][0]['value'],
-						'picture' => $remUser['image']['url'],
-					);
-
 				$db->insert('ext_connections',array_merge(array(
 					'userid' => $user['id'],
 					'provider' => $provider,
-					'account_id' => $remUser['id'],
-					'name' => $remUser[$provider == 'google' ? 'displayName' : 'name'],
-				),$insertData));
+				),$remUser));
 
-				die(header('Location: /profile'));
+				System::Redirect('/profile');
 			}
 		break;
 
+		case 'settings':
+			$settings = $ENV['userSettings']; ?>
+			<h1>Beállításaim szerkesztése</h1>
+
+			<form id='dataform' class='settingsForm'>
+<?php           foreach (UserSettings::$keys as $key => $array){
+					print "<h2>".$array['name']."</h2>";
+
+					foreach ($array as $k => $v){
+						if (!is_array($v)) continue;
+
+						print "<label><span>{$v['name']}</span>";
+
+						switch ($v['type']){
+							case 'select':
+								print "<select name='".($key.'.'.$k)."'>";
+
+								foreach ($v['options'] as $optKey => $optValue){
+									$selected = ($ENV['userSettings'][$key][$k] == $optKey) ? 'selected' : '';
+									print "<option value='{$optKey}' {$selected}>{$optValue}</option>";
+								}
+
+								print '</select>';
+							break;
+						}
+
+						print '</label>';
+					}
+				} ?>
+				<button class='btn'>Beállítások mentése</button>
+			</form>
+<?php	break;
+
 		default:
-			$data = $db->rawQuery('SELECT *
-									FROM `ext_connections`
-									WHERE `userid` = ?',array($user['id']));
-			$actprovs = [];
-			foreach ($data as $entry)
-				$actprovs[] = $entry['provider']; ?>
+			$AvailProviders = ExtConnTools::GetAvailProviders();
+			$AvailProviderNames = [];
+			foreach ($AvailProviders as $entry)
+				$AvailProviderNames[] = $entry['provider']; ?>
 
 			<h1>Profilom szerkesztése</h1>
 			<form id='dataform'>
-				<p>Felhasználónév: <input type='text' name='username' placeholder='felhasznalonev' pattern='^[a-zA-Z\d]{3,15}$' disabled value='<?=$user['username']?>'> <i>(nem módosítható)</i></p>
-				<p>Teljes név: <input type='text' name='name' placeholder='Vezetéknév Utónév' required pattern='^[A-ZÁÉÍÓÖŐÚÜŰ][a-záéíóöőúüű]+[ ][A-ZÁÉÍÓÖŐÚÜŰ][a-záéíóöőúüű]+[ a-zA-ZáéíóöőúüűÁÉÍÓÖŐÚÜŰ]*$' value='<?=$user['name']?>'> <i>(2-3 névtag - magyar betűk)</i></p>
-				<p>Új jelszó: <input type='password' name='password' placeholder='Új jelszó' pattern='^[\w\d]{6,20}$'> <i>(csak jelszóváltoztatáskor - 6-20 karakter)</i></p>
-				<p>Új jelszó megerősítése: <input type='password' name='verpasswd' placeholder='Új jelszó megerősítése' pattern='^[\w\d]{6,20}$'> <i>(a fenti jelszó újraírása)</i></p>
-				<p>E-mail cím: <input type='text' name='email' placeholder='teszt@teszt.hu' pattern='^[a-zA-Z0-9.-_]+(\+[a-zA-Z0-9])?@[a-z0-9]+\.[a-z]{2,4}$' required value='<?=$user['email']?>'> <i>(valós e-mail cím)</i></p>
-				<p><b>Jelenlegi jelszó: <input type='password' name='oldpassword' placeholder='Jelenlegi jelszó' pattern='^[\w\d]{6,20}$'></b></p>
-				<p><button class="btn">Adatok mentése</button></p>
+				<label>
+					<span>Felhasználónév <em>(nem módosítható)</em></span>
+					<input type='text' disabled value='<?=$user['username']?>'>
+				</label>
+				<label>
+					<span>Teljes név <em>(2-3 névtag - magyar betűk)</em></span>
+					<input type='text' name='name' placeholder='Vezetéknév Utónév' required pattern='^[A-ZÁÉÍÓÖŐÚÜŰ][a-záéíóöőúüű]+[ ][A-ZÁÉÍÓÖŐÚÜŰ][a-záéíóöőúüű]+[ a-zA-ZáéíóöőúüűÁÉÍÓÖŐÚÜŰ]*$' value='<?=$user['name']?>'>
+				</label>
+				<label>
+					<span>E-mail cím <em>(valós e-mail cím)</em></span>
+					<input type='text' name='email' placeholder='teszt@teszt.hu' pattern='^[a-zA-Z0-9.-_]+(\+[a-zA-Z0-9])?@[a-z0-9]+\.[a-z]{2,4}$' required value='<?=$user['email']?>'>
+				</label>
+				<div class="pwmod">
+					<strong>Jelszóváltoztatás</strong>
+					<label>
+						<span>Új jelszó <em>(6-20 karakter)</em></span>
+						<input type='password' name='password' placeholder='Új jelszó' pattern='^[\w\d]{6,20}$'>
+					</label>
+					<label>
+						<span>Új jelszó megerősítése <em>(a fenti jelszó újraírása)</em></span>
+						<input type='password' name='verpasswd' placeholder='Új jelszó megerősítése' pattern='^[\w\d]{6,20}$'>
+					</label>
+				</div>
+				<label>
+					<span><strong>Jelenlegi jelszó</strong> <em>(kötelező megadni)</em></span>
+					<input type='password' name='oldpassword' placeholder='Jelenlegi jelszó' required pattern='^[\w\d]{6,20}$'>
+				</label>
+
+				<button class="btn"><span class="mobile-only">Mentés</span><span class="desktop-only">Adatok mentése</span></button>
+				<a class='btn typcn typcn-spanner' href='/profile/settings'>Személyes beáll<span class="mobile-only">.</span><span class="desktop-only">ításaim</span></a>
 			</form>
 			<h1 style='margin-top: 25px !important;'>Összekapcsolt fiókok</h1>
-			<p style='margin-bottom: 0;'>Új fiók összekapcsolása: <select id='connect_s'>
-<?php
-			foreach (array_diff(array_keys(ExtConnTools::$apiDisplayName),$actprovs) as $entry){
-				$provider = ExtConnTools::$apiDisplayName[$entry]; ?>
-				<option value='<?=$entry?>'><?=$provider?></option>
-<?php
-			}
-?>
-			</select><a href='#' id='connect' class='btn' style='margin-left: 7px;'>Összekapcsolás</a></p>
-<?php
-			foreach($data as $entry){
-				$provider = ExtConnTools::$apiDisplayName[$entry['provider']]; ?>
-
-				<h2><?=$provider?>-fiók</h2>
-				<div class='connected'>
-					<p><b>Kapcsolat állapota: </b>Összekapcsolva, az összekapcsolás<?=!$entry['active'] ? ' nem' : ''?> aktív</p>
-					<p><b>Fiók azonosítója: </b><?=$entry['account_id']?> (<?=!empty($entry['email']) ? $entry['email'] : $entry['name']?>)</p>
-					<a href="#<?=$entry['id']?>" class="btn disconnect">Fiók leválasztása</a> <a href='#<?=$entry['id']?>' class='btn <?=$entry['active'] ? 'deactivate' : 'activate'?>'>Kapcsolat <?=$entry['active'] ? 'deaktiválása' : 'aktiválása'?></a>
+<?php       $diff = array_diff(array_keys(ExtConnTools::$apiDisplayName),$AvailProviderNames);
+			sort($diff, SORT_NATURAL);
+			$newConnVisible = count($diff); ?>
+			<div id="extconn-list">
+				<div class="conn-wrap"<?=!$newConnVisible?' style="display:none"':''?>>
+					<div class="conn">
+						<div class="text">
+							<span class="n">Új fiók összekapcsolása</span>
+							<span class="status">Válasszon szolgáltatót</span>
+							<span class="actions">
+								<select id='connect_s'><?php
+			foreach ($diff as $entry){
+				$provider = ExtConnTools::$apiDisplayName[$entry];
+				echo "<option value='$entry'>$provider</option>";
+			}                   ?></select> <button id='connect' class='btn'<?=!count($diff)?' disabled':''?>>Összekapcsolás</button>
+							</span>
+						</div>
+					</div>
 				</div>
-<?php       }
-	}
+<?php		foreach($AvailProviders as $entry)
+				echo ExtConnTools::GetConnWrap($entry); ?>
+				<div class="conn-wrap">
+					<div class="conn">
+						<div class="icon">
+							<img src="<?=UserTools::GetAvatarURL($user, 'gravatar')?>">
+							<div class="logo gr" title="Gravatar"></div>
+						</div>
+						<div class="text">
+							<span class="n"><?=$user['email']?></span>
+							<strong class="status"><?=($isGravatar = empty($user['avatar_provider'])) ? 'Jelenlegi profilkép' : 'Nincs használatban'?></strong>
+							<span class="actions">
+								<button class='btn makepicture typcn typcn-image'<?=$isGravatar?' disabled':''?>>Profilkép</button>
+								<a class='btn typcn typcn-camera' href="https://gravatar.com/emails" target="_blank">Kép cseréje</a>
+							</span>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Szerepkörök -->
+
+			<h1 style='margin-top: 25px !important;'>Szerepkörök és osztályok</h1>
+			<div id="classList">
+<?php
+			$roles = System::GetAvailableRoles();
+			foreach ($roles as $role){
+				$isDefault = $user['defaultSession'] == $role['entryId']; ?>
+				<div class='conn-wrap' data-id='<?=$role['entryId']?>'>
+					<div class='conn'>
+						<div class="text">
+<?php                       if ($role['entryId'] != 0){ ?>
+								<span class="n"><?=$role['intezmeny']?></span>
+								<strong class="status"><?=$role['osztaly']?> osztály (<?=$role['szerep']?>)</strong>
+								<span class="actions">
+									<button class='btn js_eject typcn typcn-media-eject' data-id='<?=$role['entryId']?>'>Leválasztás</button>
+									<button class='btn js_changeDefault typcn typcn-tick' data-id='<?=$role['entryId']?>' <?=$isDefault ? 'disabled' : ''?>>Alapértelmezetté tétel</button>
+								</span>
+<?PHP                       }
+							else { ?>
+								<span class="n"><?=$role['intezmeny']?></span>
+								<strong class="status"><?=$role['szerep']?></strong>
+								<span class="actions">
+									<button class='btn js_changeDefault typcn typcn-tick' data-id='<?=$role['entryId']?>' <?=$isDefault ? 'disabled' : ''?>>Alapértelmezetté tétel</button>
+								</span>
+<?php                       } ?>
+						</div>
+					</div>
+				</div>
+<?php } ?>
+			</div>
+<?  }

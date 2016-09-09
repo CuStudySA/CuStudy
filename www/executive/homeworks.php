@@ -7,7 +7,7 @@
 
 			$action = HomeworkTools::Add($ENV['POST']);
 
-			System::Respond(Message::Respond('homeworks.add',$action), $action == 0 ? 1 : 0);
+			System::Respond(Message::Respond('homeworks.add',is_array($action) ? 0 : $action), is_array($action) ? 1 : 0);
 		break;
 
 		case 'delete':
@@ -46,7 +46,7 @@
 		break;
 
 		case 'getDoneHomeworks':
-			HomeworkTools::RenderHomeworks(3,false);
+			HomeworkTools::RenderHomeworks(3);
 		break;
 
 		case 'getNotDoneHomeworks':
@@ -54,21 +54,25 @@
 		break;
 
 		case 'getTimetable':
-			$case  = isset($ENV['URL'][1]) ? $ENV['URL'][1] : System::Respond();
+			if (!isset($ENV['URL'][1]))
+				System::Respond();
 
-			switch ($case){
+			$showAllGroups = isset($ENV['POST']['showAllGroups']) ? $ENV['POST']['showAllGroups'] !== 0 : true;
+
+			switch ($ENV['URL'][1]){
 				case 'nextBack':
 					$move = $ENV['POST']['move'];
-					$dispDays = $ENV['POST']['dispDays'];
-					$showAllGroups = isset($ENV['POST']['showAllGroups']) ? ($ENV['POST']['showAllGroups'] == 0 ? false : true) : true;
-
-					Timetable::MoveNextBack($move,$dispDays,$showAllGroups);
+					$date = $ENV['POST']['dispDays'];
 				break;
 
 				case 'date':
-					$showAllGroups = isset($ENV['POST']['showAllGroups']) ? ($ENV['POST']['showAllGroups'] == 0 ? false : true) : true;
-					Timetable::MoveDate($ENV['POST']['date'], isset($ENV['POST']['days']) ? (int)$ENV['POST']['days'] : 3,$showAllGroups);
+					$move = isset($ENV['POST']['days']) ? (int)$ENV['POST']['days'] : 3;
+					$date = $ENV['POST']['date'];
 				break;
+				default: System::Respond();
 			}
+
+			/** @noinspection PhpUndefinedVariableInspection */
+			Timetable::Step($date, $showAllGroups, $move, true);
 		break;
 	}

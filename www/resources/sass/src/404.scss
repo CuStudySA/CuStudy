@@ -1,0 +1,33 @@
+#wrap {
+	text-align: center;
+	display: table;
+	position: absolute;
+	height: 100%;
+	width: 100%;
+	padding: 0;
+	top: 0;
+	right: 0;
+	text-shadow: 0 2px 2px rgba(0,0,0,.2);
+	cursor: default;
+
+	background: url('../../img/logo-faded.svg') no-repeat center;
+	background-size: 500px 500px;
+
+	#sidebar ~ & { width: 75% }
+}
+#mid {
+	display: table-cell;
+	vertical-align: middle;
+}
+#inner {
+	display: inline-block;
+	width: auto;
+	padding: 17.5px;
+	margin: 10px;
+
+	> h1 {
+		font-size: 3em;
+		margin: 0 0 10px;
+	}
+}
+main { display: none }

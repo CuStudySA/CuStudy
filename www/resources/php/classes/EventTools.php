@@ -1,17 +1,15 @@
 <?php
 
 	class EventTools {
-		static function GetEvents($start, $end){
+		static function GetEvents($start, $end, $global = false){
 			global $db, $user;
 
 			$start = date('c',strtotime($start));
 			$end = date('c',strtotime($end));
 
-			$data = $db
-				->where('classid', $user['class'][0])
-				->where('start', $start, '>=')
-				->where('end', $end, '<=')
-				->get('events');
+			$data = $db->rawQuery('SELECT *
+									FROM `events`
+									WHERE start <= ? && end >= ? && classid = ?',array($end,$start,$global ? 0 : $user['class'][0]));
 
 			$output = [];
 			foreach ($data as $event){
@@ -37,17 +35,39 @@
 			return $output;
 		}
 
-		static function ParseDates($start,$end){
-			$start = strtotime(preg_replace('/^(\d{4})\.(\d{2})\.(\d{2})\.? (\d{2})\:(\d{2})(\:(?:\d{2}))?$/','$1-$2-$3 $4:$5$6',trim($start)));
+		static function ParseDates($start,$end,$allDay){
+			$regex = '/^(\d{4})\.(\d{2})\.(\d{2})\.?(?: (\d{2})\:(\d{2})(\:(?:\d{2}))?)?$/';
+			$replace = '$1-$2-$3'.(!$allDay?' $4:$5$6':'');
+			$start = strtotime(preg_replace($regex,$replace,trim($start)));
 			if ($start === false) return false;
 
-			$end = strtotime(preg_replace('/^(\d{4})\.(\d{2})\.(\d{2})\.? (\d{2})\:(\d{2})(\:(?:\d{2}))?$/','$1-$2-$3 $4:$5$6',trim($end)));
+			$end = strtotime(preg_replace($regex,$replace,trim($end)));
 			if ($end === false) return false;
 
 			return [$start,$end];
 		}
 
 		static function Add($data){
+			global $user;
+
+			$action = self::_add($data);
+			$data = System::TrashForeignValues(['interval','isFullDay','title','description'],$data);
+
+			Logging::Insert(array_merge(array(
+				'action' => 'events.add',
+				'errorcode' => is_array($action) ? 0 : $action,
+				'db' => 'events',
+			),$data,is_array($action) ? array(
+				'e_id' => $action[0],
+			) : array(),array(
+				'classid' => $user['class'][0],
+			)));
+
+			return is_array($action) ? 0 : $action;
+		}
+
+		/** @return int|array */
+		static private function _add($data){
 			global $db, $user;
 
 			# Jog. ellenörzése
@@ -70,16 +90,16 @@
 						continue 2;
 					break;
 				}
-				if (System::InputCheck($value,$type)) return 2;
+				if (System::InputCheck($value,$type)) return [3, $key];
 			}
 
 			# Dátum értelmezése
 			$range = trim($data['interval']);
 			$rangeParts = explode('~',$range);
-			if (count($rangeParts) != 2) return 3;
+			if (count($rangeParts) != 2) return 4;
 
-			$dates = self::ParseDates($rangeParts[0],$rangeParts[1]);
-			if (!is_array($dates)) return 4;
+			$dates = self::ParseDates($rangeParts[0],$rangeParts[1],isset($data['isFullDay']));
+			if (!is_array($dates)) return 5;
 
 			$action = $db->insert('events',array(
 				'classid' => $user['class'][0],
@@ -87,18 +107,17 @@
 				'end' => date('c',$dates[1]),
 				'title' => $data['title'],
 				'description' => $data['description'],
-				'isallday' => isset($data['isFullDay']) ? true : false,
+				'isallday' => isset($data['isFullDay']),
 			));
 
-			if (!is_int($action)) return 5;
-			else return 0;
+			return !is_int($action) ? 6 : [$action];
 		}
 
 		static function GetEventInfos($id){
 			global $db,$user;
 
-			$data = $db->where('id',$id)->where('classid',$user['class'][0])->getOne('events');
-			if (empty($data)) return 1;
+			$data = $db->where('id',$id)->getOne('events');
+			if (empty($data) || ($data['classid'] !== 0 && $data['classid'] !== $user['class'][0])) return 1;
 
 			return array(
 				'Esemény címe' => $data['title'],
@@ -109,7 +128,8 @@
 			);
 		}
 
-		static function Edit($data){
+		/** @return int|array */
+		static private function _edit($data){
 			global $db, $user;
 
 			# Értékek ellenörzése
@@ -134,30 +154,72 @@
 						continue 2;
 					break;
 				}
-				if (System::InputCheck($value,$type)) return 2;
+				if (System::InputCheck($value,$type)) return [3, $key];
 			}
 
 			# Dátum értelmezése
 			$range = trim($data['interval']);
 			$rangeParts = explode('~',$range);
-			if (count($rangeParts) != 2) return 3;
+			if (count($rangeParts) != 2) return 4;
 
-			$dates = self::ParseDates($rangeParts[0],$rangeParts[1]);
-			if (!is_array($dates)) return 4;
+			$dates = self::ParseDates($rangeParts[0],$rangeParts[1],isset($data['isFullDay']));
+			if (!is_array($dates)) return 5;
 
 			$action = $db->where('id',$data['id'])->update('events',array(
 				'start' => date('c',$dates[0]),
 				'end' => date('c',$dates[1]),
 				'title' => $data['title'],
 				'description' => $data['description'],
-				'isallday' => isset($data['isFullDay']) ? true : false,
+				'isallday' => isset($data['isFullDay']),
 			));
 
-			if ($action) return 0;
-			else return 5;
+			return $action ? 0 : 6;
+		}
+
+		static function Edit($data){
+			global $user;
+
+			$action = self::_edit($data);
+			$data = System::TrashForeignValues(['interval','isFullDay','title','description','id'],$data);
+
+			if (!empty($data['id'])){
+				$data['e_id'] = $data['id'];
+				unset($data['id']);
+			}
+
+			Logging::Insert(array_merge(array(
+				'action' => 'events.edit',
+				'errorcode' => $action,
+				'db' => 'events',
+			),$data));
+
+			return $action;
 		}
 
 		static function Delete($id){
+			global $user, $db;
+
+			$data = $db->where('id',$id)->where('classid',$user['class'][0])->getOne('events');
+
+			if (!empty($data))
+				$data = System::TrashForeignValues(['start','isFullDay','title','description','end'],$data);
+			else
+				$data = [];
+
+			$action = self::_delete($id);
+
+			Logging::Insert(array_merge(array(
+				'action' => 'events.delete',
+				'errorcode' => $action,
+				'db' => 'events',
+
+				'e_id' => $id,
+			),$data));
+
+			return $action;
+		}
+
+		static private function _delete($id){
 			global $db;
 
 			# Jog. ellenörzése
@@ -171,7 +233,7 @@
 		static function ListEvents($Events = null){
 			if (empty($Events)){
 				global $db, $user;
-				$Events = $db->where('start > NOW()')->where('classid',$user['class'][0])->orderBy('start', 'ASC')->get('events', 10);
+				$Events = $db->where('start > NOW()')->where("classid IN ({$user['class'][0]},0)")->orderBy('start', 'ASC')->get('events', 10);
 			}
 			if (empty($Events)) return;
 
