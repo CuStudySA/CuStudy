@@ -72,12 +72,14 @@ $(function(){
 						$urlap.on('submit',function(e){
 							e.preventDefault();
 
+							var $formData = $urlap.serialize();
+
 							$.Dialog.wait(title);
 
 							$.ajax({
 								method: "POST",
 								url: "/system.classes/editBasicInfos",
-								data: $urlap.serializeForm(),
+								data: $formData,
 								success: function(data2){
 									if (typeof data2 === 'string'){
 										console.log(data2);
