@@ -1,5 +1,0 @@
-<svg version="1.1" opacity="0.1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 100 100" enable-background="new 0 0 100 100" xml:space="preserve"><style>
-#h{transform-origin: 0% 50%;animation:turn 8.4s linear infinite}
-#m{transform-origin: 50% 100%;animation:turn .7s linear infinite}
-@keyframes turn { from { transform: rotateZ(0deg) } to { transform: rotateZ(360deg) } }
-</style><line id="h" fill="none" stroke="#FFF" stroke-width="6" stroke-linecap="round" stroke-miterlimit="10" x1="50" y1="50" x2="73" y2="50"/><line id="m" fill="none" stroke="#FFF" stroke-width="6" stroke-linecap="round" stroke-miterlimit="10" x1="50" y1="50" x2="50" y2="5"/><circle fill="none" stroke="#FFF" stroke-width="8" stroke-miterlimit="10" cx="50" cy="50" r="45"/></svg>
