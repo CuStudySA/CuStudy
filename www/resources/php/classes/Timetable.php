@@ -271,10 +271,10 @@ STRING;
 
 			// Hiányzó értékek esetén jelenlegi dátum használata
 			if (empty($week) && empty($firstWeekday)){
-				$week = intval(date('W'), 10);
+				$week = intval(date('W', $now), 10);
 				$firstWeekday = self::GetDay();
 				if ($firstWeekday > 5){
-					$firstWeekday -= 5-(8-$firstWeekday);
+					$firstWeekday = $firstWeekday % 5;
 					$week++;
 				}
 			}
