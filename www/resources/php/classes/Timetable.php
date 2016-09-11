@@ -424,8 +424,10 @@ STRING;
 					LEFT JOIN groups g ON gm.groupid = g.name
 					WHERE gm.userid = ? && gm.classid = ?", array($user['id'], $user['class'][0]));
 				$groupsstr = '0';
-				foreach ($groupdata as $subgd)
-					$groupsstr .= ','.$subgd['id'];
+				foreach ($groupdata as $subgd){
+					if (!empty($subgd['id']))
+						$groupsstr .= ','.$subgd['id'];
+				}
 				$db->where("groupid IN ($groupsstr)");
 			}
 
