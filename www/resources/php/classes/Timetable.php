@@ -207,8 +207,9 @@ STRING;
 		 * @param bool         $allgroups      Minden csoport adatainak lekérdezése
 		 * @param int|string   $move           Elmozdulás mennyisége napokban VAGY 'next'/'back' következő/előző hét
 		 * @param bool         $dataAttributes data-* attribútumok kiiratása
+		 * @param bool         $mergeClasses   Egymás utáni hasonló órák egyesítése
 		 */
-		static function Step($dispDays, $allgroups = true, $move = null, $dataAttributes = false){
+		static function Step($dispDays, $allgroups = true, $move = null, $dataAttributes = false, $mergeClasses = false){
 			if (is_array($dispDays))
 				$dispDays = array_map('strtotime', $dispDays);
 			else $dispDays = strtotime($dispDays);
@@ -233,7 +234,7 @@ STRING;
 			$TT = Timetable::Get($week,$day,$allgroups,$dayCount);
 			$days = Timetable::CalcDays($TT, $dayCount);
 
-			$timetable = Timetable::Render(null, $TT, $days, false, $dataAttributes);
+			$timetable = Timetable::Render(null, $TT, $days, false, $dataAttributes, $mergeClasses);
 
 			$switchOn = strtotime('8 am');
 			$firstDay = strtotime('midnight',$days[0]);
@@ -467,7 +468,7 @@ STRING;
 
 		const MANAGE = true;
 		//Órarend kirenderelése
-		static function Render($week, $Timetable, $weekdays = null, $wrap = true, $dataAttributes = false){
+		static function Render($week, $Timetable, $weekdays = null, $wrap = true, $dataAttributes = false, $mergeClasses = false){
 			if (empty($weekdays) && empty($week)) return;
 
 			if (is_array($weekdays)){
@@ -525,19 +526,22 @@ STRING;
 			$HTML .= "</tr></thead><tbody>";
 
 			ksort($Timetable);
-			foreach ($Timetable as $lessoncount => $lesson){
-				$TR = '';
+
+			if ($mergeClasses)
+				self::_mergeConsecutiveClasses($Timetable);
+
+			foreach ($Timetable as $lessonIndex => $lesson){
+				$HTML .= '<tr class="lesson-field"><th>'.($lessonIndex+1).'</th>';
 				foreach ($lesson as $weekday => $class){
 					if (isset($emptyWeekdays[$weekday]))
 						continue;
-					$td = self::_RenderClass($class, $dataAttributes);
+					$td = self::_renderClass($class, $dataAttributes);
 					if ($dataAttributes)
 						$td = str_replace('<td>','<td data-week="'.date('Y\WW',$weekdays[$weekday]).'">',$td);
 
-					$TR .= $td;
+					$HTML .= $td;
 				}
-				if (!empty($TR))
-					$HTML .= '<tr class="lesson-field"><th>'.($lessoncount+1)."</th>$TR</tr>";
+				$HTML .= '</tr>';
 			}
 
 			$HTML .= "</tbody></table>";
@@ -546,16 +550,61 @@ STRING;
 			return $HTML;
 		}
 
+		static private function _formatClassName($class){
+			$name = $class['name'];
+			if (!empty($class['group']))
+				$name .= " ({$class['group']})";
+			return $name;
+		}
+
+		static function _mergeConsecutiveClasses(&$Timetable){
+			foreach ($Timetable as $lessonIndex => $lesson){
+				foreach ($lesson as $weekday => $class){
+					if (empty($class))
+						continue;
+					if (count($class) > 1)
+						continue;
+					$class = $class[0];
+					if ($lessonIndex > 0){
+						$delta = 1;
+						while (empty($Timetable[$lessonIndex-$delta][$weekday]) && $lessonIndex-$delta > 0)
+							$delta++;
+						if (isset($Timetable[$lessonIndex-$delta][$weekday])){
+							$mergeInto = &$Timetable[$lessonIndex-$delta][$weekday][0];
+							if (
+								// Óra neve
+								(self::_formatClassName($mergeInto) === self::_formatClassName($class)) &&
+								// Csoport
+								($mergeInto['group'] === $class['group']) &&
+								// Szín
+								($mergeInto['bgcolor'] === $class['bgcolor'])
+							){
+								$mergeInto['rowspan'] = $delta+1;
+								unset($Timetable[$lessonIndex][$weekday]);
+								continue;
+							}
+						}
+					}
+				}
+			}
+		}
+
 		// Órarend cella kirenderelő
-		static private function _RenderClass($class, $delIcon = false){
+		static private function _renderClass($class, $delIcon = false){
 			if (!empty($class)){
-				$HTML = "<td>";
 				if (!is_array($class))
 					$class = array($class);
+				$HTML = '<td'.(
+					count($class) === 1
+					? " style='background: {$class[0]['bgcolor']}'".(
+						!empty($class[0]['rowspan'])
+						?" rowspan='{$class[0]['rowspan']}'":
+						''
+					)
+					: ''
+				).'>';
 				foreach($class as $c){
-					$name = $c['name'];
-					if (!empty($c['group']))
-						$name .= " ({$c['group']})";
+					$name = self::_formatClassName($c);
 
 					$ids = '';
 					if (!empty($c['ttid']))

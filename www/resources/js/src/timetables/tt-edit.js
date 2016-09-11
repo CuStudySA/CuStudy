@@ -217,10 +217,12 @@ $(function(){
 
 				if (!data.status) return $.Dialog.fail(title,data.message);
 
+				container.delete = [];
+				container.add = [];
 				$.Dialog.success(title,data.message);
 				setTimeout(function(){
 					location.reload();
-				},2500);
+				},1500);
 			}
 		});
 	};

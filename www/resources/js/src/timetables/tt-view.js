@@ -5,7 +5,7 @@
 
 $(function(){
 	// Szerkesztés letiltása
-	$('tr td').addClass('notAdmin');
+	$('.timet').addClass('notAdmin');
 
 	var title2 = 'Órarend léptetése',
 		dispDays = typeof _dispDays !== 'object' ? '' : _dispDays,

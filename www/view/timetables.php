@@ -10,7 +10,7 @@
 			$TT = Timetable::Get(null,null,false);
 			$days = Timetable::CalcDays($TT, 5, true);
 
-			$table = Timetable::Render(null, $TT, $days);  ?>
+			$table = Timetable::Render(null, $TT, $days, true, false, true);  ?>
 
 			<h1 id=h1cim>A személyre szabott órarendem</h1>
 			<a class='btn typcn typcn-pencil' href='/timetables/edit'>Szerk<span class="mobile-only">.</span><span class="desktop-only">esztői nézet</span></a>

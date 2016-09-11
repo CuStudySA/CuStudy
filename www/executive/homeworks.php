@@ -73,6 +73,6 @@
 			}
 
 			/** @noinspection PhpUndefinedVariableInspection */
-			Timetable::Step($date, $showAllGroups, $move, true);
+			Timetable::Step($date, $showAllGroups, $move, true, !$showAllGroups);
 		break;
 	}
