@@ -6,7 +6,8 @@
 $(function(){
 	var title = "Tanárok és tantárgyak lekérése", $tds = $('table tbody td'),
 		postDatas = {},
-		USRGRP = _USRGRP;
+		USRGRP = _USRGRP,
+		entireClassGroupName = 'Egész osztály';
 
 	//Módosítást tároló tömbök létr.
 	var container = {
@@ -51,7 +52,7 @@ $(function(){
 				if (hasLessons) $.each(data.lessons,function(_,lesson){
 					$LOptions.append($(document.createElement('option')).attr('value',lesson.id).attr('data-name',lesson.name).text(lesson.name+' ('+lesson.teacher+')'));
 				});
-				$GOptions.append($(document.createElement('option')).attr('value','0').text('Egész osztály'));
+				$GOptions.append($(document.createElement('option')).attr('value','0').text(entireClassGroupName));
 				var gthemeoptgroups = {};
 				$.each(data.gthemes,function(_,gtheme){
 					gthemeoptgroups[gtheme.id] = $.mk('optgroup').attr('label',gtheme.name).appendTo($GOptions);
@@ -106,7 +107,7 @@ $(function(){
 							ntc = lesson.color;
 					});
 
-					if (grpnmef != 'Teljes o.')
+					if (grpnmef != entireClassGroupName)
 						grpnme = ' (' + grpnmef + ')';
 
 					$td.append("<span class='lesson' style='background: "+ ntc +"'>"+ ntn + grpnme +"<span class='del typcn typcn-times' data-ttid='#"+ nwelem.tantargy +"'></span></span>");
