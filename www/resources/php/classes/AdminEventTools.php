@@ -48,7 +48,8 @@
 			if(System::PermCheck('system.events.view')) return 1;
 
 			# Értékek ellenörzése
-			if (!System::ValuesExists($data,['title','description','interval'])) return 2;
+			if (!System::ValuesExists($data,['title','interval'])) return 2;
+			if (empty($data['description'])) unset($data['description']);
 
 			# Formátum ellenörzése
 			foreach ($data as $key => $value){
@@ -81,7 +82,7 @@
 				'start' => date('c',$dates[0]),
 				'end' => date('c',$dates[1]),
 				'title' => $data['title'],
-				'description' => $data['description'],
+				'description' => !empty($data['description']) ? $data['description'] : '',
 				'isallday' => isset($data['isFullDay']),
 			);
 

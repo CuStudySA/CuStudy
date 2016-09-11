@@ -10,7 +10,7 @@ $(function(){
 							<label><span>Esemény címe</span><input type='text' name='title' required></label>\
 							<label><span>Időtartam</span><input type='text' name='interval' id='dateRangePicker' required></label>\
 	                        <label><input type='checkbox' name='isFullDay' value='1' autocomplete='off'> Egész napos esemény</label>\
-							<label><span>Esemény rövid leírása</span><textarea name='description' required></textarea></label>\
+							<label><span>Esemény rövid leírása</span><textarea name='description'></textarea></label>\
 						</form>");
 
 	var e_getEventInfos = function(event){

@@ -46,7 +46,7 @@ $(function(){
 	                        <label><input type='checkbox' name='isFullDay' value='1'> Egész napos esemény</label>\
 	                        <label><input type='checkbox' name='isGlobal' value='1'> Globális esemény</label>\
 							<label><span>Osztály</span><select name='classid' required></select></label>\
-							<label><span>Esemény rövid leírása</span><textarea name='description' required></textarea></label>\
+							<label><span>Esemény rövid leírása</span><textarea name='description'></textarea></label>\
 						</form>"),
 		$editBtn = $.mk('button').attr('class','btn typcn typcn-pencil').text('Szerkesztés').on('click',function(e){
 			e.preventDefault();

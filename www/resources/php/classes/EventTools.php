@@ -74,7 +74,8 @@
 			if(System::PermCheck('events.add')) return 1;
 
 			# Formátum ellenörzése
-			if (!System::ValuesExists($data,['title','description','interval'])) return 2;
+			if (!System::ValuesExists($data,['title','interval'])) return 2;
+			if (empty($data['description'])) unset($data['description']);
 			foreach ($data as $key => $value){
 				switch ($key){
 					case 'isFullDay':
@@ -106,7 +107,7 @@
 				'start' => date('c',$dates[0]),
 				'end' => date('c',$dates[1]),
 				'title' => $data['title'],
-				'description' => $data['description'],
+				'description' => !empty($data['description']) ? $data['description'] : '',
 				'isallday' => isset($data['isFullDay']),
 			));
 
@@ -124,7 +125,7 @@
 				'Esemény kezdete' => date(!$data['isallday'] ? 'Y.m.d. H:i' : 'Y.m.d.',strtotime($data['start'])),
 				'Esemény vége' => date(!$data['isallday'] ? 'Y.m.d. H:i' : 'Y.m.d.',strtotime($data['end'])),
 				'Egész napos?' => $data['isallday'] ? 'igen' : 'nem',
-				'Esemény leírása' => $data['description'],
+				'Esemény leírása' => !empty($data['description']) ? $data['description'] : '(nincs megadva leírás)',
 			);
 		}
 
