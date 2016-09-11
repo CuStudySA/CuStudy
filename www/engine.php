@@ -244,7 +244,7 @@
 		$resc = "resources/js/min/";
 		if (!file_exists($root.$resc.$value))
 			Message::Missing($rootdoc.$resc.$value);
-		$js_list[$i] = $rootdoc.$resc.$value.'?'.filemtime($root.$resc);
+		$js_list[$i] = $rootdoc.$resc.$value.'?'.filemtime($root.$resc.$value);
 	}
 
 	# HTTP státuszkód visszadaása
