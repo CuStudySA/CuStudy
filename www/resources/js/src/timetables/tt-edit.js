@@ -55,7 +55,7 @@ $(function(){
 					teacheroptgroups[teacher.id] = $.mk('optgroup').attr('label',teacher.name).appendTo($LOptions);
 				});
 				if (hasLessons) $.each(data.lessons,function(_,lesson){
-					(lesson.teacherid?teacheroptgroups[lesson.teacherid]:$GOptions).append($.mk('option').attr('value',lesson.id).attr('data-name',lesson.name).text(lesson.name));
+					(teacheroptgroups[lesson.teacherid]||$LOptions).append($.mk('option').attr('value',lesson.id).attr('data-name',lesson.name).text(lesson.name));
 				});
 				$GOptions.append($.mk('option').attr('value','0').text(entireClassGroupName));
 				$.each(data.gthemes,function(_,gtheme){
