@@ -47,18 +47,22 @@ $(function(){
 			if (data.status){
 				var $LOptions = $(document.createElement('div')),
 					$GOptions = $(document.createElement('div')),
-					hasLessons = data.lessons && data.lessons.length;
+					hasLessons = data.lessons && data.lessons.length,
+					gthemeoptgroups = {},
+					teacheroptgroups = {};
 
-				if (hasLessons) $.each(data.lessons,function(_,lesson){
-					$LOptions.append($(document.createElement('option')).attr('value',lesson.id).attr('data-name',lesson.name).text(lesson.name+' ('+lesson.teacher+')'));
+				$.each(data.teachers,function(_,teacher){
+					teacheroptgroups[teacher.id] = $.mk('optgroup').attr('label',teacher.name).appendTo($LOptions);
 				});
-				$GOptions.append($(document.createElement('option')).attr('value','0').text(entireClassGroupName));
-				var gthemeoptgroups = {};
+				if (hasLessons) $.each(data.lessons,function(_,lesson){
+					(lesson.teacherid?teacheroptgroups[lesson.teacherid]:$GOptions).append($.mk('option').attr('value',lesson.id).attr('data-name',lesson.name).text(lesson.name));
+				});
+				$GOptions.append($.mk('option').attr('value','0').text(entireClassGroupName));
 				$.each(data.gthemes,function(_,gtheme){
 					gthemeoptgroups[gtheme.id] = $.mk('optgroup').attr('label',gtheme.name).appendTo($GOptions);
 				});
 				$.each(data.groups,function(_,group){
-					(group.theme?gthemeoptgroups[group.theme]:$GOptions).append($(document.createElement('option')).attr('value',group.id).text(group.name));
+					(group.theme?gthemeoptgroups[group.theme]:$GOptions).append($.mk('option').attr('value',group.id).text(group.name));
 				});
 
 				$.extend($.fn.powerTip.defaults,{
