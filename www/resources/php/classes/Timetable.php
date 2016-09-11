@@ -411,24 +411,20 @@ STRING;
 			if (!self::ValidateWeek($week))
 				throw new Exception('Érvénytelen hét');
 
-			$groups = $db->where('classid', $user['class'][0])->get('groups','id,name');
+			$groups = $db->where('classid', $user['class'][0])->get('groups',null,'id,name');
 			$grp_list = array(0 => '');
 			foreach ($groups as $subg)
 				$grp_list[$subg['id']] = $subg['name'];
 
-			# Ha minden csoport adatait szeretnénk lekérni...
-			if ($allgroups){
-				$groupdata = $db->rawQuery(
-					"SELECT DISTINCT g.id
-					FROM group_members gm
-					LEFT JOIN groups g ON gm.groupid = g.name
-					WHERE gm.userid = ? && gm.classid = ?", array($user['id'], $user['class'][0]));
-				$groupsstr = '0';
-				foreach ($groupdata as $subgd){
+			# Ha nem minden csoport adatait szeretnénk lekérni...
+			if (!$allgroups){
+				$useringroups = $db->where('userid',$user['id'])->where('classid',$user['class'][0])->get('group_members',null,'DISTINCT id');
+				$useringroupsstr = '0';
+				foreach ($useringroups as $subgd){
 					if (!empty($subgd['id']))
-						$groupsstr .= ','.$subgd['id'];
+						$useringroupsstr .= ','.$subgd['id'];
 				}
-				$db->where("groupid IN ($groupsstr)");
+				$db->where("groupid IN ($useringroupsstr)");
 			}
 
 			# Lekérés végrehajtása
