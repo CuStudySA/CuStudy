@@ -274,7 +274,7 @@ STRING;
 				$week = intval(date('W', $now), 10);
 				$firstWeekday = self::GetDay();
 				if ($firstWeekday > 5){
-					$firstWeekday = $firstWeekday % 5;
+					$firstWeekday = 1;
 					$week++;
 				}
 			}
