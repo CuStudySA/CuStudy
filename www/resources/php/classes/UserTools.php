@@ -228,7 +228,7 @@
 					$url = $url['picture'];
 			}
 			if (empty($url))
-				$url = 'https://www.gravatar.com/avatar/'.md5($user['email']).'?s=70&r=g&d='.urlencode($defaultAvatar);
+				$url = 'https://www.gravatar.com/avatar/'.md5($user['email']).'?s=95&r=g&d='.urlencode($defaultAvatar);
 
 			if (!isset($providerOverride))
 				$user['picture'] = $url;
