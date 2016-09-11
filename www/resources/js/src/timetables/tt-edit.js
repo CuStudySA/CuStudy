@@ -55,7 +55,7 @@ $(function(){
 					teacheroptgroups[teacher.id] = $.mk('optgroup').attr('label',teacher.name).appendTo($LOptions);
 				});
 				if (hasLessons) $.each(data.lessons,function(_,lesson){
-					(teacheroptgroups[lesson.teacherid]||$LOptions).append($.mk('option').attr('value',lesson.id).attr('data-name',lesson.name).text(lesson.name));
+					(teacheroptgroups[lesson.teacherid]||$LOptions).append($.mk('option').attr('value',lesson.id).text(lesson.name));
 				});
 				$GOptions.append($.mk('option').attr('value','0').text(entireClassGroupName));
 				$.each(data.gthemes,function(_,gtheme){
@@ -102,7 +102,7 @@ $(function(){
 						$.powerTip.hide();
 					}
 
-					var ntn = $lessons.find('option:selected').attr('data-name'),
+					var ntn = $lessons.find('option:selected').text(),
 						ntc = "#E1E4FA",
 						grpnme = '',
 						grpnmef = $groups.find('option:selected').text();
