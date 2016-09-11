@@ -90,7 +90,7 @@
 			$out = array();
 			exec("git reset HEAD --hard", $out);
 			exec("git pull", $out);
-			echo implode("<br>", $out);
+			echo implode("\n", $out);
 			die();
 		}
 		$do = 'not-found';
