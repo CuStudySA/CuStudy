@@ -468,7 +468,7 @@ STRING;
 
 		const MANAGE = true;
 		//Órarend kirenderelése
-		static function Render($week, $Timetable, $weekdays = null, $wrap = true, $dataAttributes = false, $mergeClasses = false){
+		static function Render($week, $Timetable, $weekdays = null, $wrap = true, $dataAttributes = false, $mergeClasses = false, $compactMode = false){
 			if (empty($weekdays) && empty($week)) return;
 
 			if (is_array($weekdays)){
@@ -501,7 +501,7 @@ STRING;
 				ksort($weeks);
 			}
 
-			$HTML = $wrap ? "<table class='timet'>" : '';
+			$HTML = $wrap ? "<table class='timet".($compactMode?' single':'')."'>" : '';
 			$HTML .= "<thead>";
 			if (!empty($weeks)) {
 				$HTML .= "<tr><th>H</th>";

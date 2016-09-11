@@ -10,12 +10,13 @@
 			$TT = Timetable::Get(null,null,false);
 			$days = Timetable::CalcDays($TT, 5, true);
 
-			$table = Timetable::Render(null, $TT, $days, true, false, true);  ?>
+			$compactMode = UserSettings::Get('timetable.defaultViewMode') === 'compact';
+			$table = Timetable::Render(null, $TT, $days, true, false, true, $compactMode);  ?>
 
 			<h1 id=h1cim>A személyre szabott órarendem</h1>
 			<a class='btn typcn typcn-pencil' href='/timetables/edit'>Szerk<span class="mobile-only">.</span><span class="desktop-only">esztői nézet</span></a>
 			<a class='btn js_fullPersonalToggle typcn typcn-group'>Teljes<span class="desktop-only"> nézet</span></a>
-			<a class='btn typcn typcn-eye' id='js_switchView' style='float: right;'>Kompakt<span class="desktop-only"> nézet</span></a>
+			<a class='btn typcn typcn-eye<?=$compactMode?'-outline':''?>' id='js_switchView' style='float: right;'><?=$compactMode?'Hagyományos':'Kompakt'?><span class="desktop-only"> nézet</span></a>
 			<p class='weekPickerP'>
 				<button class='btn backWeek' disabled>&laquo; Vissza<span class="desktop-only"> az előző napokra</span></button>
 				<span class='startDate'>
@@ -25,8 +26,7 @@
 				<button class='btn nextWeek'>Előre<span class="desktop-only"> a következő napokhoz</span> &raquo;</button>
 			</p>
 
-			<div id='lessonPicker'><?=$table?></div>
-<?php
+<?php       echo $table;
 		break;
 
 		case 'edit':

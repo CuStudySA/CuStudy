@@ -11,7 +11,8 @@ $(function(){
 		dispDays = typeof _dispDays !== 'object' ? '' : _dispDays,
 		prevDispDays = dispDays,
 		showAllGroups = 0,
-		simpleView = false,
+		$switchView = $('#js_switchView'),
+		simpleView = $switchView.hasClass('typcn-eye-outline'),
 		fullView = true,
 		$bWButton = $('.backWeek'),
 		$nWButton = $('.nextWeek'),
@@ -89,8 +90,7 @@ $(function(){
 		});
 	});
 
-	var $switchView = $('#js_switchView'),
-		$fpToggle = $('.js_fullPersonalToggle');
+	var $fpToggle = $('.js_fullPersonalToggle');
 
 	function e_toggleAllTT(hide){
 		$.ajax({
@@ -131,9 +131,8 @@ $(function(){
 		$('.timet')[(simpleView ? 'add' : 'remove') + 'Class']('single');
 
 		$switchView.toggleClass('typcn-eye typcn-eye-outline').html((simpleView ? 'Hagyományos' : 'Kompakt')+'<span class="desktop-only"> nézet</span>');
+
+		$.post('/profile/settings',{'timetable.defaultViewMode': simpleView ? 'compact' : 'original'})
 	};
 	$switchView.on('click',e_switchView);
-
-	if (getUserSetting("timetable.defaultViewMode") == 'compact')
-		e_switchView();
 });
