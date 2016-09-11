@@ -62,7 +62,7 @@
 								print "<select name='".($key.'.'.$k)."'>";
 
 								foreach ($v['options'] as $optKey => $optValue){
-									$selected = ($ENV['userSettings'][$key][$k] == $optKey) ? 'selected' : '';
+									$selected = $settings[$key][$k] == $optKey ? 'selected' : '';
 									print "<option value='{$optKey}' {$selected}>{$optValue}</option>";
 								}
 

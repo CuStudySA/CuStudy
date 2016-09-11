@@ -80,7 +80,7 @@
 
 	# Beállítások lekérése
 	GlobalSettings::Load();
-	UserSettings::Load(null,PUSH_TO_USERVAR);
+	UserSettings::Load(null,true);
 
 	# Tevékenység meghatározása
 	if (empty($ENV['do']))
