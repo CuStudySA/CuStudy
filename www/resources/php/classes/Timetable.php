@@ -176,12 +176,12 @@ STRING;
 		}
 
 		static $TT_Types = array(
-			'a' => "'A'",
-			'b' => "'B'",
-			//'c' => "'C'",
-			//'d' => "'D'",
-			//'e' => "'E'",
-			//'f' => "'F'",
+			'a' => 'A',
+			'b' => 'B',
+			//'c' => 'C',
+			//'d' => 'D',
+			//'e' => 'E',
+			//'f' => 'F',
 		);
 
 		static function CalcDays(&$TT, $count, $output = false){

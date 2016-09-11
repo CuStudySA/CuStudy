@@ -30,34 +30,23 @@
 		break;
 
 		case 'edit':
-			print "<h1 id=h1cim>".System::Article($ENV['class']['classid'],true)." osztály órarendje</h1>"; ?>
-
-			<p>Órarend<span class="desktop-only"> választása</span>: <select id='select_tt'>
-<?php       foreach (Timetable::$TT_Types as $key => $value){
-				$selected = $key == 'a' ? ' selected' : '';
-				print "<option value='{$key}'".$selected.">{$value} órarend</option>";
-			} ?>
-			</select> <a class='btn goToMyTT' href='/timetables'>&laquo; Visszalépés<span class="desktop-only"> a saját órarendemhez</span></a></p>
-
-			<h2>'A' órarend</h2>
-
-<?php		echo '<div class="template" id="form-template">'.Timetable::ADD_FORM_HTML.'</div>';
-
-			echo Timetable::Render('a', Timetable::GetForWeek('a', true), null, true, true);
+			System::Redirect('/timetables/week/a');
 		break;
 
 		case 'week':
-			if (!isset($ENV['URL'][1])) System::Redirect('/timetables');
+			if (!isset($ENV['URL'][1]))
+				System::Redirect('/timetables');
 			$week = $ENV['URL'][1];
-			if ($week != 'a' && $week != 'b') System::Redirect('/timetables');
-			print "<h1 id=h1cim>".System::Article($ENV['class']['classid'],true)." osztály órarendje</h1>"; ?>
+			if (!Timetable::ValidateWeek($week))
+				System::TempRedirect('/timetables');
+			print "<h1 id=h1cim>".System::Article($ENV['class']['classid'],true)." osztály órarendjének szerkesztése</h1>"; ?>
 
-			<p>Órarend választása: <select id='select_tt'>
+			<p>Órarend<span class="desktop-only"> váltása</span>: <select id='select_tt'>
 <?php       foreach (Timetable::$TT_Types as $key => $value){
 				$selected = $key == $week ? ' selected' : '';
-				print "<option value='{$key}'".$selected.">{$value} órarend</option>";
+				print "<option value='$key'$selected>'$value' órarend</option>";
 			} ?>
-			</select> <a class='btn goToMyTT' href='/timetables'><< Visszalépés a saját órarendemhez</a></p>
+			</select> <a class='btn goToMyTT' href='/timetables'>&laquo; Visszalépés<span class="desktop-only"> a saját órarendemhez</span></a></p>
 
 <?php		print "<h2>'".strtoupper($week)."' órarend</h2>";
 			echo '<div class="template" id="form-template">'.Timetable::ADD_FORM_HTML.'</div>';

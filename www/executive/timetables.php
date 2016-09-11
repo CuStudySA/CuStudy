@@ -1,9 +1,9 @@
 <?php
 	switch ($ENV['URL'][0]){
 		case 'getoptions':
-			$Groups = $db->rawQuery("SELECT g.id, g.name
-				FROM groups g
-				WHERE g.classid = ?", array($user['class'][0]));
+			$Groups = $db->where('classid', $user['class'][0])->orderBy('name','ASC')->get('groups',null,'id,name,theme');
+
+			$GroupThemes = $db->where('classid', $user['class'][0])->orderBy('name','ASC')->get('group_themes',null,'id,name');
 
 			$Lessons = $db->rawQuery(
 				"SELECT
@@ -16,6 +16,7 @@
 			System::Respond('',1,array(
 				'groups' => $Groups,
 				'lessons' => $Lessons,
+				'gthemes' => $GroupThemes,
 			));
 		break;
 

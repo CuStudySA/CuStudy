@@ -8,9 +8,27 @@ $(function(){
 		postDatas = {},
 		USRGRP = _USRGRP;
 
+	//Módosítást tároló tömbök létr.
+	var container = {
+		'delete': [],
+		'add': [],
+		'week': '',
+	};
+
 	//Órarend-választás <select> tag működése
 	$('#select_tt').change(function(){
-		window.location.href = '/timetables/week/' + this.value;
+		var goto = (sure) => sure ? $.Dialog.wait(false,'Átirányítás',() => window.location.href = '/timetables/week/' + this.value) : false;
+		if (container.delete.length || container.add.length)
+			return $.Dialog.confirm('Órarend váltás','Ha órarendet váltasz a módosításaid elvesznek, folytatod?',goto);
+
+		goto(true);
+	});
+	$(window).on('beforeunload',function(e){
+		if (container.delete.length || container.add.length){
+			let m = 'Ha másik oldalra lépsz, a módosításaid elvesznek.';
+			e.returnValue = m;
+			return m;
+		}
 	});
 
 	if (USRGRP == 'user' || USRGRP == 'editor'){
@@ -33,9 +51,13 @@ $(function(){
 				if (hasLessons) $.each(data.lessons,function(_,lesson){
 					$LOptions.append($(document.createElement('option')).attr('value',lesson.id).attr('data-name',lesson.name).text(lesson.name+' ('+lesson.teacher+')'));
 				});
-				$GOptions.append($(document.createElement('option')).attr('value','0').text('Teljes o.'));
+				$GOptions.append($(document.createElement('option')).attr('value','0').text('Egész osztály'));
+				var gthemeoptgroups = {};
+				$.each(data.gthemes,function(_,gtheme){
+					gthemeoptgroups[gtheme.id] = $.mk('optgroup').attr('label',gtheme.name).appendTo($GOptions);
+				});
 				$.each(data.groups,function(_,group){
-					$GOptions.append($(document.createElement('option')).attr('value',group.id).text(group.name));
+					(group.theme?gthemeoptgroups[group.theme]:$GOptions).append($(document.createElement('option')).attr('value',group.id).text(group.name));
 				});
 
 				$.extend($.fn.powerTip.defaults,{
@@ -105,13 +127,6 @@ $(function(){
 			else $.Dialog.fail(title);
 		}
 	});
-
-	//Módosítást tároló tömbök létr.
-	var container = {
-		'delete': [],
-		'add': [],
-		'week': '',
-	};
 
 	$tds.on('click',function(e){
 		e.preventDefault();
