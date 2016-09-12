@@ -3,16 +3,29 @@
 // Mobil
 @media all and (max-width: $Breakpoint){
 	.sceditor-container {
-		width: 100% !important;
+		&, iframe, textarea {
+			width: 100% !important;
+		}
 	}
 }
 // Asztali
 @media all and (min-width: $Breakpoint){
 	.sceditor-container {
 		width: 80% !important;
+
+		iframe, textarea {
+			width: 100% !important;
+		}
 	}
 }
-
+.sceditor-container {
+	iframe, textarea {
+		margin: 0 !important;
+		padding: 5px !important;
+		box-sizing: border-box !important;
+		min-height: 160px;
+	}
+}
 .homeworks {
 	border-collapse: collapse;
 	width: 98%;

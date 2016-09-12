@@ -537,7 +537,7 @@ STRING;
 						continue;
 					$td = self::_renderClass($class, $dataAttributes);
 					if ($dataAttributes)
-						$td = str_replace('<td>','<td data-week="'.date('Y\WW',$weekdays[$weekday]).'">',$td);
+						$td = str_replace('<td','<td data-week="'.date('Y\WW',$weekdays[$weekday]).'"',$td);
 
 					$HTML .= $td;
 				}
