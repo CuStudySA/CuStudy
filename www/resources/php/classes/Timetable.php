@@ -309,7 +309,7 @@ STRING;
 							ELSE NULL
 						END) as group_name
 					FROM timetable
-					WHERE classid = ? && day >= ? && day <= ? && week = ? $onlyGrp
+					WHERE classid = ? && day >= ? && day < ? && week = ? $onlyGrp
 					ORDER BY week, day, lesson",array($user['class'][0], $firstWeekday, $firstWeekday+$dispDays, $currWeekLetter));
 			}
 			else {
@@ -322,7 +322,7 @@ STRING;
 							ELSE NULL
 						END) as group_name
 					FROM timetable
-					WHERE classid = ? && day >= ? && day <= ? && week = ? $onlyGrp
+					WHERE classid = ? && day >= ? && day < ? && week = ? $onlyGrp
 					ORDER BY day, lesson", array($user['class'][0], $firstWeekday, $firstWeekday+$dispDays, $currWeekLetter));
 				$gotDays = array();
 				foreach ($tt_thisWeek as $r){
@@ -376,12 +376,9 @@ STRING;
 					);
 			}
 
-			if (!is_int($maxDays))
-				$maxDays = 5;
-
 			$days = [];
 			$loopDate = $firstWeekdayDate;
-			while (count($days) < $maxDays){
+			while (count($days) < $dispDays){
 				if (self::GetDay($loopDate) < 6)
 					$days[] = $loopDate;
 				$loopDate += self::OneDayInSeconds;
@@ -394,9 +391,9 @@ STRING;
 					$Timetable[$k] = array_merge($move, $lesson);
 				}
 			}
-			if ($maxDays !== 5){
+			if ($dispDays !== 5){
 				foreach ($Timetable as $k => $lesson)
-					$Timetable[$k] = array_splice($lesson, 0, $maxDays);
+					$Timetable[$k] = array_splice($lesson, 0, $dispDays);
 			}
 
 			$Timetable['opt'] = $days;

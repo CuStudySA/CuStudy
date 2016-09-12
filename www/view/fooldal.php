@@ -23,68 +23,43 @@
 
 <?php
 
-			// Következő tanítási napi órarend
-			$day = Timetable::GetDay();
-
-			$minute = date('i');
-			$hour = date('H');
-			if (!($hour >= 8 && $minute >= 0))
-				$day = $day == 1 ? 7 : $day - 1;
-
-			$groups = UserTools::GetClassGroupIDs();
-			$onlyGrp = "&& tt.groupid IN ($groups)";
-
-			$actualWeek = Timetable::GetWeekLetter(strtotime('+1 day'));
-
-			switch(Timetable::GetNumberOfWeeks()){
-				case 1:
-					$timeTable = $db->rawQuery("SELECT tt.week, tt.day, tt.lesson, l.name, t.name as teacher, l.color, tt.groupid
-												FROM timetable tt
-												LEFT JOIN (lessons l, teachers t)
-												ON tt.lessonid = l.id && l.teacherid = t.id
-												WHERE tt.classid = ? && ((tt.week = ? && tt.day > ?) || tt.week = ?) $onlyGrp
-												ORDER BY tt.week ASC, tt.day, tt.lesson", array($user['class'][0], $actualWeek, $day, Timetable::GetUpcomingWeek($actualWeek)));
-				break;
-				case 2:
-					$timeTable_partWeek = $db->rawQuery("SELECT tt.week, tt.day, tt.lesson, l.name, t.name AS teacher, l.color, tt.groupid
-												FROM timetable tt
-												LEFT JOIN (lessons l, teachers t)
-												ON tt.lessonid = l.id && l.teacherid = t.id
-												WHERE tt.classid = ? && tt.day > ? $onlyGrp
-												ORDER BY tt.day, tt.lesson", array($user['class'][0], $day));
-					if (empty($timeTable_partWeek)){
-						$timeTable_entireWeek = $db->rawQuery("SELECT tt.week, tt.day, tt.lesson, l.name, t.name AS teacher, l.color, tt.groupid
-											FROM timetable tt
-											LEFT JOIN (lessons l, teachers t)
-											ON tt.lessonid = l.id && l.teacherid = t.id
-											WHERE tt.classid = ? $onlyGrp
-											ORDER BY tt.day, tt.lesson", array($user['class'][0]));
-					}
-					else $timeTable_entireWeek = [];
-
-					$timeTable = array_merge($timeTable_partWeek, $timeTable_entireWeek);
-				break;
-				default: trigger_error('Nem támogatott hétszám', E_USER_ERROR);
-			}
+			$timeTable = Timetable::Get(null,null,false,1);
+			$day = Timetable::GetDay(Timetable::CalcDays($timeTable, 1)[0]);
 
 			if (empty($timeTable)) echo "<h3>Következő napi órarend</h3><p>Nincs megjeleníthető óra.</p>";
 			else {
+				$lessonids = array();
+				foreach ($timeTable as $row){
+					foreach($row as $col){
+						$lessonids[] = $col[0]['lid'];
+					}
+				}
+				$teachers = array();
+				$teachersRaw = $db->rawQuery(
+					'SELECT t.name, l.id
+					FROM lessons l
+					LEFT JOIN teachers t ON t.id = l.teacherid
+					WHERE l.classid = ? && l.id IN ('.implode(',',$lessonids).')', array($user['class'][0]));
+				foreach ($teachersRaw as $row)
+					$teachers[$row['id']] = $row['name'];
+				unset($teachersRaw);
 				$lessons = array();
 
-				$firstLesson = $timeTable[0];
-
-				foreach ($timeTable as $entry){
-					if ($entry['week'] == $firstLesson['week'] && $entry['day'] == $firstLesson['day'])
-						$lessons[] = $entry;
+				foreach ($timeTable as $row => $classes){
+					foreach ($classes as $lesson){
+						$lesson = $lesson[0];
+						$lesson['teacher'] = $teachers[$lesson['lid']];
+						$lessons[$row+1] = $lesson;
+					}
 				}
 				if (!empty($lessons)){
-					echo "<h3>".System::$Days[$lessons[0]['day']]."i órarend</h3>"; ?>
+					echo "<h3>".System::$Days[$day]."i órarend</h3>"; ?>
 
 					<div class='lessonList'>
-<?php                   foreach ($lessons as $lesson){ ?>
+<?php                   foreach ($lessons as $row => $lesson){ ?>
 							<div>
-								<span class='lessonNumber'><?=$lesson['lesson']?>.</span> óra:
-								<span class='lessonName' style='background-color: <?=$lesson['color']?>'><?=$lesson['name']?></span>
+								<span class='lessonNumber'><?=$row?>.</span> óra:
+								<span class='lessonName' style='background-color: <?=$lesson['bgcolor']?>'><?=$lesson['name']?></span>
 								(tanítja: <span class='lessonTeacher'><?=$lesson['teacher']?></span>)
 							</div>
 <?php	                } ?>
