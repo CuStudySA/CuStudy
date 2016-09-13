@@ -235,11 +235,16 @@
 		static function ListEvents($Events = null){
 			if (empty($Events)){
 				global $db, $user;
-				$Events = $db->where('start > NOW()')->where("classid IN ({$user['class'][0]},0)")->orderBy('start', 'ASC')->get('events', 10);
+				$Events = $db
+					->where('start > NOW()')
+					->where('start < DATE_ADD(NOW(), INTERVAL 2 MONTH)')
+					->where("classid IN ({$user['class'][0]},0)")
+					->orderBy('start', 'ASC')
+					->get('events', 10);
 			}
 			if (empty($Events)) return;
 
-			$HTML = '<h3>Fontos dátumok</h3><ul id="events">';
+			$HTML = '<section class="events"><h3>Közelgő események</h3><ul>';
 			foreach ($Events as $i => $ev){
 				$starttime = strtotime($ev['start']);
 				$start = array(System::$ShortMonths[intval(date('n', $starttime))], date('j', $starttime));
@@ -267,7 +272,7 @@
 				$HTML .= "<li><div class='calendar'><span class='top'>{$start[0]}</span><span class='bottom'>{$start[1]}</span></div>".
 					"<div class='meta'><span class='title'>{$ev['title']}</span><span class='time'>$time</span></div></li>";
 			}
-			echo $HTML.'</ul>';
+			echo $HTML.'</ul></section>';
 		}
 	}
 

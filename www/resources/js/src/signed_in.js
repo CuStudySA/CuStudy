@@ -37,6 +37,7 @@ $(function(){
 
 	$('#mobile-header').find('.sidebar-toggle').on('click',function(){
 		$body.toggleClass('sidebar-open');
+		$w.trigger('resize');
 	});
 
 	$('#exit').on('click',function(e){

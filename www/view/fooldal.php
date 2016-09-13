@@ -1,7 +1,6 @@
 <?php
-	$minute = (int)date('i');
-	$hour = (int)date('H');
 
+	$hour = (int)date('H');
 	if ($hour < 6 || $hour >= 22) $welcome = 'Jó éjszakát';
 	else if ($hour < 10) $welcome = 'Jó reggelt';
 	else if ($hour < 18) $welcome = 'Jó napot';
@@ -16,11 +15,13 @@
 		break;
 
 		default: ?>
-			<div class='hWContent'>
+			<div class="section-container">
+			<section class='homeworks'>
 <?php
 				HomeworkTools::RenderHomeworksMainpage(); ?>
-			</div>
+			</section>
 
+			<section class='lessons'>
 <?php
 
 			$timeTable = Timetable::Get(null,null,false,1);
@@ -36,12 +37,15 @@
 				}
 				$teachers = array();
 				$teachersRaw = $db->rawQuery(
-					'SELECT t.name, l.id
+					'SELECT t.name, t.short, l.id
 					FROM lessons l
 					LEFT JOIN teachers t ON t.id = l.teacherid
 					WHERE l.classid = ? && l.id IN ('.implode(',',$lessonids).')', array($user['class'][0]));
-				foreach ($teachersRaw as $row)
-					$teachers[$row['id']] = $row['name'];
+				foreach ($teachersRaw as $row){
+					$id = $row['id'];
+					unset($row['id']);
+					$teachers[$id] = $row;
+				}
 				unset($teachersRaw);
 				$lessons = array();
 
@@ -60,13 +64,15 @@
 							<div>
 								<span class='lessonNumber'><?=$row?>.</span> óra:
 								<span class='lessonName' style='background-color: <?=$lesson['bgcolor']?>'><?=$lesson['name']?></span>
-								(tanítja: <span class='lessonTeacher'><?=$lesson['teacher']?></span>)
+								(tanítja: <span class='lessonTeacher'><span class="short"><?=$lesson['teacher']['short']?></span><span class="long"><?=$lesson['teacher']['name']?></span></span>)
 							</div>
 <?php	                } ?>
 					</div>
 <?php           }
-			}
+			} ?>
+			</section>
 
-			EventTools::ListEvents();
-		break;
+<?php       EventTools::ListEvents(); ?>
+			</div>
+<?php	break;
 	}?>

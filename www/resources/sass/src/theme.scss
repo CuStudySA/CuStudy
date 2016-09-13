@@ -191,7 +191,8 @@ header > h1 { text-align: center }
 			}
 		}
 		.name {
-			margin: 5px 0 7.5px;
+			margin: 0;
+			padding: 5px 0 7.5px;
 			line-height: 1.2em;
 			font-size: 1.75em;
 			text-overflow: ellipsis;
@@ -204,10 +205,10 @@ header > h1 { text-align: center }
 			height: 1.2em;
 			line-height: 1em;
 			font-size: 1em;
-			margin: 8px 0;
 			overflow: hidden;
 			white-space: nowrap;
 			text-overflow: ellipsis;
+			box-sizing: border-box;
 		}
 	}
 	> .options {

@@ -879,4 +879,24 @@
 </header>
 HTML;
 		}
+
+		static function Pad(string $n):string {
+			return $n > 10 ? $n : "0$n";
+		}
+
+		/**
+		 * Idézőjel és aposztróf HTML-enkódolása attribűtomokhoz
+		 *
+		 * @param string $str Input string
+		 *
+		 * @return string Encoded string
+		 */
+		static function AposEncode($str){
+			return self::EscapeHTML($str, ENT_QUOTES);
+		}
+
+		static function EscapeHTML($html, $mask = null){
+			$mask = isset($mask) ? $mask | ENT_HTML5 : ENT_HTML5;
+			return htmlspecialchars($html, $mask, 'UTF-8');
+		}
 	}

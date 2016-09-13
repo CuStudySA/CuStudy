@@ -316,21 +316,21 @@
 			else print System::Notice('info','Nincs megjelenítendő házi feladat! A kezdéshez adjon hozzá egyet, vagy váltson nézetet!',null,false,true) ?>
 
 			<table class='homeworks'>
-		        <tbody>
-		            <tr>
+				<tbody>
+					<tr>
 <?php
-					     foreach(array_keys($homeWorks) as $value)
-					        print "<td><b>{$homeWorks[$value][0]['dayString']}</b> ({$value})</td>";
+						 foreach(array_keys($homeWorks) as $value)
+							print "<td><b>{$homeWorks[$value][0]['dayString']}</b> ({$value})</td>";
 ?>
-		            </tr>
-		            <tr>
+					</tr>
+					<tr>
 <?php
 						foreach(array_keys($homeWorks) as $value){
 							print '<td>';
 							foreach($homeWorks[$value] as $array){ ?>
-						        <div class='hw'>
-						            <span class='lesson-name'><?=$array['lesson']?></span><span class='lesson-number'><?=$array['lesson_th']?>. óra</span>
-						            <div class='hw-text'><?=$array['homework']?></div>
+								<div class='hw'>
+									<span class='lesson-name'><?=$array['lesson']?></span><span class='lesson-number'><?=$array['lesson_th']?>. óra</span>
+									<div class='hw-text'><?=$array['homework']?></div>
 <?php	    if (empty($array['markedDone'])){ ?>
 				<a class="typcn typcn-tick js_makeMarkedDone" title='Késznek jelölés' href='#<?=$array['id']?>'></a>
 <?php       }
@@ -338,68 +338,65 @@
 				<a class="typcn typcn-times js_undoMarkedDone" title='Késznek jelölés visszavonása' href='#<?=$array['id']?>'></a>
 <?php       }
 			if (!System::PermCheck('homeworks.delete')){ ?>
-							            <a class="typcn typcn-info-large js_more_info" title='További információk' href='#<?=$array['id']?>'></a>
-							            <a class="typcn typcn-trash js_delete" title='Bejegyzés törlése' href='#<?=$array['id']?>'></a>
+										<a class="typcn typcn-info-large js_more_info" title='További információk' href='#<?=$array['id']?>'></a>
+										<a class="typcn typcn-trash js_delete" title='Bejegyzés törlése' href='#<?=$array['id']?>'></a>
 <?php       } ?>
-						          </div>
+								  </div>
 <?php				        }
 							print '</td>';
 						}
 ?>
-		            </tr>
-		        </tbody>
-		    </table>
+					</tr>
+				</tbody>
+			</table>
 <?php       if (!System::PermCheck('homeworks.add')){ ?>
-			    <a class='typcn typcn-plus btn js_add_hw' href='/homeworks/new'>Új házi feladat hozzáadása</a>
+				<a class='typcn typcn-plus btn js_add_hw' href='/homeworks/new'>Új házi feladat hozzáadása</a>
 <?php       }
-	        if ($onlyListActive)
+			if ($onlyListActive)
 				print "<a class='typcn typcn-tick btn js_add_hw js_showMarkedDone' href='#'>Elrejtett házi feladatok megjelenítése</a>";
-	        else
-	            print "<a class='typcn typcn-times btn js_add_hw js_hideMarkedDone' href='#'>Visszatérés az eredeti nézethez</a>";
-	    }
+			else
+				print "<a class='typcn typcn-times btn js_add_hw js_hideMarkedDone' href='#'>Visszatérés az eredeti nézethez</a>";
+		}
 
-	    static function RenderHomeworksMainpage(){
-	        $homeWorks = HomeworkTools::GetHomeworks(1,true);
+		static function RenderHomeworksMainpage(){
+			$homeWorks = HomeworkTools::GetHomeworks(1,true);
 
-	        if (empty($homeWorks))
-	            print "<h3>Elkészítésre váró házi feladatok</h3><p>Nincs megjeleníthető házi feladat.</p>";
-	        else {
-	            $day = array_keys($homeWorks)[0];
-	            if ((int)substr($day,0,2) == 1 && (int)date('m') == 12) $year = (int)date('y') + 1;
-	            else $year = (int)date('y');
+			if (empty($homeWorks))
+				print "<h3>Elkészítésre váró házi feladatok</h3><p>Nincs megjeleníthető házi feladat.</p>";
+			else {
+				$hwKey = array_keys($homeWorks)[0];
+				$date = explode('.',$hwKey);
+				$month = array_search($date[0],HomeworkTools::$RomanMonths);
+				$year = (int)date('Y');
+				if ($month < date('m'))
+					$year++;
+				$day = System::Pad($date[1]);
+				$month = System::Pad($month);
+				$time = strtotime("$year-$month-$day");
 
-				$date = explode('.',$day);
-
-				$date[0] = array_search($date[0],HomeworkTools::$RomanMonths);
-				$date[0] = strlen($date[0]) == 1 ? '0'.$date[0] : $date[0];
-				$date = $year.'-'.implode('-',$date);
-
-	            $time = strtotime($date);
-
-				print "<h3>Házi feladatok ".System::Article(System::$Days[Timetable::GetDay($time)])."i napra ({$day})</h3>";
-		        $day = array_keys($homeWorks)[0]; ?>
+				echo '<h3>'.System::$Days[Timetable::GetDay($time)]."i házi faladatok</h3>"; ?>
 				<table class='homeworks'>
 					<tr>
 						<td>
-<?php					foreach($homeWorks[$day] as $key => $array){
+<?php					foreach($homeWorks[$hwKey] as $key => $array){
 							if ($key % 2 == 1) continue; ?>
-					        <div class='hw'>
-					            <span class='lesson-name'><?=$array['lesson']?></span><span class='lesson-number'><?=$array['lesson_th']?>. óra</span>
-					            <div class='hw-text'><?=$array['homework']?></div>
+							<div class='hw'>
+								<span class='lesson-name'><?=$array['lesson']?></span><span class='lesson-number'><?=$array['lesson_th']?>. óra</span>
+								<div class='hw-text'><?=$array['homework']?></div>
 
 								<a class="typcn typcn-tick js_makeMarkedDone" title='Késznek jelölés' href='#<?=$array['id']?>'></a>
-					        </div>
+							</div>
 <?php   	            } ?>
 						</td>
 						<td>
-<?php           foreach($homeWorks[$day] as $key => $array){
+<?php           foreach($homeWorks[$hwKey] as $key => $array){
 					if ($key % 2 == 0) continue; ?>
-					        <div class='hw'>
-					            <span class='lesson-name'><?=$array['lesson']?></span><span class='lesson-number'><?=$array['lesson_th']?>. óra</span>
-					            <div class='hw-text'><?=$array['homework']?></div>
+							<div class='hw'>
+								<span class='lesson-name'><?=$array['lesson']?></span><span class='lesson-number'><?=$array['lesson_th']?>. óra</span>
+								<div class='hw-text'><?=$array['homework']?></div>
 
-					            <a class="typcn typcn-tick js_makeMarkedDone" title='Késznek jelölés' href='#<?=$array['id']?>'></a>
-					        </div>
+								<a class="typcn typcn-tick js_makeMarkedDone" title='Késznek jelölés' href='#<?=$array['id']?>'></a>
+							</div>
 <?php               } ?>
 						</td>
 					<tr>
