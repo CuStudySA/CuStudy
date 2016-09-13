@@ -44,7 +44,7 @@
 
 		default:
 			print "<h1>Házi feladatok</h1><div class='hwContent'>";
-				HomeworkTools::RenderHomeworks(3,true);
+			HomeworkTools::RenderHomeworks(3,true);
 			print "</div>";
 		break;
 	}

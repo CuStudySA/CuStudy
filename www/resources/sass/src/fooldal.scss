@@ -1,10 +1,5 @@
 @import "vars";
 
-@media all and (min-width: 400px){
-	.section-container > section {
-		padding: 10px;
-	}
-}
 // Mobil
 @media all and (max-width: $Breakpoint){
 	main > h1 {
@@ -26,43 +21,26 @@
 		}
 	}
 
-	.homeworks {
-		width: 100%;
-
-		display: block;
-
-		> tbody {
-			display: flex;
-			flex-flow: row wrap;
-
-			> tr {
-				flex: 1 1 auto;
-				&, td {
-					display: block;
-					width: 100%;
-				}
-				td:not(:last-child) {
-					margin-bottom: 5px;
-				}
-			}
-		}
-	}
-
 	.lessonList .lessonTeacher .long {
 		display: none;
+	}
+
+	div.homeworks {
+		justify-content: space-around;
+	}
+}
+@media all and (min-width: 400px) and (max-width: $Breakpoint){
+	.section-container > section {
+		padding: 10px;
+	}
+}
+@media all and (max-width: 500px){
+	div.homeworks .hw {
+		flex-basis: 100%;
 	}
 }
 // Asztali
 @media all and (min-width: $Breakpoint){
-	.homeworks {
-		width: 100%;
-
-		td {
-			width: 50%;
-			vertical-align: baseline;
-		}
-	}
-
 	.lessonList .lessonTeacher .short {
 		display: none;
 	}
@@ -73,44 +51,18 @@
 }
 h3 { margin-bottom: 5px }
 .hw {
-	background-color: rgba(135, 177, 255, 0.4);
-	padding: 6px 6px 4px 6px;
-	border-radius: 2px;
-
-	&:not(:last-child) { margin-bottom: 3px }
-
-	> .lesson-name {
-		padding: 2px;
-		background-color: rgba(219, 232, 223, 0.4);
-		border-radius: 2px;
-		text-shadow: 0 0 5px rgba(0, 0, 0, .2);
+	&:not(:last-child) {
+		margin-bottom: 6px;
 	}
-	> .lesson-number {
-		margin-left: 5px;
-		padding: initial;
-		background-color: initial;
-		border-radius: initial;
-		float: right;
-	}
-	> .hw-text {
-		margin: 5px 0 1px 0;
-		padding: 2px;
-		background-color: rgba(219, 232, 223, 0.2);
-		border-radius: 2px;
-		text-shadow: 0 0 5px rgba(0, 0, 0, .1);
-	}
-	> a {
-		color: #fff !important;
-		font-size: 24px;
-		opacity: .8;
-		border: 0;
-		text-shadow: 0 0 5px rgba(0, 0, 0, .5);
-		margin-left: -2px;
-		transition: opacity .1s !important;
+	@extend %hw;
+}
+div.homeworks {
+	width: 100%;
+	display: flex;
+	flex-flow: row wrap;
 
-		&:hover {
-			opacity: 1;
-		}
+	.hw {
+		margin: 0 5px 5px 0;
 	}
 }
 
@@ -164,7 +116,7 @@ section.events > ul {
 				top: 0;
 				height: 18px;
 				line-height: 18px;
-				background: #171d2d linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, .1) 100%);
+				background: $Link linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, .1) 100%);
 				color: #fff;
 				text-transform: uppercase;
 				font-weight: bold;
@@ -176,7 +128,7 @@ section.events > ul {
 				line-height: 25px;
 				font-size: 1.5em;
 				color: #000;
-				border: 1px solid #171d2d;
+				border: 1px solid $Link;
 				border-top: 0;
 			}
 

@@ -188,7 +188,7 @@
 
 			$active = $onlyListActive ? '&& (SELECT `id` FROM `hw_markdone` WHERE `homework` = hw.id && `userid` = ?) IS NULL' : '';
 
-			$query = "SELECT hw.id, hw.text as `homework`, hw.week, tt.day, tt.lesson as `lesson_th`, l.name as `lesson`, hw.year as year,
+			$query = "SELECT hw.id, hw.text as `homework`, hw.week, tt.day, tt.lesson as `lesson_th`, l.name as `lesson`, l.color, hw.year as year,
 							(SELECT `id` FROM `hw_markdone` WHERE `homework` = hw.id && `userid` = ?) as markedDone
 						FROM `timetable` tt
 						LEFT JOIN (`homeworks` hw, `lessons` l)
@@ -327,22 +327,9 @@
 <?php
 						foreach(array_keys($homeWorks) as $value){
 							print '<td>';
-							foreach($homeWorks[$value] as $array){ ?>
-								<div class='hw'>
-									<span class='lesson-name'><?=$array['lesson']?></span><span class='lesson-number'><?=$array['lesson_th']?>. óra</span>
-									<div class='hw-text'><?=$array['homework']?></div>
-<?php	    if (empty($array['markedDone'])){ ?>
-				<a class="typcn typcn-tick js_makeMarkedDone" title='Késznek jelölés' href='#<?=$array['id']?>'></a>
-<?php       }
-			else { ?>
-				<a class="typcn typcn-times js_undoMarkedDone" title='Késznek jelölés visszavonása' href='#<?=$array['id']?>'></a>
-<?php       }
-			if (!System::PermCheck('homeworks.delete')){ ?>
-										<a class="typcn typcn-info-large js_more_info" title='További információk' href='#<?=$array['id']?>'></a>
-										<a class="typcn typcn-trash js_delete" title='Bejegyzés törlése' href='#<?=$array['id']?>'></a>
-<?php       } ?>
-								  </div>
-<?php				        }
+							foreach($homeWorks[$value] as $array){
+								self::_renderHW($array, true);
+							}
 							print '</td>';
 						}
 ?>
@@ -357,6 +344,25 @@
 			else
 				print "<a class='typcn typcn-times btn js_add_hw js_hideMarkedDone' href='#'>Visszatérés az eredeti nézethez</a>";
 		}
+
+		private static function _renderHW($data, $controls){ ?>
+			<div class='hw'>
+				<div class='hw-lesson'>
+					<span class='lesson-name'<?=!empty($data['color'])?"style='background-color:{$data['color']}'":''?>><?=$data['lesson']?></span><span class='lesson-number'><?=$data['lesson_th']?>. óra</span>
+				</div>
+				<div class='hw-text'><?=$data['homework']?></div>
+<?php	    if (empty($array['markedDone'])){ ?>
+				<a class="typcn typcn-tick js_makeMarkedDone" title='Késznek jelölés' href='#<?=$data['id']?>'></a>
+<?php       }
+			else { ?>
+				<a class="typcn typcn-times js_undoMarkedDone" title='Késznek jelölés visszavonása' href='#<?=$data['id']?>'></a>
+<?php       }
+			if ($controls && !System::PermCheck('homeworks.delete')){ ?>
+				<!-- <a class="typcn typcn-info-large js_more_info" title='További információk' href='#<?=$data['id']?>'></a> -->
+				<a class="typcn typcn-trash js_delete" title='Bejegyzés törlése' href='#<?=$data['id']?>'></a>
+<?php       } ?>
+			</div>
+<?php	}
 
 		static function RenderHomeworksMainpage(){
 			$homeWorks = HomeworkTools::GetHomeworks(1,true);
@@ -374,33 +380,11 @@
 				$month = System::Pad($month);
 				$time = strtotime("$year-$month-$day");
 
-				echo '<h3>'.System::$Days[Timetable::GetDay($time)]."i házi faladatok</h3>"; ?>
-				<table class='homeworks'>
-					<tr>
-						<td>
-<?php					foreach($homeWorks[$hwKey] as $key => $array){
-							if ($key % 2 == 1) continue; ?>
-							<div class='hw'>
-								<span class='lesson-name'><?=$array['lesson']?></span><span class='lesson-number'><?=$array['lesson_th']?>. óra</span>
-								<div class='hw-text'><?=$array['homework']?></div>
-
-								<a class="typcn typcn-tick js_makeMarkedDone" title='Késznek jelölés' href='#<?=$array['id']?>'></a>
-							</div>
-<?php   	            } ?>
-						</td>
-						<td>
-<?php           foreach($homeWorks[$hwKey] as $key => $array){
-					if ($key % 2 == 0) continue; ?>
-							<div class='hw'>
-								<span class='lesson-name'><?=$array['lesson']?></span><span class='lesson-number'><?=$array['lesson_th']?>. óra</span>
-								<div class='hw-text'><?=$array['homework']?></div>
-
-								<a class="typcn typcn-tick js_makeMarkedDone" title='Késznek jelölés' href='#<?=$array['id']?>'></a>
-							</div>
-<?php               } ?>
-						</td>
-					<tr>
-				</table>
+				echo '<h3>'.System::$Days[Timetable::GetDay($time)]."i házi feladatok</h3>"; ?>
+				<div class='homeworks'>
+<?php					foreach($homeWorks[$hwKey] as $key => $array)
+							self::_renderHW($array, false); ?>
+				</div>
 <?php       }
 		}
 	}

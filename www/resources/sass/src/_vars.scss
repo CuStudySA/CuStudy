@@ -71,3 +71,61 @@ $providerCount: length($providers);
 		$i: $i + 1;
 	}
 }
+
+$HWBG: rgba($LinkLight, .2);
+$HWLessonBG: rgba(219, 232, 223, .6);
+//$HWTextBG: rgba($HWLessonBG, .5);
+$HWTextBG: $LightBG;
+%hw {
+	background-color: $HWBG;
+	padding: 5px;
+	border-radius: 4px;
+	&:not(:last-child) {
+		margin-bottom: 3px;
+	}
+
+	> .hw-lesson {
+		white-space: nowrap;
+		display: flex;
+		justify-content: space-between;
+
+		> * {
+			flex: 1 1 auto;
+			padding: 2px 3px;
+		}
+
+		> .lesson-name {
+			background-color: $HWLessonBG;
+			border-radius: 2px;
+			color: #fff;
+			text-shadow: 0 0 5px rgba(0, 0, 0, .6);
+			text-align: left;
+			font-weight: bold;
+		}
+		> .lesson-number {
+			flex-basis: 100%;
+			margin-left: 5px;
+			text-align: right;
+		}
+	}
+	> .hw-text {
+		margin: 5px 0 1px 0;
+		padding: 4px;
+		background-color: $HWTextBG;
+		border-radius: 2px;
+		text-shadow: 0 0 5px rgba(0, 0, 0, .1);
+	}
+	> a {
+		color: #fff !important;
+		font-size: 24px;
+		opacity: .8;
+		border: 0;
+		transition: opacity .1s !important;
+		text-shadow: 0 0 5px rgba(0, 0, 0, .5);
+		margin-left: -2px;
+
+		&:hover {
+			opacity: 1;
+		}
+	}
+}

@@ -335,7 +335,7 @@ main {
 
 	> .new { max-width: 190px }
 	li {
-		flex: 1 0 auto;
+		flex: 1 1 auto;
 
 		@media all and (min-width: $Breakpoint){
 			max-width: 30%;
