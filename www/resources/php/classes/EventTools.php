@@ -134,7 +134,8 @@
 			global $db, $user;
 
 			# Értékek ellenörzése
-			if (!System::ValuesExists($data,['title','description','interval'])) return 2;
+			if (!System::ValuesExists($data,['title','interval'])) return 2;
+			if (empty($data['description'])) unset($data['description']);
 
 			# Jog. ellenörzése
 			if(System::PermCheck('events.edit',$data['id'])) return 1;
@@ -170,7 +171,7 @@
 				'start' => date('c',$dates[0]),
 				'end' => date('c',$dates[1]),
 				'title' => $data['title'],
-				'description' => $data['description'],
+				'description' => $data['description'] ?? '',
 				'isallday' => isset($data['isFullDay']),
 			));
 
@@ -190,7 +191,7 @@
 
 			Logging::Insert(array_merge(array(
 				'action' => 'events.edit',
-				'errorcode' => $action,
+				'errorcode' => $action[0],
 				'db' => 'events',
 			),$data));
 
