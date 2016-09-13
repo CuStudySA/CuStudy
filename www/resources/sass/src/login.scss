@@ -282,6 +282,7 @@ body.sidebar-slide {
 	to {
 		left: 0;
 		margin-left: $SidebarWidth;
+		width: 100%-$SidebarWidth;
 	}
 }
 @keyframes shrink-mobile {
