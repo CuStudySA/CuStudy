@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 4.5.2
--- http://www.phpmyadmin.net
+-- version 4.6.4
+-- https://www.phpmyadmin.net/
 --
 -- Gép: 127.0.0.1
--- Létrehozás ideje: 2016. Sze 08. 09:38
--- Kiszolgáló verziója: 5.6.26
--- PHP verzió: 5.6.12
+-- Létrehozás ideje: 2016. Sze 13. 17:08
+-- Kiszolgáló verziója: 5.5.50-0+deb8u1-log
+-- PHP verzió: 5.6.24-0+deb8u1
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -44,7 +44,7 @@ CREATE TABLE `class_members` (
   `id` int(11) NOT NULL,
   `userid` int(11) NOT NULL,
   `classid` int(11) NOT NULL,
-  `role` enum('visitor','editor','admin','teacher') COLLATE utf8_hungarian_ci NOT NULL
+  `role` tinytext COLLATE utf8_hungarian_ci NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
 -- --------------------------------------------------------
@@ -60,8 +60,8 @@ CREATE TABLE `events` (
   `end` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
   `title` tinytext COLLATE utf8_hungarian_ci NOT NULL,
   `description` text COLLATE utf8_hungarian_ci NOT NULL,
-  `isallday` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
+  `isallday` tinyint(1) DEFAULT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
 -- --------------------------------------------------------
 
@@ -97,7 +97,7 @@ CREATE TABLE `files` (
   `uploader` int(11) NOT NULL,
   `filename` tinytext COLLATE utf8_hungarian_ci NOT NULL,
   `tempname` tinytext COLLATE utf8_hungarian_ci NOT NULL,
-  `md5` tinytext COLLATE utf8_hungarian_ci
+  `md5` tinytext COLLATE utf8_hungarian_ci NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
 -- --------------------------------------------------------
@@ -111,7 +111,7 @@ CREATE TABLE `files_external_viewing` (
   `token` tinytext COLLATE utf8mb4_hungarian_ci NOT NULL,
   `file` int(11) NOT NULL,
   `gen` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
 -- --------------------------------------------------------
 
@@ -162,9 +162,9 @@ CREATE TABLE `homeworks` (
   `lesson` int(11) NOT NULL,
   `text` tinytext COLLATE utf8_hungarian_ci NOT NULL,
   `author` int(11) NOT NULL,
-  `week` int(11) NOT NULL,
-  `year` int(11) NOT NULL,
-  `classid` int(11) NOT NULL
+  `week` tinyint(2) NOT NULL,
+  `classid` int(11) NOT NULL,
+  `year` smallint(4) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
 -- --------------------------------------------------------
@@ -241,7 +241,7 @@ CREATE TABLE `log__central` (
   `ipaddr` tinytext COLLATE utf8_hungarian_ci NOT NULL,
   `time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `u_classid` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
 -- --------------------------------------------------------
 
@@ -258,8 +258,9 @@ CREATE TABLE `log__events` (
   `isFullDay` int(11) DEFAULT NULL,
   `interval` tinytext COLLATE utf8mb4_hungarian_ci,
   `start` timestamp NULL DEFAULT NULL,
-  `end` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
+  `end` timestamp NULL DEFAULT NULL,
+  `errorcode` tinyint(3) UNSIGNED DEFAULT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
 -- --------------------------------------------------------
 
@@ -273,7 +274,7 @@ CREATE TABLE `log__failed_login` (
   `ip` tinytext COLLATE utf8_hungarian_ci NOT NULL,
   `at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `corrected` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
 -- --------------------------------------------------------
 
@@ -294,7 +295,7 @@ CREATE TABLE `log__files` (
   `filename` tinytext COLLATE utf8mb4_hungarian_ci,
   `tempname` tinytext COLLATE utf8mb4_hungarian_ci,
   `md5` tinytext COLLATE utf8mb4_hungarian_ci
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
 -- --------------------------------------------------------
 
@@ -311,7 +312,7 @@ CREATE TABLE `log__homeworks` (
   `week` int(11) DEFAULT NULL,
   `year` int(11) DEFAULT NULL,
   `classid` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
 -- --------------------------------------------------------
 
@@ -326,7 +327,7 @@ CREATE TABLE `log__lessons` (
   `name` tinytext COLLATE utf8_hungarian_ci,
   `teacherid` int(11) DEFAULT NULL,
   `color` tinytext COLLATE utf8_hungarian_ci
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
 -- --------------------------------------------------------
 
@@ -337,7 +338,7 @@ CREATE TABLE `log__lessons` (
 CREATE TABLE `log__login` (
   `id` int(11) NOT NULL,
   `username` tinytext COLLATE utf8_hungarian_ci NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
 -- --------------------------------------------------------
 
@@ -352,7 +353,7 @@ CREATE TABLE `log__mantis_users` (
   `username` tinytext COLLATE utf8mb4_hungarian_ci,
   `email` tinytext COLLATE utf8mb4_hungarian_ci,
   `name` tinytext COLLATE utf8mb4_hungarian_ci
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
 -- --------------------------------------------------------
 
@@ -366,7 +367,7 @@ CREATE TABLE `log__roles` (
   `role` tinytext COLLATE utf8mb4_hungarian_ci,
   `userid` int(11) DEFAULT NULL,
   `classid` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
 -- --------------------------------------------------------
 
@@ -380,7 +381,7 @@ CREATE TABLE `log__teachers` (
   `classid` int(11) DEFAULT NULL,
   `short` tinytext COLLATE utf8mb4_hungarian_ci,
   `name` tinytext COLLATE utf8mb4_hungarian_ci
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
 -- --------------------------------------------------------
 
@@ -391,7 +392,7 @@ CREATE TABLE `log__teachers` (
 CREATE TABLE `log__timetable` (
   `id` int(11) NOT NULL,
   `classid` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
 -- --------------------------------------------------------
 
@@ -411,7 +412,7 @@ CREATE TABLE `log__users` (
   `avatar_provider` tinytext COLLATE utf8_hungarian_ci,
   `mantisAccount` int(11) DEFAULT NULL,
   `invitation_id` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
 -- --------------------------------------------------------
 
@@ -425,7 +426,7 @@ CREATE TABLE `mail_queue` (
   `name` tinytext COLLATE utf8mb4_hungarian_ci NOT NULL,
   `address` tinytext COLLATE utf8mb4_hungarian_ci NOT NULL,
   `body` mediumtext COLLATE utf8mb4_hungarian_ci NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
 -- --------------------------------------------------------
 
@@ -438,7 +439,7 @@ CREATE TABLE `pw_reset` (
   `hash` binary(64) NOT NULL,
   `userid` int(11) NOT NULL,
   `expires` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
 -- --------------------------------------------------------
 
@@ -465,7 +466,7 @@ CREATE TABLE `sessions` (
   `ip` tinytext COLLATE utf8_hungarian_ci NOT NULL,
   `useragent` tinytext COLLATE utf8_hungarian_ci NOT NULL,
   `time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `activeSession` int(11) NOT NULL DEFAULT '0'
+  `activeSession` int(11) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
 -- --------------------------------------------------------
@@ -478,7 +479,7 @@ CREATE TABLE `settings_global` (
   `id` int(11) NOT NULL,
   `key` tinytext COLLATE utf8_hungarian_ci NOT NULL,
   `value` tinytext COLLATE utf8_hungarian_ci NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
 -- --------------------------------------------------------
 
@@ -492,7 +493,7 @@ CREATE TABLE `settings_user` (
   `category` tinytext COLLATE utf8mb4_hungarian_ci,
   `key` tinytext COLLATE utf8mb4_hungarian_ci,
   `value` tinytext COLLATE utf8mb4_hungarian_ci
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
 -- --------------------------------------------------------
 
@@ -518,7 +519,7 @@ CREATE TABLE `temporary_roles` (
   `sessionid` int(11) NOT NULL,
   `classid` int(11) NOT NULL,
   `role` tinytext NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -551,10 +552,10 @@ CREATE TABLE `users` (
   `name` tinytext COLLATE utf8_hungarian_ci NOT NULL,
   `active` int(11) NOT NULL DEFAULT '1',
   `email` tinytext COLLATE utf8_hungarian_ci NOT NULL,
-  `role` enum('systemadmin','none','admin') COLLATE utf8_hungarian_ci NOT NULL,
-  `defaultSession` int(11) NOT NULL DEFAULT '0',
-  `avatar_provider` varchar(12) COLLATE utf8_hungarian_ci NOT NULL,
-  `mantisAccount` int(11) NOT NULL
+  `avatar_provider` varchar(12) COLLATE utf8_hungarian_ci DEFAULT NULL,
+  `role` tinytext COLLATE utf8_hungarian_ci NOT NULL,
+  `defaultSession` int(11) NOT NULL,
+  `mantisAccount` int(11) DEFAULT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
 --
