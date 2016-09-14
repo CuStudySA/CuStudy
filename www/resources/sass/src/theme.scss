@@ -79,6 +79,11 @@
 		left: -100%;
 		width: 100%;
 		transition: left .3s ease-in-out;
+
+		> .options {
+			top: 100px;
+			height: calc(100% - 100px - 10px);
+		}
 	}
 
 	main {
@@ -97,6 +102,11 @@
 	#sidebar {
 		left: 0;
 		width: $SidebarWidth;
+
+		> .options {
+			top: 105px;
+			height: calc(100% - 105px - 43px);
+		}
 	}
 
 	#sidebar ~ main {
@@ -226,6 +236,7 @@ header > h1 { text-align: center }
 		width: calc(100% - 20px);
 		list-style: none;
 		overflow: auto;
+		display: block;
 
 		&::-webkit-scrollbar { background-color:transparent;padding:0;width:5px }
 		&::-webkit-scrollbar-button { display:none }
@@ -242,6 +253,16 @@ header > h1 { text-align: center }
 			text-decoration: none;
 			border-radius: 5px;
 			cursor: pointer;
+			display: list-item;
+			padding: 8.2px;
+			font-size: 1.1em;
+			line-height: 1.3em;
+			margin-right: 5px;
+
+			&:before {
+				margin-right: 7.5px;
+				font-size: 1.5em;
+			}
 
 			&:not(:last-child) {
 				margin-bottom: 5px;
@@ -255,48 +276,6 @@ header > h1 { text-align: center }
 				cursor: default !important;
 				background-color: rgba(75, 105, 255, .4);
 				box-shadow: 0 2px 1px rgba(0, 0, 0, .2);
-			}
-		}
-
-		$ButtonedBreakpointWidth: 400px;
-		$ButtonedBreakpointHeight: 775px;
-		@media all and (max-width: $ButtonedBreakpointWidth) and (max-height: $ButtonedBreakpointHeight){
-			top: 100px;
-			display: flex;
-			flex-flow: row wrap;
-			align-items: center;
-			height: calc(100% - 105px - 10px);
-
-			> a {
-				display: block;
-				flex: 1 1 45%;
-				text-align: center;
-				margin: 2px;
-
-				&:before {
-					display: block;
-					font-size: 1.5em;
-					width: 100%;
-					margin: 3px 0;
-				}
-			}
-		}
-		@media all and (min-width: $ButtonedBreakpointWidth), all and (min-height: $ButtonedBreakpointHeight){
-			top: 105px;
-			display: block;
-			height: calc(100% - 105px - 43px);
-
-			> a {
-				display: list-item;
-				padding: 8.2px;
-				font-size: 1.1em;
-				line-height: 1.3em;
-				margin-right: 5px;
-
-				&:before {
-					margin-right: 7.5px;
-					font-size: 1.5em;
-				}
 			}
 		}
 	}

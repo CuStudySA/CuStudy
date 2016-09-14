@@ -1,9 +1,10 @@
 $(function(){
-	var extConnHash = /(^|#)(?:_(?:=_)?)?$/;
+	var extConnHash = /(^|#)(?:_(?:=_)?)?$/,
+		$sb = $('#sidebar');
 	if (extConnHash.test(window.location.hash))
 		window.history.replaceState({},'',window.location.href.replace(extConnHash,''));
 
-	$('#sidebar').find('.avatar').children('img').on('error',function(){
+	$sb.find('.avatar').children('img').on('error',function(){
 		this.src = '/resources/img/user.svg';
 	});
 
@@ -136,5 +137,30 @@ $(function(){
 			});
 		}
 		else run();
+	});
+
+	var $userdata = $sb.find('.userdata > :not(.avatar)');
+	$w.on('resize',function(){
+		if ($w.width()<650){
+			let got = function(){
+				$userdata.filter(':not(.marquee)').addClass('marquee').simplemarquee({
+				    speed: 35,
+				    cycles: Infinity,
+				    space: 25,
+				    handleHover: false,
+				    delayBetweenCycles: 1000,
+				    easing: 'ease-in-out',
+				}).addClass('marquee');
+			};
+			if (typeof $.fn.simplemarquee === 'function')
+				return got();
+
+			$.ajax({
+				url: '/resources/js/min/jquery.simplemarquee.js',
+				dataType: "script",
+				cache: true,
+				success: got
+			});
+		}
 	});
 });
