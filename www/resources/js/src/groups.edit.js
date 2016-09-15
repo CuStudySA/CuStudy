@@ -18,7 +18,9 @@ $('#1to2').on('click',function(){
 		var $elem = $(element);
 		$elem.removeAttr("selected");
 		if ($elem.attr('value') != 'empty')
-			$classList.append($elem);
+			$classList.append($elem).children().sort(function(a,b){
+				return $(a).text().localeCompare($(b).text());
+			}).appendTo($classList);
 	});
 
 	if($grpList.children().length == 0)
@@ -36,7 +38,9 @@ $('#2to1').on('click',function(){
 		var $elem = $(element);
 		$elem.removeAttr("selected");
 		if ($elem.attr('value') != 'empty')
-			$grpList.append($elem);
+			$grpList.append($elem).children().sort(function(a,b){
+				return $(a).text().localeCompare($(b).text());
+			}).appendTo($grpList);
 	});
 
 	if($classList.children().length == 0)

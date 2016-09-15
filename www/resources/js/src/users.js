@@ -1,31 +1,32 @@
 $(function(){
-	var $formTempl = $("<form id='js_form'>\
-						<p>Felhasználónév: <input type='text' name='username' placeholder='Felhasználónév' required disabled></p>\
-						<p>E-mail cím: <input type='text' name='email' placeholder='email@provider.mail' required disabled></p>\
-						<p>Jogosultság: \
-							<select name='role'>\
-								<option value='visitor' selected>Ált. felhasználó</option>\
-								<option value='editor'>Szerkesztő</option>\
-								<option value='admin'>Csoport adminisztrátor</option>\
-							</select></p>\
-						<input type='hidden' name='id' value=''>\
-				</form>");
+	var $formTempl = $(`<form id='js_form'>
+						<p>Felhasználónév: <input type='text' name='username' placeholder='Felhasználónév' required disabled></p>
+						<p>E-mail cím: <input type='text' name='email' placeholder='email@provider.mail' required disabled></p>
+						<p>Jogosultság: 
+							<select name='role'>
+								<option value='visitor' selected>Ált. felhasználó</option>
+								<option value='editor'>Szerkesztő</option>
+								<option value='admin'>Csoport adminisztrátor</option>
+								<!--<option value='teacher'>Tanár</option>-->
+							</select></p>
+						<input type='hidden' name='id' value=''>
+				</form>`);
 
-	var $tileTempl = $("<li>\
-							<div class='top clearfix'>\
-								<div class='left'>\
-									<span class='typcn typcn-user'></span>\
-									<span class='id'></span>\
-								</div>\
-								<div class='right'>\
-									<span class='vnev'></span> <span class='knev'></span>\
-								</div>\
-							</div>\
-							<div class='bottom'>\
-								<a class='typcn typcn-edit js_user_edit' href='' title='Módosítás'></a>\
-								<a class='typcn typcn-media-eject js_user_eject' href='' title='Felhasználó osztálybeli szerepkörének törlése'></a>\
-							</div>\
-						</li>");
+	var $tileTempl = $(`<li>
+							<div class='top clearfix'>
+								<div class='left'>
+									<span class='typcn typcn-user'></span>
+									<span class='id'></span>
+								</div>
+								<div class='right'>
+									<span class='vnev'></span> <span class='knev'></span>
+								</div>
+							</div>
+							<div class='bottom'>
+								<a class='typcn typcn-edit js_user_edit' href='' title='Módosítás'></a>
+								<a class='typcn typcn-media-eject js_user_eject' href='' title='Felhasználó osztálybeli szerepkörének törlése'></a>
+							</div>
+						</li>`);
 
 	/////\\\\\ Nincs használatban! /////\\\\\
 	// Patternek hozzácsatolása az űrlapelemekhez
@@ -55,21 +56,23 @@ $(function(){
 
 		/* Hozzáadás gomb eseménye */
 		$('.addlesson').click(function(){
-			var $name = $('[name=name]').val(),
-				$email = $('[name=email]').val(),
+			var $name = $('[name=name]'),
+				name = $name.val(),
+				$email = $('[name=email]'),
+				email = $email.val(),
 				$ul_list = $('.l_l_utag'),
 				nesreturn = false,
 				title = "Felhasználók meghívása";
 
-			var $nameRegExp = new RegExp($('[name=name]').attr('pattern')),
-				$emailRegExp = new RegExp($('[name=email]').attr('pattern'));
+			var $nameRegExp = new RegExp($name.attr('pattern')),
+				$emailRegExp = new RegExp($email.attr('pattern'));
 
 			//Formátum ellenörzése
-			if (!$nameRegExp.test($name)){
+			if (!$nameRegExp.test(name)){
 				$.Dialog.fail(title,"A felhasználó nevének formátuma nem megfelelő! Kérjük írjon be egy helyes nevet!");
 				return;
 			}
-			if (!$emailRegExp.test($email)){
+			if (!$emailRegExp.test(email)){
 				$.Dialog.fail(title,"Az e-mail cím formátuma nem megfelelő! Kérjük írjon be egy helyes e-mail címet!");
 				return;
 			}
@@ -89,12 +92,12 @@ $(function(){
 			if (nesreturn) return;
 
 			//Hozzáadás a listához
-			$('.l_l_utag').append('<li data-email="'+ $email +'" data-name="'+ $name +'"><b>' + $name + '</b> (' + $email + ')<span class="typcn typcn-times l_l_deleteopt"></span></li>');
+			$ul_list.append('<li data-email="'+ email +'" data-name="'+ name +'"><b>' + name + '</b> (' + email + ')<span class="typcn typcn-times l_l_deleteopt"></span></li>');
 
 			//Beviteli mezők alaphelyzetbe állítása és üres jelzés eltávolítása
 			$('.l_l_empty').remove();
-			$('[name=name]').val('');
-			$('[name=email]').val('');
+			$name.val('');
+			$email.val('');
 
 			/* Törlés eseménye */
 			$('.l_l_deleteopt').on('click',function(){

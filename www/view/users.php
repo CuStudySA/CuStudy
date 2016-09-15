@@ -67,10 +67,10 @@
 
 				<div class='add_lesson'>
 					<p title="A rendszer ezt az értéket csak akkor veszi figyelmebe, ha a felhasználó még nem létezik a CuStudy rendszerben!">
-						Felhasználó neve: <input type='text' name='name' pattern='^[A-ZÁÉÍÓÖŐÚÜŰ][a-záéíóöőúüű]+[ ][A-ZÁÉÍÓÖŐÚÜŰ][a-záéíóöőúüű]+[ a-zA-ZáéíóöőúüűÁÉÍÓÖŐÚÜŰ]*$' autocomplete="off" required>
+						Felhasználó teljes neve: <input type='text' name='name' pattern='^[A-ZÁÉÍÓÖŐÚÜŰ][a-záéíóöőúüű]+[ ][A-ZÁÉÍÓÖŐÚÜŰ][a-záéíóöőúüű]+[ a-zA-ZáéíóöőúüűÁÉÍÓÖŐÚÜŰ]*$' autocomplete="off" required>
 					</p>
 					<p title="Új felhasználó esetén ide küldjük ki a meghívót, meglévő felhasználót pedig ezen cím alapján azonosítjuk!">
-						Felhasználó e-mail címe: <input type='text' name='email' pattern='^[a-zA-Z0-9.-_]+(\+[a-zA-Z0-9])?@[a-z0-9]+\.[a-z]{2,4}$' autocomplete="off" required>
+						Felhasználó e-mail címe: <input type='text' name='email' pattern='^[a-zA-Z0-9.-_]+(\+[a-zA-Z0-9]+)?@[a-z0-9]+\.[a-z]{2,4}$' autocomplete="off" required>
 					</p>
 					<a href='#' class='btn addlesson'>Hozzáadás</a>
 				</div>

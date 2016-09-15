@@ -17,6 +17,7 @@ if (in_array(ROLE,array_keys($Perm['students']))){
 	$Actions = array_merge($Actions,array(
 		array('calendar','timetables','Órarend'),
 		array('globe','homeworks','Házi feladatok'),
+		//array('keyboard','assignments','Feladatsorok'),
 		array('flash','events','Események'),
 		array('document','files','Dokumentumok'),
 		array('contacts','teachers','Tanárok'),

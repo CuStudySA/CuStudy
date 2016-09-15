@@ -225,6 +225,13 @@
 			'js' => 		[],
 			'file' => 		'amber',
 		),
+
+		//'assignments' => array(
+		//	'title' => 		'Feladatsorok',
+		//	'css' => 		[],
+		//	'js' => 		[],
+		//	'file' => 		'assignments',
+		//),
 	);
 
 	# Jogosultsági szintek definiálása
@@ -238,6 +245,7 @@
 				'teachers' => ['view'],
 				'lessons' => ['view'],
 				'amber' => ['view'],
+				//'assignments' => ['view'],
 			),
 			'editor' => array(
 				'homeworks' => ['add'],
@@ -256,6 +264,9 @@
 				'users' => ['view', 'edit', 'invite', 'eject'],
 				'logs' => ['view','getClassLog'],
 			),
+			//'teacher' => array(
+			//	'assignments' => ['edit'],
+			//),
 		),
 		'guest' => array(
 			'pw-reset' => ['view'],

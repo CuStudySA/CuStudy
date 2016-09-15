@@ -17,7 +17,7 @@
 			if (System::PermCheck('users.edit')) return 1;
 
 			# Bevitel ellenörzése
-			if (System::OptionCheck($data['role'],['visitor','editor','admin'])) return 2;
+			if (System::OptionCheck($data['role'],['visitor','editor','admin'/*,'teacher'*/])) return 2;
 
 			# Jog. ellenörzése
 			$User = $db->rawQuery('SELECT u.*, cm.id as rId

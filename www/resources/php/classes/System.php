@@ -3,7 +3,7 @@
 		static $Patterns = array(
 			'username' => '^[a-zA-Z\d]{3,15}$',
 			'name' => '^[A-ZÁÉÍÓÖŐÚÜŰ][a-záéíóöőúüű]+[ ][A-ZÁÉÍÓÖŐÚÜŰ][a-záéíóöőúüű]+[ a-zA-ZáéíóöőúüűÁÉÍÓÖŐÚÜŰ]*$',
-			'password' => '^[\w\d]{6,20}$',
+			'password' => '^[\s\S]{6,20}$',
 			'email' => '^[a-zA-Z0-9.-_]+(\+[a-zA-Z0-9])?@[a-z0-9]+\.[a-z]{2,4}$',
 			'shortn_teacher' => '^[A-ZÖÜÓÚŐÉÁŰa-zéáűőúöüó.]{2,}$',
 		);
@@ -49,7 +49,7 @@
 					$preg = '/^[a-zA-Z\d]{3,15}$/';
 				break;
 				case 'password':
-					$preg = '/^[\w\d]{6,20}$/';
+					$preg = '/^[\s\S]{6,20}$/';
 				break;
 				case 'email':
 					$preg = '/^[a-zA-Z0-9.-_]+(\+[a-zA-Z0-9]+)?@[a-z0-9]+\.[a-z]{2,4}$/';

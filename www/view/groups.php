@@ -79,7 +79,8 @@
 										FROM `users` u
 										LEFT JOIN `class_members` cm
 										ON u.id = cm.userid
-										WHERE cm.classid = ?',array($user['class'][0]));
+										WHERE cm.classid = ?
+										ORDER BY u.name',array($user['class'][0]));
 
 			$themes = $db->rawQuery('SELECT *
 									FROM `group_themes`
@@ -135,13 +136,15 @@
 									FROM `group_members`
 									LEFT JOIN `users`
 									ON group_members.userid = users.id
-									WHERE group_members.classid = ? && group_members.groupid = ?',array($user['class'][0],$ENV['URL'][1]));
+									WHERE group_members.classid = ? && group_members.groupid = ?
+									ORDER BY `users`.name',array($user['class'][0],$ENV['URL'][1]));
 
 			$classmembers = $db->rawQuery('SELECT u.*
 										FROM `users` u
 										LEFT JOIN `class_members` cm
 										ON u.id = cm.userid
-										WHERE cm.classid = ?',array($user['class'][0]));
+										WHERE cm.classid = ?
+										ORDER BY u.name',array($user['class'][0]));
 
 			$themes = $db->rawQuery('SELECT *
 									FROM `group_themes`
@@ -155,7 +158,7 @@
 			foreach($members as $member)
 				unset($classmembers[$member['uid']]); ?>
 
-			<h1>A(z) <?=$group['name']?> csoport módosítása</h1>
+			<h1><?=System::Article($group['name'],true)?> csoport módosítása</h1>
 			<p class='ptag'>Csoport neve: <input type='text' id='name' value='<?=$group['name']?>'></p>
 			<p class='ptag'>Csoport témája (csop.elv.): <select id='theme'>
 <?php           foreach($themes as $theme){

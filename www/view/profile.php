@@ -101,16 +101,16 @@
 					<strong>Jelszóváltoztatás</strong>
 					<label>
 						<span>Új jelszó <em>(6-20 karakter)</em></span>
-						<input type='password' name='password' placeholder='Új jelszó' pattern='^[\w\d]{6,20}$'>
+						<input type='password' name='password' placeholder='Új jelszó' pattern='^[\s\S]{6,20}$'>
 					</label>
 					<label>
 						<span>Új jelszó megerősítése <em>(a fenti jelszó újraírása)</em></span>
-						<input type='password' name='verpasswd' placeholder='Új jelszó megerősítése' pattern='^[\w\d]{6,20}$'>
+						<input type='password' name='verpasswd' placeholder='Új jelszó megerősítése' pattern='^[\s\S]{6,20}$'>
 					</label>
 				</div>
 				<label>
 					<span><strong>Jelenlegi jelszó</strong> <em>(kötelező megadni)</em></span>
-					<input type='password' name='oldpassword' placeholder='Jelenlegi jelszó' required pattern='^[\w\d]{6,20}$'>
+					<input type='password' name='oldpassword' placeholder='Jelenlegi jelszó' required pattern='^[\s\S]{6,20}$'>
 				</label>
 
 				<button class="btn"><span class="mobile-only">Mentés</span><span class="desktop-only">Adatok mentése</span></button>

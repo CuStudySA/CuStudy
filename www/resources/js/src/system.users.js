@@ -41,47 +41,46 @@ $(function(){
 		});
 	});
 
-	var $editForm = $("<form id='js_form'>\
-						<p>Felhasználónév: <input type='text' name='username' placeholder='Felhasználónév' required></p>\
-						<p>E-mail cím: <input type='text' name='email' placeholder='name@domain.tld' required></p>\
-						<p>Teljes név: <input type='text' name='name' placeholder='Vezetéknév Keresztnév' required></p>\
-						<input type='hidden' name='id' value=''>\
-				</form>");
+	var $editForm = $(`<form id='js_form'>
+						<p>Felhasználónév: <input type='text' name='username' placeholder='Felhasználónév' required></p>
+						<p>E-mail cím: <input type='text' name='email' placeholder='name@domain.tld' required></p>
+						<p>Teljes név: <input type='text' name='name' placeholder='Vezetéknév Keresztnév' required></p>
+						<input type='hidden' name='id' value=''>
+					</form>`);
 
-	var $chooseRoleForm = $("<form id='js_form'>\
-							<p>Milyen műveletet szeretne végrehajtani?</p>\
-							<label style='text-align:left'><input type='radio' name='action' value='edit' required checked> <strong>Szerkesztés</strong></label>\
-							<label style='text-align:left'><input type='radio' name='action' value='delete' required id='roleDelete'> <strong>Törlés</strong></label>\
-							\
-							<p>Kérem válassza ki a szerkeszteni vagy törölni kívánt szerepkört:</p>\
-							</form>\
-	");
+	var $chooseRoleForm = $(`<form id='js_form'>
+							<p>Milyen műveletet szeretne végrehajtani?</p>
+							<label style='text-align:left'><input type='radio' name='action' value='edit' required checked> <strong>Szerkesztés</strong></label>
+							<label style='text-align:left'><input type='radio' name='action' value='delete' required id='roleDelete'> <strong>Törlés</strong></label>
+							
+							<p>Kérem válassza ki a szerkeszteni vagy törölni kívánt szerepkört:</p>
+							</form>`);
 
-	var $editRoleForm = $("<form id='js_form_edit'>\
-							<p>Jogosultság: \
-								<select name='role'>\
-									<option value='visitor' selected>Ált. felhasználó</option>\
-									<option value='editor'>Szerkesztő</option>\
-									<option value='admin'>Csoport adminisztrátor</option>\
-								</select></p>\
-								<input type='hidden' name='id'>\
-							</form>");
+	var $editRoleForm = $(`<form id='js_form_edit'>
+							<p>Jogosultság:
+								<select name='role'>
+									<option value='visitor' selected>Ált. felhasználó</option>
+									<option value='editor'>Szerkesztő</option>
+									<option value='admin'>Csoport adminisztrátor</option>
+									<!--<option value='teacher'>Tanár</option>-->
+								</select></p>
+								<input type='hidden' name='id'>
+							</form>`);
 
-	var $btEditForm = $("<form id='js_form'>\
-							<p class='actual'><strong>Aktuális állapot: </strong><span></span></p>\
-							<p>Válasszon műveletet:</p>\
-							\
-							<label style='text-align:left'>\
-								<input type='radio' name='action' value='new' required> <strong>Hozzáférés létrehozása</strong>\
-							</label>\
-							<label style='text-align:left'>\
-								<input type='radio' name='action' value='update' required> <strong>Meglévő hozzáférés frissítése</strong>\
-							</label>\
-							<label style='text-align:left'>\
-								<input type='radio' name='action' value='remove' required> <strong>Hozzáférés törlése</strong>\
-							</label>\
-							\
-						</form>");
+	var $btEditForm = $(`<form id='js_form'>
+							<p class='actual'><strong>Aktuális állapot: </strong><span></span></p>
+							<p>Válasszon műveletet:</p>
+							
+							<label style='text-align:left'>
+								<input type='radio' name='action' value='new' required> <strong>Hozzáférés létrehozása</strong>
+							</label>
+							<label style='text-align:left'>
+								<input type='radio' name='action' value='update' required> <strong>Meglévő hozzáférés frissítése</strong>
+							</label>
+							<label style='text-align:left'>
+								<input type='radio' name='action' value='remove' required> <strong>Hozzáférés törlése</strong>
+							</label>
+						</form>`);
 
 	// Actions
 	$('#js_editUserInfos').on('click',function(e){
