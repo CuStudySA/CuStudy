@@ -52,6 +52,8 @@
 
 				foreach ($timeTable as $row => $classes){
 					foreach ($classes as $lesson){
+						if (empty($lesson[0]))
+							continue;
 						$lesson = $lesson[0];
 						$lesson['teacher'] = $teachers[$lesson['lid']];
 						$lessons[$row+1] = $lesson;
