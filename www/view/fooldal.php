@@ -32,7 +32,8 @@
 				$lessonids = array();
 				foreach ($timeTable as $row){
 					foreach($row as $col){
-						$lessonids[] = $col[0]['lid'];
+						if (!empty($col[0]['lid']))
+							$lessonids[] = $col[0]['lid'];
 					}
 				}
 				$teachers = array();
