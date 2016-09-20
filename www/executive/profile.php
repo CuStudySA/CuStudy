@@ -44,12 +44,16 @@
 		break;
 
 		case 'settings':
-			if (!empty($ENV['POST']))
-				$action = UserSettings::Apply($ENV['POST']);
-			else
+			if (empty($ENV['POST']))
 				System::Respond();
 
-			System::Respond(Message::Respond('users.applySettings',$action), $action == 0);
+			$action = UserSettings::Apply($ENV['POST']);
+
+			if (is_array($action))
+				$response = System::Article($action[1],true).' részen belül '.System::Article($action[2],false,' "').'" beállítás értéke nem megfelelő! Próbáld meg <a href="javascript:window.location.reload()">újratölteni az oldalt</a> és azután módosítani.';
+			else $response = Message::Respond('users.applySettings',$action);
+
+			System::Respond($response, $action == 0);
 		break;
 	}
 

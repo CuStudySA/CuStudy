@@ -58,6 +58,9 @@
 						print "<label><span>{$v['name']}</span>";
 
 						switch ($v['type']){
+							case 'time':
+								echo "<input type='time' name='$key.$k' value='{$settings[$key][$k]}'>";
+							break;
 							case 'select':
 								print "<select name='".($key.'.'.$k)."'>";
 

@@ -595,12 +595,6 @@
 			return $ret;
 		}
 
-		// Névelő
-		static function Nevelo($str,$upperc = false,$btw = ''){
-			trigger_error('A System::Nevelo funkció helyett a System::Article funkciót használd', E_USER_DEPRECATED);
-			return System::Article($str, $upperc, $btw);
-		}
-
 		static function Redirect($url, $die = true, $http = 301){
 			header("Location: $url",$die,$http);
 			if ($die) die();
@@ -783,7 +777,7 @@
 		 *
 		 * @return string
 		 */
-		static function Article($str, $upperc = false, $btw = ''){
+		static function Article($str, $upperc = false, $btw = ' '){
 			$a = $upperc ? 'A' : 'a';
 			$str = trim($str);
 			if (preg_match('/^(\d+)/', $str, $num)){
@@ -795,7 +789,7 @@
 			}
 			else if (preg_match('/^[aáoóuúeéiíöőüű]/i',$str))
 				$a .= 'z';
-			return "$a ".($btw ? "$btw " : '').$str;
+			return $a.($btw ? $btw : '').$str;
 		}
 
 		// Figyelmeztető üzenet

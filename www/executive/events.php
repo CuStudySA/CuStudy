@@ -25,7 +25,7 @@
 					'title' => 'Cím',
 					'description' => 'Rövid leírás',
 				);
-				$message = System::Article(isset($names[$field]) ? "\"$names[$field]\"" : 'egyik').'  mező formátuma hibás';
+				$message = System::Article(isset($names[$field]) ? "\"$names[$field]\"" : ' egyik ').'  mező formátuma hibás';
 			}
 
 			System::Respond(Message::Respond("events.{$ENV['URL'][0]}",$action,$message), $action == 0 ? 1 : 0);

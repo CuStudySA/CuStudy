@@ -210,6 +210,8 @@ STRING;
 		 * @param bool         $mergeClasses   Egymás utáni hasonló órák egyesítése
 		 */
 		static function Step($dispDays, $allgroups = true, $move = null, $dataAttributes = false, $mergeClasses = false){
+			global $ENV;
+
 			if (is_array($dispDays))
 				$dispDays = array_map('strtotime', $dispDays);
 			else $dispDays = strtotime($dispDays);
@@ -236,7 +238,7 @@ STRING;
 
 			$timetable = Timetable::Render(null, $TT, $days, false, $dataAttributes, $mergeClasses);
 
-			$switchOn = strtotime('8 am');
+			$switchOn = strtotime($ENV['userSettings']['timetable']['nextDaySwitch']);
 			$firstDay = strtotime('midnight',$days[0]);
 			$lockBack = strtotime('midnight') >= $firstDay
 				? ($firstDay-$switchOn) < self::OneDayInSeconds
@@ -263,11 +265,11 @@ STRING;
 		 * @return array
 		 */
 		static function Get($week = null, $firstWeekday = null, $allgroup = true, $maxDays = null){
-			global $user, $db;
+			global $user, $db, $ENV;
 
 			$now = time();
 			$currDate = strtotime('today', $now);
-			$switchOn = strtotime('8 am', $now);
+			$switchOn = strtotime($ENV['userSettings']['timetable']['nextDaySwitch'], $now);
 			$dispDays = is_int($maxDays) ? $maxDays : 5;
 
 			// Hiányzó értékek esetén jelenlegi dátum használata

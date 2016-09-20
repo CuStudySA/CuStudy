@@ -3,6 +3,15 @@
 		static $defaultValues = [];
 
 		static $keys = array(
+			'general' => array(
+				'name' => 'Általános',
+
+				'nextDaySwitch' => array(
+					'name' => 'Ettől az időponttól a következő napi teendők lesznek láthatóak',
+					'type' => 'time',
+					'defaultValue' => '08:00',
+				),
+			),
 			'timetable' => array(
 				'name' => 'Órarend',
 
@@ -107,30 +116,46 @@
 				$userSett[$array['category']][$array['key']] = array($array['value'],$array['id']);
 
 
-			foreach ($data as $key => $value){
-				$keys = explode('_',$key,2);
+			foreach ($data as $k => $newValue){
+				list($category, $key) = explode('_',$k,2);
 
-				if (empty(self::$keys[$keys[0]][$keys[1]]))
+				if (empty(self::$keys[$category][$key]))
 					continue;
 
-				if ($ENV['userSettings'][$keys[0]][$keys[1]] == $value)
+				if ($ENV['userSettings'][$category][$key] == $newValue)
 					continue;
 
-				if (self::$keys[$keys[0]][$keys[1]]['defaultValue'] == $value && !empty($userSett[$keys[0]][$keys[1]]))
-					$db->where('id',$userSett[$keys[0]][$keys[1]][1])->delete('settings_user');
+				// Alapértelmezett érték kipucolása
+				if (self::$keys[$category][$key]['defaultValue'] === $newValue){
+					if (!empty($userSett[$category][$key]))
+						$db->where('id',$userSett[$category][$key][1])->delete('settings_user');
+				}
+				else {
+					// Input ellenörzés
+					switch (self::$keys[$category][$key]['type']){
+						case "select":
+							if (empty(self::$keys[$category][$key]['options'][$newValue]))
+								return array(1, self::$keys[$category]['name'], self::$keys[$category][$key]['name']);
+						break;
+						case "time":
+							$ts = strtotime($newValue);
+							if ($ts === false)
+								return array(1, self::$keys[$category]['name'], self::$keys[$category][$key]['name']);
+							$newValue = date('H:i',$ts);
+						break;
+					}
 
-				if (self::$keys[$keys[0]][$keys[1]]['defaultValue'] != $value && !empty($userSett[$keys[0]][$keys[1]]))
-					$db->where('id',$userSett[$keys[0]][$keys[1]][1])->update('settings_user',array(
-						'value' => $value,
-					));
-
-				if (self::$keys[$keys[0]][$keys[1]]['defaultValue'] != $value && empty($userSett[$keys[0]][$keys[1]]))
-					$db->insert('settings_user',array(
-						'value' => $value,
-						'category' => $keys[0],
-						'key' => $keys[1],
+					if (!empty($userSett[$category][$key]))
+						$db->where('id',$userSett[$category][$key][1])->update('settings_user',array(
+							'value' => $newValue,
+						));
+					else $db->insert('settings_user',array(
+						'value' => $newValue,
+						'category' => $category,
+						'key' => $key,
 						'userid' => $user['id'],
 					));
+				}
 			}
 
 			return 0;
