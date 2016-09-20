@@ -238,7 +238,7 @@ STRING;
 
 			$timetable = Timetable::Render(null, $TT, $days, false, $dataAttributes, $mergeClasses);
 
-			$switchOn = strtotime($ENV['userSettings']['timetable']['nextDaySwitch']);
+			$switchOn = strtotime($ENV['userSettings']['general']['nextDaySwitch']);
 			$firstDay = strtotime('midnight',$days[0]);
 			$lockBack = strtotime('midnight') >= $firstDay
 				? ($firstDay-$switchOn) < self::OneDayInSeconds
@@ -269,7 +269,7 @@ STRING;
 
 			$now = time();
 			$currDate = strtotime('today', $now);
-			$switchOn = strtotime($ENV['userSettings']['timetable']['nextDaySwitch'], $now);
+			$switchOn = strtotime($ENV['userSettings']['general']['nextDaySwitch'], $now);
 			$dispDays = is_int($maxDays) ? $maxDays : 5;
 
 			// Hiányzó értékek esetén jelenlegi dátum használata
