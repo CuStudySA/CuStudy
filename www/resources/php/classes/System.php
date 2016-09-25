@@ -243,7 +243,7 @@
 		}
 
 		// Bejelentkezés
-		static private function _login($username,$password,$calledAgain = false){
+		static private function _login($username,$password,$twofa,$calledAgain = false){
 			global $db, $ENV;
 
 			# Formátum ellenörzése
@@ -259,7 +259,7 @@
 				if ($data['role'] == 'none'){
 					if (!$calledAgain){
 						self::FindRole($data);
-						return self::_login($username,$password,true);
+						return self::_login($username,$password,$twofa,true);
 					}
 					else
 						return 5;
@@ -270,7 +270,7 @@
 				if (empty($Roles)){
 					if (!$calledAgain){
 						self::FindRole($data);
-						return self::_login($username,$password,true);
+						return self::_login($username,$password,$twofa,true);
 					}
 					else
 						return 5;
@@ -306,6 +306,33 @@
 					->where('corrected IS NULL')
 					->update('log__failed_login', array('corrected' => date('c')));
 
+			// 2fa
+			if (!empty($data['2fa'])){
+				if (empty($twofa))
+					return 8;
+
+				$postCode = $ENV['POST']['code'];
+
+				// Normál kód
+				if (preg_match('/^\d{6}$/', $postCode)){
+					if (!UserTools::Check2FACode($postCode, $data['2fa']))
+						return 10;
+				}
+				// Tartalék kód
+				else if (preg_match('/^['.UserTools::TWOFA_BACKUP_CODE_CHARS.']{8}$/', $postCode)){
+					$code = $db->where('userid', $data['id'])->where('code', $postCode)->getOne('twofactor_backupcodes');
+					if (empty($code))
+						return 11;
+
+					if (!empty($code['used']))
+						return 12;
+
+					$db->where('userid', $data['id'])->where('code', $postCode)->update('twofactor_backupcodes', array('used' => 1));
+				}
+				// WTF
+				else return 9;
+			}
+
 			# Session generálása és süti beállítása
 			$session = Password::GetSession($username);
 			Cookie::set('PHPSESSID',$session,false);
@@ -326,8 +353,8 @@
 
 			return [$data['id']];
 		}
-		static function Login($username,$password){
-			$action = self::_login($username,$password);
+		static function Login($username,$password,$twofa){
+			$action = self::_login($username,$password,$twofa);
 
 			Logging::Insert(array(
 				'action' => 'system.login',
@@ -564,7 +591,8 @@
 
 			if ($m === true) $m = array();
 			if (is_array($m) && $s == false && empty($x)){
-				$m['status'] = true;
+				if (!isset($m['status']))
+					$m['status'] = true;
 				echo json_encode($m);
 				exit;
 			}

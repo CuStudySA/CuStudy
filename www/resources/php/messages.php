@@ -10,6 +10,11 @@
 					5 => 'a felhasználó nem rendelkezik aktív szerepkörrel',
 					6 => 'nem sikerült kiolvasni a munkamenet indításához szükséges adatokat',
 					7 => 'az alapértelmezett szerepkör nem akítv',
+					// 8 fenntartva a hiányzó kétfaktoros azonosító kód ablak számára
+					9 => 'a megadott kód érvénytelen',
+					10 => 'a megadott kétfaktoros azonosító kód érvénytelen',
+					11 => 'a megadott kétfaktoros azonosítás tartalék kód érvénytelen',
+					12 => 'a megadott kétfaktoros azonosítás tartalék kódot már felhasználtad',
 				),
 				'messages' => array(
 					1 => 'A bejelentkezés sikertelen volt, mert @msg! (Hibakód: @code)',

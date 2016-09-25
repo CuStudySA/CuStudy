@@ -349,3 +349,9 @@ body.sidebar-slide {
 		font-weight: bold;
 	}
 }
+
+#twofa-login {
+	input[name="code"] {
+		@extend %twofa-code-input;
+	}
+}

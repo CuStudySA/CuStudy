@@ -25,6 +25,10 @@
 	define('MAIL_PWD', '');
 	define('MAIL_HOST', '');
 	define('MAIL_PORT', 0);
+	define('MAIL_USE_CRON', false);
+
+	// 2FA beállítások
+	define('TWOFACTOR_PROVIDER_NAME', '');
 
 	# Karbantartási információk beállítása
 /**

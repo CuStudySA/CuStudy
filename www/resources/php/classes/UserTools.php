@@ -214,6 +214,25 @@
 			return $action ? 0 : 3;
 		}
 
+		const TWOFA_BACKUP_CODE_CHARS = '2346789ABCDEFGHJKLMNPQRTUVWXYZ';
+
+		// Az összetéveszthető karakterek (pl. 0-O, 5-S 1-I-L) direkt vannak kihagyva!
+		static function Generate2FACode(){
+			$length = 8;
+			$keyspace = self::TWOFA_BACKUP_CODE_CHARS;
+
+		    $str = '';
+		    $max = mb_strlen($keyspace, '8bit') - 1;
+		    for ($i = 0; $i < $length; $i++)
+		        $str .= $keyspace[random_int(0, $max)];
+		    return $str;
+		}
+
+		static function Generate2FACodes($n = 10){
+			for ($i=0; $i<$n; $i++)
+				yield self::Generate2FACode();
+		}
+
 		static function GetAvatarURL(&$user, $providerOverride = null){
 			global $db;
 
@@ -234,6 +253,57 @@
 				$user['picture'] = $url;
 
 			return $url;
+		}
+
+		static function Get2FABackupCodes():string {
+			global $user, $db;
+
+			$codelist = $db->where('userid', $user['id'])->get('twofactor_backupcodes');
+
+			$DIV = '';
+			foreach ($codelist as $i => $row){
+				$used = empty($row['used']) ? '' : ' used';
+				$DIV .= "<span class='code$used'><span class='nth'>".($i+1).".</span> <span class='text'>{$row['code']}</span></span>";
+			}
+			return "<div class='twofa-codelist'>$DIV</div>";
+		}
+
+		static function GetProfile2FASection():string {
+			global $db, $user;
+
+			$HTML = "<p>A kétlépcős azonosítás bizonságosabbá teszi a bejelentkezést azáltal, hogy a jelszó melett egy hordozható eszközre telepített alkalmazás segítségével generált kód beírására is szükség van a bejelentkezéshez. A folyamat során a mobil eszközön nincs szükség internetkapcsolatrasem a beállítás, sem a későbbi használat közben.</p>";
+
+			if (empty($user['2fa']))
+				$HTML .= "<p><strong>Státusz:</strong> A kétlépcsős azonosítás ki van kapcsolva.<br><button id='enable_2fa' class='btn typcn typcn-lock-closed'>Bekapcsolás</button></p>";
+			else {
+				$HTML .= "<p><strong>Státusz:</strong> A kétlépcsős azonosítás be van kapcsolva.<br><button id='disable_2fa' class='btn typcn typcn-lock-open'>Kikapcsolás</button> <button id='2fa_backupcodes' class='btn typcn typcn-document'>Tartalék kódok megtekintése</button></p>";
+			}
+
+			return $HTML;
+		}
+
+		static function Get2FAObject():RobThree\Auth\TwoFactorAuth {
+			global $ENV;
+			$provname = defined('TWOFACTOR_PROVIDER_NAME') && !empty(TWOFACTOR_PROVIDER_NAME) ? TWOFACTOR_PROVIDER_NAME : $ENV['SOFTWARE']['NAME'];
+			return $tfa = new RobThree\Auth\TwoFactorAuth($provname,6,30,'sha1',new \RobThree\Auth\Providers\Qr\LocalQRCodeProvider());
+		}
+
+		static function Check2FACode(string $code, string $secret, $tfa = null):bool {
+			if (empty($tfa))
+				$tfa = self::Get2FAObject();
+
+			return $tfa->verifyCode($secret, $code);
+		}
+
+		static function GenerateStore2FACodes(){
+			global $db, $user;
+
+			$db->where('userid', $user['id'])->delete('twofactor_backupcodes');
+			foreach (UserTools::Generate2FACodes() as $code)
+				$db->insert('twofactor_backupcodes', array(
+					'userid' => $user['id'],
+					'code' => $code,
+				));
 		}
 	}
 

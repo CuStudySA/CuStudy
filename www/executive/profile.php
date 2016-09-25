@@ -55,6 +55,73 @@
 
 			System::Respond($response, $action == 0);
 		break;
+
+		case '2fa':
+			if (!isset($ENV['GET']['a']))
+				System::Respond('Érvénytelen művelet');
+
+			switch ($ENV['GET']['a']){
+				case "enable":
+					if (!empty($user['2fa']))
+						System::Respond('A kétlépcsős azonosítás már engedélyezve van');
+
+					if (!is_numeric($ENV['GET']['step']))
+						System::Respond('Érvénytelen kérés');
+
+					$tfa = UserTools::Get2FAObject();
+					switch (intval($ENV['GET']['step'], 10)){
+						case 2:
+							$secret = $tfa->createSecret();
+							System::Respond(array(
+								'secret' => $secret,
+								'qr' => $tfa->getQRCodeImageAsDataUri($user['username'], $secret)
+							));
+						break;
+						case 3:
+							if (!UserTools::Check2FACode($ENV['POST']['code'], $ENV['POST']['secret']))
+								System::Respond('A megadott kód érvénytelen. Kérlek ellenőrizd, hogy az eszközön lévő idő pontos (a szerveridő '.date('Y-m-d H:i:s').') és próbálkozz újra.');
+
+							$db->where('id', $user['id'])->update('users', array(
+								'2fa' => ($user['2fa'] = $ENV['POST']['secret'])
+							));
+							UserTools::GenerateStore2FACodes();
+
+							System::Respond('A kétlépcsős azonosítás sikeresen engedélyezve. Alább láthatod az egyszer használatos tartalék kódokat, amelyekkel az eszköz elvesztése esetén is hozzá tudsz férni a fiókodhoz. Írd le őket valahova, lehetőleg ne a számítógépeden tárold. A Profilom menüpontban később is meg tudod nézni ezeket a kódokat.'.UserTools::Get2FABackupCodes(),1,array(
+								'twofactor_html' => UserTools::GetProfile2FASection(),
+							));
+						break;
+						default:
+							System::Respond('Érvénytelen lépés');
+					}
+				break;
+				case "disable":
+					if (empty($user['2fa']))
+						System::Respond('A kétlépcsős azonosítás nince engedélyezve');
+
+					$db->where('id', $user['id'])->update('users', array(
+						'2fa' => ($user['2fa'] = null)
+					));
+					$db->where('userid', $user['id'])->delete('twofactor_backupcodes');
+
+					System::Respond('Kétlépcsős azonosítás sikeresen kikapcsolva.',1,array(
+						'twofactor_html' => UserTools::GetProfile2FASection(),
+					));
+				break;
+				case "codes":
+					if (empty($user['2fa']))
+						System::Respond('A kétlépcsős azonosítás nince engedélyezve');
+
+					if (isset($ENV['GET']['regen']))
+						UserTools::GenerateStore2FACodes();
+
+					System::Respond(array(
+						'codes_html' => UserTools::Get2FABackupCodes(),
+					));
+				break;
+				default:
+					System::Respond('Érvénytelen művelet');
+			}
+		break;
 	}
 
 	if (isset($ENV['URL'][0]) ? $ENV['URL'][0] : '' == 'roles'){

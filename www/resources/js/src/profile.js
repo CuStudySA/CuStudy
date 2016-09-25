@@ -261,4 +261,176 @@ $(function(){
 		};
 		$('.js_eject').on('click',e_eject);
 	})();
+
+	// 2fa
+	let $2fasection = $('#twofactor');
+	$2fasection.on('click','#enable_2fa',function(e){
+		e.preventDefault();
+
+		let resumetext = ['Kétlépcsős azonosítás beállítása megszakítva', 'A beálltást bármikor újrakezdheted a Profilom menüpontban.'];
+		$.Dialog.confirm('Kétlépcsős azonosítás beállítása - Megerősítés','Biztos vagy benne, hogy megkezded a kétlépcsős azonosítás beállítását?',function(sure){
+			if (!sure) return;
+
+			$.Dialog.close(function(){
+				let $2FAStep1 = $.mk('div').attr({id:'twofa-step1','class':'twofa-step'}).append(
+					`<h3>1. lépés <span class="faded">&rsaquo; 2. lépés &rsaquo; 3. lépés</span></h3>
+					<p>Szerezd be a platformodhoz készült kétlépcsős azonostó alkalmazást, és nyisd meg azt.<br>Alább listázunk pár gyakran használt alkalmazást:</p>
+					<ul>
+						<li>Android: <a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2">Google Authenticator</a></li>
+						<li>iOS: <a href="https://itunes.apple.com/en/app/google-authenticator/id388497605?mt=8">Google Authenticator</a></li>
+						<li>Windows Phone: <a href="https://www.microsoft.com/en-us/store/p/authenticator/9wzdncrfj3rj">Microsoft Authenticator</a></li>
+					</ul>`
+				);
+				$.Dialog.confirm('Kétlépcsős azonosítás beállítása - 1. lépés',$2FAStep1,['Folytatás','Beállítás elvetése'],function(sure){
+					if (!sure)
+						return $.Dialog.apply($.Dialog, resumetext);
+
+					$.Dialog.wait(false, 'Kommunikáció a szerverrel, kis türelmet');
+
+					$.post('/profile/2fa?a=enable&step=2',function(data){
+						if (typeof data === 'string'){
+							console.log(data);
+							$(window).trigger('ajaxerror');
+							return false;
+						}
+
+						if (!data.status)
+							return $.Dialog.fail(false, data.message);
+
+						let secret = data.secret;
+
+						$.Dialog.close(function(){
+							let $2FAStep2 = $.mk('div').attr({id:'twofa-step2','class':'twofa-step'}).append(
+								`<h3><span class="color-green">1. lépés</span> &rsaquo; 2. lépés <span class="faded">&rsaquo; 3. lépés</span></h3>
+								<p>Az alkalmazásban keresd meg az új bejegyzés hozzáadása menüpontot, majd írd be az alábbi kódot:</p>
+								<div class="twofa-code">${secret}</div>
+								<p>Amennyiben az alkalmazásod támogatja, beszkennelheted a telefon kamerája segítségével az alábbi QR kódot is:</p>
+								<div class="twofa-img">
+									<img src="${data.qr}">
+								</div>`
+							);
+							$.Dialog.confirm('Kétlépcsős azonosítás beállítása - 2. lépés',$2FAStep2,['Folytatás','Beállítás elvetése'],function(sure){
+								if (!sure)
+									return $.Dialog.info.apply($.Dialog, resumetext);
+
+								$.Dialog.close(function(){
+									let $2FAStep3 = $.mk('form').attr({id:'twofa-step3','class':'twofa-step'}).append(
+										`<h3><span class="color-green">1. lépés &rsaquo; 2. lépés</span> &rsaquo; 3. lépés</h3>
+										<p>A párosítás befejezéséhez add meg az alkalmazás által generált kódot:</p>
+										<label>
+											<input type="text" name="code" minlength="6" maxlength="6" pattern="^\\d{6}$" title="6 számjegyből álló kód" required autocomplete="off">
+										</label>
+										<p>A Mégse gombbal még megszakíthatod a beállítást, de ha az űrlapot elküldöd, a fiókodban engedélyezésre kerül a kétlépcsős autentikáció. Kapni fogsz 10 tartalék kódot, amit biztonságos helyen érdemes tárolnod (lehetőleg ne a számítógépen). Ezekkel tudsz hozzáférni a fiókodhoz, ha a hordoható eszközöd nincs kézél vagy ellopják.</p>`
+									);
+									$.Dialog.request('Kétlépcsős azonosítás beállítása - 3. lépés',$2FAStep3,'twofa-step3','Befejezés',function($form){
+										$form.on('submit',function(e){
+											e.preventDefault();
+
+											var data = $form.serializeForm();
+											data.secret = secret;
+											$.Dialog.wait(false, 'Beállítás véglegesítése');
+
+											$.post('/profile/2fa?a=enable&step=3',data,function(data){
+												if (typeof data === 'string'){
+													console.log(data);
+													$(window).trigger('ajaxerror');
+													return false;
+												}
+
+												if (!data.status)
+													return $.Dialog.fail(false, data.message);
+
+												$.Dialog.close(function(){
+													if (data.twofactor_html)
+														$('#twofactor').html(data.twofactor_html);
+													$.Dialog.success('Kétlépcsős azonosítás beállítva',data.message,true);
+												});
+											});
+										});
+									});
+								});
+							});
+						});
+					});
+				});
+			});
+		});
+	});
+	$2fasection.on('click','#disable_2fa',function(e){
+		e.preventDefault();
+
+		$.Dialog.confirm('Kétlépcsős azonosítás kikapcsolása','Biztos vagy benne, hogy kikapcsolod a kétlépcsős azonosítást?',function(sure){
+			if (!sure) return;
+
+			$.Dialog.wait(false, 'Kommunikáció a szerverrel, kis türelmet');
+
+			$.post('/profile/2fa?a=disable',function(data){
+				if (typeof data === 'string'){
+					console.log(data);
+					$(window).trigger('ajaxerror');
+					return false;
+				}
+
+				if (!data.status)
+					return $.Dialog.fail(false, data.message);
+
+				if (data.twofactor_html)
+					$('#twofactor').html(data.twofactor_html);
+				$.Dialog.success(false, data.message, true);
+			});
+		});
+	});
+	$2fasection.on('click','#2fa_backupcodes',function(e){
+		e.preventDefault();
+
+		$.Dialog.wait(false, 'Kommunikáció a szerverrel, kis türelmet');
+
+		$.post('/profile/2fa?a=codes',function(data){
+			if (typeof data === 'string'){
+				console.log(data);
+				$(window).trigger('ajaxerror');
+				return false;
+			}
+
+			let title = 'Kétlépcsős azonosítás - Tartalék kódok';
+			if (!data.status)
+				return $.Dialog.fail(title, data.message);
+
+			(function showcodes(data){
+				$.Dialog.info(
+					title,
+					`Ha elveszted a hordozható eszközöd, ezekkel be tudsz lépni a fiókodba az alkalmazás által generált kód helyett.
+					${data.codes_html}
+					<p>Ha bármilyen okból meg szeretnéd újítani ezeket a kódokat (elfogytak, rossz kezekbe kerültek) kattints az alábbi gombra:</p><button id="2fa_backupregen" class="btn typcn typcn-refresh">Kódok megújítása</button></p>`,
+					function(){
+						$('#2fa_backupregen').on('click',function(e){
+							e.preventDefault();
+
+							$.Dialog.close(function(){
+								$.Dialog.confirm('Tartalék kódok megújítása','Biztosan le szeretnéd cserélni a mostani tartalék kódokat?',function(sure){
+									if (!sure) return;
+
+									$.Dialog.wait(false, 'Kommunikáció a szerverrel, kis türelmet');
+
+									$.post('/profile/2fa?a=codes&regen',function(data){
+										if (typeof data === 'string'){
+											console.log(data);
+											$(window).trigger('ajaxerror');
+											return false;
+										}
+
+										if (!data.status)
+											return $.Dialog.fail(false, data.message);
+
+										$.Dialog.success(false, 'Kódok sikeresen újragenerálva');
+										showcodes(data);
+									})
+								});
+							});
+						});
+					}
+				);
+			})(data);
+		});
+	});
 });

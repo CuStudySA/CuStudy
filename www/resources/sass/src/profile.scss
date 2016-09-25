@@ -116,3 +116,63 @@ $tileRadius: 4px;
 		margin-top: 6px;
 	}
 }
+
+// 2fa
+.twofa-step {
+	h3 {
+		font-size: 1.8em;
+		line-height: 1.2em;
+		margin: 0 0 10px;
+
+		.faded {
+			opacity: .6;
+		}
+	}
+}
+#twofa-step2 {
+	.twofa-code {
+		display: block;
+		font-weight: bold;
+		font-family: $monospace;
+		font-size: 1.6em;
+		line-height: 1.2em;
+		text-align: center;
+		margin: 10px 0;
+	}
+
+	.twofa-img {
+		text-align: center;
+
+		$origSize: 410px;
+		img {
+			width: 100%;
+			max-width: $origSize/1.5;
+		}
+	}
+}
+#twofa-step3 {
+	input[name="code"] {
+		@extend %twofa-code-input;
+	}
+}
+.twofa-codelist {
+	columns: 2;
+	margin: 10px 0;
+	padding:0;
+
+	.code {
+		display: block;
+		font-size: 1.6em;
+		line-height: 1.2em;
+		text-align: center;
+		padding: 5px;
+
+		&.used {
+			text-decoration: line-through;
+			opacity: .8;
+		}
+
+		.nth { font-weight: bold }
+		.text { font-family: $monospace }
+	}
+}

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Gép: 127.0.0.1
--- Létrehozás ideje: 2016. Sze 13. 17:08
+-- Létrehozás ideje: 2016. Sze 25. 23:52
 -- Kiszolgáló verziója: 5.5.50-0+deb8u1-log
 -- PHP verzió: 5.6.24-0+deb8u1
 
@@ -542,6 +542,18 @@ CREATE TABLE `timetable` (
 -- --------------------------------------------------------
 
 --
+-- Tábla szerkezet ehhez a táblához `twofactor_backupcodes`
+--
+
+CREATE TABLE `twofactor_backupcodes` (
+  `userid` int(11) NOT NULL,
+  `code` char(8) COLLATE utf8_hungarian_ci NOT NULL,
+  `used` tinyint(1) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Tábla szerkezet ehhez a táblához `users`
 --
 
@@ -555,7 +567,8 @@ CREATE TABLE `users` (
   `avatar_provider` varchar(12) COLLATE utf8_hungarian_ci DEFAULT NULL,
   `role` tinytext COLLATE utf8_hungarian_ci NOT NULL,
   `defaultSession` int(11) NOT NULL,
-  `mantisAccount` int(11) DEFAULT NULL
+  `mantisAccount` int(11) DEFAULT NULL,
+  `2fa` char(16) COLLATE utf8_hungarian_ci DEFAULT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
 --
@@ -771,6 +784,12 @@ ALTER TABLE `temporary_roles`
 --
 ALTER TABLE `timetable`
   ADD PRIMARY KEY (`id`);
+
+--
+-- A tábla indexei `twofactor_backupcodes`
+--
+ALTER TABLE `twofactor_backupcodes`
+  ADD UNIQUE KEY `userid_code` (`userid`,`code`);
 
 --
 -- A tábla indexei `users`

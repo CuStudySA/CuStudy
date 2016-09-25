@@ -159,6 +159,10 @@
 				</div>
 			</div>
 
+
+			<h1 style='margin-top: 25px !important;'>Kétlépcsős azonosítás</h1>
+			<div id="twofactor"><?=UserTools::GetProfile2FASection()?></div>
+
 			<!-- Szerepkörök -->
 
 			<h1 style='margin-top: 25px !important;'>Szerepkörök és osztályok</h1>

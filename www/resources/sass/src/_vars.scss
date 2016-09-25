@@ -12,6 +12,8 @@ $SidebarWidth: 25%;
 $MobileHeadingHeight: 50px;
 $DesktopHeadingHeight: 70px;
 
+$monospace: 'Source Code Pro', 'Consolas', monospace;
+
 // Dialógusablak szinek
 $NBlue: #4390df;
 $NBlueBG: #def;
@@ -128,4 +130,12 @@ $HWTextBG: $LightBG;
 			opacity: 1;
 		}
 	}
+}
+
+%twofa-code-input {
+	display: block;
+	font-size: 2em;
+	line-height: 2.2em;
+	text-align: center;
+	font-family: $monospace;
 }
