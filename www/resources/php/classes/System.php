@@ -115,7 +115,7 @@
 			if (class_exists($className))
 				return;
 
-			$path = $root."resources/php/classes/{$className}.php";
+			$path = $root.'resources/php/classes/'.str_replace('\\','/',$className).'.php';
 
 			if (!file_exists($path))
 				throw new Exception("Nem találom a {$className} osztályt!");
