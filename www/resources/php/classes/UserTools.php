@@ -271,7 +271,7 @@
 		static function GetProfile2FASection():string {
 			global $db, $user;
 
-			$HTML = "<p>A kétlépcős azonosítás bizonságosabbá teszi a bejelentkezést azáltal, hogy a jelszó melett egy hordozható eszközre telepített alkalmazás segítségével generált kód beírására is szükség van a bejelentkezéshez. A folyamat során a mobil eszközön nincs szükség internetkapcsolatrasem a beállítás, sem a későbbi használat közben.</p>";
+			$HTML = "<p>A kétlépcős azonosítás bizonságosabbá teszi a bejelentkezést azáltal, hogy a jelszó melett egy hordozható eszközre telepített alkalmazás segítségével generált kód beírására is szükség van a bejelentkezéshez. A folyamat során a mobil eszközön nincs szükség Internet kapcsolatra sem a beállítás, sem a későbbi használat közben.</p>";
 
 			if (empty($user['2fa']))
 				$HTML .= "<p><strong>Státusz:</strong> A kétlépcsős azonosítás ki van kapcsolva.<br><button id='enable_2fa' class='btn typcn typcn-lock-closed'>Bekapcsolás</button></p>";
