@@ -325,12 +325,25 @@ body.sidebar-slide {
 	background: linear-gradient(to bottom, #fff 0%, #efefef 100%);
 
 	> * {
-		@include extconn-button(){
-			display: inline-block;
-			margin: 5px;
-			transition: transform .2s;
-			border-bottom: 0 !important;
-			&:hover { transform: scale(1.3) }
+		// Mobil
+		@media all and (max-width: $Breakpoint) {
+			@include extconn-button(28px){
+				display: inline-block;
+				margin: 7px;
+				transition: transform .2s;
+				border-bottom: 0 !important;
+				&:hover { transform: scale(1.3) }
+			}
+		}
+		// Asztali
+		@media all and (min-width: $Breakpoint) {
+			@include extconn-button(){
+				display: inline-block;
+				margin: 5px;
+				transition: transform .2s;
+				border-bottom: 0 !important;
+				&:hover { transform: scale(1.3) }
+			}
 		}
 	}
 }
