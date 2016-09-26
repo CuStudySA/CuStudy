@@ -71,7 +71,7 @@
 					$Auth = $api->getTokens($code, 'authorization_code');
 				}
 				catch(oAuthRequestException $e){
-					System::Redirect(ABSPATH.'/?error='.urlencode(str_replace('@provider',ucfirst($provider),Message::Respond('extConnTools.login',6))));
+					System::Redirect(ABSPATH.'/login?error='.urlencode(str_replace('@provider',ucfirst($provider),Message::Respond('extConnTools.login',6))));
 					die(); //PhpStorm miatt
 				}
 
@@ -81,7 +81,7 @@
 				$action = System::ExternalLogin($remoteUser,$provider);
 
 				if ($action === 0) System::TempRedirect('/#');
-				else System::TempRedirect(ABSPATH.'/?error='.urlencode(str_replace('@provider',ucfirst($provider),Message::Respond('extConnTools.login',$action))));
+				else System::TempRedirect(ABSPATH.'/login?error='.urlencode(str_replace('@provider',ucfirst($provider),Message::Respond('extConnTools.login',$action))));
 			}
 		break;
 	}
