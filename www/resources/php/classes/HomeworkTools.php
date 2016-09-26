@@ -374,7 +374,7 @@
 				$date = explode('.',$hwKey);
 				$month = array_search($date[0],HomeworkTools::$RomanMonths);
 				$year = (int)date('Y');
-				if ($month < date('m'))
+				if ($month < intval(date('m'),10))
 					$year++;
 				$day = System::Pad($date[1]);
 				$month = System::Pad($month);

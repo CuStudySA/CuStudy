@@ -902,8 +902,8 @@
 HTML;
 		}
 
-		static function Pad(string $n):string {
-			return $n > 10 ? $n : "0$n";
+		static function Pad(int $n):string {
+			return $n < 10 ? "0$n" : $n;
 		}
 
 		/**
