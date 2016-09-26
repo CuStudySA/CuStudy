@@ -351,7 +351,7 @@
 					<span class='lesson-name'<?=!empty($data['color'])?"style='background-color:{$data['color']}'":''?>><?=$data['lesson']?></span><span class='lesson-number'><?=$data['lesson_th']?>. óra</span>
 				</div>
 				<div class='hw-text'><?=$data['homework']?></div>
-<?php	    if (empty($array['markedDone'])){ ?>
+<?php	    if (empty($data['markedDone'])){ ?>
 				<a class="typcn typcn-tick js_makeMarkedDone" title='Késznek jelölés' href='#<?=$data['id']?>'></a>
 <?php       }
 			else { ?>
@@ -380,7 +380,8 @@
 				$month = System::Pad($month);
 				$time = strtotime("$year-$month-$day");
 
-				echo '<h3>'.System::$Days[Timetable::GetDay($time)]."i házi feladatok</h3>"; ?>
+				$dayDisplay = date('W', $time) != date('W') ? " ($hwKey)" : '';
+				echo '<h3>'.System::$Days[Timetable::GetDay($time)]."i$dayDisplay házi feladatok</h3>"; ?>
 				<div class='homeworks'>
 <?php					foreach($homeWorks[$hwKey] as $key => $array)
 							self::_renderHW($array, false); ?>
