@@ -21,7 +21,8 @@ $LoaderHide: .4s;
 		}
 	}
 	#wrap {
-    padding-top: 50px !important;
+		padding-top: 50px !important;
+		box-sizing: border-box;
 	}
 	#loginform {
 		.input-wrap {
