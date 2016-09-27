@@ -41,6 +41,9 @@
 	# Scipt futattásának kezdeti idejének lekérése
 	$ENV['EXECTIME'] = array('start' => microtime(true));
 
+	# Külső erőforrások időtúllépésének beállítása
+	ini_set('default_socket_timeout', 2);
+
 	# CloudFlare IP cím visszafejtés
 	if (isset($_SERVER['HTTP_CF_CONNECTING_IP'])){
 		require 'resources/php/CloudFlare.php';

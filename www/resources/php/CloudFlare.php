@@ -31,9 +31,6 @@
 		 * @return array List of IP ranges
 		 */
 		private static function _getCFIpRanges(){
-			// Fix timed out errors
-			ini_set('default_socket_timeout', 5);
-
 			$cachefile = '../cf-ips.txt';
 			if (!file_exists($cachefile) || filemtime($cachefile) > 60*60*5){
 				@$data = file_get_contents('https://www.cloudflare.com/ips-v4');
