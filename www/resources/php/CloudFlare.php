@@ -41,6 +41,10 @@
 					file_put_contents($cachefile, $data);
 			}
 			else $data = file_get_contents($cachefile);
+
+			if (empty($data))
+				return [];
+
 			return explode("\n", $data);
 		}
 
