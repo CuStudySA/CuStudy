@@ -21,7 +21,7 @@
 					<button class='btn nextWeek'>Előre<span class="desktop-only"> a következő napokhoz</span> &raquo;</button>
 				</p>
 
-				<div id='lessonPicker'><?=Timetable::Render(null, $TT, $days, true, true)?></div>
+				<div id='lessonPicker'><?=Timetable::Render(null, $TT, $days, true, true, false)?></div>
 				<p class='step2p'><b>2. lépés:</b> <b>Add meg</b> a feladat <b>szövegét</b>!</p>
 				<p style='margin-top: 0'><textarea class='BBCodeEditor'></textarea></p>
 

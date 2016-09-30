@@ -254,7 +254,7 @@ $(function(){
 			$.ajax({
 				method: "POST",
 				url: '/homeworks/getTimetable/nextBack',
-				data: {move: button, dispDays: dispDays},
+				data: {move: button, dispDays: dispDays, showAllGroups: true},
 				success: function(data){
 					dispDays = data.dispDays;
 					$lP.children().html(data.timetable);

@@ -172,38 +172,21 @@
 		}
 
 		static function GetHomeworks($numberOfHomework = 3, $onlyListActive = false){
-			global $db, $user;
+			global $db, $user, $ENV;
 
-			$grpmember = $db->rawQuery('SELECT `groupid`
-							FROM `group_members`
-							WHERE `classid` = ? && `userid` = ?',array($user['class'][0],$user['id']));
+			$memberOfGroups = $db->where('classid',$user['class'][0])->where('userid',$user['id'])->get('group_members',null,'groupid');
 
-			$addon = [$user['id'],$user['class'][0]];
-			$ids = array(0);
-			foreach ($grpmember as $array)
-				$ids[] = $array['groupid'];
+			$groupIDs = array(0);
+			foreach ($memberOfGroups as $row)
+				$groupIDs[] = $row['groupid'];
 
 			$weekNum = (int)date('W');
 			$dayInWeek = Timetable::GetDay();
 
 			$active = $onlyListActive ? '&& (SELECT `id` FROM `hw_markdone` WHERE `homework` = hw.id && `userid` = ?) IS NULL' : '';
 
-			$query = "SELECT hw.id, hw.text as `homework`, hw.week, tt.day, tt.lesson as `lesson_th`, l.name as `lesson`, l.color, hw.year as year,
-							(SELECT `id` FROM `hw_markdone` WHERE `homework` = hw.id && `userid` = ?) as markedDone
-						FROM `timetable` tt
-						LEFT JOIN (`homeworks` hw, `lessons` l)
-						ON (hw.lesson = tt.id && l.id = tt.lessonid)
-						WHERE tt.classid = ? && tt.groupid IN (".implode(',', $ids).") && ((hw.week = ? && tt.day > ?) || hw.week > ?) && hw.text IS NOT NULL {$active}
-						ORDER BY hw.week, tt.day, tt.lesson";
-
-			/*
-			 *  $a = isset($_GET['a']) ? $_GET['a'] : '';
-			 * $a = $_GET['a'] ?? '';
-			 * */
-
-			$minute = (int)date('i');
-			$hour = (int)date('H');
-			if (!($hour >= 8 && $minute >= 0)){
+			$now = time();
+			if ($now > strtotime($ENV['userSettings']['general']['nextDaySwitch'], $now)){
 				if ($dayInWeek == 1){
 					$_dayInWeek = 7;
 					$_weekNum = $weekNum-1;
@@ -218,39 +201,48 @@
 				$_weekNum = $weekNum;
 			}
 
-			$activeArray = $onlyListActive ? array($user['id']) : array();
-			$timetable = $db->rawQuery($query,array_merge($addon,array($_weekNum, $_dayInWeek, $_weekNum),$activeArray));
+			$params = array($user['id'],$user['class'][0],$_weekNum, $_dayInWeek, $_weekNum);
+			if ($onlyListActive)
+				$params[] = $user['id'];
+			$timetable = $db->rawQuery(
+				"SELECT hw.id, hw.text as `homework`, hw.week, tt.day, tt.lesson as `lesson_th`, l.name as `lesson`, l.color, hw.year as year,
+					(SELECT `id` FROM `hw_markdone` WHERE `homework` = hw.id && `userid` = ?) as markedDone
+				FROM `timetable` tt
+				LEFT JOIN (`homeworks` hw, `lessons` l)
+				ON (hw.lesson = tt.id && l.id = tt.lessonid)
+				WHERE tt.classid = ? && tt.groupid IN (".implode(',', $groupIDs).") && ((hw.week = ? && tt.day > ?) || hw.week > ?) && hw.text IS NOT NULL {$active}
+				ORDER BY hw.week, tt.day, tt.lesson",$params);
 			
 			$homeWorks = [];
 
 			$i = 0;
+			$currentYear = date('Y');
 			while (true){
-				if (empty($timetable[$i])) break;
-				else $array = $timetable[$i];
+				if (empty($timetable[$i]))
+					break;
 
-				if ($array['year'] < date('Y')){
+				$row = $timetable[$i];
+
+				if ($row['year'] < $currentYear){
 					$i++;
 					continue;
 				}
 
-				if ($weekNum == $array['week'])
-					$hwTime = strtotime('+ '.($array['day'] - $dayInWeek).' days');
+				$hwTime = strtotime($row['year'].'W'.$row['week']);
+				if ($row['day'] > 1)
+					$hwTime = strtotime('+'.($row['day']-1).' days', $hwTime);
 
-				else {
-					$hwTime = strtotime('- '.($dayInWeek - 1).' days');
-					$hwTime = strtotime('+ '.($array['week'] - $weekNum).' weeks', $hwTime);
-					$hwTime = strtotime('+ '.($array['day'] - 1).' days', $hwTime);
-				}
+				$row['date'] = self::FormatMonthDay($hwTime);
+				$row['dayString'] = System::$Days[Timetable::GetDay($hwTime)];
 
-				$array['date'] = self::FormatMonthDay($hwTime);
-				$array['dayString'] = System::$Days[Timetable::GetDay($hwTime)];
+				if (!isset($homeWorks[$row['date']]) && count($homeWorks)+1 > $numberOfHomework)
+					break;
 
-				$homeWorks[$array['date']][] = $array;
+				$homeWorks[$row['date']][] = $row;
 
 				$i++;
 			}
 
-			array_splice($homeWorks,$numberOfHomework);
 			return $homeWorks;
 		}
 

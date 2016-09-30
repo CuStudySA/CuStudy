@@ -288,7 +288,6 @@ STRING;
 			if ($firstWeekday > 1)
 				$firstWeekdayDate += ($firstWeekday-1)*self::OneDayInSeconds;
 			// $switchOn után már a következő nap mutatása
-			// $switchOn után már a következő nap mutatása
 			if ($firstWeekdayDate === $currDate && $now > $switchOn){
 				$firstWeekdayDate = strtotime('+1 weekday', $firstWeekdayDate);
 				$firstWeekday = intval(date('w', $firstWeekdayDate), 10);
