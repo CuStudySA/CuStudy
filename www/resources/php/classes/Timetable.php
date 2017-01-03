@@ -351,7 +351,7 @@ STRING;
 			$Timetable = array();
 
 			$LessonCache = array();
-			$reqDays = array();
+			$requestedDays = array();
 			foreach ($ttentries as $entry){
 				$lesson = $entry['lesson']-1;
 
@@ -360,11 +360,11 @@ STRING;
 					$LessonCache[$LessonID] = $db->where('id',$LessonID)->getOne('lessons', 'id, name, color');
 
 				$day = $entry['day']-1;
-				if (!isset($reqDays[$day]))
-					$reqDays[$day] = true;
+				if (!isset($requestedDays[$day]))
+					$requestedDays[$day] = true;
 
 				if (!isset($Timetable[$lesson]))
-					$Timetable[$lesson] = array_fill(0,5,array());
+					$Timetable[$lesson] = $dispDays > 1 ? array_fill(0,$dispDays,array()) : array();
 
 				if (!empty($LessonCache[$LessonID]))
 					$Timetable[$lesson][$day][] = array(
@@ -376,7 +376,6 @@ STRING;
 						'week' => $entry['week']
 					);
 			}
-
 			$days = [];
 			$loopDate = $firstWeekdayDate;
 			while (count($days) < $dispDays){
@@ -392,6 +391,7 @@ STRING;
 					$Timetable[$k] = array_merge($move, $lesson);
 				}
 			}
+
 			if ($dispDays !== 5){
 				foreach ($Timetable as $k => $lesson)
 					$Timetable[$k] = array_splice($lesson, 0, $dispDays);
