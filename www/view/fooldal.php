@@ -27,7 +27,8 @@
 			$timeTable = Timetable::Get(null,null,false,1);
 			$day = Timetable::GetDay(Timetable::CalcDays($timeTable, 1)[0]);
 
-			if (empty($timeTable)) echo "<h3>Következő napi órarend</h3><p>Nincs megjeleníthető óra.</p>";
+			$nott = "<h3>Következő napi órarend</h3><p>Nincs megjeleníthető óra.</p>";
+			if (empty($timeTable)) echo $nott;
 			else {
 				$lessonids = array();
 				foreach ($timeTable as $row){
@@ -37,17 +38,19 @@
 					}
 				}
 				$teachers = array();
-				$teachersRaw = $db->rawQuery(
-					'SELECT t.name, t.short, l.id
-					FROM lessons l
-					LEFT JOIN teachers t ON t.id = l.teacherid
-					WHERE l.classid = ? && l.id IN ('.implode(',',$lessonids).')', array($user['class'][0]));
-				foreach ($teachersRaw as $row){
-					$id = $row['id'];
-					unset($row['id']);
-					$teachers[$id] = $row;
+				if (!empty($lessonids)){
+					$teachersRaw = $db->rawQuery(
+						'SELECT t.name, t.short, l.id
+						FROM lessons l
+						LEFT JOIN teachers t ON t.id = l.teacherid
+						WHERE l.classid = ? && l.id IN ('.implode(',',$lessonids).')', array($user['class'][0]));
+					foreach ($teachersRaw as $row){
+						$id = $row['id'];
+						unset($row['id']);
+						$teachers[$id] = $row;
+					}
+					unset($teachersRaw);
 				}
-				unset($teachersRaw);
 				$lessons = array();
 
 				foreach ($timeTable as $row => $classes){
@@ -72,6 +75,7 @@
 <?php	                } ?>
 					</div>
 <?php           }
+				else echo $nott;
 			} ?>
 			</section>
 
