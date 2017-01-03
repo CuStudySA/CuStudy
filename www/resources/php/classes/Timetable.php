@@ -284,7 +284,7 @@ STRING;
 
 			// Megfelelő hétre + napra ugrás
 			$weeksPassed = intval($week, 10);
-			$firstWeekdayDate = strtotime(date('Y',$currDate).'W'.$weeksPassed);
+			$firstWeekdayDate = strtotime(date('Y',$currDate).'W'.System::Pad($weeksPassed));
 			if ($firstWeekday > 1)
 				$firstWeekdayDate += ($firstWeekday-1)*self::OneDayInSeconds;
 			// $switchOn után már a következő nap mutatása
